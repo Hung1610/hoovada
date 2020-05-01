@@ -5,6 +5,11 @@ from flask import request
 
 
 def token_required(f):
+    """
+    [DEPRECATED]
+    This function has moved to utils/auth
+    """
+
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization')

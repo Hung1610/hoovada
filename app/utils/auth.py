@@ -35,7 +35,8 @@ class Auth:
             auth_token = request.headers.get('Authorization')
         if not auth_token and not api_key:
             auth = False
-        if str(auth_token).strip().__eq__('0e885a3c4c520f8a9159e1dbad7de745') or str(api_key).strip().__eq__('0e885a3c4c520f8a9159e1dbad7de745'):
+        if str(auth_token).strip().__eq__('0e885a3c4c520f8a9159e1dbad7de745') or str(api_key).strip().__eq__(
+                '0e885a3c4c520f8a9159e1dbad7de745'):
             auth = True
 
         return auth
