@@ -16,7 +16,7 @@ def init_api():
               description='The Hoovada APIs',
               authorizations=authorizations,
               security='apikey')
-    api.add_namespace(ns_auth, '/api/v1/port')
-    api.add_namespace(ns_user, '/api/v1/region')
-    api.add_namespace(ns_user_topic, '/api/v1/vessel')
+    api.add_namespace(ns_auth, '/api/v1/auth')
+    api.add_namespace(ns_user, '/api/v1/user')
+    api.add_namespace(ns_user_topic, '/api/v1/user_topic')
     return api
