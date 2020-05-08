@@ -1,5 +1,7 @@
 from app.modules.common.view import Resource
-from app.modules.user_topic.user_topic_dto import UserTopicDto
+from .user_topic_dto import UserTopicDto
+from .user_topic import UserTopic
+from .user_topic_controller import UserTopicController
 
 api = UserTopicDto.api
 _user_topic = UserTopicDto.model

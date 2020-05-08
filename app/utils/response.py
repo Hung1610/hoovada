@@ -7,7 +7,6 @@ def send_result(data=None, message='OK', code=200, status=True):
     :return: The returned response contains search_data and code.
     `
     res = {
-        'jsonrpc': '2.0',
         'status': status,
         'code': code,
         'message': message,
@@ -16,7 +15,6 @@ def send_result(data=None, message='OK', code=200, status=True):
     `
     """
     res = {
-        # 'jsonrpc': '2.0',
         'status': status,
         'code': code,
         'message': message,
@@ -34,7 +32,6 @@ def send_error(data=None, message='Failed', code=200, status=False):
     :return: The returned response contains search_data and code.
     `
     res = {
-        'jsonrpc': '2.0',
         'status': status,
         'code': code,
         'message': message,
@@ -43,7 +40,6 @@ def send_error(data=None, message='Failed', code=200, status=False):
     `
     """
     res = {
-        # 'jsonrpc': '2.0',
         'status': status,
         'code': code,
         'message': message,
