@@ -1,7 +1,7 @@
 from app.modules.common.controller import Controller
 
 
-class TopicModelController(Controller):
+class UserTopicController(Controller):
     def create(self, data):
         pass
 

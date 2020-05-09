@@ -8,6 +8,14 @@ api = AuthDto.api
 _auth = AuthDto.model
 
 
+@api.route('/register')
+class Register(Resource):
+    '''
+
+    '''
+    def post(self):
+        pass
+
 @api.route('/login')
 class Login(Resource):
     '''
