@@ -1,0 +1,13 @@
+from app import db
+from app.modules.common.model import Model
+
+
+class History(Model):
+    __tablename__ = 'history'
+
+    history_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    log = db.Column(db.String)
+    created_date = db.Column(db.Date)
+    created_time = db.Column(db.Time)
+    critical_score = db.Column(db.Integer)

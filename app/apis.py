@@ -1,4 +1,5 @@
 from flask_restx import Api
+
 from app.modules import ns_auth, ns_user, ns_user_topic
 
 authorizations = {
