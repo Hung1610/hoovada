@@ -1,7 +1,7 @@
 from app.modules.common.controller import Controller
 
 
-class TopicController(Controller):
+class QuestionTopicController(Controller):
     def create(self, data):
         pass
 
@@ -14,5 +14,5 @@ class TopicController(Controller):
     def delete(self, object_id):
         pass
 
-    def _parse_topic(self, data, topic=None):
+    def _parse_question_topic(self, data, question_topic=None):
         pass

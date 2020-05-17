@@ -39,10 +39,7 @@ from flask_babel import lazy_gettext as _l
 from flask_babel import _
 
 from app.settings import config
-
-from flask_mail import Mail
-
-# mail = Mail(app)
+from app.app import mail
 
 
 def random_n_digits(n):
@@ -82,19 +79,19 @@ async def get_redirect_target():
 # def send_async_email(app, msg):
 #     result = asyncio.get_event_loop().run_until_complete(_send_async_email(app, msg))
 
-# def send_email(
-#         subject: str,
-#         sender: str,
-#         recipients: str,
-#         text_body: str,
-#         html_body: str,
-#         reply_to: str = app.config['MAIL_DEFAULT_SENDER']
-# ):
-#     msg = Message(subject, sender=sender, reply_to=sender, recipients=recipients)
-#     msg.body = text_body
-#     msg.html = html_body
-#     mail.send(msg)
-#     # Thread(target=send_async_email, args=(app, msg)).start()
+def send_email(
+        subject: str,
+        sender: str,
+        recipients: str,
+        text_body: str,
+        html_body: str,
+        reply_to: str = app.config['MAIL_DEFAULT_SENDER']
+):
+    msg = Message(subject, sender=sender, reply_to=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    mail.send(msg)
+    # Thread(target=send_async_email, args=(app, msg)).start()
 
 
 #

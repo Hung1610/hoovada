@@ -14,6 +14,12 @@ class Register(Resource):
 
     '''
     def post(self):
+        post_data = request.json
+        return AuthController.register(post_data)
+
+@api.route('/activate')
+class ConfirmEmail(Resource):
+    def post(self):
         pass
 
 @api.route('/login')

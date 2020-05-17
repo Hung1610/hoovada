@@ -16,3 +16,6 @@ class UserTopicController(Controller):
 
     def delete(self, object_id):
         pass
+
+    def _parse_user_topic(self, data, user_topic=Non):
+        pass
