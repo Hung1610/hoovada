@@ -3,7 +3,7 @@ from flask_restx import Namespace, fields
 from app.modules.common.dto import Dto
 
 
-class TopicDto(Dto):
+class UserTopicDto(Dto):
     name = 'user_topic'
     api = Namespace(name)
     model = api.model(name, {

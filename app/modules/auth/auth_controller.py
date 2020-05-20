@@ -7,7 +7,7 @@ from app.modules.user.blacklist import BlacklistToken
 from app.modules.user.user import User
 from app.settings import config
 from app.settings.config import Config
-from app.utils.hoovada_utils import send_email
+# from app.utils.hoovada_utils import send_email
 from app.utils.response import send_error, send_result
 
 
@@ -43,7 +43,7 @@ def send_confirmation_email(to):
     token = generate_confirmation_token(email=to)
     confirm_url = url_for('confirmationview', token=token, _external=True)
     html = render_template('app/templates/confirmation.html', confirm_url=confirm_url)
-    send_email(subject='Email confirmation', sender=Config.MAIL_DEFAULT_SENDER, recipients=to, html_body=html)
+    # send_email(subject='Email confirmation', sender=Config.MAIL_DEFAULT_SENDER, recipients=to, html_body=html)
 
 
 def get_id(user_id, role):

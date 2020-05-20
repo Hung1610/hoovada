@@ -10,6 +10,7 @@ db = SQLAlchemy()
 flask_bcrypt = Bcrypt()
 mail = Mail()
 
+
 def init_app(config_name):
     app = Flask(__name__)
     CORS(app)

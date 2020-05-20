@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.modules.common.model import Model
 from app import db
-from app.utils.hoovada_utils import remove_markdown, convert_markdown
+# from app.utils.hoovada_utils import remove_markdown, convert_markdown
 
 
 class SignUpUser(Model):
