@@ -35,6 +35,8 @@ class UserController(Controller):
             return send_error("Could not load error, please try again later.")
 
     def get_by_id(self, object_id):
+        if object_id is None:
+            return send_error(message="The user ID must not be null.")
         user = User.query.filter_by(user_id=object_id).first()
         if user is None:
             return send_error(data="Could not find user by this id")

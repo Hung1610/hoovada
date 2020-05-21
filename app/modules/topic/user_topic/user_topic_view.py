@@ -11,22 +11,62 @@ _user_topic = UserTopicDto.model
 class UserTopicList(Resource):
     @api.marshal_list_with(_user_topic)
     def get(self):
-        pass
+        """
+        Get list of User topic mapping in the database.
+
+        :return:
+        """
+        controller = UserTopicController()
+        return controller.get()
 
     @api.expect(_user_topic)
     def post(self):
-        pass
+        """
+        Create user-topic mapping.
+
+        :return:
+        """
+        data = api.payload
+        controller = UserTopicController()
+        return controller.create(data=data)
 
 
 @api.route('/<int:user_topic_id>')
 class UserTopic(Resource):
     @api.marshal_with(_user_topic)
     def get(self, user_topic_id):
-        pass
+        """
+        Get user-topic information by using its ID.
+        -------------------------
+
+        :param user_topic_id: The ID of the user-topic mapping.
+
+        :return:
+        """
+        controller = UserTopicController()
+        return controller.get_by_id(object_id=user_topic_id)
 
     @api.expect(_user_topic)
-    def post(self, user_topic_id):
-        pass
+    def put(self, user_topic_id):
+        """
+        Update user-topic.
+        ---------------
+
+        :param user_topic_id: The ID of the user-topic mapping.
+
+        :return:
+        """
+        data = api.payload
+        controller = UserTopicController()
+        return controller.update(object_id=user_topic_id, data=data)
 
     def delete(self, user_topic_id):
-        pass
+        """
+        Delete user-topic mapping by using its ID.
+
+        :param user_topic_id: The ID of the user-topic.
+
+        :return:
+        """
+        controller = UserTopicController()
+        return controller.delete(object_id=user_topic_id)

@@ -10,7 +10,7 @@ def send_result(data=None, message='OK', code=200, status=True):
         'status': status,
         'code': code,
         'message': message,
-        'search_data': search_data,
+        'data': data,
     }
     `
     """
@@ -35,7 +35,7 @@ def send_error(data=None, message='Failed', code=200, status=False):
         'status': status,
         'code': code,
         'message': message,
-        'search_data': search_data,
+        'data': data,
     }
     `
     """
