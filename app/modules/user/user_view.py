@@ -14,13 +14,26 @@ class UserList(Resource):
     def get(self):
         """
         Returns all users in the system.
+        ------------------
+
+        :return List of users.
         """
         controller = UserController()
         return controller.get()
 
+    @admin_token_required
     @api.expect(_user)
     def post(self):
-        pass
+        '''
+        Create new user.
+        -------------------
+        All data to create a new user is stored in dictionary form.
+
+        :return: New user is created successfully and error vice versa.
+        '''
+        data = api.payload
+        controller = UserController()
+        return controller.create(data=data)
 
 
 @api.route('/<int:user_id>')
@@ -28,12 +41,39 @@ class User(Resource):
     @token_required
     @api.marshal_with(_user)
     def get(self, user_id):
-        pass
+        """
+        Get all information for specific user with ID `user_id`
+        -------------------
 
+        :param user_id: The ID of the user.
+
+        :return: The user with given ID in dictionary form.
+        """
+        controller = UserController()
+        return controller.get_by_id(object_id=user_id)
+
+    @token_required
     @api.expect(_user, validate=True)
     def put(self, user_id):
-        pass
+        '''
+        Update an existed user in the system.
+        --------------------
+        :param user_id:
+        :return:
+        '''
+        data = api.payload
+        controller = UserController()
+        return controller.update(object_id=user_id, data=data)
 
     @token_required
     def delete(self, user_id):
-        pass
+        '''
+        Delete the user with the ID `user_id`
+        -----------------
+
+        :param user_id: The ID of the user to be deleted.
+
+        :return: True if user delete successfully and False vice versa.
+        '''
+        controller = UserController()
+        return controller.delete(object_id=user_id)

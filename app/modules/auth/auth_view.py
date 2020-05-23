@@ -2,32 +2,57 @@ from flask import request
 
 from app.modules.auth.auth_controller import AuthController
 from app.modules.auth.auth_dto import AuthDto
+from app.modules.auth.decorator import token_required
 from app.modules.common.view import Resource
 
 api = AuthDto.api
 _auth = AuthDto.model
+# _auth_login = AuthDto.model_login
 
 
 @api.route('/register')
 class Register(Resource):
     '''
+    Register new user.
 
     '''
+    @api.expect(_auth)
     def post(self):
         post_data = request.json
-        return AuthController.register(post_data)
+        controller = AuthController()
+        return controller.register(post_data)
 
-@api.route('/activate')
-class ConfirmEmail(Resource):
+@api.route('/resend_confirmation')
+class ResendConfirmation(Resource):
+    @api.expect(_auth)
     def post(self):
-        pass
+        '''
+        Resend confirmation email.
+
+        :return:
+        '''
+        data = api.payload
+        controller = AuthController()
+        return controller.resend_confirmation(data=data)
+
+@api.route('/confirmation/<token>')
+class ConfirmationEmail(Resource):
+    def get(self, token):
+        '''
+        Check confirmation token.
+
+        :param token: The token to confirm.
+
+        :return:
+        '''
+        controller = AuthController()
+        return controller.confirm_email(token=token)
 
 @api.route('/login')
 class Login(Resource):
     '''
     API login
     '''
-
     @api.expect(_auth)
     def post(self):
         """
@@ -39,7 +64,8 @@ class Login(Resource):
         :return: All information of user if he logged in and None if he did not log in.
         """
         post_data = request.json
-        return AuthController.login_user(data=post_data)
+        controller = AuthController()
+        return controller.login_user(data=post_data)
 
 
 @api.route('/logout')
@@ -47,9 +73,9 @@ class Logout(Resource):
     '''
     API logout
     '''
-
-    @api.expect(_auth)
-    def post(self):
+    # @api.expect(_auth_register)
+    @token_required
+    def get(self):
         """
         Logout the user from the system.
         -------------
@@ -58,19 +84,25 @@ class Logout(Resource):
         """
         # auth_header = request.headers.get('Authorization')
         # return ControllerAuth.logout_user(data=auth_header)
-        post_data = request.json
-        return AuthController.logout_user(data=post_data)
+        # post_data = request.json
+        controller = AuthController()
+        return controller.logout_user(req=request)
 
 
 @api.route('/info')
 class UserInfor(Resource):
     '''
-    API User's information.
-    '''
+    API to get user information.
 
+    After user logging in successfully, user will get token, and this token will be used to get information.
+    '''
+    @token_required
     def get(self):
         """
-        Trả lại các thông tin về role của người dùng, order tương ứng.
-        :return:
+        Get all user's information.
+
+        :return: User's information.
         """
-        return AuthController.get_logged_user(request)
+        controller = AuthController()
+        return controller.get_user_info(request)
+        # return AuthController.get_logged_user(request)

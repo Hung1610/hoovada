@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask_restx import marshal
 
 from app import db
@@ -29,7 +31,7 @@ class UserController(Controller):
     def get(self):
         try:
             users = User.query.all()
-            return send_result(data=marshal(users, UserDto.model))
+            return send_result(data=marshal(users, UserDto.model), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load error, please try again later.")
@@ -37,11 +39,15 @@ class UserController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message="The user ID must not be null.")
-        user = User.query.filter_by(user_id=object_id).first()
-        if user is None:
-            return send_error(data="Could not find user by this id")
-        else:
-            return send_result(data=marshal(user, UserDto.model))
+        try:
+            user = User.query.filter_by(user_id=object_id).first()
+            if user is None:
+                return send_error(data="Could not find user by this id")
+            else:
+                return send_result(data=marshal(user, UserDto.model))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not get user by ID {}.'.format(object_id))
 
     def update(self, object_id, data):
         try:
@@ -70,95 +76,148 @@ class UserController(Controller):
             return send_error(message='Could not delete user')
 
     def _parse_user(self, data, user=None):
-        pass
-        # name, surname, middlename, fullname, age, birthday, home_address, home_country, home_city, home_street, home_geo_long, home_geo_lat, phone, email, username, passwordHash, blocked, token, facebook, instagram, vkontakte, avatar, isadmin = None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
-        # if 'name' in data:
-        #     name = data['name']
-        # if 'surname' in data:
-        #     surname = data['surname']
-        # if 'middlename' in data:
-        #     middlename = data['middlename']
-        # if 'fullname' in data:
-        #     fullname = data['fullname']
-        # if 'age' in data:
-        #     age = int(data['age'])
-        # if 'birthday' in data:
-        #     try:
-        #         birthday = date.fromisoformat(data['birthday'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        #
-        # if 'home_address' in data:
-        #     home_address = data['home_address']
-        # if 'home_country' in data:
-        #     home_country = data['home_country']
-        # if 'home_city' in data:
-        #     home_city = data['home_city']
-        # if 'home_street' in data:
-        #     home_street = data['home_street']
-        # if 'home_geo_long' in data:
-        #     home_geo_long = data['home_geo_long']
-        # if 'home_geo_lat' in data:
-        #     home_geo_lat = data['home_geo_lat']
-        #
-        # if 'phone' in data:
-        #     phone = data['phone']
-        # # email bat buoc phai co
-        # email = data['email']
-        # if 'username' in data:
-        #     username = data['username']
-        # # password bat buoc phai co
-        # password = data['password']
-        # passwordHash = flask_bcrypt.generate_password_hash(password)
-        # if 'blocked' in data:
-        #     blocked = bool(data['blocked'])
-        #
-        # if 'token' in data:
-        #     token = data['token']
-        # if 'facebook' in data:
-        #     facebook = data['facebook']
-        # if 'instagram' in data:
-        #     instagram = data['instagram']
-        # if 'vkontakte' in data:
-        #     vkontakte = data['vkontakte']
-        # if 'avatar' in data:
-        #     avatar = data['avatar']
-        # if 'isadmin' in data:
-        #     isadmin = bool(data['isadmin'])
-        #
-        # if user is None:
-        #     user = User(name=name, surname=surname, middlename=middlename, fullname=fullname, age=age,
-        #                 birthday=birthday, home_address=home_address, home_country=home_country, home_city=home_city,
-        #                 home_street=home_street, home_geo_long=home_geo_long, home_geo_lat=home_geo_lat, phone=phone,
-        #                 email=email, username=username,
-        #                 password_hash=passwordHash, blocked=blocked, token=token,
-        #                 facebook=facebook, instagram=instagram, vkontakte=vkontakte, avatar=avatar, isadmin=isadmin)
-        # else:
-        #     user.name = name
-        #     user.surname = surname
-        #     user.middlename = middlename
-        #     user.fullname = fullname
-        #     user.age = age
-        #     user.birthday = birthday
-        #
-        #     user.home_address = home_address
-        #     user.home_country = home_country
-        #     user.home_city = home_city
-        #     user.home_street = home_street
-        #     user.home_geo_long = home_geo_long
-        #     user.home_geo_lat = home_geo_lat
-        #
-        #     user.phone = phone
-        #     user.email = email
-        #     user.username = username
-        #     user.password_hash = passwordHash
-        #     user.blocked = blocked
-        #
-        #     user.token = token
-        #     user.facebook = facebook
-        #     user.instagram = instagram
-        #     user.vkontakte = vkontakte
-        #     user.avatar = avatar
-        #     user.isadmin = isadmin
-        # return user
+        if user is None:
+            user = User()
+        if 'display_name' in data:
+            user.display_name = data['display_name']
+        if 'title' in data:
+            user.title = data['title']
+
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        if 'middle_name' in data:
+            user.middle_name = data['middle_name']
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+
+        if 'gender' in data:
+            user.gender = data['gender']
+        if 'age' in data:
+            user.age = data['age']
+        if 'email' in data:
+            user.email = data['email']
+        if 'password' in data:
+            user.set_password(password=data['password'])
+
+        if 'last_seen' in data:
+            try:
+                user.last_seen = datetime.fromisoformat(data['last_seen'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'joined_date' in data:
+            try:
+                user.joined_date = datetime.fromisoformat(data['joined_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'confirmed' in data:
+            try:
+                user.confirmed = bool(data['confirmed'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'email_confirmed_at' in data:
+            try:
+                user.email_confirmed_at = datetime.fromisoformat(data['email_confirmed_at'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'profile_pic_url' in data:
+            user.profile_pic_url = data['profile_pic_url']
+        if 'profile_pic_data_url' in data:
+            user.profile_pic_data_url = data['profile_pic_data_url']
+        if 'admin' in data:
+            try:
+                user.admin = bool(data['admin'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'active' in data:
+            try:
+                user.active = bool(data['active'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'reputation' in data:
+            try:
+                user.reputation = int(data['reputation'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'profile_views' in data:
+            try:
+                user.profile_views = int(data['profile_views'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'city' in data:
+            user.city = data['city']
+        if 'country' in data:
+            user.country = data['country']
+        if 'website_url' in data:
+            user.website_url = data['website_url']
+
+        if '_about_me' in data:
+            user._about_me = data['_about_me']
+        if '_about_me_markdown' in data:
+            user._about_me_markdown = data['_about_me_markdown']
+        if '_about_me_html' in data:
+            user._about_me_html = data['_about_me_html']
+
+        if 'people_reached' in data:
+            try:
+                user.people_reached = int(data['people_reached'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'job_role' in data:
+            user.job_role = data['job_role']
+        if 'company' in data:
+            user.company = data['company']
+
+        if 'show_email_publicly_setting' in data:
+            try:
+                user.show_email_publicly_setting = bool(data['show_email_publicly_setting'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'hoovada_digests_setting' in data:
+            try:
+                user.hoovada_digests_setting = bool(data['hoovada_digests_setting'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'hoovada_digests_frequency_setting' in data:
+            user.hoovada_digests_frequency_setting = data['hoovada_digests_frequency_setting']
+
+        if 'questions_you_asked_or_followed_setting' in data:
+            try:
+                user.questions_you_asked_or_followed_setting = bool(data['questions_you_asked_or_followed_setting'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'questions_you_asked_or_followed_frequency_setting' in data:
+            user.questions_you_asked_or_followed_frequency_setting = data[
+                'questions_you_asked_or_followed_frequency_setting']
+
+        if 'people_you_follow_setting' in data:
+            try:
+                user.people_you_follow_setting = bool(data['people_you_follow_setting'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'people_you_follow_frequency_setting' in data:
+            user.people_you_follow_frequency_setting = data['people_you_follow_frequency_setting']
+
+        if 'email_stories_topics_setting' in data:
+            try:
+                user.email_stories_topics_setting = bool(data['email_stories_topics_setting'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'email_stories_topics_frequency_setting' in data:
+            user.email_stories_topics_frequency_setting = data['email_stories_topics_frequency_setting']
+        return user

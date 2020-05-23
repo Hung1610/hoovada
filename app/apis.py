@@ -15,8 +15,8 @@ def init_api():
     api = Api(title='Hoovada APIs',
               version='0.1',
               description='The Hoovada APIs',
-              # authorizations=authorizations,
-              # security='apikey'
+              authorizations=authorizations,
+              security='apikey'
               )
     api.add_namespace(ns_auth, '/api/v1/auth')
     api.add_namespace(ns_user, '/api/v1/user')
@@ -25,6 +25,6 @@ def init_api():
     api.add_namespace(ns_question, '/api/v1/question')
     api.add_namespace(ns_question_topic, '/api/v1/question_topic')
     api.add_namespace(ns_answer, '/api/v1/answer')
-    api.add_namespace(ns_comment, '/api/v1/comment')
+    # api.add_namespace(ns_comment, '/api/v1/comment')
 
     return api

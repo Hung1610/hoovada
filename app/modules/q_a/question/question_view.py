@@ -2,6 +2,7 @@ from flask_restx import Resource
 # from app.modules.common.decorator import token_required
 from .question_dto import QuestionDto
 from .question_controller import QuestionController
+from ...auth.decorator import admin_token_required, token_required
 
 api = QuestionDto.api
 question = QuestionDto.model
@@ -9,7 +10,7 @@ question = QuestionDto.model
 
 @api.route('')
 class QuestionList(Resource):
-    # @token_required
+    @admin_token_required
     @api.marshal_list_with(question)
     def get(self):
         '''
@@ -20,7 +21,7 @@ class QuestionList(Resource):
         controller = QuestionController()
         return controller.get()
 
-    # @token_required
+    @token_required
     @api.expect(question)
     @api.marshal_with(question)
     def post(self):
@@ -36,7 +37,7 @@ class QuestionList(Resource):
 
 @api.route('/<int:question_id>')
 class Question(Resource):
-    # @token_required
+    @token_required
     @api.marshal_with(question)
     def get(self, question_id):
         '''
@@ -49,7 +50,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.get_by_id(object_id=question_id)
 
-    # @token_required
+    @token_required
     @api.expect(question)
     @api.marshal_with(question)
     def put(self, question_id):
@@ -64,7 +65,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.update(object_id=question_id, data=data)
 
-    # @token_required
+    @token_required
     def delete(self, question_id):
         '''
         Delete the question by its ID.

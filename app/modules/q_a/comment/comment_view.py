@@ -2,6 +2,7 @@ from flask_restx import Resource
 # from app.modules.common.decorator import token_required
 from .comment_dto import CommentDto
 from .comment_controller import CommentController
+from ...auth.decorator import admin_token_required, token_required
 
 api = CommentDto.api
 comment = CommentDto.model
@@ -9,7 +10,7 @@ comment = CommentDto.model
 
 @api.route('')
 class CommentList(Resource):
-    # @token_required
+    @admin_token_required
     @api.marshal_list_with(comment)
     def get(self):
         '''
@@ -20,7 +21,7 @@ class CommentList(Resource):
         controller = CommentController()
         return controller.get()
 
-    # @token_required
+    @token_required
     @api.expect(comment)
     @api.marshal_with(comment)
     def post(self):
@@ -36,7 +37,7 @@ class CommentList(Resource):
 
 @api.route('/<int:comment_id>')
 class Comment(Resource):
-    # @token_required
+    @token_required
     @api.marshal_with(comment)
     def get(self, comment_id):
         '''
@@ -49,7 +50,7 @@ class Comment(Resource):
         controller = CommentController()
         return controller.get_by_id(object_id=comment_id)
 
-    # @token_required
+    @token_required
     @api.expect(comment)
     @api.marshal_with(comment)
     def put(self, comment_id):
@@ -64,7 +65,7 @@ class Comment(Resource):
         controller = CommentController()
         return controller.update(object_id=comment_id, data=data)
 
-    # @token_required
+    @token_required
     def delete(self, comment_id):
         '''
         Delete comment by its ID.

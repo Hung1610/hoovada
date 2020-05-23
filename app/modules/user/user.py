@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
+import jwt
 from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
@@ -8,13 +9,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.modules.common.model import Model
 from app import db
 # from app.utils.hoovada_utils import remove_markdown, convert_markdown
+from app.settings import config
 
 
-class SignUpUser(Model):
+class SignupUser(Model):
     '''
     Define the SignUpUser Model.
     '''
-    __tablename__ = 'sign_user'
+    __tablename__ = 'signup_user'
 
     signup_user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String)
@@ -62,7 +64,7 @@ class User(Model):
     """
     __tablename__ = 'user'
 
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     display_name = db.Column(db.String(128), unique=True)
     title = db.Column(db.String(10))
 
@@ -83,7 +85,7 @@ class User(Model):
     profile_pic_url = db.Column(db.String(255))
     profile_pic_data_url = db.Column(db.String(10000))
     admin = db.Column(db.Boolean(), default=False)
-    active = db.Column(db.Boolean(), nullable=False, default=True)
+    active = db.Column(db.Boolean(), nullable=False, default=False)
 
     reputation = db.Column(db.Integer, default=0)
     profile_views = db.Column(db.Integer, default=0)
@@ -120,9 +122,10 @@ class User(Model):
     @about_me.setter
     def about_me(self, markdown):
         """Constrain markdown with html so html is never set directly"""
-        self._about_me = remove_markdown(markdown)
-        self._about_me_markdown = markdown
-        self._about_me_html = convert_markdown(markdown)
+        # self._about_me = remove_markdown(markdown)
+        # self._about_me_markdown = markdown
+        # self._about_me_html = convert_markdown(markdown)
+        pass
 
     @hybrid_property
     def about_me_markdown(self):
@@ -254,17 +257,17 @@ class User(Model):
 
     def get_id(self):
         try:
-            return str(self.id)
+            return str(self.user_id)
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
 
-    def follow(self, user):
-        if not self.is_following(user):
-            self.followed.append(user)
-
-    def unfollow(self, user):
-        if self.is_following(user):
-            self.followed.remove(user)
+    # def follow(self, user):
+    #     if not self.is_following(user):
+    #         self.followed.append(user)
+    #
+    # def unfollow(self, user):
+    #     if self.is_following(user):
+    #         self.followed.remove(user)
 
     # def is_following(self, user):
     #     return self.followed.filter(followers.c.followed_id == user.id).count() > 0
@@ -302,16 +305,16 @@ class User(Model):
 
     def __repr__(self):
         return (
-            f'User [ID: {self.id}]\nName: {self.display_name}\nEmail: {self.email}'
+            f'User [ID: {self.user_id}]\nName: {self.display_name}\nEmail: {self.email}'
         )
 
-    def __eq__(self, other):
-        if isinstance(other, User):
-            return self.get_id() == other.get_id()
-        return NotImplemented
-
-    def __ne__(self, other):
-        equal = self.__eq__(other)
-        if equal is NotImplemented:
-            return NotImplemented
-        return not equal
+    # def __eq__(self, other):
+    #     if isinstance(other, User):
+    #         return self.get_id() == other.get_id()
+    #     return NotImplemented
+    #
+    # def __ne__(self, other):
+    #     equal = self.__eq__(other)
+    #     if equal is NotImplemented:
+    #         return NotImplemented
+    #     return not equal
