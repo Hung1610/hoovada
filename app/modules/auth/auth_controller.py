@@ -140,6 +140,7 @@ class AuthController:
         Login user handling.
         """
         try:
+            print(data)
             user = User.query.filter_by(email=data['email']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:
