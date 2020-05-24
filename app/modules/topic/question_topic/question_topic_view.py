@@ -9,7 +9,7 @@ question_topic = QuestionTopicDto.model
 
 
 @api.route('')
-class Question_topicList(Resource):
+class QuestionTopicList(Resource):
     @admin_token_required
     @api.marshal_list_with(question_topic)
     def get(self):
@@ -36,7 +36,7 @@ class Question_topicList(Resource):
 
 
 @api.route('/<int:question_topic_id>')
-class Question_topic(Resource):
+class QuestionTopic(Resource):
     @token_required
     @api.marshal_with(question_topic)
     def get(self, question_topic_id):

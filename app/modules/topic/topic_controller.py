@@ -75,13 +75,33 @@ class TopicController(Controller):
         if 'name' in data:
             topic.name = data['name']
         if 'count' in data:
-            topic.count = int(data['count'])
+            try:
+                topic.count = int(data['count'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'user_id' in data:
-            topic.user_id = int(data['user_id'])
+            try:
+                topic.user_id = int(data['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'question_count' in data:
-            topic.question_count = int(data['question_count'])
+            try:
+                topic.question_count = int(data['question_count'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'user_count' in data:
-            topic.user_count = int(data['user_count'])
+            try:
+                topic.user_count = int(data['user_count'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'answer_count' in data:
-            topic.answer_count = int(data['answer_count'])
+            try:
+                topic.answer_count = int(data['answer_count'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return topic

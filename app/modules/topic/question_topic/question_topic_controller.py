@@ -15,4 +15,18 @@ class QuestionTopicController(Controller):
         pass
 
     def _parse_question_topic(self, data, question_topic=None):
-        pass
+        if question_topic is None:
+            question_topic = QuestionTopic()
+        if 'question_id' in data:
+            try:
+                question_topic.question_id = int(data['question_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'topic_id' in data:
+            try:
+                question_topic.topic_id = int(data['topic_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        return question_topic
