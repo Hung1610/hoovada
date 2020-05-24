@@ -130,7 +130,7 @@ class AuthController:
             # user.email_confirmed = True
             user.email_confirmed_at = datetime.now()
             db.session.commit()
-            return 'Your email has been activated. Please login.' #send_result(message='Account confirmation was successfully.')
+            return 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
         else:
             return 'Invalid confirmation token.'
 
@@ -156,7 +156,8 @@ class AuthController:
             else:
                 return send_error(message='Email or Password does not match')
         except Exception as e:
-            return send_error(message='Could not login, please try again later.')
+            print(e.__str__())
+            return send_error(message='Could not login, please try again later. Error {}'.format(e.__str__()))
 
     # @staticmethod
     def logout_user(self, req):
