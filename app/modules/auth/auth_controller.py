@@ -145,7 +145,7 @@ class AuthController:
                 if not user.confirmed:
                     self.resend_confirmation(data=data)
                     return send_error(message='Your email is not confirmed. Please go to your mailbox and activate it.')
-                auth_token = encode_auth_token(user_id=user.user_id)
+                auth_token = encode_auth_token(user_id=user.id)
                 user.active = True
                 db.session.commit()
                 # if user.blocked:
@@ -178,7 +178,7 @@ class AuthController:
         if auth_token:
             # get user information, check user exist
             user_id, _ = decode_auth_token(auth_token=auth_token)
-            user = User.query.filter_by(user_id=user_id).first()
+            user = User.query.filter_by(id=user_id).first()
             if user is not None:
                 user.active = False
                 user.last_seen = datetime.now()
@@ -224,7 +224,7 @@ class AuthController:
         if user_id is None:
             return None, message
         try:
-            user = User.query.filter_by(user_id=user_id).first()
+            user = User.query.filter_by(id=user_id).first()
             return user, None
         except Exception as e:
             print(e.__str__())

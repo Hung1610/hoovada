@@ -35,44 +35,44 @@ class CommentList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:comment_id>')
+@api.route('/<int:id>')
 class Comment(Resource):
     @token_required
     @api.marshal_with(comment)
-    def get(self, comment_id):
+    def get(self, id):
         '''
         Get comment by its ID.
 
-        :param comment_id: The ID of the comment.
+        :param id: The ID of the comment.
 
         :return: The comment with the specific ID.
         '''
         controller = CommentController()
-        return controller.get_by_id(object_id=comment_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(comment)
     @api.marshal_with(comment)
-    def put(self, comment_id):
+    def put(self, id):
         '''
         Update existing comment by its ID.
 
-        :param comment_id: The ID of the comment which need to be updated.
+        :param id: The ID of the comment which need to be updated.
 
         :return: The updated comment if success and null vice versa.
         '''
         data = api.payload
         controller = CommentController()
-        return controller.update(object_id=comment_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, comment_id):
+    def delete(self, id):
         '''
         Delete comment by its ID.
 
-        :param comment_id: The ID of the comment.
+        :param id: The ID of the comment.
 
         :return:
         '''
         controller = CommentController()
-        return controller.delete(object_id=comment_id)
+        return controller.delete(object_id=id)

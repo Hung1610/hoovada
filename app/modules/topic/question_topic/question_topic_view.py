@@ -35,44 +35,44 @@ class QuestionTopicList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:question_topic_id>')
+@api.route('/<int:id>')
 class QuestionTopic(Resource):
     @token_required
     @api.marshal_with(question_topic)
-    def get(self, question_topic_id):
+    def get(self, id):
         '''
         Get question_topic by its ID.
 
-        :param question_topic_id: The ID of the question_topic.
+        :param id: The ID of the question_topic.
 
         :return: The question_topic with the specific ID.
         '''
         controller = QuestionTopicController()
-        return controller.get_by_id(object_id=question_topic_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(question_topic)
     @api.marshal_with(question_topic)
-    def put(self, question_topic_id):
+    def put(self, id):
         '''
         Update existing question_topic by its ID.
 
-        :param question_topic_id: The ID of the question_topic which need to be updated.
+        :param id: The ID of the question_topic which need to be updated.
 
         :return: The updated question_topic if success and null vice versa.
         '''
         data = api.payload
         controller = QuestionTopicController()
-        return controller.update(object_id=question_topic_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, question_topic_id):
+    def delete(self, id):
         '''
         Delete question_topic by its ID.
 
-        :param question_topic_id: The ID of the question_topic.
+        :param id: The ID of the question_topic.
 
         :return:
         '''
         controller = QuestionTopicController()
-        return controller.delete(object_id=question_topic_id)
+        return controller.delete(object_id=id)

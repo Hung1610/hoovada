@@ -36,44 +36,44 @@ class UserList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:user_id>')
+@api.route('/<int:id>')
 class User(Resource):
     @token_required
     @api.marshal_with(_user)
-    def get(self, user_id):
-        """
-        Get all information for specific user with ID `user_id`
+    def get(self, id):
+        """``
+        Get all information for specific user with ID `id`
         -------------------
 
-        :param user_id: The ID of the user.
+        :param id: The ID of the user.
 
         :return: The user with given ID in dictionary form.
         """
         controller = UserController()
-        return controller.get_by_id(object_id=user_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(_user, validate=True)
-    def put(self, user_id):
+    def put(self, id):
         '''
         Update an existed user in the system.
         --------------------
-        :param user_id:
+        :param id:
         :return:
         '''
         data = api.payload
         controller = UserController()
-        return controller.update(object_id=user_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, user_id):
+    def delete(self, id):
         '''
-        Delete the user with the ID `user_id`
+        Delete the user with the ID `id`
         -----------------
 
-        :param user_id: The ID of the user to be deleted.
+        :param id: The ID of the user to be deleted.
 
         :return: True if user delete successfully and False vice versa.
         '''
         controller = UserController()
-        return controller.delete(object_id=user_id)
+        return controller.delete(object_id=id)

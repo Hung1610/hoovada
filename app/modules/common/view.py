@@ -17,6 +17,7 @@ class Resource(BaseResource):
     #     pass
     pass
 
+
 class ResourceId(BaseResource):
     # @abstractmethod
     # def get(self, object_id):

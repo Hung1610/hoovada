@@ -35,44 +35,44 @@ class ShareList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:share_id>')
+@api.route('/<int:id>')
 class Share(Resource):
     @token_required
     @api.marshal_with(share)
-    def get(self, share_id):
+    def get(self, id):
         '''
         Get share by its ID.
 
-        :param share_id: The ID of the share.
+        :param id: The ID of the share.
 
         :return: The share with the specific ID.
         '''
         controller = ShareController()
-        return controller.get_by_id(object_id=share_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(share)
     @api.marshal_with(share)
-    def put(self, share_id):
+    def put(self, id):
         '''
         Update existing share by its ID.
 
-        :param share_id: The ID of the share which need to be updated.
+        :param id: The ID of the share which need to be updated.
 
         :return: The updated share if success and null vice versa.
         '''
         data = api.payload
         controller = ShareController()
-        return controller.update(object_id=share_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, share_id):
+    def delete(self, id):
         '''
         Delete share by its ID.
 
-        :param share_id: The ID of the share.
+        :param id: The ID of the share.
 
         :return:
         '''
         controller = ShareController()
-        return controller.delete(object_id=share_id)
+        return controller.delete(object_id=id)

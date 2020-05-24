@@ -37,7 +37,7 @@ class CommentController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error('Comment ID is null')
-        comment = Comment.query.filter_by(comment_id=object_id).first()
+        comment = Comment.query.filter_by(id=object_id).first()
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
         else:
@@ -49,7 +49,7 @@ class CommentController(Controller):
         if data is None or not isinstance(data, dict):
             return send_error('Data is null or not in dictionary form. Check again.')
         try:
-            comment = Comment.query.filter_by(comment_id=object_id).first()
+            comment = Comment.query.filter_by(id=object_id).first()
             if comment is None:
                 return send_error(message='Comment with the ID {} not found.'.format(object_id))
             else:
@@ -63,7 +63,7 @@ class CommentController(Controller):
 
     def delete(self, object_id):
         try:
-            comment = Comment.query.filter_by(comment_id=object_id)
+            comment = Comment.query.filter_by(id=object_id)
             if comment is None:
                 return send_error(message='Comment with the ID {} not found.'.format(object_id))
             else:

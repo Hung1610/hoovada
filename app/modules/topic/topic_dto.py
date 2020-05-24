@@ -7,11 +7,13 @@ class TopicDto(Dto):
     name = 'topic'
     api = Namespace(name)
     model = api.model(name, {
-        'topic_id': fields.Integer(requried=False),
+        'id': fields.Integer(requried=False),
         'name': fields.String(),
         'count': fields.Integer(),
         'user_id': fields.Integer(),
         'question_count': fields.Integer(),
         'user_count': fields.Integer(),
-        'answer_count': fields.Integer()
+        'answer_count': fields.Integer(),
+        'parent_id':fields.Integer(),
+        'is_fixed':fields.Boolean()
     })

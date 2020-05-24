@@ -37,7 +37,7 @@ class TopicController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Topic ID is null")
-        topic = Topic.query.filter_by(topic_id=object_id).first()
+        topic = Topic.query.filter_by(id=object_id).first()
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
         else:
@@ -45,7 +45,7 @@ class TopicController(Controller):
 
     def update(self, object_id, data):
         try:
-            topic = Topic.query.filter_by(topic_id=object_id).first()
+            topic = Topic.query.filter_by(id=object_id).first()
             if not topic:
                 return send_error(message='Topic with the ID {} not found.'.format(object_id))
             else:
@@ -58,7 +58,7 @@ class TopicController(Controller):
 
     def delete(self, object_id):
         try:
-            topic = Topic.query.filter_by(topic_id=object_id).first()
+            topic = Topic.query.filter_by(id=object_id).first()
             if not topic:
                 return send_error(message="Topic with ID {} not found".format(object_id))
             else:
@@ -101,6 +101,18 @@ class TopicController(Controller):
         if 'answer_count' in data:
             try:
                 topic.answer_count = int(data['answer_count'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'parent_id' in data:
+            try:
+                topic.parent_id = int(data['parent_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'is_fixed' in data:
+            try:
+                topic.is_fixed = bool(data['is_fixed'])
             except Exception as e:
                 print(e.__str__())
                 pass

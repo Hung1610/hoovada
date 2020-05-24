@@ -35,44 +35,44 @@ class QuestionList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:question_id>')
+@api.route('/<int:id>')
 class Question(Resource):
     @token_required
     @api.marshal_with(question)
-    def get(self, question_id):
+    def get(self, id):
         '''
         Get specific question by its ID.
 
-        :param question_id: The ID of the question to get from.
+        :param id: The ID of the question to get from.
 
         :return: The question if success and None vice versa.
         '''
         controller = QuestionController()
-        return controller.get_by_id(object_id=question_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(question)
     @api.marshal_with(question)
-    def put(self, question_id):
+    def put(self, id):
         '''
         Update existing question by its ID.
 
-        :param question_id: The ID of the question.
+        :param id: The ID of the question.
 
         :return:
         '''
         data = api.payload
         controller = QuestionController()
-        return controller.update(object_id=question_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, question_id):
+    def delete(self, id):
         '''
         Delete the question by its ID.
 
-        :param question_id: The ID of the question.
+        :param id: The ID of the question.
 
         :return:
         '''
         controller = QuestionController()
-        return controller.delete(object_id=question_id)
+        return controller.delete(object_id=id)

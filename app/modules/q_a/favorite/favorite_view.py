@@ -35,11 +35,11 @@ class CommentList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:favorite_id>')
+@api.route('/<int:id>')
 class Comment(Resource):
     @token_required
     @api.marshal_with(favorite)
-    def get(self, favorite_id):
+    def get(self, id):
         '''
         Get comment by its ID.
 
@@ -48,12 +48,12 @@ class Comment(Resource):
         :return: The comment with the specific ID.
         '''
         controller = FavoriteController()
-        return controller.get_by_id(object_id=favorite_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(favorite)
     @api.marshal_with(favorite)
-    def put(self, favorite_id):
+    def put(self, id):
         '''
         Update existing comment by its ID.
 
@@ -63,10 +63,10 @@ class Comment(Resource):
         '''
         data = api.payload
         controller = FavoriteController()
-        return controller.update(object_id=favorite_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, favorite_id):
+    def delete(self, id):
         '''
         Delete comment by its ID.
 
@@ -75,4 +75,4 @@ class Comment(Resource):
         :return:
         '''
         controller = FavoriteController()
-        return controller.delete(object_id=favorite_id)
+        return controller.delete(object_id=id)

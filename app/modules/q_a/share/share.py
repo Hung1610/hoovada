@@ -5,12 +5,11 @@ from app.modules.common.model import Model
 class Share(Model):
     __tablename__ = 'share'
 
-    share_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     question_id = db.Column(db.Integer)
     answer_id = db.Column(db.Integer)
     shared_date = db.Column(db.Date)
-    shared_time = db.Column(db.Time)
     facebook = db.Column(db.Boolean)
     twitter = db.Column(db.Boolean)
     linkedin = db.Column(db.Boolean)

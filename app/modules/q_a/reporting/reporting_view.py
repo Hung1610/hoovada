@@ -35,44 +35,44 @@ class ReportingList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:reporting_id>')
+@api.route('/<int:id>')
 class Reporting(Resource):
     @token_required
     @api.marshal_with(reporting)
-    def get(self, reporting_id):
+    def get(self, id):
         '''
         Get reporting by its ID.
 
-        :param reporting_id: The ID of the reporting.
+        :param id: The ID of the reporting.
 
         :return: The reporting with the specific ID.
         '''
         controller = ReportingController()
-        return controller.get_by_id(object_id=reporting_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(reporting)
     @api.marshal_with(reporting)
-    def put(self, reporting_id):
+    def put(self, id):
         '''
         Update existing reporting by its ID.
 
-        :param reporting_id: The ID of the reporting which need to be updated.
+        :param id: The ID of the reporting which need to be updated.
 
         :return: The updated reporting if success and null vice versa.
         '''
         data = api.payload
         controller = ReportingController()
-        return controller.update(object_id=reporting_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, reporting_id):
+    def delete(self, id):
         '''
         Delete reporting by its ID.
 
-        :param reporting_id: The ID of the reporting.
+        :param id: The ID of the reporting.
 
         :return:
         '''
         controller = ReportingController()
-        return controller.delete(object_id=reporting_id)
+        return controller.delete(object_id=id)

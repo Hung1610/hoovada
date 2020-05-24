@@ -5,7 +5,7 @@ from app.modules.common.model import Model
 class Reporting(Model):
     __tablename__ = 'reporting'
 
-    reporting_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     question_id = db.Column(db.Integer)
     answer_id = db.Column(db.Integer)

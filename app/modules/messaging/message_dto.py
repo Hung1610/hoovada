@@ -8,7 +8,7 @@ class MessageDto(Dto):
     name = 'message'
     api = Namespace(name)
     model = api.model(name, {
-        'message_id': fields.Integer(required=False),
+        'id': fields.Integer(required=False),
         'message': fields.DateTime(),
         'sent_time': fields.DateTime(),
         'read_time': fields.DateTime(),

@@ -37,7 +37,7 @@ class UserTopicController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error('User-topic ID is null')
-        user_topic = UserTopic.query.filter_by(user_topic_id=object_id).first()
+        user_topic = UserTopic.query.filter_by(id=object_id).first()
         if user_topic is None:
             return send_error(message='Could not find user-topic with the ID {}'.format(object_id))
         else:
@@ -47,7 +47,7 @@ class UserTopicController(Controller):
         if object_id is None:
             return send_error('User-topic ID is null')
         try:
-            user_topic = UserTopic.query.filter_by(user_topic_id=object_id).first()
+            user_topic = UserTopic.query.filter_by(id=object_id).first()
             if user_topic is None:
                 return send_error(message='User topic with the ID {} not found'.format(object_id))
             else:
@@ -62,7 +62,7 @@ class UserTopicController(Controller):
         if object_id is None:
             return send_error('User-topic ID is null')
         try:
-            user_topic = UserTopic.query.filter_by(user_topic_id=object_id).first()
+            user_topic = UserTopic.query.filter_by(id=object_id).first()
             if user_topic is None:
                 return send_error(message='User-topic with the ID {} not found.'.format(object_id))
             else:

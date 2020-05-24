@@ -18,6 +18,17 @@ class Register(Resource):
     '''
     @api.expect(_auth)
     def post(self):
+        '''
+        Register new user.
+
+        :param display_name: The name to display in website (optional).
+
+        :param email: The email to register.
+
+        :param password: The password to register.
+
+        :return: En confirmation email will be sent to user's mailbox to activate account.
+        '''
         post_data = request.json
         controller = AuthController()
         return controller.register(post_data)

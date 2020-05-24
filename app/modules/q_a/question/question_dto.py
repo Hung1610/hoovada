@@ -7,12 +7,12 @@ class QuestionDto(Dto):
     name = 'question'
     api = Namespace(name)
     model = api.model(name, {
-        'question_id':fields.Integer(required=False),
+        'id':fields.Integer(required=False),
         'title':fields.String(),
         'user_id':fields.Integer(),
-        '_question':fields.String(),
-        '_markdown':fields.String(),
-        '_html':fields.String(),
+        'question':fields.String(),
+        'markdown':fields.String(),
+        'html':fields.String(),
         'created_date':fields.DateTime(),
         'updated_date':fields.DateTime(),
         'views': fields.Integer(),

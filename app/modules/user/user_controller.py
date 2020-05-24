@@ -40,7 +40,7 @@ class UserController(Controller):
         if object_id is None:
             return send_error(message="The user ID must not be null.")
         try:
-            user = User.query.filter_by(user_id=object_id).first()
+            user = User.query.filter_by(id=object_id).first()
             if user is None:
                 return send_error(data="Could not find user by this id")
             else:
@@ -51,7 +51,7 @@ class UserController(Controller):
 
     def update(self, object_id, data):
         try:
-            user = User.query.filter_by(user_id=object_id).first()
+            user = User.query.filter_by(id=object_id).first()
             if not user:
                 return send_error(message='User not found')
             else:
@@ -64,7 +64,7 @@ class UserController(Controller):
 
     def delete(self, object_id):
         try:
-            user = User.query.filter_by(user_id=object_id).first()
+            user = User.query.filter_by(id=object_id).first()
             if not user:
                 return send_error(message='User not found')
             else:
@@ -160,12 +160,12 @@ class UserController(Controller):
         if 'website_url' in data:
             user.website_url = data['website_url']
 
-        if '_about_me' in data:
-            user._about_me = data['_about_me']
-        if '_about_me_markdown' in data:
-            user._about_me_markdown = data['_about_me_markdown']
-        if '_about_me_html' in data:
-            user._about_me_html = data['_about_me_html']
+        if 'about_me' in data:
+            user.about_me = data['about_me']
+        if 'about_me_markdown' in data:
+            user.about_me_markdown = data['about_me_markdown']
+        if 'about_me_html' in data:
+            user.about_me_html = data['about_me_html']
 
         if 'people_reached' in data:
             try:
@@ -220,4 +220,10 @@ class UserController(Controller):
                 pass
         if 'email_stories_topics_frequency_setting' in data:
             user.email_stories_topics_frequency_setting = data['email_stories_topics_frequency_setting']
+        if 'last_message_read_time' in data:
+            try:
+                user.last_message_read_time = datetime.fromisoformat(data['last_message_read_time'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return user

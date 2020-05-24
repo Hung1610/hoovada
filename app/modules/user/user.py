@@ -18,7 +18,7 @@ class SignupUser(Model):
     '''
     __tablename__ = 'signup_user'
 
-    signup_user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String)
     password_hash = db.Column(db.String)
     registered_date = db.Column(db.Date)
@@ -39,7 +39,7 @@ class RecoveryUser(Model):
     '''
     __tablename__ = 'recovery_user'
 
-    recovery_user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String)
     new_password_hash = db.Column(db.String)
     required_date = db.Column(db.Date)
@@ -64,7 +64,7 @@ class User(Model):
     """
     __tablename__ = 'user'
 
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     display_name = db.Column(db.String(128), unique=True)
     title = db.Column(db.String(10))
 
@@ -94,9 +94,9 @@ class User(Model):
     website_url = db.Column(db.String(200))
 
     # about_me = db.Column(db.String(3000))
-    _about_me = db.Column(db.Text)
-    _about_me_markdown = db.Column(db.Text)
-    _about_me_html = db.Column(db.Text)
+    about_me = db.Column(db.Text)
+    about_me_markdown = db.Column(db.Text)
+    about_me_html = db.Column(db.Text)
 
     people_reached = db.Column(db.Integer, default=0)
     job_role = db.Column(db.String(255))
@@ -113,6 +113,7 @@ class User(Model):
     people_you_follow_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
     email_stories_topics_setting = db.Column(db.Boolean, nullable=False, default=True)
     email_stories_topics_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     @hybrid_property
     def about_me(self):
@@ -137,41 +138,10 @@ class User(Model):
         """Return the value of _html."""
         return self._about_me_html
 
-    # _topics = db.relationship(
-    #     'Topic',
-    #     secondary=user_topics,
-    #     lazy='subquery',
-    #     backref=db.backref('users_topics', lazy=True)
-    # )
-
-    # @hybrid_property
-    # def followed_questions(self):
-    #     """Return the value of _followed_questions."""
-    #     return self._followed_questions
-    #
-    # @topics.setter
-    # def followed_questions(self, question):
-    #     """Associate questions with this entry."""
-    #     self._followed_questions.append(question)
-
     @hybrid_property
     def topics(self):
         """Return the value of _topics."""
         return self._topics
-
-    # @topics.setter
-    # def topics(self, topiclist):
-    #     """Associate topics with this entry. The topiclist is expected to be
-    #     already normalized without duplicates."""
-    #     for topic_name in topiclist:
-    #         self._topics.append(Topic.get_or_create(topic_name))
-    #
-    # @property
-    # def tagged_questions(self):
-    #     tagged_questions = Question.query.join(user_topics, (user_topics.c.topic_id == Question.user_id)).filter(
-    #         user_topics.c.user_id == self.id).order_by(Question.created_at.desc())
-    #     # own = Question.query.filter_by(user_id=self.id)
-    #     return tagged_questions
 
     @property
     def current_user_topics(self):
@@ -180,46 +150,6 @@ class User(Model):
     def get_topicstring(self):
         """Return the topics for this instance as a comma separated string"""
         return ', '.join([topic.name for topic in self.topics])
-
-    # messages_sent = db.relationship(
-    #     'Message',
-    #     foreign_keys='Message.sender_id',
-    #     backref='sender',
-    #     lazy='dynamic'
-    # )
-    # messages_received = db.relationship(
-    #     'Message',
-    #     foreign_keys='Message.recipient_id',
-    #     backref='recipient',
-    #     lazy='dynamic'
-    # )
-    # last_message_read_time = db.Column(db.DateTime)
-
-    # def new_messages_count(self):
-    #     last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-    #     return Message.query.filter_by(
-    #         recipient=self
-    #     ).filter(
-    #         Message.sent_time > last_read_time
-    #     ).count()
-
-    # # last_notification_read_time = db.Column(db.DateTime)
-    # notifications = db.relationship(
-    #     'Notification',
-    #     backref='user',
-    #     lazy='dynamic'
-    # )
-    # email_addresses = db.relationship(
-    #     'EmailAddresses',
-    #     backref='user',
-    #     lazy='dynamic'
-    # )
-
-    # def add_notification(self, name, data):
-    #     self.notifications.filter_by(name=name).delete()
-    #     n = Notification(name=name, payload_json=json.dumps(data), user=self)
-    #     db.session.add(n)
-    #     return n
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -257,29 +187,9 @@ class User(Model):
 
     def get_id(self):
         try:
-            return str(self.user_id)
+            return str(self.id)
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
-
-    # def follow(self, user):
-    #     if not self.is_following(user):
-    #         self.followed.append(user)
-    #
-    # def unfollow(self, user):
-    #     if self.is_following(user):
-    #         self.followed.remove(user)
-
-    # def is_following(self, user):
-    #     return self.followed.filter(followers.c.followed_id == user.id).count() > 0
-
-    # def followed_questions(self):
-    #     followed = Question.query.join(
-    #         followers, (followers.c.followed_id == Question.user_id)
-    #     ).filter(
-    #         followers.c.follower_id == self.id
-    #     )
-    #     own = Question.query.filter_by(user_id=self.id)
-    #     return followed.union(own).order_by(Question.created_at.desc())
 
     @property
     def name(self):
@@ -305,16 +215,5 @@ class User(Model):
 
     def __repr__(self):
         return (
-            f'User [ID: {self.user_id}]\nName: {self.display_name}\nEmail: {self.email}'
+            f'User [ID: {self.id}]\nName: {self.display_name}\nEmail: {self.email}'
         )
-
-    # def __eq__(self, other):
-    #     if isinstance(other, User):
-    #         return self.get_id() == other.get_id()
-    #     return NotImplemented
-    #
-    # def __ne__(self, other):
-    #     equal = self.__eq__(other)
-    #     if equal is NotImplemented:
-    #         return NotImplemented
-    #     return not equal

@@ -5,12 +5,12 @@ from app.modules.common.model import Model
 class Question(Model):
     __tablename__ = 'question'
 
-    question_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     user_id = db.Column(db.Integer)
-    _question = db.Column(db.UnicodeText)
-    _markdown = db.Column(db.UnicodeText)
-    _html = db.Column(db.UnicodeText)
+    question = db.Column(db.UnicodeText)
+    markdown = db.Column(db.UnicodeText)
+    html = db.Column(db.UnicodeText)
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)
     views = db.Column(db.Integer)

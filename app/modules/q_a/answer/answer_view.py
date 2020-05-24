@@ -35,42 +35,42 @@ class AnswerList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:answer_id>')
+@api.route('/<int:id>')
 class Answer(Resource):
     @token_required
     @api.marshal_with(answer)
-    def get(self, answer_id):
+    def get(self, id):
         '''
         Get the answer by its ID.
 
-        :param answer_id: The ID of the answer.
+        :param id: The ID of the answer.
 
         :return:
         '''
         controller = AnswerController()
-        return controller.get_by_id(object_id=answer_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(answer)
     @api.marshal_with(answer)
-    def put(self, answer_id):
+    def put(self, id):
         '''
         Update the existing answer by its ID.
 
-        :param answer_id: The ID of the answer.
+        :param id: The ID of the answer.
 
         :return:
         '''
         data = api.payload
         controller = AnswerController()
-        return controller.update(object_id=answer_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, answer_id):
+    def delete(self, id):
         '''
         Delete existing answer by its ID.
-        :param answer_id:
+        :param id:
         :return:
         '''
         controller = AnswerController()
-        return controller.delete(object_id=answer_id)
+        return controller.delete(object_id=id)

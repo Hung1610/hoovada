@@ -40,7 +40,7 @@ class QuestionController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")
-        question = Question.query.filter_by(question_id=object_id).first()
+        question = Question.query.filter_by(id=object_id).first()
         if question is None:
             return send_error(message='Could not find question with the ID {}'.format(object_id))
         else:
@@ -52,7 +52,7 @@ class QuestionController(Controller):
         if not isinstance(data, dict):
             return send_error(message="Data is not in dictionary form.")
         try:
-            question = Question.query.filter_by(question_id=object_id).first()
+            question = Question.query.filter_by(id=object_id).first()
             if question is None:
                 return send_error(message="Question with the ID {} not found".format(object_id))
             else:
@@ -65,7 +65,7 @@ class QuestionController(Controller):
 
     def delete(self, object_id):
         try:
-            question = Question.query.filter_by(question_id=object_id).first()
+            question = Question.query.filter_by(id=object_id).first()
             if question is None:
                 return send_error(message="Question with ID {} not found".format(object_id))
             else:
@@ -82,12 +82,12 @@ class QuestionController(Controller):
         question.title = data['title']
         if 'user_id' in data:
             question.user_id = data['user_id']
-        if '_question' in data:
-            question._question = data['_question']
-        if '_markdown' in data:
-            question._markdown = data['_markdown']
-        if '_html' in data:
-            question._html = data['_html']
+        if 'question' in data:
+            question.question = data['question']
+        if 'markdown' in data:
+            question.markdown = data['markdown']
+        if 'html' in data:
+            question.html = data['html']
 
         if 'created_date' in data:
             try:

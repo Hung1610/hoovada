@@ -35,44 +35,44 @@ class VoteList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:vote_id>')
+@api.route('/<int:id>')
 class Vote(Resource):
     @token_required
     @api.marshal_with(vote)
-    def get(self, vote_id):
+    def get(self, id):
         '''
         Get vote by its ID.
 
-        :param vote_id: The ID of the vote.
+        :param id: The ID of the vote.
 
         :return: The vote with the specific ID.
         '''
         controller = VoteController()
-        return controller.get_by_id(object_id=vote_id)
+        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(vote)
     @api.marshal_with(vote)
-    def put(self, vote_id):
+    def put(self, id):
         '''
         Update existing vote by its ID.
 
-        :param vote_id: The ID of the vote which need to be updated.
+        :param id: The ID of the vote which need to be updated.
 
         :return: The updated vote if success and null vice versa.
         '''
         data = api.payload
         controller = VoteController()
-        return controller.update(object_id=vote_id, data=data)
+        return controller.update(object_id=id, data=data)
 
     @token_required
-    def delete(self, vote_id):
+    def delete(self, id):
         '''
         Delete vote by its ID.
 
-        :param vote_id: The ID of the vote.
+        :param id: The ID of the vote.
 
         :return:
         '''
         controller = VoteController()
-        return controller.delete(object_id=vote_id)
+        return controller.delete(object_id=id)

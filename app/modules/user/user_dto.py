@@ -7,7 +7,7 @@ class SignupUserDto(Dto):
     name = 'signup_user'
     api = Namespace(name)
     model = api.model(name, {
-        'signup_user_id': fields.Integer(required=False),
+        'id': fields.Integer(required=False),
         'email': fields.String(required=True),
         'password': fields.String(required=True),
         'registered_date': fields.Date(),
@@ -27,7 +27,7 @@ class RecoveryUserDto(Dto):
     name = 'recovery_user'
     api = Namespace(name)
     model = api.model(name, {
-        'recovery_user_id': fields.Integer(required=False),
+        'id': fields.Integer(required=False),
         'email': fields.String(),
         'new_password': fields.String(),
         'required_date': fields.Date(),
@@ -51,7 +51,7 @@ class UserDto(Dto):
     name = 'user'
     api = Namespace(name)
     model = api.model(name, {
-        'user_id': fields.Integer(required=False),
+        'id': fields.Integer(required=False),
         'display_name': fields.String(required=False),
         'title': fields.String(required=False),
 
@@ -80,9 +80,9 @@ class UserDto(Dto):
         'country': fields.String(),
         'website_url': fields.String(),
 
-        '_about_me': fields.String(),
-        '_about_me_markdown': fields.String(),
-        '_about_me_html': fields.String(),
+        'about_me': fields.String(),
+        'about_me_markdown': fields.String(),
+        'about_me_html': fields.String(),
 
         'people_reached': fields.Integer(),
         'job_role': fields.String(),
@@ -96,6 +96,8 @@ class UserDto(Dto):
         'questions_you_asked_or_followed_frequency_setting': fields.String(),
         'people_you_follow_setting': fields.Boolean(),
         'people_you_follow_frequency_setting': fields.String(),
+
         'email_stories_topics_setting': fields.Boolean(),
-        'email_stories_topics_frequency_setting': fields.String()
+        'email_stories_topics_frequency_setting': fields.String(),
+        'last_message_read_time':fields.DateTime()
     })

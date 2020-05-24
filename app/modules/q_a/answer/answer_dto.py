@@ -7,7 +7,7 @@ class AnswerDto(Dto):
     name = 'answer'
     api = Namespace(name)
     model = api.model(name, {
-        'answer_id': fields.Integer(required=False),
+        'id': fields.Integer(required=False),
         'created_date': fields.DateTime(),
         'update_date': fields.DateTime(),
         'last_activity': fields.DateTime(),
@@ -17,9 +17,9 @@ class AnswerDto(Dto):
 
         'anonymous': fields.Integer(),
         'accepted': fields.Boolean(),
-        '_answer_body': fields.String(),
-        '_markdown': fields.String(),
-        '_html': fields.String(),
+        'answer_body': fields.String(),
+        'markdown': fields.String(),
+        'html': fields.String(),
         'user_id': fields.Integer(),
         'question_id': fields.Integer(),
         'image_ids': fields.String()

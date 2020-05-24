@@ -36,7 +36,7 @@ class AnswerController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Answer ID is null")
-        answer = Answer.query.filter_by(answer_id=object_id).first()
+        answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
             return send_error(message='Could not find answer with the ID {}.'.format(object_id))
         else:
@@ -48,7 +48,7 @@ class AnswerController(Controller):
         if data is None or not isinstance(data, dict):
             return send_error(message="Data is null or not in dictionary form. Check again.")
         try:
-            answer = Answer.query.filter_by(answer_id=object_id).first()
+            answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
                 return send_error(message="Answer with the ID {} not found.".format(object_id))
             else:
@@ -61,7 +61,7 @@ class AnswerController(Controller):
 
     def delete(self, object_id):
         try:
-            answer = Answer.query.filter_by(answer_id=object_id)
+            answer = Answer.query.filter_by(id=object_id)
             if answer is None:
                 return send_error(message="Answer with ID {} not found.".format(object_id))
             else:
@@ -75,8 +75,8 @@ class AnswerController(Controller):
     def _parse_answer(self, data, answer=None):
         if answer is None:
             answer = Answer()
-        if 'answer_id' in data:
-            answer.answer_id = int(data['answer_id'])
+        if 'id' in data:
+            answer.id = int(data['id'])
         if 'created_date' in data:
             try:
                 answer.created_date = datetime.fromisoformat(data['created_date'])
@@ -119,12 +119,12 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if '_answer_body' in data:
-            answer._answer_body = data['_answer_body']
-        if '_markdown' in data:
-            answer._markdown = data['_markdown']
-        if '_html' in data:
-            answer._html = data['_html']
+        if 'answer_body' in data:
+            answer.answer_body = data['answer_body']
+        if 'markdown' in data:
+            answer.markdown = data['markdown']
+        if 'html' in data:
+            answer.html = data['html']
         if 'user_id' in data:
             try:
                 answer.user_id = int(data['user_id'])
