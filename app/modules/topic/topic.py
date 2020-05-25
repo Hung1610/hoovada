@@ -7,7 +7,7 @@ class Topic(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    count = db.Column(db.Integer)
+    count = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer)  # who created this topic
     question_count = db.Column(db.Integer)  # amount of question related to this topic
     user_count = db.Column(db.Integer)  # Number of users who interest this topic

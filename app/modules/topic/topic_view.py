@@ -1,4 +1,4 @@
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .topic_dto import TopicDto
 from .topic_controller import TopicController
@@ -11,7 +11,7 @@ topic = TopicDto.model
 @api.route('')
 class TopicList(Resource):
     @admin_token_required
-    @api.marshal_list_with(topic)
+    # @api.marshal_list_with(topic)
     def get(self):
         '''
         Get list of topics from database.
@@ -23,7 +23,7 @@ class TopicList(Resource):
 
     @token_required
     @api.expect(topic)
-    @api.marshal_with(topic)
+    # @api.marshal_with(topic)
     def post(self):
         '''
         Create new topic.
@@ -38,7 +38,7 @@ class TopicList(Resource):
 @api.route('/<int:id>')
 class Topic(Resource):
     @token_required
-    @api.marshal_with(topic)
+    # @api.marshal_with(topic)
     def get(self, id):
         '''
         Get topic by its ID.
@@ -52,7 +52,7 @@ class Topic(Resource):
 
     @token_required
     @api.expect(topic)
-    @api.marshal_with(topic)
+    # @api.marshal_with(topic)
     def put(self, id):
         '''
         Update existing topic by its ID.
@@ -76,3 +76,39 @@ class Topic(Resource):
         '''
         controller = TopicController()
         return controller.delete(object_id=id)
+
+# @api.route('/create_topics')
+# class CreateFixedTopic(Resource):
+#     def get(self):
+#         '''
+#         Create fixed topics
+#         :return:
+#         '''
+#         controller = TopicController()
+#         return controller.create_topics()
+
+parser = reqparse.RequestParser()
+parser.add_argument('name', type=str, required=False, help='The name of the topic')
+parser.add_argument('user_id', type=str, required=False, help='Search topic by user_id (who created topic)')
+parser.add_argument('parent_id', type=str, required=False, help='Search all sub-topics which belongs to the parent ID.')
+
+
+@api.route('/search')
+@api.expect(parser)
+class TopicSearch(Resource):
+    @token_required
+    def get(self):
+        """
+        Search all topics that satisfy conditions.
+        ---------------------
+        :name: The name of the topics to search
+
+        :user_id: Search topic by user_id (who created topics)
+
+        :parent_id: Search all topics by their parent topic ID.
+
+        :return: List of buyers
+        """
+        args = parser.parse_args()
+        controller = TopicController()
+        return controller.search(args=args)

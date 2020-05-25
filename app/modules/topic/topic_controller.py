@@ -8,13 +8,71 @@ from ...utils.response import send_error, send_result
 
 
 class TopicController(Controller):
+
+    def create_topics(self):
+        fixed_topics = ["Du lịch", "Gia đình & Quan hệ xã hội", "Giáo dục & Tham khảo", "Giải trí & Âm nhạc",
+                        "Khoa học Tự nhiên", "Khoa học Xã hội", "Kinh doanh & Tài chính", "Máy tính & Internet",
+                        "Môi trường", "Nhà & Vườn", "Nơi ăn uống", "Sản phẩm của Yahoo", "Sức khỏe",
+                        "Thai nghén & Nuôi dạy con", "Thể thao", "Thủ tục hành chính", "Tin tức & Sự kiện",
+                        "Trò chơi & Giải trí", "Văn hóa & Xã hội", "Văn học & Nhân văn", "Vật nuôi",
+                        "Vẻ đẹp & Phong cách", "Ô-tô & Vận tải", "Điện tử tiêu dùng", "Ẩm thực"]
+        try:
+            for topic_name in fixed_topics:
+                topic = Topic(name=topic_name, is_fixed=True, user_id=3)
+                db.session.add(topic)
+                db.session.commit()
+        except Exception as e:
+            print(e.__str__())
+            pass
+
+    def search(self, args):
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse the params')
+        name, user_id, parent_id = None, None, None
+        if 'name' in args:
+            name = args['name']
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+        if 'parent_id' in args:
+            try:
+                parent_id = int(args['parent_id'])
+            except Exception as e:
+                print(e.__str__())
+        if name is None and user_id is None and parent_id is None:
+            return send_error(message='Please provide params to search.')
+        query = db.session.query(Topic)
+        is_filter = False
+        if name is not None and not str(name).strip().__eq__(''):
+            name = '%' + name.strip() + '%'
+            query = query.filter(Topic.name.like(name))
+            is_filter = True
+        if user_id is not None:
+            query = query.filter(Topic.user_id == user_id)
+            is_filter = True
+        if parent_id is not None:
+            query = query.filter(Topic.parent_id == parent_id)
+            is_filter = True
+        if is_filter:
+            topics = query.all()
+            if topics is not None and len(topics) > 0:
+                return send_result(marshal(topics, TopicDto.model), message='Success')
+            else:
+                return send_error(message='Could not find any topics.')
+        else:
+            return send_error(message='Could not find topics with these parameters.')
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary type")
         if not 'name' in data:
             return send_error(message='Topic name must be filled')
+        if not 'parent_id' in data:
+            return send_error(message='Topic must have a parent topic.')
         try:
-            topic = Topic.query.filter_by(name=data['name']).first()
+            topic = Topic.query.filter(Topic.name==data['name'], Topic.parent_id==data['parent_id']).first()
             if not topic:  # the topic does not exist
                 topic = self._parse_topic(data=data, topic=None)
                 db.session.add(topic)

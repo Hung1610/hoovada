@@ -16,11 +16,14 @@ class Config:
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_USERNAME = 'admin@hoovada.com'
-    MAIL_PASSWORD = 'hoovada^0123'
-    MAIL_DEFAULT_SENDER = 'admin@hoovada.com'
-
+    # MAIL_SERVER = 'smtp.gmail.com'
+    # MAIL_USERNAME = 'admin@hoovada.com'
+    # MAIL_PASSWORD = 'hoovada^0123'
+    # MAIL_DEFAULT_SENDER = 'admin@hoovada.com'
+    MAIL_SERVER = 'k-sv.sakura.ne.jp'
+    MAIL_USERNAME = 'fr1000_use_1@k-sv.sakura.ne.jp'
+    MAIL_PASSWORD = 'CRZQCHt2'
+    MAIL_DEFAULT_SENDER = 'fr1000_use_1@k-sv.sakura.ne.jp'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False

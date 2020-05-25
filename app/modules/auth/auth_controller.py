@@ -19,8 +19,8 @@ def save_token(token):
         db.session.commit()
         return send_result(message='Successfully logged out.')
     except Exception as e:
-        return send_error(message=e)
         db.session.rollback()
+        return send_error(message=e)
 
 
 # def generate_confirmation_token(email):
@@ -140,7 +140,7 @@ class AuthController:
         Login user handling.
         """
         try:
-            print(data)
+            # print(data)
             user = User.query.filter_by(email=data['email']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:
