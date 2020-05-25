@@ -13,4 +13,4 @@ class Topic(Model):
     user_count = db.Column(db.Integer)  # Number of users who interest this topic
     answer_count = db.Column(db.Integer)  # how many answers related to this topic
     parent_id = db.Column(db.Integer) # the ID of parent topic
-    is_fixed = db.Column(db.Boolean)    # is this topic fixed?
+    is_fixed = db.Column(db.Boolean, default=False)    # is this topic fixed?
