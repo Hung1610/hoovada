@@ -2,7 +2,7 @@ from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .topic_dto import TopicDto
 from .topic_controller import TopicController
-from ..auth.decorator import admin_token_required, token_required
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = TopicDto.api
 topic = TopicDto.model

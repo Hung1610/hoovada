@@ -1,4 +1,6 @@
-from flask_restx import Resource
+from datetime import datetime
+
+from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .question_dto import QuestionDto
 from .question_controller import QuestionController
@@ -76,3 +78,45 @@ class Question(Resource):
         '''
         controller = QuestionController()
         return controller.delete(object_id=id)
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('title', type=str, required=False, help='Search question by its title')
+parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
+parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
+parser.add_argument('created_date', type=str, required=False, help='Search questions by created-date.')
+parser.add_argument('updated_date', type=str, required=False, help='Search questions by updated-date.')
+parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
+
+
+@api.route('/search')
+@api.expect(parser)
+class QuesstionSearch(Resource):
+    @token_required
+    def get(self):
+        """
+        Search all topics that satisfy conditions.
+        ---------------------
+        :title: The name of the topics to search
+
+        :user_id: Search topic by user_id (who created question)
+
+        :fixed_topic_id: Search all topics by fixed topic ID.
+
+        :created_date: Search by created date.
+
+        :updated_date: Search by updated date.
+
+        :from_date: Search questions created after this date.
+
+        :to_date: Search questions created before this date.
+
+        :anonymous: Search questions created by anonymous.
+
+        :return: List of buyers
+        """
+        args = parser.parse_args()
+        controller = QuestionController()
+        return controller.search(args=args)

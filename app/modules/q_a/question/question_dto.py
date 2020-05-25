@@ -10,6 +10,7 @@ class QuestionDto(Dto):
         'id':fields.Integer(required=False),
         'title':fields.String(),
         'user_id':fields.Integer(),
+        'fixed_topic_id':fields.Integer(),
         'question':fields.String(),
         'markdown':fields.String(),
         'html':fields.String(),

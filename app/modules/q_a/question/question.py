@@ -8,6 +8,7 @@ class Question(Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     user_id = db.Column(db.Integer)
+    fixed_topic_id = db.Column(db.Integer)
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
     html = db.Column(db.UnicodeText)

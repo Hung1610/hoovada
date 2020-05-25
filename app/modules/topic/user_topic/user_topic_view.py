@@ -2,7 +2,7 @@ from flask_restx import Resource
 # from app.modules.common.decorator import token_required
 from .user_topic_dto import UserTopicDto
 from .user_topic_controller import UserTopicController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = UserTopicDto.api
 user_topic = UserTopicDto.model

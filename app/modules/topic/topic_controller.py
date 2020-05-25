@@ -3,8 +3,8 @@ from flask_restx import marshal
 from app.modules.common.controller import Controller
 from .topic import Topic
 from .topic_dto import TopicDto
-from ... import db
-from ...utils.response import send_error, send_result
+from app import db
+from app.utils.response import send_error, send_result
 
 
 class TopicController(Controller):
