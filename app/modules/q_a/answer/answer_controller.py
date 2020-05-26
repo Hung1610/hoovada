@@ -11,6 +11,85 @@ from app.utils.response import send_error, send_result
 
 
 class AnswerController(Controller):
+
+    def search(self, args):
+        '''
+        Search answers.
+
+        :param args:
+        :return:
+        '''
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse the params.')
+        user_id, question_id, created_date, updated_date, from_date, to_date = None, None, None, None, None, None
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'question_id' in args:
+            try:
+                question_id = int(args['question_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'created_date' in args:
+            try:
+                created_date = datetime.fromisoformat(args['created_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'updated_date' in args:
+            try:
+                updated_date = datetime.fromisoformat(args['updated_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'from_date' in args:
+            try:
+                from_date = datetime.fromisoformat(args['from_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'to_date' in args:
+            try:
+                to_date = datetime.fromisoformat(args['to_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if user_id is None and question_id is None and created_date is None and updated_date is None and from_date is None and to_date is None:
+            send_error(message='Provide params to search.')
+        query = db.session.query(Answer)
+        is_filter = False
+        if user_id is not None:
+            query = query.filter(Answer.user_id == user_id)
+            is_filter = True
+        if question_id is not None:
+            query = query.filter(Answer.question_id == question_id)
+            is_filter = True
+        if created_date is not None:
+            query = query.filter(Answer.created_date == created_date)
+            is_filter = True
+        if updated_date is not None:
+            query = query.filter(Answer.updated_date == updated_date)
+            is_filter = True
+        if from_date is not None:
+            query = query.filter(Answer.created_date >= from_date)
+            is_filter = True
+        if to_date is not None:
+            query = query.filter(Answer.created_date <= to_date)
+            is_filter = True
+        if is_filter:
+            answers = query.all()
+            if answers is not None and len(answers) > 0:
+                return send_result(marshal(answers, AnswerDto.model), message='Success')
+            else:
+                return send_result(message='Could not find any answers')
+        else:
+            return send_error(message='Could not find answers. Please check your parameters again.')
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")

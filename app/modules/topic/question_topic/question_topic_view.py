@@ -1,4 +1,4 @@
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .question_topic_dto import QuestionTopicDto
 from .question_topic_controller import QuestionTopicController
@@ -76,3 +76,28 @@ class QuestionTopic(Resource):
         '''
         controller = QuestionTopicController()
         return controller.delete(object_id=id)
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('question_id', type=str, required=False, help='Search record by ID of question.')
+parser.add_argument('topic_id', type=str, required=False, help='Search records by topic ID.')
+
+
+@api.route('/search')
+@api.expect(parser)
+class QuestionTopicSearch(Resource):
+    @token_required
+    def get(self):
+        """
+        Search all topics that satisfy conditions.
+        ---------------------
+
+        :question_id: The question ID.
+
+        :topic_id: The topic ID.
+
+        :return: List of buyers
+        """
+        args = parser.parse_args()
+        controller = QuestionTopicController()
+        return controller.search(args=args)

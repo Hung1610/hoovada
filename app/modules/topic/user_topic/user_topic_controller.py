@@ -8,6 +8,41 @@ from app.utils.response import send_error, send_result
 
 
 class UserTopicController(Controller):
+    def search(self, args):
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse your parameters.')
+        user_id, topic_id = None, None
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'topic_id' in args:
+            try:
+                topic_id = int(args['topic_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if user_id is None and topic_id is None:
+            return send_error(message='Please provide params to search')
+        query = db.session.query(UserTopic)
+        is_filter = False
+        if user_id is not None:
+            query = query.filter(UserTopic.user_id == user_id)
+            is_filter = True
+        if topic_id is None:
+            query = query.filter(UserTopic.topic_id == topic_id)
+            is_filter = True
+        if is_filter:
+            question_topics = query.all()
+            if question_topics is not None and len(question_topics) > 0:
+                return send_result(data=marshal(question_topics, UserTopicDto.model), message='Success')
+            else:
+                return send_result(message='Not found.', code=201)
+        else:
+            return send_error(message='Could not find any records.')
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message='Data is not correct or not in dictionary type.')

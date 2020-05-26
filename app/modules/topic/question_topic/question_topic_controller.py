@@ -26,6 +26,41 @@ class QuestionTopicController(Controller):
             print(e.__str__())
             return send_error(message=e.__str__())
 
+    def search(self, args):
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse your parameters.')
+        question_id, topic_id = None, None
+        if 'question_id' in args:
+            try:
+                question_id = int(args['question_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'topic_id' in args:
+            try:
+                topic_id = int(args['topic_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if question_id is None and topic_id is None:
+            return send_error(message='Please provide params to search')
+        query = db.session.query(QuestionTopic)
+        is_filter = False
+        if question_id is not None:
+            query = query.filter(QuestionTopic.question_id == question_id)
+            is_filter = True
+        if topic_id is None:
+            query = query.filter(QuestionTopic.topic_id == topic_id)
+            is_filter = True
+        if is_filter:
+            question_topics = query.all()
+            if question_topics is not None and len(question_topics) > 0:
+                return send_result(data=marshal(question_topics, QuestionTopicDto.model), message='Success')
+            else:
+                return send_result(message='Not found.', code=201)
+        else:
+            return send_error(message='Could not find any records.')
+
     def get(self):
         try:
             question_topics = QuestionTopic.query.all()

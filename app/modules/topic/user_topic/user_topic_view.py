@@ -1,4 +1,4 @@
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .user_topic_dto import UserTopicDto
 from .user_topic_controller import UserTopicController
@@ -76,3 +76,28 @@ class UserTopic(Resource):
         '''
         controller = UserTopicController()
         return controller.delete(object_id=id)
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('user_id', type=str, required=False, help='Search record by user ID.')
+parser.add_argument('topic_id', type=str, required=False, help='Search records by topic ID.')
+
+
+@api.route('/search')
+@api.expect(parser)
+class UserTopicSearch(Resource):
+    @token_required
+    def get(self):
+        """
+        Search all topics that satisfy conditions.
+        ---------------------
+
+        :user_id: Search topic by user_id (who created topics)
+
+        :parent_id: Search all topics by their parent topic ID.
+
+        :return: List of buyers
+        """
+        args = parser.parse_args()
+        controller = UserTopicController()
+        return controller.search(args=args)
