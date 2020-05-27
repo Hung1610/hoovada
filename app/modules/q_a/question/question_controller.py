@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+import dateutil.parser
 
 from flask_restx import marshal
 
@@ -111,7 +112,7 @@ class QuestionController(Controller):
         try:
             title = data['title']
             user_id = data['user_id']
-            question = Question.query.filter(Question.title == title, Question.user_id == user_id).first()
+            question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question = self._parse_question(data=data, question=None)
                 db.session.add(question)
@@ -195,13 +196,13 @@ class QuestionController(Controller):
 
         if 'created_date' in data:
             try:
-                question.created_date = datetime.fromisoformat(data['created_date'])
+                question.created_date = dateutil.parser.isoparse(data['created_date'])
             except Exception as e:
                 pass
 
         if 'updated_date' in data:
             try:
-                question.updated_date = datetime.fromisoformat(data['updated_date'])
+                question.updated_date = dateutil.parser.isoparse(data['updated_date'])
             except Exception as e:
                 pass
 
@@ -212,7 +213,7 @@ class QuestionController(Controller):
                 pass
         if 'last_activity' in data:
             try:
-                question.last_activity = datetime.fromisoformat(data['last_activity'])
+                question.last_activity = dateutil.parser.isoparse(data['last_activity'])
             except Exception as e:
                 print(e.__str__())
                 pass

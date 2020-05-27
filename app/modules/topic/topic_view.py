@@ -89,8 +89,9 @@ class Topic(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=False, help='The name of the topic')
-parser.add_argument('user_id', type=str, required=False, help='Search topic by user_id (who created topic)')
-parser.add_argument('parent_id', type=str, required=False, help='Search all sub-topics which belongs to the parent ID.')
+parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
+parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
+parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed topics in database.')
 
 
 @api.route('/search')

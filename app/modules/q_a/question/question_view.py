@@ -13,7 +13,7 @@ question = QuestionDto.model
 @api.route('')
 class QuestionList(Resource):
     @admin_token_required
-    @api.marshal_list_with(question)
+    # @api.marshal_list_with(question)
     def get(self):
         '''
         Get list of questions from database.
@@ -25,7 +25,7 @@ class QuestionList(Resource):
 
     @token_required
     @api.expect(question)
-    @api.marshal_with(question)
+    # @api.marshal_with(question)
     def post(self):
         '''
         Create new question and save to database.
@@ -40,7 +40,7 @@ class QuestionList(Resource):
 @api.route('/<int:id>')
 class Question(Resource):
     @token_required
-    @api.marshal_with(question)
+    # @api.marshal_with(question)
     def get(self, id):
         '''
         Get specific question by its ID.
@@ -54,7 +54,7 @@ class Question(Resource):
 
     @token_required
     @api.expect(question)
-    @api.marshal_with(question)
+    # @api.marshal_with(question)
     def put(self, id):
         '''
         Update existing question by its ID.
@@ -97,13 +97,13 @@ class QuesstionSearch(Resource):
     @token_required
     def get(self):
         """
-        Search all topics that satisfy conditions.
+        Search all questions that satisfy conditions.
         ---------------------
         :title: The name of the topics to search
 
-        :user_id: Search topic by user_id (who created question)
+        :user_id: Search questions by user_id (who created question)
 
-        :fixed_topic_id: Search all topics by fixed topic ID.
+        :fixed_topic_id: Search all questions by fixed topic ID.
 
         :created_date: Search by created date.
 

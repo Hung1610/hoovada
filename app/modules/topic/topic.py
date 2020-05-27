@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app import db
 from app.modules.common.model import Model
 
@@ -12,5 +14,6 @@ class Topic(Model):
     question_count = db.Column(db.Integer)  # amount of question related to this topic
     user_count = db.Column(db.Integer)  # Number of users who interest this topic
     answer_count = db.Column(db.Integer)  # how many answers related to this topic
-    parent_id = db.Column(db.Integer) # the ID of parent topic
-    is_fixed = db.Column(db.Boolean, default=False)    # is this topic fixed?
+    parent_id = db.Column(db.Integer)  # the ID of parent topic
+    is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)

@@ -6,7 +6,7 @@ class Question(Model):
     __tablename__ = 'question'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
+    title = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer)
     fixed_topic_id = db.Column(db.Integer)
     question = db.Column(db.UnicodeText)

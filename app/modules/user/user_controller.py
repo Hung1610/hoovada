@@ -1,4 +1,5 @@
 from datetime import datetime
+import dateutil.parser
 
 from flask_restx import marshal
 
@@ -101,13 +102,13 @@ class UserController(Controller):
 
         if 'last_seen' in data:
             try:
-                user.last_seen = datetime.fromisoformat(data['last_seen'])
+                user.last_seen = dateutil.parser.isoparse(data['last_seen'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'joined_date' in data:
             try:
-                user.joined_date = datetime.fromisoformat(data['joined_date'])
+                user.joined_date = dateutil.parser.isoparse(data['joined_date'])
             except Exception as e:
                 print(e.__str__())
                 pass

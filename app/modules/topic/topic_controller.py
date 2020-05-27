@@ -1,4 +1,5 @@
 from flask_restx import marshal
+import dateutil.parser
 
 from app.modules.common.controller import Controller
 from .topic import Topic
@@ -28,7 +29,7 @@ class TopicController(Controller):
     def search(self, args):
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params')
-        name, user_id, parent_id = None, None, None
+        name, user_id, parent_id, is_fixed = None, None, None, None
         if 'name' in args:
             name = args['name']
         if 'user_id' in args:
@@ -41,7 +42,12 @@ class TopicController(Controller):
                 parent_id = int(args['parent_id'])
             except Exception as e:
                 print(e.__str__())
-        if name is None and user_id is None and parent_id is None:
+        if 'is_fixed' in args:
+            try:
+                is_fixed = int(args['is_fixed'])
+            except Exception as e:
+                print(e.__str__())
+        if name is None and user_id is None and parent_id is None and is_fixed is None:
             return send_error(message='Please provide params to search.')
         query = db.session.query(Topic)
         is_filter = False
@@ -54,6 +60,9 @@ class TopicController(Controller):
             is_filter = True
         if parent_id is not None:
             query = query.filter(Topic.parent_id == parent_id)
+            is_filter = True
+        if is_fixed is not None:
+            query = query.filter(Topic.is_fixed == is_fixed)
             is_filter = True
         if is_filter:
             topics = query.all()
@@ -72,7 +81,7 @@ class TopicController(Controller):
         if not 'parent_id' in data:
             return send_error(message='Topic must have a parent topic.')
         try:
-            topic = Topic.query.filter(Topic.name==data['name'], Topic.parent_id==data['parent_id']).first()
+            topic = Topic.query.filter(Topic.name == data['name'], Topic.parent_id == data['parent_id']).first()
             if not topic:  # the topic does not exist
                 topic = self._parse_topic(data=data, topic=None)
                 db.session.add(topic)
@@ -171,6 +180,12 @@ class TopicController(Controller):
         if 'is_fixed' in data:
             try:
                 topic.is_fixed = bool(data['is_fixed'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'created_date' in data:
+            try:
+                topic.created_date = dateutil.parser.isoparse(data['created_date'])
             except Exception as e:
                 print(e.__str__())
                 pass

@@ -7,7 +7,7 @@ class Answer(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     created_date = db.Column(db.DateTime)
-    update_date = db.Column(db.DateTime)
+    updated_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime)
     upvote_count = db.Column(db.Integer)
     downvote_count = db.Column(db.Integer)

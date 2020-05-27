@@ -20,6 +20,6 @@ class QuestionDto(Dto):
         'last_activity':fields.DateTime(),
         'answers_allowed':fields.Integer(),
         'accepted_answer_id':fields.Integer(),
-        'anonymous':fields.Boolean(),
+        'anonymous':fields.Boolean(default=False),
         'image_ids':fields.String()
     })

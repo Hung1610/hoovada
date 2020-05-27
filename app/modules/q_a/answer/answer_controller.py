@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+import dateutil.parser
 
 from flask_restx import marshal
 
@@ -17,6 +18,7 @@ class AnswerController(Controller):
         Search answers.
 
         :param args:
+
         :return:
         '''
         if not isinstance(args, dict):
@@ -154,23 +156,22 @@ class AnswerController(Controller):
     def _parse_answer(self, data, answer=None):
         if answer is None:
             answer = Answer()
-        if 'id' in data:
-            answer.id = int(data['id'])
         if 'created_date' in data:
             try:
-                answer.created_date = datetime.fromisoformat(data['created_date'])
+                answer.created_date = dateutil.parser.isoparse(data['created_date'])
+                # answer.created_date = datetime.fromisoformat(data['created_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'update_date' in data:
+        if 'updated_date' in data:
             try:
-                answer.update_date = datetime.fromisoformat(data['update_date'])
+                answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #datetime.fromisoformat(data['update_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'last_activity' in data:
             try:
-                answer.last_activity = datetime.fromisoformat(data['last_activity'])
+                answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
             except Exception as e:
                 print(e.__str__())
                 pass

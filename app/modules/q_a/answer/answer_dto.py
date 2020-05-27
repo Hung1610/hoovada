@@ -9,7 +9,7 @@ class AnswerDto(Dto):
     model = api.model(name, {
         'id': fields.Integer(required=False),
         'created_date': fields.DateTime(),
-        'update_date': fields.DateTime(),
+        'updated_date': fields.DateTime(),
         'last_activity': fields.DateTime(),
 
         'upvote_count': fields.Integer(),
