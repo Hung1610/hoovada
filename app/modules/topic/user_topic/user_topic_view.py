@@ -11,7 +11,7 @@ user_topic = UserTopicDto.model
 @api.route('')
 class UserTopicList(Resource):
     @admin_token_required
-    @api.marshal_list_with(user_topic)
+    # @api.marshal_list_with(user_topic)
     def get(self):
         '''
         Get list of user_topics from database.
@@ -23,7 +23,7 @@ class UserTopicList(Resource):
 
     @token_required
     @api.expect(user_topic)
-    @api.marshal_with(user_topic)
+    # @api.marshal_with(user_topic)
     def post(self):
         '''
         Create new user_topic.
@@ -38,7 +38,7 @@ class UserTopicList(Resource):
 @api.route('/<int:id>')
 class UserTopic(Resource):
     @token_required
-    @api.marshal_with(user_topic)
+    # @api.marshal_with(user_topic)
     def get(self, id):
         '''
         Get user_topic by its ID.
@@ -52,7 +52,7 @@ class UserTopic(Resource):
 
     @token_required
     @api.expect(user_topic)
-    @api.marshal_with(user_topic)
+    # @api.marshal_with(user_topic)
     def put(self, id):
         '''
         Update existing user_topic by its ID.

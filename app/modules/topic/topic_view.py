@@ -35,6 +35,11 @@ class TopicList(Resource):
         return controller.create(data=data)
 
 
+# @api.route('/fixed_topic')
+# class FixedTopicList(Resource):
+#     def get(self):
+#
+
 @api.route('/<int:id>')
 class Topic(Resource):
     @token_required

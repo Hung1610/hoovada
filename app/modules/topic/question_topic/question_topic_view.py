@@ -11,7 +11,7 @@ question_topic = QuestionTopicDto.model
 @api.route('')
 class QuestionTopicList(Resource):
     @admin_token_required
-    @api.marshal_list_with(question_topic)
+    # @api.marshal_list_with(question_topic)
     def get(self):
         '''
         Get list of question_topics from database.
@@ -23,7 +23,7 @@ class QuestionTopicList(Resource):
 
     @token_required
     @api.expect(question_topic)
-    @api.marshal_with(question_topic)
+    # @api.marshal_with(question_topic)
     def post(self):
         '''
         Create new question_topic.
@@ -38,7 +38,7 @@ class QuestionTopicList(Resource):
 @api.route('/<int:id>')
 class QuestionTopic(Resource):
     @token_required
-    @api.marshal_with(question_topic)
+    # @api.marshal_with(question_topic)
     def get(self, id):
         '''
         Get question_topic by its ID.
@@ -52,7 +52,7 @@ class QuestionTopic(Resource):
 
     @token_required
     @api.expect(question_topic)
-    @api.marshal_with(question_topic)
+    # @api.marshal_with(question_topic)
     def put(self, id):
         '''
         Update existing question_topic by its ID.
@@ -79,7 +79,7 @@ class QuestionTopic(Resource):
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('question_id', type=str, required=False, help='Search record by ID of question.')
+parser.add_argument('question_id', type=str, required=False, help='Search record by question ID.')
 parser.add_argument('topic_id', type=str, required=False, help='Search records by topic ID.')
 
 
@@ -89,7 +89,7 @@ class QuestionTopicSearch(Resource):
     @token_required
     def get(self):
         """
-        Search all topics that satisfy conditions.
+        Search all question-topics that satisfy conditions.
         ---------------------
 
         :question_id: The question ID.

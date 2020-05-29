@@ -117,12 +117,12 @@ class QuestionController(Controller):
                 question = self._parse_question(data=data, question=None)
                 db.session.add(question)
                 db.session.commit()
-                return send_result(message='Topic was created successfully.', data=marshal(question, QuestionDto.model))
+                return send_result(message='Question was created successfully.', data=marshal(question, QuestionDto.model))
             else:  # topic already exist
                 return send_error(message='You already created the question with title {}.'.format(data['title']))
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not create topic. Contact administrator for solution.')
+            return send_error(message='Could not create question. Contact administrator for solution.')
 
     def get(self):
         try:
