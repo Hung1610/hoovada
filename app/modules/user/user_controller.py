@@ -1,13 +1,22 @@
+import os
 from datetime import datetime
 import dateutil.parser
+from flask import url_for, request, send_file
 
 from flask_restx import marshal
 
 from app import db
+from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_result, send_error
 from app.modules.common.controller import Controller
+from app.settings.config import Config
+from app.utils.util import encode_file_name
+
+AVATAR_FOLDER = Config.AVATAR_FOLDER
+STATIC_FOLDER = Config.STATIC_FOLDER
+IMAGE_FOLDER = Config.IMAGE_FOLDER
 
 
 class UserController(Controller):
@@ -75,6 +84,50 @@ class UserController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not delete user')
+
+    def upload_avatar(self, args):
+        if not isinstance(args, dict) or not 'avatar' in args:
+            return send_error(message='Your request does not contain avatar.')
+        # upload here
+        user, message = AuthController.get_logged_user(request)
+        # user = User.query.filter_by(id=id).first()
+        if user is None:
+            return send_error(message)
+
+        photo = args['avatar']
+        if photo:
+            file_name = 'user_' + str(user.id) + '_avatar'
+            file_name = encode_file_name(file_name) + ".png"
+            try:
+                if not os.path.exists(STATIC_FOLDER):
+                    os.mkdir(STATIC_FOLDER)
+                if not os.path.exists(IMAGE_FOLDER):
+                    os.mkdir(IMAGE_FOLDER)
+                if not os.path.exists(AVATAR_FOLDER):
+                    os.mkdir(AVATAR_FOLDER)
+                photo.save(os.path.join(AVATAR_FOLDER, file_name))
+                user.profile_pic_url = url_for('user_upload_avatar', filename=file_name)
+                db.session.commit()
+                return send_result(data=marshal(user, UserDto.model), message='Upload avatar successfully.')
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your avatar.')
+        else:
+            return send_error(message='Please attach or check your photo before uploading.')
+
+    def get_avatar(self):
+        # upload here
+        filename = request.args.get('filename')
+        filename = os.path.join(AVATAR_FOLDER, filename)
+        if os.path.exists(filename):
+            return send_file(filename)
+        else:
+            return send_error(message='Avatar does not exist. Upload it first.')
+        # user, message = AuthController.get_logged_user(request)
+        # # user = User.query.filter_by(id=id).first()
+        # if user is None:
+        #     return send_error(message)
+        # return user.avatar
 
     def _parse_user(self, data, user=None):
         if user is None:

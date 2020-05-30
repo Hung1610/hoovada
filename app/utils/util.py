@@ -6,6 +6,7 @@ Purpose: This file contains some useful and essential function utilities.
 
 This is the applications utilities.
 """
+import hashlib
 from datetime import datetime, timedelta
 from io import StringIO
 
@@ -22,6 +23,16 @@ from app.app import mail
 from app.modules.user.blacklist import BlacklistToken
 from app.settings import config
 
+def encode_file_name(filename):
+    '''
+    Encode the filename (without extension).
+
+    :param filename: The filename.
+
+    :return: The encoded filename.
+    '''
+    encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
+    return encoded
 
 def generate_conformation_token(email):
     """

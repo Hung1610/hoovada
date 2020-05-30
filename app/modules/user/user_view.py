@@ -1,3 +1,6 @@
+from flask import request
+from werkzeug.datastructures import FileStorage
+
 from app.modules.common.view import Resource
 from app.modules.user.user_dto import UserDto
 from .user_controller import UserController
@@ -10,7 +13,7 @@ _user = UserDto.model
 @api.route('')
 class UserList(Resource):
     @admin_token_required
-    @api.marshal_list_with(_user)
+    # @api.marshal_list_with(_user)
     def get(self):
         """
         Returns all users in the system.
@@ -22,7 +25,7 @@ class UserList(Resource):
         return controller.get()
 
     @admin_token_required
-    @api.expect(_user)
+    # @api.expect(_user)
     def post(self):
         '''
         Create new user.
@@ -39,7 +42,7 @@ class UserList(Resource):
 @api.route('/<int:id>')
 class User(Resource):
     @token_required
-    @api.marshal_with(_user)
+    # @api.marshal_with(_user)
     def get(self, id):
         """``
         Get all information for specific user with ID `id`
@@ -77,3 +80,28 @@ class User(Resource):
         '''
         controller = UserController()
         return controller.delete(object_id=id)
+
+
+avatar_upload = api.parser()
+
+avatar_upload.add_argument('avatar', location='files',
+                           type=FileStorage, required=True, help='The image file to upload')
+
+avatar_download = api.parser()
+avatar_download.add_argument('filename', type=str, required=True, help='The name of the avatar')
+
+
+@api.route('/avatar')
+class UploadAvatar(Resource):
+    @token_required
+    @api.expect(avatar_download)
+    def get(self):
+        controler = UserController()
+        return controler.get_avatar()
+
+    @token_required
+    @api.expect(avatar_upload)
+    def post(self):
+        args = avatar_upload.parse_args()
+        controller = UserController()
+        return controller.upload_avatar(args=args)
