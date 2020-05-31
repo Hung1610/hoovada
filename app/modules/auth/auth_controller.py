@@ -130,9 +130,9 @@ class AuthController:
             # user.email_confirmed = True
             user.email_confirmed_at = datetime.now()
             db.session.commit()
-            return 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
+            return "Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập." #'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
         else:
-            return 'Invalid confirmation token.'
+            return "Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a>hoovada.com</a> để yêu cầu mã xác thực mới." #'Invalid confirmation token.'
 
     # @staticmethod
     def login_user(self, data):
