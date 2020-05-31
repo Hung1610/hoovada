@@ -31,7 +31,7 @@ class UserTopicController(Controller):
         if user_id is not None:
             query = query.filter(UserTopic.user_id == user_id)
             is_filter = True
-        if topic_id is None:
+        if topic_id is not None:
             query = query.filter(UserTopic.topic_id == topic_id)
             is_filter = True
         if is_filter:

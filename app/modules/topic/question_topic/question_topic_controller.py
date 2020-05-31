@@ -50,7 +50,7 @@ class QuestionTopicController(Controller):
         if question_id is not None:
             query = query.filter(QuestionTopic.question_id == question_id)
             is_filter = True
-        if topic_id is None:
+        if topic_id is not None:
             query = query.filter(QuestionTopic.topic_id == topic_id)
             is_filter = True
         if is_filter:
