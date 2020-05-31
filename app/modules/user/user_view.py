@@ -62,6 +62,7 @@ class User(Resource):
         Update an existed user in the system.
         --------------------
         :param id:
+
         :return:
         '''
         data = api.payload
@@ -83,7 +84,6 @@ class User(Resource):
 
 
 avatar_upload = api.parser()
-
 avatar_upload.add_argument('avatar', location='files',
                            type=FileStorage, required=True, help='The image file to upload')
 

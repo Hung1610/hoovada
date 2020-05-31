@@ -66,14 +66,14 @@ class User(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     display_name = db.Column(db.String(128), unique=True)
-    title = db.Column(db.String(10))
+    title = db.Column(db.String(10), default='')
 
-    first_name = db.Column(db.String(128))
-    middle_name = db.Column(db.String(128))
-    last_name = db.Column(db.String(128))
+    first_name = db.Column(db.String(128), default='')
+    middle_name = db.Column(db.String(128), default='')
+    last_name = db.Column(db.String(128), default='')
 
-    gender = db.Column(db.String(10))
-    age = db.Column(db.String(3))
+    gender = db.Column(db.String(10), default='')
+    age = db.Column(db.String(3), default='')
     email = db.Column(db.String(255), unique=True)
     password_hash = db.Column(db.String(128), default='')
 
@@ -82,25 +82,25 @@ class User(Model):
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     email_confirmed_at = db.Column(db.DateTime(), nullable=True)
 
-    profile_pic_url = db.Column(db.String(255))
-    profile_pic_data_url = db.Column(db.String(10000))
+    profile_pic_url = db.Column(db.String(255), default='')
+    profile_pic_data_url = db.Column(db.String(10000), default='')
     admin = db.Column(db.Boolean(), default=False)
     active = db.Column(db.Boolean(), nullable=False, default=False)
 
     reputation = db.Column(db.Integer, default=0)
     profile_views = db.Column(db.Integer, default=0)
-    city = db.Column(db.String(100))
-    country = db.Column(db.String(100))
-    website_url = db.Column(db.String(200))
+    city = db.Column(db.String(100), default='')
+    country = db.Column(db.String(100), default='')
+    website_url = db.Column(db.String(200), default='')
 
     # about_me = db.Column(db.String(3000))
-    about_me = db.Column(db.Text)
-    about_me_markdown = db.Column(db.Text)
-    about_me_html = db.Column(db.Text)
+    about_me = db.Column(db.Text, default='')
+    about_me_markdown = db.Column(db.Text, default='')
+    about_me_html = db.Column(db.Text, default='')
 
     people_reached = db.Column(db.Integer, default=0)
-    job_role = db.Column(db.String(255))
-    company = db.Column(db.String(255))
+    job_role = db.Column(db.String(255), default='')
+    company = db.Column(db.String(255), default='')
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, nullable=False, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, nullable=False, default=True)
@@ -115,41 +115,41 @@ class User(Model):
     email_stories_topics_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
-    @hybrid_property
-    def about_me(self):
-        """Return the value of _about_me but the html version."""
-        return self._about_me_html
+    # @hybrid_property
+    # def about_me(self):
+    #     """Return the value of _about_me but the html version."""
+    #     return self._about_me_html
+    #
+    # @about_me.setter
+    # def about_me(self, markdown):
+    #     """Constrain markdown with html so html is never set directly"""
+    #     # self._about_me = remove_markdown(markdown)
+    #     # self._about_me_markdown = markdown
+    #     # self._about_me_html = convert_markdown(markdown)
+    #     pass
 
-    @about_me.setter
-    def about_me(self, markdown):
-        """Constrain markdown with html so html is never set directly"""
-        # self._about_me = remove_markdown(markdown)
-        # self._about_me_markdown = markdown
-        # self._about_me_html = convert_markdown(markdown)
-        pass
+    # @hybrid_property
+    # def about_me_markdown(self):
+    #     """Return the value of _markdown."""
+    #     return self.about_me_markdown
+    #
+    # @hybrid_property
+    # def about_me_html(self):
+    #     """Return the value of _html."""
+    #     return self.about_me_html
 
-    @hybrid_property
-    def about_me_markdown(self):
-        """Return the value of _markdown."""
-        return self._about_me_markdown
+    # @hybrid_property
+    # def topics(self):
+    #     """Return the value of _topics."""
+    #     return self.topics
+    #
+    # @property
+    # def current_user_topics(self):
+    #     return self.topics + self.assigned_topics
 
-    @hybrid_property
-    def about_me_html(self):
-        """Return the value of _html."""
-        return self._about_me_html
-
-    @hybrid_property
-    def topics(self):
-        """Return the value of _topics."""
-        return self._topics
-
-    @property
-    def current_user_topics(self):
-        return self.topics + self.assigned_topics
-
-    def get_topicstring(self):
-        """Return the topics for this instance as a comma separated string"""
-        return ', '.join([topic.name for topic in self.topics])
+    # def get_topicstring(self):
+    #     """Return the topics for this instance as a comma separated string"""
+    #     return ', '.join([topic.name for topic in self.topics])
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -157,14 +157,14 @@ class User(Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    @property
-    def avatar(self):
-        if self.profile_pic_url:
-            return self.profile_pic_url
-        if self.profile_pic_data_url:
-            return self.profile_pic_data_url
-        else:
-            return url_for('static', filename='img/pro-pic.png', _scheme='https', _external=True)
+    # @property
+    # def avatar(self):
+    #     if self.profile_pic_url:
+    #         return self.profile_pic_url
+    #     if self.profile_pic_data_url:
+    #         return self.profile_pic_data_url
+    #     else:
+    #         return url_for('static', filename='img/pro-pic.png', _scheme='https', _external=True)
 
     @property
     def is_admin(self):
@@ -173,47 +173,47 @@ class User(Model):
         else:
             return False
 
-    @property
-    def is_authenticated(self):
-        return True
+    # @property
+    # def is_authenticated(self):
+    #     return True
 
-    @property
-    def is_active(self):
-        return True
+    # @property
+    # def is_active(self):
+    #     return self.active # True
 
-    @property
-    def is_anonymous(self):
-        return False
+    # @property
+    # def is_anonymous(self):
+    #     return False
 
-    def get_id(self):
-        try:
-            return str(self.id)
-        except AttributeError:
-            raise NotImplementedError('No `id` attribute - override `get_id`')
+    # def get_id(self):
+    #     try:
+    #         return str(self.id)
+    #     except AttributeError:
+    #         raise NotImplementedError('No `id` attribute - override `get_id`')
 
-    @property
-    def name(self):
-        if self.first_name and self.last_name:
-            return f'{self.first_name} {self.last_name}'
-        else:
-            return f'{self.display_name}'
+    # @property
+    # def name(self):
+    #     if self.first_name and self.last_name:
+    #         return f'{self.first_name} {self.last_name}'
+    #     else:
+    #         return f'{self.display_name}'
 
-    @property
-    def email_confirmed(self):
-        if self.confirmed:
-            return True
-        else:
-            return False
+    # @property
+    # def email_confirmed(self):
+    #     if self.confirmed:
+    #         return True
+    #     else:
+    #         return False
 
-    @validates('email')
-    def validate_email(self, key, address):
-        assert '@' in address
-        return address
+    # @validates('email')
+    # def validate_email(self, key, address):
+    #     assert '@' in address
+    #     return address
 
-    class Meta:
-        order_by = ('-joined_date')
-
-    def __repr__(self):
-        return (
-            f'User [ID: {self.id}]\nName: {self.display_name}\nEmail: {self.email}'
-        )
+    # class Meta:
+    #     order_by = ('-joined_date')
+    #
+    # def __repr__(self):
+    #     return (
+    #         f'User [ID: {self.id}]\nName: {self.display_name}\nEmail: {self.email}'
+    #     )

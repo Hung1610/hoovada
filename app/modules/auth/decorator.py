@@ -33,7 +33,7 @@ def admin_token_required(f):
         user, message = AuthController.get_logged_user(request)
         if user is None:
             return send_error(message=message)
-        if not user.is_admin:
+        if not user.admin:
             return send_error(message='You are not admin. You need admin right to perform this action.')
         return f(*args, **kwargs)
 
