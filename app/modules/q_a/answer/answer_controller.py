@@ -142,7 +142,7 @@ class AnswerController(Controller):
 
     def delete(self, object_id):
         try:
-            answer = Answer.query.filter_by(id=object_id)
+            answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
                 return send_error(message="Answer with ID {} not found.".format(object_id))
             else:
