@@ -104,6 +104,7 @@ class UserTopicController(Controller):
             else:
                 db.session.delete(user_topic)
                 db.session.commit()
+                return send_result(message='Deleted successfully.')
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not delete user-topic with ID {}'.format(object_id))
