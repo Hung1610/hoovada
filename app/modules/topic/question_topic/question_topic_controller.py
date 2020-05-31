@@ -16,9 +16,10 @@ class QuestionTopicController(Controller):
             topic_id = data['topic_id']
             question_topic = QuestionTopic.query.filter(QuestionTopic.question_id == question_id,
                                                         QuestionTopic.topic_id == topic_id).first()
-            if question_topic is None:
+            if question_topic is not None:
                 return send_error(message='This record already exist in database.')
             else:
+                question_topic = self._parse_question_topic(data, None)
                 db.session.add(question_topic)
                 db.session.commit()
                 return send_result(data=marshal(question_topic, QuestionTopicDto.model), message='Create successfully.')

@@ -54,6 +54,7 @@ class UserTopicController(Controller):
                 return send_error(
                     message='This user with ID {} already follow this topic with ID {}'.format(user_id, topic_id))
             else:
+                user_topic = self._parse_user_topic(data=data, user_topic=None)
                 db.session.add(user_topic)
                 db.session.commit()
                 return send_result(data=marshal(user_topic, UserTopicDto.model), message='Create successfully.')

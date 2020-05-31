@@ -177,12 +177,14 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'is_fixed' in data:
-            try:
-                topic.is_fixed = bool(data['is_fixed'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        if 'is_fixed' in data: # we do not parse the value of is_fixed, because the fixed topics already passed
+            pass
+            # try:
+            #     topic.is_fixed = bool(data['is_fixed'])
+            # except Exception as e:
+            #     print(e.__str__())
+            #     pass
+        topic.is_fixed = False
         if 'created_date' in data:
             try:
                 topic.created_date = dateutil.parser.isoparse(data['created_date'])
