@@ -25,7 +25,7 @@ class UserList(Resource):
         return controller.get()
 
     @admin_token_required
-    # @api.expect(_user)
+    @api.expect(_user)
     def post(self):
         '''
         Create new user.
@@ -56,7 +56,7 @@ class User(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(_user, validate=True)
+    @api.expect(_user)
     def put(self, id):
         '''
         Update an existed user in the system.

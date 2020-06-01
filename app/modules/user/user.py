@@ -65,33 +65,35 @@ class User(Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    display_name = db.Column(db.String(128), unique=True)
-    title = db.Column(db.String(10), default='')
+    # display_name = db.Column(db.String(128), unique=True)
+    display_name = db.Column(db.String, default='')
+    # title = db.Column(db.String(10), default='')
+    title = db.Column(db.String, default='')
 
-    first_name = db.Column(db.String(128), default='')
-    middle_name = db.Column(db.String(128), default='')
-    last_name = db.Column(db.String(128), default='')
+    first_name = db.Column(db.String) #(128), default='')
+    middle_name = db.Column(db.String) #(128), default='')
+    last_name = db.Column(db.String) #(128), default='')
 
-    gender = db.Column(db.String(10), default='')
-    age = db.Column(db.String(3), default='')
-    email = db.Column(db.String(255), unique=True)
-    password_hash = db.Column(db.String(128), default='')
+    gender = db.Column(db.String) #(10), default='')
+    age = db.Column(db.String) #(3), default='')
+    email = db.Column(db.String) #(255), unique=True)
+    password_hash = db.Column(db.String) #(128), default='')
 
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     joined_date = db.Column(db.DateTime, default=datetime.utcnow)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
-    email_confirmed_at = db.Column(db.DateTime(), nullable=True)
+    email_confirmed_at = db.Column(db.DateTime, nullable=True)
 
-    profile_pic_url = db.Column(db.String(255), default='')
-    profile_pic_data_url = db.Column(db.String(10000), default='')
-    admin = db.Column(db.Boolean(), default=False)
-    active = db.Column(db.Boolean(), nullable=False, default=False)
+    profile_pic_url = db.Column(db.String) # (255), default='')
+    profile_pic_data_url = db.Column(db.String) #(10000), default='')
+    admin = db.Column(db.Boolean, default=False)
+    active = db.Column(db.Boolean, nullable=False, default=False)
 
     reputation = db.Column(db.Integer, default=0)
     profile_views = db.Column(db.Integer, default=0)
-    city = db.Column(db.String(100), default='')
-    country = db.Column(db.String(100), default='')
-    website_url = db.Column(db.String(200), default='')
+    city = db.Column(db.String) #(100), default='')
+    country = db.Column(db.String) #(100), default='')
+    website_url = db.Column(db.String) # (200), default='')
 
     # about_me = db.Column(db.String(3000))
     about_me = db.Column(db.Text, default='')
@@ -99,20 +101,24 @@ class User(Model):
     about_me_html = db.Column(db.Text, default='')
 
     people_reached = db.Column(db.Integer, default=0)
-    job_role = db.Column(db.String(255), default='')
-    company = db.Column(db.String(255), default='')
+    job_role = db.Column(db.String) #(255), default='')
+    company = db.Column(db.String) #(255), default='')
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, nullable=False, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, nullable=False, default=True)
-    hoovada_digests_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    # hoovada_digests_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    hoovada_digests_frequency_setting = db.Column(db.String, nullable=False, default='weekly')
 
     questions_you_asked_or_followed_setting = db.Column(db.Boolean, nullable=False, default=True)
-    questions_you_asked_or_followed_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    # questions_you_asked_or_followed_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    questions_you_asked_or_followed_frequency_setting = db.Column(db.String, nullable=False, default='weekly')
     people_you_follow_setting = db.Column(db.Boolean, nullable=False, default=True)
 
-    people_you_follow_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    # people_you_follow_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    people_you_follow_frequency_setting = db.Column(db.String, nullable=False, default='weekly')
     email_stories_topics_setting = db.Column(db.Boolean, nullable=False, default=True)
-    email_stories_topics_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    # email_stories_topics_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
+    email_stories_topics_frequency_setting = db.Column(db.String, nullable=False, default='weekly')
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     # @hybrid_property

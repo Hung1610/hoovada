@@ -60,6 +60,14 @@ class UserController(Controller):
             return send_error(message='Could not get user by ID {}.'.format(object_id))
 
     def update(self, object_id, data):
+        if not isinstance(data, dict):
+            return send_error(message='You must pass dictionary-like data.')
+        if 'id' in data:
+            return send_error(message='Could not update ID.')
+        if 'email' in data and data['email'] is None:
+            return send_error(message='Email must not be null to be updated.')
+        if 'password' in data and data['password'] is None:
+            return send_error(message='Password must not be empty to be updated.')
         try:
             user = User.query.filter_by(id=object_id).first()
             if not user:
