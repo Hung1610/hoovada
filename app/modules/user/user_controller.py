@@ -68,9 +68,11 @@ class UserController(Controller):
         if 'id' in data:
             return send_error(message='Could not update ID.')
         if 'email' in data and data['email'] is None:
-            return send_error(message='Email must not be null to be updated.')
+            return send_error(message='Email update is not allowed here.')
         if 'password' in data and data['password'] is None:
-            return send_error(message='Password must not be empty to be updated.')
+            return send_error(message='Password update is now allowed here.')
+        if 'profile_views' in data:
+            return send_error(message='Profile views is not allowed to update.')
         try:
             user = User.query.filter_by(id=object_id).first()
             if not user:
