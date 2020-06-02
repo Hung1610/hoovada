@@ -63,11 +63,20 @@ class UserController(Controller):
             return send_error(message='Could not get user by ID {}.'.format(object_id))
 
     def update(self, object_id, data):
+        '''
+        Doest now allow to update `id`, `email`, `password`, `profile_views`.
+
+        :param object_id:
+
+        :param data:
+
+        :return:
+        '''
         if not isinstance(data, dict):
             return send_error(message='You must pass dictionary-like data.')
         if 'id' in data:
             return send_error(message='Could not update ID.')
-        if 'email' in data and data['email'] is None:
+        if 'email' in data:
             return send_error(message='Email update is not allowed here.')
         if 'password' in data and data['password'] is None:
             return send_error(message='Password update is now allowed here.')

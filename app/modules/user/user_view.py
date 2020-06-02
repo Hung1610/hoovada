@@ -61,9 +61,16 @@ class User(Resource):
         '''
         Update an existed user in the system.
         --------------------
-        :param id:
 
-        :return:
+        Note: The following fields are not allowed to update:
+        - `id`: The user's ID.
+        - `email`: The email used to authenticate.
+        - `password`: The password used to authenticate.
+        - `profile_views`: The amount of profile views.
+
+        :param id: The user ID.
+
+        :return: The user data after updated.
         '''
         data = api.payload
         controller = UserController()
