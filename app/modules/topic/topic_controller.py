@@ -191,4 +191,8 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if 'description' in data:
+            topic.description = data['description']
+
         return topic

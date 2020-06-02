@@ -16,5 +16,6 @@ class TopicDto(Dto):
         'answer_count': fields.Integer(),
         'parent_id': fields.Integer(),
         'is_fixed': fields.Boolean(default=False),
-        'created_date': fields.DateTime()
+        'created_date': fields.DateTime(),
+        'description':fields.String()
     })

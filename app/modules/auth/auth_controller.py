@@ -78,7 +78,9 @@ class AuthController:
             return send_error(message="Please provide an email")
         if not 'password' in data or str(data['password']).strip().__eq__(''):
             return send_error(message='Pleases provide a password.')
-        display_name = data['display_name']
+        display_name = ''
+        if 'display_name' in data:
+            display_name = data['display_name']
         email = data['email']
         password = data['password']
         if AuthController.check_user_exist(email=email):

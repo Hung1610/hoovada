@@ -17,3 +17,4 @@ class Topic(Model):
     parent_id = db.Column(db.Integer)  # the ID of parent topic
     is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    description = db.Column(db.String)
