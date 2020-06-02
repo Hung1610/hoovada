@@ -212,12 +212,13 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'profile_views' in data:
-            try:
-                user.profile_views = int(data['profile_views'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        if 'profile_views' in data:  # doan nay can sua de chi co the view duoc, ma ko set duoc
+            pass
+            # try:
+            #     user.profile_views = int(data['profile_views'])
+            # except Exception as e:
+            #     print(e.__str__())
+            #     pass
         if 'city' in data:
             user.city = data['city']
         if 'country' in data:

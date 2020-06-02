@@ -66,9 +66,9 @@ class User(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     # display_name = db.Column(db.String(128), unique=True)
-    display_name = db.Column(db.String, default='')
+    display_name = db.Column(db.String) # , default='')
     # title = db.Column(db.String(10), default='')
-    title = db.Column(db.String, default='')
+    title = db.Column(db.String) #, default='')
 
     first_name = db.Column(db.String) #(128), default='')
     middle_name = db.Column(db.String) #(128), default='')
