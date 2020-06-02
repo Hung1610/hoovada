@@ -54,6 +54,9 @@ class UserController(Controller):
             if user is None:
                 return send_error(data="Could not find user by this id")
             else:
+                # when call to this function, increase the profile_views
+                user.profile_views += 1
+                db.session.commit()
                 return send_result(data=marshal(user, UserDto.model))
         except Exception as e:
             print(e.__str__())
