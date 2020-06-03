@@ -12,7 +12,7 @@ question = QuestionDto.model
 
 @api.route('')
 class QuestionList(Resource):
-    @admin_token_required
+    @token_required
     # @api.marshal_list_with(question)
     def get(self):
         '''

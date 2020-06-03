@@ -3,6 +3,7 @@ from datetime import datetime
 import dateutil.parser
 
 from flask_restx import marshal
+from sqlalchemy import desc
 
 from app import db
 from app.modules.common.controller import Controller
@@ -126,7 +127,7 @@ class QuestionController(Controller):
 
     def get(self):
         try:
-            questions = Question.query.all()
+            questions = Question.query.order_by(desc(Question.created_date)).limit(50).all()
             return send_result(data=marshal(questions, QuestionDto.model), message='Success')
         except Exception as e:
             print(e.__str__())
