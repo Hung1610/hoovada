@@ -10,11 +10,64 @@ from app.utils.response import send_error, send_result
 
 
 class CommentController(Controller):
+
+    def search(self, args):
+        '''
+        Search comments by params.
+
+        :param args: Arguments in dictionary form.
+
+        :return:
+        '''
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse the params.')
+        user_id, question_id, answer_id = None, None, None
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'question_id' in args:
+            try:
+                question_id = int(args['question_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'answer_id' in args:
+            try:
+                answer_id = int(args['answer_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if user_id is None and question_id is None and answer_id is None:
+            send_error(message='Provide params to search.')
+        query = db.session.query(Comment)
+        is_filter = False
+        if user_id is not None:
+            query = query.filter(Comment.user_id == user_id)
+            is_filter = True
+        if question_id is not None:
+            query = query.filter(Comment.question_id == question_id)
+            is_filter = True
+        if answer_id is not None:
+            query = query.filter(Comment.answer_id == answer_id)
+            is_filter = True
+        if is_filter:
+            comments = query.all()
+            if comments is not None and len(comments) > 0:
+                return send_result(marshal(comments, CommentDto.model), message='Success')
+            else:
+                return send_result(message='Could not find any comments.')
+        else:
+            return send_error(message='Could not find comments. Please check your parameters again.')
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
-        if not 'answer_id' in data:
-            return send_error(message="The answer_id must be inclued")
+        if not 'Comment_id' in data:
+            return send_error(message="The Comment_id must be inclued")
         if not 'user_id' in data:
             return send_error(message="The user_id must be included")
         try:

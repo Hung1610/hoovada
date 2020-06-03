@@ -7,7 +7,7 @@ class CommentDto(Dto):
     name = 'comment'
     api = Namespace(name)
     model = api.model(name, {
-        'id': fields.Integer(required=False),
+        'id': fields.Integer(required=False, readonly=True),
         'comment_body': fields.String(),
         'created_date': fields.DateTime(),
         'question_id': fields.Integer(),

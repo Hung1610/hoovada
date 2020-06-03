@@ -1,4 +1,4 @@
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .comment_dto import CommentDto
 from .comment_controller import CommentController
@@ -11,7 +11,7 @@ comment = CommentDto.model
 @api.route('')
 class CommentList(Resource):
     @admin_token_required
-    @api.marshal_list_with(comment)
+    # @api.marshal_list_with(comment)
     def get(self):
         '''
         Get list of comments from database.
@@ -23,7 +23,7 @@ class CommentList(Resource):
 
     @token_required
     @api.expect(comment)
-    @api.marshal_with(comment)
+    # @api.marshal_with(comment)
     def post(self):
         '''
         Create new comment.
@@ -38,7 +38,7 @@ class CommentList(Resource):
 @api.route('/<int:id>')
 class Comment(Resource):
     @token_required
-    @api.marshal_with(comment)
+    # @api.marshal_with(comment)
     def get(self, id):
         '''
         Get comment by its ID.
@@ -52,7 +52,7 @@ class Comment(Resource):
 
     @token_required
     @api.expect(comment)
-    @api.marshal_with(comment)
+    # @api.marshal_with(comment)
     def put(self, id):
         '''
         Update existing comment by its ID.
@@ -76,3 +76,30 @@ class Comment(Resource):
         '''
         controller = CommentController()
         return controller.delete(object_id=id)
+
+parser = reqparse.RequestParser()
+parser.add_argument('user_id', type=str, required=False, help='Search comments by user_id (who created question)')
+parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
+parser.add_argument('answer_id', type=str, required=False, help='Search all comments by answer_id.')
+
+
+@api.route('/search')
+@api.expect(parser)
+class AnswerSearch(Resource):
+    @token_required
+    def get(self):
+        """
+        Search all topics that satisfy conditions.
+        ---------------------
+
+        :user_id: Search answers by user_id (who created question)
+
+        :question_id: Search all topics by fixed topic ID.
+
+        :answer_id: Search comments by answer ID.
+
+        :return: List of comments.
+        """
+        args = parser.parse_args()
+        controller = CommentController()
+        return controller.search(args=args)
