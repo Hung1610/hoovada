@@ -85,16 +85,16 @@ parser.add_argument('answer_id', type=str, required=False, help='Search all comm
 
 @api.route('/search')
 @api.expect(parser)
-class AnswerSearch(Resource):
+class CommentSearch(Resource):
     @token_required
     def get(self):
         """
-        Search all topics that satisfy conditions.
+        Search all comments that satisfy conditions.
         ---------------------
 
-        :user_id: Search answers by user_id (who created question)
+        :user_id: Search comments by user_id
 
-        :question_id: Search all topics by fixed topic ID.
+        :question_id: Search all comments by question ID.
 
         :answer_id: Search comments by answer ID.
 

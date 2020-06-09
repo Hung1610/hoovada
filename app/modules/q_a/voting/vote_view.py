@@ -1,4 +1,4 @@
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from .vote_dto import VoteDto
 from .vote_controller import VoteController
@@ -11,7 +11,7 @@ vote = VoteDto.model
 @api.route('')
 class VoteList(Resource):
     @admin_token_required
-    @api.marshal_list_with(vote)
+    # @api.marshal_list_with(vote)
     def get(self):
         '''
         Get list of votes from database.
@@ -23,7 +23,7 @@ class VoteList(Resource):
 
     @token_required
     @api.expect(vote)
-    @api.marshal_with(vote)
+    # @api.marshal_with(vote)
     def post(self):
         '''
         Create new vote.
@@ -38,7 +38,7 @@ class VoteList(Resource):
 @api.route('/<int:id>')
 class Vote(Resource):
     @token_required
-    @api.marshal_with(vote)
+    # @api.marshal_with(vote)
     def get(self, id):
         '''
         Get vote by its ID.
@@ -52,7 +52,7 @@ class Vote(Resource):
 
     @token_required
     @api.expect(vote)
-    @api.marshal_with(vote)
+    # @api.marshal_with(vote)
     def put(self, id):
         '''
         Update existing vote by its ID.
@@ -76,3 +76,34 @@ class Vote(Resource):
         '''
         controller = VoteController()
         return controller.delete(object_id=id)
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('user_id', type=str, required=False, help='Search votes by user_id')
+parser.add_argument('question_id', type=str, required=False, help='Search all votes by question_id.')
+parser.add_argument('answer_id', type=str, required=False, help='Search all votes by answer_id.')
+parser.add_argument('comment_id', type=str, required=False, help='Search all votes by comment_id.')
+parser.add_argument('from_date', type=str, required=False, help='Search all votes by start voting date.')
+parser.add_argument('to_date', type=str, required=False, help='Search all votes by finish voting date.')
+
+
+@api.route('/search')
+@api.expect(parser)
+class VoteSearch(Resource):
+    @token_required
+    def get(self):
+        """
+        Search all votes that satisfy conditions.
+        ---------------------
+
+        :user_id: Search votes by user_id
+
+        :question_id: Search all votes by question ID.
+
+        :answer_id: Search votes by answer ID.
+
+        :return: List of comments.
+        """
+        args = parser.parse_args()
+        controller = VoteController()
+        return controller.search(args=args)
