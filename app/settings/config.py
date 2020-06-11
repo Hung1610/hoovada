@@ -21,9 +21,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_USERNAME = 'admin@hoovada.com'
-    MAIL_PASSWORD = 'hoovada^0123'
-    MAIL_DEFAULT_SENDER = 'admin@hoovada.com'
+    MAIL_USERNAME =  'admin@hoovada.com'
+    MAIL_PASSWORD = 'acjydcftuegpdftn'
+    MAIL_DEFAULT_SENDER ='admin@hoovada.com'
 
     MAIL_PORT = 587
     MAIL_USE_TLS = True
