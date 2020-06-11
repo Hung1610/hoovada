@@ -92,7 +92,7 @@ def send_confirmation_email(to):
     token = generate_conformation_token(email=to)
     confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
-    send_email(to, 'Confirmation your registration', html)
+    send_email(to, 'Xác nhận đăng ký', html)
 
 
 def encode_auth_token(user_id):

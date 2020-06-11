@@ -126,7 +126,7 @@ class AuthController:
         user = User.query.filter_by(email=email).first()
         if user:
             if user.confirmed:
-                return 'Accound already confirmed.'
+                return 'Tài khoản email đã được kích hoạt trước đó, vui lòng đăng nhập.'
             user.confirmed = True
             # user.active = True
             # user.email_confirmed = True
@@ -147,7 +147,7 @@ class AuthController:
             if user and user.check_password(data['password']):
                 if not user.confirmed:
                     self.resend_confirmation(data=data)
-                    return send_error(message='Your email is not confirmed. Please go to your mailbox and activate it.')
+                    return send_error(message='Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
                 auth_token = encode_auth_token(user_id=user.id)
                 user.active = True
                 db.session.commit()
