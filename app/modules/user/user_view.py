@@ -99,8 +99,8 @@ avatar_download.add_argument('filename', type=str, required=True, help='The name
 
 
 @api.route('/avatar')
-class UploadAvatar(Resource):
-    @token_required
+class Avatar(Resource):
+    # @token_required
     @api.expect(avatar_download)
     def get(self):
         controler = UserController()
