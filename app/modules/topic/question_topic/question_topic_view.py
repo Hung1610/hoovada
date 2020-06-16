@@ -12,6 +12,7 @@ question_topic = QuestionTopicDto.model
 class QuestionTopicList(Resource):
     @admin_token_required
     # @api.marshal_list_with(question_topic)
+    @api.response(code=200, model=question_topic, description='Model for question topic response.')
     def get(self):
         '''
         Get list of question_topics from database.
@@ -24,6 +25,7 @@ class QuestionTopicList(Resource):
     @token_required
     @api.expect(question_topic)
     # @api.marshal_with(question_topic)
+    @api.response(code=200, model=question_topic, description='Model for question topic response.')
     def post(self):
         '''
         Create new question_topic.
@@ -39,6 +41,7 @@ class QuestionTopicList(Resource):
 class QuestionTopic(Resource):
     @token_required
     # @api.marshal_with(question_topic)
+    @api.response(code=200, model=question_topic, description='Model for question topic response.')
     def get(self, id):
         '''
         Get question_topic by its ID.
@@ -50,20 +53,20 @@ class QuestionTopic(Resource):
         controller = QuestionTopicController()
         return controller.get_by_id(object_id=id)
 
-    @token_required
-    @api.expect(question_topic)
-    # @api.marshal_with(question_topic)
-    def put(self, id):
-        '''
-        Update existing question_topic by its ID.
-
-        :param id: The ID of the question_topic which need to be updated.
-
-        :return: The updated question_topic if success and null vice versa.
-        '''
-        data = api.payload
-        controller = QuestionTopicController()
-        return controller.update(object_id=id, data=data)
+    # @token_required
+    # @api.expect(question_topic)
+    # # @api.marshal_with(question_topic)
+    # def put(self, id):
+    #     '''
+    #     Update existing question_topic by its ID.
+    #
+    #     :param id: The ID of the question_topic which need to be updated.
+    #
+    #     :return: The updated question_topic if success and null vice versa.
+    #     '''
+    #     data = api.payload
+    #     controller = QuestionTopicController()
+    #     return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
@@ -87,6 +90,7 @@ parser.add_argument('topic_id', type=str, required=False, help='Search records b
 @api.expect(parser)
 class QuestionTopicSearch(Resource):
     @token_required
+    @api.response(code=200, model=question_topic, description='Model for question topic response.')
     def get(self):
         """
         Search all question-topics that satisfy conditions.

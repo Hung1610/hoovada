@@ -23,7 +23,7 @@ class AnswerController(Controller):
         '''
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
-        user_id, question_id, created_date, updated_date, from_date, to_date = None, None, None, None, None, None
+        user_id, question_id, from_date, to_date = None, None, None, None  # , None, None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
@@ -36,18 +36,18 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'created_date' in args:
-            try:
-                created_date = datetime.fromisoformat(args['created_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'updated_date' in args:
-            try:
-                updated_date = datetime.fromisoformat(args['updated_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        # if 'created_date' in args:
+        #     try:
+        #         created_date = datetime.fromisoformat(args['created_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'updated_date' in args:
+        #     try:
+        #         updated_date = datetime.fromisoformat(args['updated_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
         if 'from_date' in args:
             try:
                 from_date = datetime.fromisoformat(args['from_date'])
@@ -61,7 +61,7 @@ class AnswerController(Controller):
                 print(e.__str__())
                 pass
 
-        if user_id is None and question_id is None and created_date is None and updated_date is None and from_date is None and to_date is None:
+        if user_id is None and question_id is None and from_date is None and to_date is None:
             send_error(message='Provide params to search.')
         query = db.session.query(Answer)
         is_filter = False
@@ -71,12 +71,12 @@ class AnswerController(Controller):
         if question_id is not None:
             query = query.filter(Answer.question_id == question_id)
             is_filter = True
-        if created_date is not None:
-            query = query.filter(Answer.created_date == created_date)
-            is_filter = True
-        if updated_date is not None:
-            query = query.filter(Answer.updated_date == updated_date)
-            is_filter = True
+        # if created_date is not None:
+        #     query = query.filter(Answer.created_date == created_date)
+        #     is_filter = True
+        # if updated_date is not None:
+        #     query = query.filter(Answer.updated_date == updated_date)
+        #     is_filter = True
         if from_date is not None:
             query = query.filter(Answer.created_date >= from_date)
             is_filter = True
@@ -86,7 +86,7 @@ class AnswerController(Controller):
         if is_filter:
             answers = query.all()
             if answers is not None and len(answers) > 0:
-                return send_result(marshal(answers, AnswerDto.model), message='Success')
+                return send_result(marshal(answers, AnswerDto.model_response), message='Success')
             else:
                 return send_result(message='Could not find any answers')
         else:
@@ -97,19 +97,24 @@ class AnswerController(Controller):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'question_id' in data:
             return send_error(message="Please fill the question ID")
+        if not 'answer' in data:
+            return send_error(message='Please fill the answer body before sending.')
         try:
             answer = self._parse_answer(data=data, answer=None)
+            answer.created_date = datetime.utcnow()
+            answer.updated_date = datetime.utcnow()
+            answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
-            return send_result(message='Answer created successfully', data=marshal(answer, AnswerDto.model))
+            return send_result(message='Answer created successfully', data=marshal(answer, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create answer.')
 
     def get(self):
         try:
-            answers = Answer.query.all()
-            return send_result(data=marshal(answers, AnswerDto.model), message='Success')
+            answers = Answer.query.limit(50).all()
+            return send_result(data=marshal(answers, AnswerDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not load answers. Contact your administrator for solution.')
@@ -121,7 +126,7 @@ class AnswerController(Controller):
         if answer is None:
             return send_error(message='Could not find answer with the ID {}.'.format(object_id))
         else:
-            return send_result(data=marshal(answer, AnswerDto.model), message='Success')
+            return send_result(data=marshal(answer, AnswerDto.model_response), message='Success')
 
     def update(self, object_id, data):
         if object_id is None:
@@ -134,8 +139,10 @@ class AnswerController(Controller):
                 return send_error(message="Answer with the ID {} not found.".format(object_id))
             else:
                 answer = self._parse_answer(data=data, answer=answer)
+                answer.updated_date = datetime.utcnow()
+                answer.last_activity = datetime.utcnow()
                 db.session.commit()
-                return send_result(message='Update successfully', data=marshal(answer, AnswerDto.model))
+                return send_result(message='Update successfully', data=marshal(answer, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not update answer.")
@@ -146,6 +153,18 @@ class AnswerController(Controller):
             if answer is None:
                 return send_error(message="Answer with ID {} not found.".format(object_id))
             else:
+                # delete from other tables
+
+                # delete from vote
+
+                # delete from comment
+
+                # delete from reporting
+
+                # delete from share
+
+
+
                 db.session.delete(answer)
                 db.session.commit()
                 return send_result(message="Answer with the ID {} was deleted.".format(object_id))
@@ -156,40 +175,40 @@ class AnswerController(Controller):
     def _parse_answer(self, data, answer=None):
         if answer is None:
             answer = Answer()
-        if 'created_date' in data:
-            try:
-                answer.created_date = dateutil.parser.isoparse(data['created_date'])
-                # answer.created_date = datetime.fromisoformat(data['created_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'updated_date' in data:
-            try:
-                answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #datetime.fromisoformat(data['update_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'last_activity' in data:
-            try:
-                answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'upvote_count' in data:
-            try:
-                answer.upvote_count = int(data['upvote_count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'downvote_count' in data:
-            try:
-                answer.downvote_count = int(data['downvote_count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        # if 'created_date' in data:
+        #     try:
+        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         # answer.created_date = datetime.fromisoformat(data['created_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'updated_date' in data:
+        #     try:
+        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #datetime.fromisoformat(data['update_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'last_activity' in data:
+        #     try:
+        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'upvote_count' in data:
+        #     try:
+        #         answer.upvote_count = int(data['upvote_count'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'downvote_count' in data:
+        #     try:
+        #         answer.downvote_count = int(data['downvote_count'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
         if 'anonymous' in data:
             try:
-                answer.anonymous = int(data['anonymous'])
+                answer.anonymous = bool(data['anonymous'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -199,12 +218,12 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'answer_body' in data:
-            answer.answer_body = data['answer_body']
-        if 'markdown' in data:
-            answer.markdown = data['markdown']
-        if 'html' in data:
-            answer.html = data['html']
+        if 'answer' in data:
+            answer.answer = data['answer']
+        # if 'markdown' in data:
+        #     answer.markdown = data['markdown']
+        # if 'html' in data:
+        #     answer.html = data['html']
         if 'user_id' in data:
             try:
                 answer.user_id = int(data['user_id'])
@@ -217,10 +236,17 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'image_ids' in data:
+        # if 'image_ids' in data:
+        #     try:
+        #         answer.image_ids = json.loads(data['image_ids'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        if 'user_hidden' in data:
             try:
-                answer.image_ids = json.loads(data['image_ids'])
+                answer.user_hidden = bool(data['user_hidden'])
             except Exception as e:
+                answer.user_hidden = False
                 print(e.__str__())
                 pass
         return answer

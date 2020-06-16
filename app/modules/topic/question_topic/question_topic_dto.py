@@ -7,7 +7,7 @@ class QuestionTopicDto(Dto):
     name = 'question_topic'
     api = Namespace(name)
     model = api.model(name, {
-        'id': fields.Integer(required=False),
+        'id': fields.Integer(required=False, readonly=True),
         'question_id': fields.Integer(),
         'topic_id': fields.Integer()
     })

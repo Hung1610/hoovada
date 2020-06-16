@@ -5,13 +5,15 @@ from .topic_controller import TopicController
 from app.modules.auth.decorator import admin_token_required, token_required
 
 api = TopicDto.api
-topic = TopicDto.model
+topic_request = TopicDto.model_topic_request
+topic_response = TopicDto.model_topic_response
 
 
 @api.route('')
 class TopicList(Resource):
     @admin_token_required
-    # @api.marshal_list_with(topic)
+    # @api.marshal_list_with(topic_response)
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
         '''
         Get list of topics from database.
@@ -22,8 +24,8 @@ class TopicList(Resource):
         return controller.get()
 
     @token_required
-    @api.expect(topic)
-    # @api.marshal_with(topic)
+    @api.expect(topic_request)
+    @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):
         '''
         Create new topic.
@@ -44,6 +46,7 @@ class TopicList(Resource):
 class Topic(Resource):
     @token_required
     # @api.marshal_with(topic)
+    @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self, id):
         '''
         Get topic by its ID.
@@ -56,8 +59,9 @@ class Topic(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(topic)
+    @api.expect(topic_request)
     # @api.marshal_with(topic)
+    @api.response(code=200, model=topic_response, description='Model for success response.')
     def put(self, id):
         '''
         Update existing topic by its ID.
@@ -82,6 +86,24 @@ class Topic(Resource):
         controller = TopicController()
         return controller.delete(object_id=id)
 
+
+@api.route('/<int:topic_id>/sub_topics')
+class SubTopic(Resource):
+    @token_required
+    # @api.param(name='topic_id', description='The ID of fixed topic.')
+    @api.response(code=200, model=topic_response, description='Get sub topics')
+    def get(self, topic_id):
+        '''
+        Get sub-topics of fixed-topics.
+
+        :param topic_id: The ID of fixed topic to get sub-topics.
+
+        :return:
+        '''
+        controller = TopicController()
+        return controller.get_sub_topics(fixed_topic_id=topic_id)
+
+
 # @api.route('/create_topics')
 # class CreateFixedTopic(Resource):
 #     def get(self):
@@ -103,6 +125,7 @@ parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed to
 @api.expect(parser)
 class TopicSearch(Resource):
     @token_required
+    @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self):
         """
         Search all topics that satisfy conditions.

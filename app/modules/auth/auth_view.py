@@ -7,7 +7,7 @@ from app.modules.common.view import Resource
 
 api = AuthDto.api
 _auth = AuthDto.model
-# _auth_login = AuthDto.model_login
+_auth_login = AuthDto.model_login
 
 
 @api.route('/register')
@@ -35,7 +35,7 @@ class Register(Resource):
 
 @api.route('/resend_confirmation')
 class ResendConfirmation(Resource):
-    @api.expect(_auth)
+    @api.expect(_auth_login)
     def post(self):
         '''
         Resend confirmation email.
@@ -64,7 +64,8 @@ class Login(Resource):
     '''
     API login
     '''
-    @api.expect(_auth)
+    # @api.expect(_auth)
+    @api.expect(_auth_login)
     def post(self):
         """
         Login user to the system.

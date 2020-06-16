@@ -1,3 +1,6 @@
+import ast
+from datetime import datetime
+
 from flask_restx import marshal
 import dateutil.parser
 
@@ -67,7 +70,7 @@ class TopicController(Controller):
         if is_filter:
             topics = query.all()
             if topics is not None and len(topics) > 0:
-                return send_result(marshal(topics, TopicDto.model), message='Success')
+                return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
             else:
                 return send_error(message='Could not find any topics.')
         else:
@@ -84,9 +87,21 @@ class TopicController(Controller):
             topic = Topic.query.filter(Topic.name == data['name'], Topic.parent_id == data['parent_id']).first()
             if not topic:  # the topic does not exist
                 topic = self._parse_topic(data=data, topic=None)
+                topic.created_date = datetime.today()
                 db.session.add(topic)
                 db.session.commit()
-                return send_result(message='Topic was created successfully.', data=marshal(topic, TopicDto.model))
+                try:
+                    # update amount of sub-topics for for parent topic
+                    parent_id = topic.parent_id
+                    parent_topic = Topic.query.filter_by(id=parent_id).first()
+                    if parent_topic is not None:
+                        parent_topic.count += 1
+                        db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+                return send_result(message='Topic was created successfully.',
+                                   data=marshal(topic, TopicDto.model_topic_response))
             else:  # topic already exist
                 return send_error(message='The topic with name {} already exist'.format(data['name']))
         except Exception as e:
@@ -95,8 +110,17 @@ class TopicController(Controller):
 
     def get(self):
         try:
-            topics = Topic.query.all()
-            return send_result(data=marshal(topics, TopicDto.model), message='Success')
+            topics = Topic.query.filter_by(is_fixed=True).all()
+            # results = list()
+            # for topic in topics:
+            #     id = topic.id
+            #     result = topic.__dict__
+            #     sub_topics = Topic.query.filter_by(parent_id=id).all()
+            #     result['sub_topics'] = sub_topics
+            #     results.append(result)
+            # json_result = ast.literal_eval(results.__str__())
+            return send_result(data=marshal(topics, TopicDto.model_topic_response),
+                               message='Success')  # marshal(results, TopicDto.model_response)
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
@@ -108,7 +132,23 @@ class TopicController(Controller):
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
         else:
-            return send_result(data=marshal(topic, TopicDto.model), message='Success')
+            return send_result(data=marshal(topic, TopicDto.model_topic_response), message='Success')
+
+    def get_sub_topics(self, fixed_topic_id):
+        if fixed_topic_id is None:
+            return send_error(message='Please give the topic ID.')
+        topic = Topic.query.filter_by(id=fixed_topic_id).first()
+        if topic is None:
+            return send_result(message='Could not find any topic.')
+        if topic.is_fixed:
+            id = topic.id
+            result = topic.__dict__
+            sub_topics = Topic.query.filter_by(parent_id=id).all()
+            result['sub_topics'] = sub_topics
+            return send_result(data=marshal(result, TopicDto.model_topic_response), message='Success')
+        else:
+            return send_result(
+                message='The topic with the ID {} does not contain any sub-topics (Hint: send the ID of the fixed topic.')
 
     def update(self, object_id, data):
         try:
@@ -118,7 +158,7 @@ class TopicController(Controller):
             else:
                 topic = self._parse_topic(data=data, topic=topic)
                 db.session.commit()
-                return send_result(message='Update successfully', data=marshal(topic, TopicDto.model))
+                return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_topic_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update topic.')
@@ -177,7 +217,7 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'is_fixed' in data: # we do not parse the value of is_fixed, because the fixed topics already passed
+        if 'is_fixed' in data:  # we do not parse the value of is_fixed, because the fixed topics already passed
             pass
             # try:
             #     topic.is_fixed = bool(data['is_fixed'])

@@ -7,13 +7,15 @@ from .question_controller import QuestionController
 from ...auth.decorator import admin_token_required, token_required
 
 api = QuestionDto.api
-question = QuestionDto.model
+model_request = QuestionDto.model_question_request
+model_response = QuestionDto.model_question_response
 
 
 @api.route('')
 class QuestionList(Resource):
     @token_required
     # @api.marshal_list_with(question)
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         '''
         Get list of questions from database.
@@ -24,8 +26,9 @@ class QuestionList(Resource):
         return controller.get()
 
     @token_required
-    @api.expect(question)
+    @api.expect(model_request)
     # @api.marshal_with(question)
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
         '''
         Create new question and save to database.
@@ -41,6 +44,7 @@ class QuestionList(Resource):
 class Question(Resource):
     @token_required
     # @api.marshal_with(question)
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, id):
         '''
         Get specific question by its ID.
@@ -53,8 +57,9 @@ class Question(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(question)
+    @api.expect(model_request)
     # @api.marshal_with(question)
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id):
         '''
         Update existing question by its ID.
@@ -84,8 +89,8 @@ parser = reqparse.RequestParser()
 parser.add_argument('title', type=str, required=False, help='Search question by its title')
 parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
 parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
-parser.add_argument('created_date', type=str, required=False, help='Search questions by created-date.')
-parser.add_argument('updated_date', type=str, required=False, help='Search questions by updated-date.')
+# parser.add_argument('created_date', type=str, required=False, help='Search questions by created-date.')
+# parser.add_argument('updated_date', type=str, required=False, help='Search questions by updated-date.')
 parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
 parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
 parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
@@ -95,6 +100,7 @@ parser.add_argument('anonymous', type=str, required=False, help='Search question
 @api.expect(parser)
 class QuesstionSearch(Resource):
     @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         """
         Search all questions that satisfy conditions.

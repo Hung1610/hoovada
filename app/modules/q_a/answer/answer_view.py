@@ -5,13 +5,15 @@ from .answer_controller import AnswerController
 from ...auth.decorator import admin_token_required, token_required
 
 api = AnswerDto.api
-answer = AnswerDto.model
+answer_request = AnswerDto.model_request
+answer_response = AnswerDto.model_response
 
 
 @api.route('')
 class AnswerList(Resource):
     @admin_token_required
     # @api.marshal_list_with(answer)
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self):
         '''
         Get the list of answers from database.
@@ -22,8 +24,9 @@ class AnswerList(Resource):
         return controller.get()
 
     @token_required
-    @api.expect(answer)
+    @api.expect(answer_request)
     # @api.marshal_with(answer)
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
     def post(self):
         '''
         Create new answer.
@@ -39,6 +42,7 @@ class AnswerList(Resource):
 class Answer(Resource):
     @token_required
     # @api.marshal_with(answer)
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self, id):
         '''
         Get the answer by its ID.
@@ -51,8 +55,9 @@ class Answer(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(answer)
+    @api.expect(answer_request)
     # @api.marshal_with(answer)
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
     def put(self, id):
         '''
         Update the existing answer by its ID.
@@ -78,8 +83,8 @@ class Answer(Resource):
 parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
 parser.add_argument('question_id', type=str, required=False, help='Search all answers by question_id.')
-parser.add_argument('created_date', type=str, required=False, help='Search answers by created-date.')
-parser.add_argument('updated_date', type=str, required=False, help='Search answers by updated-date.')
+# parser.add_argument('created_date', type=str, required=False, help='Search answers by created-date.')
+# parser.add_argument('updated_date', type=str, required=False, help='Search answers by updated-date.')
 parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
 parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
 
@@ -88,6 +93,7 @@ parser.add_argument('to_date', type=str, required=False, help='Search answers cr
 @api.expect(parser)
 class AnswerSearch(Resource):
     @token_required
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self):
         """
         Search all topics that satisfy conditions.
@@ -96,10 +102,6 @@ class AnswerSearch(Resource):
         :user_id: Search answers by user_id (who created question)
 
         :question_id: Search all topics by fixed topic ID.
-
-        :created_date: Search by created date.
-
-        :updated_date: Search by updated date.
 
         :from_date: Search answers created after this date.
 

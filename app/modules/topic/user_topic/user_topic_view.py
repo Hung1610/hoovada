@@ -12,6 +12,7 @@ user_topic = UserTopicDto.model
 class UserTopicList(Resource):
     @admin_token_required
     # @api.marshal_list_with(user_topic)
+    @api.response(code=200, model=user_topic, description='Model for question topic response.')
     def get(self):
         '''
         Get list of user_topics from database.
@@ -24,6 +25,7 @@ class UserTopicList(Resource):
     @token_required
     @api.expect(user_topic)
     # @api.marshal_with(user_topic)
+    @api.response(code=200, model=user_topic, description='Model for question topic response.')
     def post(self):
         '''
         Create new user_topic.
@@ -39,6 +41,7 @@ class UserTopicList(Resource):
 class UserTopic(Resource):
     @token_required
     # @api.marshal_with(user_topic)
+    @api.response(code=200, model=user_topic, description='Model for question topic response.')
     def get(self, id):
         '''
         Get user_topic by its ID.
@@ -53,6 +56,7 @@ class UserTopic(Resource):
     @token_required
     @api.expect(user_topic)
     # @api.marshal_with(user_topic)
+    @api.response(code=200, model=user_topic, description='Model for question topic response.')
     def put(self, id):
         '''
         Update existing user_topic by its ID.
@@ -87,6 +91,7 @@ parser.add_argument('topic_id', type=str, required=False, help='Search records b
 @api.expect(parser)
 class UserTopicSearch(Resource):
     @token_required
+    @api.response(code=200, model=user_topic, description='Model for question topic response.')
     def get(self):
         """
         Search all topics that satisfy conditions.
