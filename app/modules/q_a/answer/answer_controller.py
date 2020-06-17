@@ -8,6 +8,7 @@ from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
+from app.modules.q_a.question.question import Question
 from app.utils.response import send_error, send_result
 
 
@@ -106,12 +107,21 @@ class AnswerController(Controller):
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
+            # update answer count cho question
+            question = Question.query.filter_by(id=answer.question_id).first()
+            question.answers_count += 1
+            db.session.commit()
             return send_result(message='Answer created successfully', data=marshal(answer, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create answer.')
 
     def get(self):
+        '''
+        [DEPRECATED]
+        Hàm này được giữ lại, tuy nhiên sẽ không publish API, answers chỉ được nhận về qua search.
+        :return:
+        '''
         try:
             answers = Answer.query.limit(50).all()
             return send_result(data=marshal(answers, AnswerDto.model_response), message='Success')
@@ -153,8 +163,7 @@ class AnswerController(Controller):
             if answer is None:
                 return send_error(message="Answer with ID {} not found.".format(object_id))
             else:
-                # delete from other tables
-
+                #------- delete from other tables---------#
                 # delete from vote
 
                 # delete from comment
@@ -162,8 +171,6 @@ class AnswerController(Controller):
                 # delete from reporting
 
                 # delete from share
-
-
 
                 db.session.delete(answer)
                 db.session.commit()

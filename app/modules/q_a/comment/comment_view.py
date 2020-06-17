@@ -5,25 +5,26 @@ from .comment_controller import CommentController
 from ...auth.decorator import admin_token_required, token_required
 
 api = CommentDto.api
-comment = CommentDto.model
-
+comment_response = CommentDto.model_response
+comment_request = CommentDto.model_requesst
 
 @api.route('')
 class CommentList(Resource):
-    @admin_token_required
-    # @api.marshal_list_with(comment)
-    def get(self):
-        '''
-        Get list of comments from database.
-
-        :return: The list of comments.
-        '''
-        controller = CommentController()
-        return controller.get()
+    # @admin_token_required
+    # # @api.marshal_list_with(comment)
+    # def get(self):
+    #     '''
+    #     Get list of comments from database.
+    #
+    #     :return: The list of comments.
+    #     '''
+    #     controller = CommentController()
+    #     return controller.get()
 
     @token_required
-    @api.expect(comment)
+    @api.expect(comment_request)
     # @api.marshal_with(comment)
+    @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self):
         '''
         Create new comment.
@@ -39,6 +40,7 @@ class CommentList(Resource):
 class Comment(Resource):
     @token_required
     # @api.marshal_with(comment)
+    @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, id):
         '''
         Get comment by its ID.
@@ -51,8 +53,9 @@ class Comment(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(comment)
+    @api.expect(comment_request)
     # @api.marshal_with(comment)
+    @api.response(code=200, model=comment_response, description='Model for comment response.')
     def put(self, id):
         '''
         Update existing comment by its ID.
@@ -87,6 +90,7 @@ parser.add_argument('answer_id', type=str, required=False, help='Search all comm
 @api.expect(parser)
 class CommentSearch(Resource):
     @token_required
+    @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self):
         """
         Search all comments that satisfy conditions.

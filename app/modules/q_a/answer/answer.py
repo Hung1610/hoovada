@@ -21,3 +21,5 @@ class Answer(Model):
     question_id = db.Column(db.Integer)
     image_ids = db.Column(db.JSON)
     user_hidden = db.Column(db.Boolean, default=False)
+    comment_count = db.Column(db.Integer, default=0)
+    share_count = db.Column(db.Integer, default=0)

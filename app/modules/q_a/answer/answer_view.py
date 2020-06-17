@@ -11,17 +11,17 @@ answer_response = AnswerDto.model_response
 
 @api.route('')
 class AnswerList(Resource):
-    @admin_token_required
-    # @api.marshal_list_with(answer)
-    @api.response(code=200, model=answer_response, description='Model for answer response.')
-    def get(self):
-        '''
-        Get the list of answers from database.
-
-        :return: List of answers.
-        '''
-        controller = AnswerController()
-        return controller.get()
+    # @admin_token_required
+    # # @api.marshal_list_with(answer)
+    # @api.response(code=200, model=answer_response, description='Model for answer response.')
+    # def get(self):
+    #     '''
+    #     Get the list of answers from database.
+    #
+    #     :return: List of answers.
+    #     '''
+    #     controller = AnswerController()
+    #     return controller.get()
 
     @token_required
     @api.expect(answer_request)
