@@ -4,10 +4,12 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.auth.decorator import token_required
 from app.modules.common.view import Resource
+from app.modules.user.user_dto import UserDto
 
 api = AuthDto.api
-_auth = AuthDto.model
+_auth_register = AuthDto.model_register
 _auth_login = AuthDto.model_login
+_user_info = UserDto.model_response
 
 
 @api.route('/register')
@@ -16,7 +18,7 @@ class Register(Resource):
     Register new user.
 
     '''
-    @api.expect(_auth)
+    @api.expect(_auth_register)
     def post(self):
         '''
         Register new user.
@@ -85,7 +87,6 @@ class Logout(Resource):
     '''
     API logout
     '''
-    # @api.expect(_auth_register)
     @token_required
     def get(self):
         """
@@ -109,6 +110,7 @@ class UserInfor(Resource):
     After user logging in successfully, user will get token, and this token will be used to get information.
     '''
     @token_required
+    @api.response(code=200, model=_user_info, description='Model for user information.')
     def get(self):
         """
         Get all user's information.

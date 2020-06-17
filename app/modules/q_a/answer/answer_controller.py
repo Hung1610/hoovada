@@ -9,6 +9,7 @@ from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question import Question
+from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 
 
@@ -101,16 +102,31 @@ class AnswerController(Controller):
         if not 'answer' in data:
             return send_error(message='Please fill the answer body before sending.')
         try:
+            # add new answer
             answer = self._parse_answer(data=data, answer=None)
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
+
+            # update answer_count cho user
+            try:
+                user = User.query.filter_by(id=answer.user_id)
+                user.answer_count += 1
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
             # update answer count cho question
-            question = Question.query.filter_by(id=answer.question_id).first()
-            question.answers_count += 1
-            db.session.commit()
+            try:
+                question = Question.query.filter_by(id=answer.question_id).first()
+                question.answers_count += 1
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                pass
             return send_result(message='Answer created successfully', data=marshal(answer, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
@@ -163,7 +179,7 @@ class AnswerController(Controller):
             if answer is None:
                 return send_error(message="Answer with ID {} not found.".format(object_id))
             else:
-                #------- delete from other tables---------#
+                # ------- delete from other tables---------#
                 # delete from vote
 
                 # delete from comment

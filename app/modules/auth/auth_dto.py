@@ -6,7 +6,7 @@ from app.modules.common.dto import Dto
 class AuthDto(Dto):
     name = 'auth'
     api = Namespace(name)
-    model = api.model('register', {
+    model_register = api.model('register', {
         'display_name': fields.String(required=False),
         'email': fields.String(required=True),
         'password': fields.String(required=True)

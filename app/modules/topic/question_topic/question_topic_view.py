@@ -5,27 +5,28 @@ from .question_topic_controller import QuestionTopicController
 from app.modules.auth.decorator import admin_token_required, token_required
 
 api = QuestionTopicDto.api
-question_topic = QuestionTopicDto.model
+question_topic_request = QuestionTopicDto.model_request
+question_topic_response = QuestionTopicDto.model_response
 
 
 @api.route('')
 class QuestionTopicList(Resource):
-    @admin_token_required
-    # @api.marshal_list_with(question_topic)
-    @api.response(code=200, model=question_topic, description='Model for question topic response.')
-    def get(self):
-        '''
-        Get list of question_topics from database.
-
-        :return: The list of question_topics.
-        '''
-        controller = QuestionTopicController()
-        return controller.get()
+    # @admin_token_required
+    # # @api.marshal_list_with(question_topic)
+    # @api.response(code=200, model=question_topic_response, description='Model for question topic response.')
+    # def get(self):
+    #     '''
+    #     Get list of question_topics from database.
+    #
+    #     :return: The list of question_topics.
+    #     '''
+    #     controller = QuestionTopicController()
+    #     return controller.get()
 
     @token_required
-    @api.expect(question_topic)
+    @api.expect(question_topic_request)
     # @api.marshal_with(question_topic)
-    @api.response(code=200, model=question_topic, description='Model for question topic response.')
+    @api.response(code=200, model=question_topic_response, description='Model for question topic response.')
     def post(self):
         '''
         Create new question_topic.
@@ -41,7 +42,7 @@ class QuestionTopicList(Resource):
 class QuestionTopic(Resource):
     @token_required
     # @api.marshal_with(question_topic)
-    @api.response(code=200, model=question_topic, description='Model for question topic response.')
+    @api.response(code=200, model=question_topic_response, description='Model for question topic response.')
     def get(self, id):
         '''
         Get question_topic by its ID.
@@ -90,7 +91,7 @@ parser.add_argument('topic_id', type=str, required=False, help='Search records b
 @api.expect(parser)
 class QuestionTopicSearch(Resource):
     @token_required
-    @api.response(code=200, model=question_topic, description='Model for question topic response.')
+    @api.response(code=200, model=question_topic_response, description='Model for question topic response.')
     def get(self):
         """
         Search all question-topics that satisfy conditions.

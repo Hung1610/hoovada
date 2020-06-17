@@ -205,7 +205,7 @@ class AuthController:
         user, message = AuthController.get_logged_user(req=req)
         if user is None:
             return send_error(message=message)
-        return send_result(data=marshal(user, UserDto.model), message='Success')
+        return send_result(data=marshal(user, UserDto.model_response), message='Success')
 
     @staticmethod
     def get_logged_user(req):

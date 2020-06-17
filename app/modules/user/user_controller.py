@@ -31,7 +31,7 @@ class UserController(Controller):
                 user = self._parse_user(data, None)
                 db.session.add(user)
                 db.session.commit()
-                return send_result(message='User was created successfully', data=marshal(user, UserDto.model))
+                return send_result(message='User was created successfully', data=marshal(user, UserDto.model_response))
             else:
                 return send_error(message='User exists')
         except Exception as e:
@@ -41,7 +41,7 @@ class UserController(Controller):
     def get(self):
         try:
             users = User.query.all()
-            return send_result(data=marshal(users, UserDto.model), message='Success')
+            return send_result(data=marshal(users, UserDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load error, please try again later.")
@@ -57,7 +57,7 @@ class UserController(Controller):
                 # when call to this function, increase the profile_views
                 user.profile_views += 1
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model))
+                return send_result(data=marshal(user, UserDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(object_id))
@@ -89,7 +89,7 @@ class UserController(Controller):
             else:
                 user = self._parse_user(data=data, user=user)
                 db.session.commit()
-                return send_result(message='Update successfully', data=marshal(user, UserDto.model))
+                return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update user')
@@ -130,7 +130,7 @@ class UserController(Controller):
                 photo.save(os.path.join(AVATAR_FOLDER, file_name))
                 user.profile_pic_url = url_for('user_upload_avatar', filename=file_name)
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model), message='Upload avatar successfully.')
+                return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
             except Exception as e:
                 print(e.__str__())
                 return send_error(message='Could not save your avatar.')

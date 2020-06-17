@@ -9,6 +9,7 @@ from .topic import Topic
 from .topic_dto import TopicDto
 from app import db
 from app.utils.response import send_error, send_result
+from ..user.user import User
 
 
 class TopicController(Controller):
@@ -90,16 +91,24 @@ class TopicController(Controller):
                 topic.created_date = datetime.today()
                 db.session.add(topic)
                 db.session.commit()
+                # update count for fixed topic
                 try:
                     # update amount of sub-topics for for parent topic
                     parent_id = topic.parent_id
                     parent_topic = Topic.query.filter_by(id=parent_id).first()
-                    if parent_topic is not None:
-                        parent_topic.count += 1
-                        db.session.commit()
+                    parent_topic.count += 1
+                    db.session.commit()
                 except Exception as e:
                     print(e.__str__())
                     pass
+                # update topic created count for user
+                try:
+                    user = User.query.filter_by(id= topic.user_id).first()
+                    user.topic_created_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+
                 return send_result(message='Topic was created successfully.',
                                    data=marshal(topic, TopicDto.model_topic_response))
             else:  # topic already exist

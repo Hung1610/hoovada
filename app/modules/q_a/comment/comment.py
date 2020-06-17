@@ -14,3 +14,6 @@ class Comment(Model):
     answer_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    upvote_count = db.Column(db.Integer, default=0)
+    downvote_count = db.Column(db.Integer, default=0)
+    report_count = db.Column(db.Integer, default=0)

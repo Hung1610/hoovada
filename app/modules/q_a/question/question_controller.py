@@ -11,6 +11,7 @@ from app.modules.q_a.question.question import Question
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
+from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 
 
@@ -135,11 +136,16 @@ class QuestionController(Controller):
                 question.last_activity = datetime.utcnow()
                 db.session.add(question)
                 db.session.commit()
-                # update question_count for topic
+                # update question_count for fixed topic
                 fixed_topic_id = question.fixed_topic_id
                 fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
                 fixed_topic.question_count += 1
                 db.session.commit()
+                # update question_count for user
+                user = User.query.filter_by(id=user_id).first()
+                user.question_count+=1
+                db.session.commit()
+
                 result = question.__dict__
                 # add question_topics
                 question_id = question.id

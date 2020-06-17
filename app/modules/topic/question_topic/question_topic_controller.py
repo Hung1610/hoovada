@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask_restx import marshal
 
 from app import db
@@ -20,6 +22,7 @@ class QuestionTopicController(Controller):
                 return send_error(message='This record already exist in database.')
             else:
                 question_topic = self._parse_question_topic(data, None)
+                question_topic.created_date = datetime.utcnow()
                 db.session.add(question_topic)
                 db.session.commit()
                 return send_result(data=marshal(question_topic, QuestionTopicDto.model), message='Create successfully.')

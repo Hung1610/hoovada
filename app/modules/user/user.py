@@ -121,6 +121,38 @@ class User(Model):
     email_stories_topics_frequency_setting = db.Column(db.String, default='weekly')
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # count values used for statistics
+    question_count = db.Column(db.Integer, default=0)  # number of questions user created
+    question_favorite_count = db.Column(db.Integer, default=0)
+    question_favorited_count = db.Column(db.Integer, default=0)
+    question_share_count = db.Column(db.Integer, default=0)
+    question_shared_count = db.Column(db.Integer, default=0)
+
+    answer_count = db.Column(db.Integer, default=0)  # number answers user created
+    answer_share_count = db.Column(db.Integer, default=0)
+    answer_shared_count = db.Column(db.Integer, default=0)
+    answer_favorite_count = db.Column(db.Integer, default=0)
+    answer_favorited_count = db.Column(db.Integer, default=0)
+    answer_upvote_count = db.Column(db.Integer, default=0)
+    answer_upvoted_count = db.Column(db.Integer, default=0)
+    answer_downvote_count = db.Column(db.Integer, default=0)
+    answer_downvoted_count = db.Column(db.Integer, default=0)
+
+    topic_follow_count = db.Column(db.Integer, default=0)
+    topic_followed_count = db.Column(db.Integer, default=0)
+    topic_created_count = db.Column(db.Integer, default=0)
+
+    user_follow_count = db.Column(db.Integer, default=0)
+    user_followed_count = db.Column(db.Integer, default=0)
+
+    comment_count = db.Column(db.Integer, default=0)
+    comment_upvote_count = db.Column(db.Integer, default=0)
+    comment_upvoted_count = db.Column(db.Integer, default=0)
+    comment_downvote_count = db.Column(db.Integer, default=0)
+    comment_downvoted_count = db.Column(db.Integer, default=0)
+    comment_report_count = db.Column(db.Integer, default=0)
+    comment_reported_count = db.Column(db.Integer, default=0)
+
     # @hybrid_property
     # def about_me(self):
     #     """Return the value of _about_me but the html version."""

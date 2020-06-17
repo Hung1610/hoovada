@@ -8,6 +8,7 @@ from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.comment.comment import Comment
 from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.q_a.question.question import Question
+from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 
 
@@ -23,19 +24,20 @@ class CommentController(Controller):
         '''
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
-        user_id, question_id, answer_id = None, None, None
+        # user_id, question_id, answer_id = None, None, None
+        user_id, answer_id = None, None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'question_id' in args:
-            try:
-                question_id = int(args['question_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        # if 'question_id' in args:
+        #     try:
+        #         question_id = int(args['question_id'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
         if 'answer_id' in args:
             try:
                 answer_id = int(args['answer_id'])
@@ -43,16 +45,16 @@ class CommentController(Controller):
                 print(e.__str__())
                 pass
 
-        if user_id is None and question_id is None and answer_id is None:
+        if user_id is None and answer_id is None:
             send_error(message='Provide params to search.')
         query = db.session.query(Comment)
         is_filter = False
         if user_id is not None:
             query = query.filter(Comment.user_id == user_id)
             is_filter = True
-        if question_id is not None:
-            query = query.filter(Comment.question_id == question_id)
-            is_filter = True
+        # if question_id is not None:
+        #     query = query.filter(Comment.question_id == question_id)
+        #     is_filter = True
         if answer_id is not None:
             query = query.filter(Comment.answer_id == answer_id)
             is_filter = True
@@ -80,11 +82,23 @@ class CommentController(Controller):
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
             db.session.commit()
-            # increase so luong comment count cho answer.
-            if comment.answer_id:
+            # update comment count for user
+            try:
+                user = User.query.filter_by(id=comment.user_id).first()
+                user.comment_count += 1
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+            # update comment count cho answer.
+            try:
                 answer = Answer.query.filter(id=comment.answer_id).first()
                 answer.comment_count += 1
                 db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                pass
             return send_result(message='Comment was created successfully',
                                data=marshal(comment, CommentDto.model_response))
         except Exception as e:
@@ -137,7 +151,7 @@ class CommentController(Controller):
             if comment is None:
                 return send_error(message='Comment with the ID {} not found.'.format(object_id))
             else:
-                #---------Delete from other tables----------#
+                # ---------Delete from other tables----------#
                 # delete from vote
 
                 # delete from share

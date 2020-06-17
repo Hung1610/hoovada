@@ -82,7 +82,7 @@ class Comment(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=str, required=False, help='Search comments by user_id (who created question)')
-parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
+# parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
 parser.add_argument('answer_id', type=str, required=False, help='Search all comments by answer_id.')
 
 

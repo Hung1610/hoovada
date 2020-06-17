@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask_restx import marshal
 
 from app import db
@@ -55,6 +57,7 @@ class UserTopicController(Controller):
                     message='This user with ID {} already follow this topic with ID {}'.format(user_id, topic_id))
             else:
                 user_topic = self._parse_user_topic(data=data, user_topic=None)
+                user_topic.created_date = datetime.utcnow()
                 db.session.add(user_topic)
                 db.session.commit()
                 return send_result(data=marshal(user_topic, UserTopicDto.model), message='Create successfully.')
