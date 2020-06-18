@@ -1,6 +1,6 @@
 from flask_restx import Api
 
-from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, ns_comment
+from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, ns_comment, ns_vote
 
 authorizations = {
     'apikey': {
@@ -26,5 +26,6 @@ def init_api():
     api.add_namespace(ns_question_topic, '/api/v1/question_topic')
     api.add_namespace(ns_answer, '/api/v1/answer')
     # api.add_namespace(ns_comment, '/api/v1/comment')
+    # api.add_namespace(ns_vote, '/api/v1/vote')
 
     return api

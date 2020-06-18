@@ -6,6 +6,7 @@ from app import db
 from app.modules.common.controller import Controller
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.question_topic.question_topic_dto import QuestionTopicDto
+from app.modules.topic.topic import Topic
 from app.utils.response import send_error, send_result
 
 
@@ -25,6 +26,15 @@ class QuestionTopicController(Controller):
                 question_topic.created_date = datetime.utcnow()
                 db.session.add(question_topic)
                 db.session.commit()
+
+                # update question_count for topic
+                try:
+                    topic = Topic.query.filter_by(id=question_topic.topic_id).firs()
+                    topic.question_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                    pass
                 return send_result(data=marshal(question_topic, QuestionTopicDto.model), message='Create successfully.')
         except Exception as e:
             print(e.__str__())

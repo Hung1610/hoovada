@@ -4,8 +4,10 @@ from flask_restx import marshal
 
 from app import db
 from app.modules.common.controller import Controller
+from app.modules.topic.topic import Topic
 from app.modules.topic.user_topic.user_topic import UserTopic
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
+from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 
 
@@ -56,10 +58,31 @@ class UserTopicController(Controller):
                 return send_error(
                     message='This user with ID {} already follow this topic with ID {}'.format(user_id, topic_id))
             else:
+                # create user_topic
                 user_topic = self._parse_user_topic(data=data, user_topic=None)
                 user_topic.created_date = datetime.utcnow()
                 db.session.add(user_topic)
                 db.session.commit()
+                # update user_count for topic and topic_followed_count for table user
+                try:
+                    # get topic
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topic.user_count += 1  # update user_count
+                    # get user who created this topic
+                    user = User.query.filter_by(id=topic.user_id).first()
+                    user.topic_followed_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+                # update topic_follow_count for table user
+                try:
+                    user = User.query.filter_by(id=user_id).first()
+                    user.topic_follow_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                    pass
                 return send_result(data=marshal(user_topic, UserTopicDto.model), message='Create successfully.')
         except Exception as e:
             print(e.__str__())

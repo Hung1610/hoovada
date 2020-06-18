@@ -8,6 +8,7 @@ api = CommentDto.api
 comment_response = CommentDto.model_response
 comment_request = CommentDto.model_requesst
 
+
 @api.route('')
 class CommentList(Resource):
     # @admin_token_required
@@ -79,6 +80,7 @@ class Comment(Resource):
         '''
         controller = CommentController()
         return controller.delete(object_id=id)
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=str, required=False, help='Search comments by user_id (who created question)')
