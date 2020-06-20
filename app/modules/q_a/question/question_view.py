@@ -89,8 +89,6 @@ parser = reqparse.RequestParser()
 parser.add_argument('title', type=str, required=False, help='Search question by its title')
 parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
 parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
-# parser.add_argument('created_date', type=str, required=False, help='Search questions by created-date.')
-# parser.add_argument('updated_date', type=str, required=False, help='Search questions by updated-date.')
 parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
 parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
 parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
@@ -105,23 +103,19 @@ class QuesstionSearch(Resource):
         """
         Search all questions that satisfy conditions.
         ---------------------
-        :title: The name of the topics to search
+        :param `title`: The name of the topics to search
 
-        :user_id: Search questions by user_id (who created question)
+        :param `user_id`: Search questions by user_id (who created question)
 
-        :fixed_topic_id: Search all questions by fixed topic ID.
+        :param `fixed_topic_id`: Search all questions by fixed topic ID.
 
-        :created_date: Search by created date.
+        :param `from_date`: Search questions created after this date.
 
-        :updated_date: Search by updated date.
+        :param `to_date`: Search questions created before this date.
 
-        :from_date: Search questions created after this date.
+        :param `anonymous`: Search questions created by anonymous.
 
-        :to_date: Search questions created before this date.
-
-        :anonymous: Search questions created by anonymous.
-
-        :return: List of buyers
+        :return: List of questions satisfy search condition.
         """
         args = parser.parse_args()
         controller = QuestionController()

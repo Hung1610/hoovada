@@ -7,15 +7,15 @@ from .user_controller import UserController
 from ..auth.decorator import admin_token_required, token_required
 
 api = UserDto.api
-_user_request = UserDto.model_request
-_user_response = UserDto.model_response
+user_request = UserDto.model_request
+user_response = UserDto.model_response
 
 
 @api.route('')
 class UserList(Resource):
     @admin_token_required
     # @api.marshal_list_with(_user)
-    @api.response(code=200, model=_user_response, description='Model for user response.')
+    @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
         """
         Returns all users in the system.
@@ -27,8 +27,8 @@ class UserList(Resource):
         return controller.get()
 
     @admin_token_required
-    @api.expect(_user_request)
-    @api.response(code=200, model=_user_response, description='Model for user response.')
+    @api.expect(user_request)
+    @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
         '''
         Create new user.
@@ -46,7 +46,7 @@ class UserList(Resource):
 class User(Resource):
     @token_required
     # @api.marshal_with(_user)
-    @api.response(code=200, model=_user_response, description='Model for user response.')
+    @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, id):
         """``
         Get all information for specific user with ID `id`
@@ -60,20 +60,12 @@ class User(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(_user_request)
-    @api.response(code=200, model=_user_response, description='Model for user response.')
+    @api.expect(user_request)
+    @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, id):
         '''
         Update an existed user in the system.
         --------------------
-
-        Note: The following fields are not allowed to update:
-        - `id`: The user's ID.
-        - `email`: The email used to authenticate.
-        - `password`: The password used to authenticate.
-        - `profile_views`: The amount of profile views.
-
-        :param id: The user ID.
 
         :return: The user data after updated.
         '''
@@ -108,12 +100,22 @@ class Avatar(Resource):
     # @token_required
     @api.expect(avatar_download)
     def get(self):
+        '''
+        Download  avatar.
+        -----------------
+        :return:
+        '''
         controler = UserController()
         return controler.get_avatar()
 
     @token_required
     @api.expect(avatar_upload)
     def post(self):
+        '''
+        Upload avatar.
+        -------------
+        :return:
+        '''
         args = avatar_upload.parse_args()
         controller = UserController()
         return controller.upload_avatar(args=args)

@@ -19,18 +19,9 @@ class QuestionDto(Dto):
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
-        # use just question for storing the question body, we do not user markdown and html in this version
-        # 'markdown': fields.String(),
-        # 'html': fields.String(),
-        # 'created_date': fields.DateTime(),
-        # 'updated_date': fields.DateTime(),
-        # 'views': fields.Integer(),
-        # 'last_activity': fields.DateTime(),
-        # 'answers_count': fields.Integer(),
         'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
         'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
         'user_hidden': fields.Boolean(default=False, description='The question wss created by user but the user want to be hidden'),
-        # 'image_ids': fields.String()
         'topic_ids': fields.List(fields.Integer, description='The list of topics')  # the list of IDs of topics that question belongs to.
     })
 
@@ -52,7 +43,7 @@ class QuestionDto(Dto):
         'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
         'user_hidden': fields.Boolean(default=False,
                                       description='The question wss created by user but the user want to be hidden'),
-        'topic_ids': fields.List(fields.Integer, description='The list of topics'),  # the list of IDs of topics that question belongs to.
+        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),  # the list of IDs of topics that question belongs to.
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),

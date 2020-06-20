@@ -112,7 +112,7 @@ class AnswerController(Controller):
 
             # update answer_count cho user
             try:
-                user = User.query.filter_by(id=answer.user_id)
+                user = User.query.filter_by(id=answer.user_id).first()
                 user.answer_count += 1
                 db.session.commit()
             except Exception as e:

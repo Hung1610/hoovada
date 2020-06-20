@@ -128,7 +128,7 @@ class UserController(Controller):
                 if not os.path.exists(AVATAR_FOLDER):
                     os.mkdir(AVATAR_FOLDER)
                 photo.save(os.path.join(AVATAR_FOLDER, file_name))
-                user.profile_pic_url = url_for('user_upload_avatar', filename=file_name)
+                user.profile_pic_url = url_for('user_avatar', filename=file_name)
                 db.session.commit()
                 return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
             except Exception as e:

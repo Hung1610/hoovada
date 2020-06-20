@@ -137,31 +137,44 @@ class QuestionController(Controller):
                 db.session.add(question)
                 db.session.commit()
                 # update question_count for fixed topic
-                fixed_topic_id = question.fixed_topic_id
-                fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
-                fixed_topic.question_count += 1
-                db.session.commit()
+                try:
+                    fixed_topic_id = question.fixed_topic_id
+                    fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
+                    fixed_topic.question_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                    pass
                 # update question_count for user
-                user = User.query.filter_by(id=user_id).first()
-                user.question_count+=1
-                db.session.commit()
-
-                result = question.__dict__
-                # add question_topics
-                question_id = question.id
-                topics = list()
-                for topic_id in topic_ids:
-                    question_topic = QuestionTopic(question_id=question_id, topic_id=topic_id)
-                    db.session.add(question_topic)
+                try:
+                    user = User.query.filter_by(id=user_id).first()
+                    user.question_count += 1
                     db.session.commit()
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    # update question_count for current topic.
-                    topic.question_count += 1
-                    db.session.commit()
-                    topics.append(topic)
-                result['topics'] = topics
-                return send_result(message='Question was created successfully.',
-                                   data=marshal(result, QuestionDto.model_question_response))
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+                # Add topics and get back list of topic for question
+                try:
+                    result = question.__dict__
+                    # add question_topics
+                    question_id = question.id
+                    topics = list()
+                    for topic_id in topic_ids:
+                        question_topic = QuestionTopic(question_id=question_id, topic_id=topic_id)
+                        db.session.add(question_topic)
+                        db.session.commit()
+                        topic = Topic.query.filter_by(id=topic_id).first()
+                        # update question_count for current topic.
+                        topic.question_count += 1
+                        db.session.commit()
+                        topics.append(topic)
+                    result['topics'] = topics
+                    return send_result(message='Question was created successfully.',
+                                       data=marshal(result, QuestionDto.model_question_response))
+                except Exception as e:
+                    print(e.__str__())
+                    return send_result(data=marshal(question, QuestionDto.model_question_response),
+                                       message='Question added, but could not add topics. Please update list topics later.')
             else:  # topic already exist
                 return send_error(message='You already created the question with title {}.'.format(data['title']))
         except Exception as e:
