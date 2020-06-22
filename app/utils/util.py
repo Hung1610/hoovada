@@ -23,6 +23,7 @@ from app.app import mail
 from app.modules.user.blacklist import BlacklistToken
 from app.settings import config
 
+
 def encode_file_name(filename):
     '''
     Encode the filename (without extension).
@@ -33,6 +34,7 @@ def encode_file_name(filename):
     '''
     encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
     return encoded
+
 
 def generate_conformation_token(email):
     """
@@ -93,6 +95,18 @@ def send_confirmation_email(to):
     confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
     send_email(to, 'Xác nhận đăng ký', html)
+
+
+def get_response_message(message):
+    """
+    Get HTML message to return to user.
+
+    :param message: The message to return.
+
+    :return:
+    """
+    html = render_template('response.html', message=message)
+    return html
 
 
 def encode_auth_token(user_id):

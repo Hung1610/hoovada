@@ -1,6 +1,8 @@
 from flask_restx import Api
+from flask_restx.representations import output_json
 
-from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, ns_comment, ns_vote
+from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, \
+    ns_comment, ns_vote
 
 authorizations = {
     'apikey': {

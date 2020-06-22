@@ -16,3 +16,7 @@ class AuthDto(Dto):
         'email': fields.String(required=True),
         'password': fields.String(requried=True)
     })
+
+    message_response = api.model('response', {
+        'message': fields.String(required=True)
+    })

@@ -31,6 +31,8 @@ class Config:
     # MAIL_PORT = 465
     # MAIL_USE_TLS = False
     # MAIL_USE_SSL = True
+    WASABI_ACCESS_KEY = 'YGK7CVV0GOQN0Y2XQVOA'
+    WASABI_SECRET_ACCESS_KEY = 'v0MZToTrefJ571tcOXJ5YJB04I4dvGvNl02ew4aH'
 
 
 class DevelopmentConfig(Config):

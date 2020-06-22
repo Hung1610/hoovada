@@ -208,6 +208,10 @@ class QuestionController(Controller):
             results = list()
             for question in questions:
                 result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+
                 # get all topics that question belongs to
                 question_id = question.id
                 question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()

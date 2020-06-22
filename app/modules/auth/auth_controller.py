@@ -1,14 +1,19 @@
+import json
 from datetime import datetime
 
+import chardet
+from flask import make_response
 from flask_restx import marshal
 
 from app import db
+from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.blacklist import BlacklistToken
 from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 # from app.utils.hoovada_utils import send_email
 from app.utils.response import send_error, send_result
-from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token
+from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
+    get_response_message
 
 
 def save_token(token):
@@ -73,18 +78,20 @@ class AuthController:
     # @staticmethod
     def register(self, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is not correct or not in dictionary form. Try again.')
+            return send_error(
+                message='Du lieu khong dung dinh dang hoac thieu. Vui long kiem tra lai')  # Data is not correct or not in dictionary form. Try again.')
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message="Please provide an email")
+            return send_error(message="Vui long cung cap Email")  # Please provide an email")
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message='Pleases provide a password.')
+            return send_error(message='Vui long cung cap mat khau')  # Pleases provide a password.')
         display_name = ''
         if 'display_name' in data:
             display_name = data['display_name']
         email = data['email']
         password = data['password']
         if AuthController.check_user_exist(email=email):
-            return send_result(message='User already exist.')
+            return send_result(message='Nguoi dung voi dia chi Email {} da ton tai, vui long dang nhap.'.format(
+                email))  # User already exist.')
         user = User(display_name=display_name, email=email, confirmed=False)
         user.set_password(password=password)
         try:
@@ -99,10 +106,12 @@ class AuthController:
         if is_confirmed:
             try:
                 send_confirmation_email(to=user.email)
-                return send_result(message='An email has sent to your mailbox. Please check your email to confirm.')
+                return send_result(
+                    message='Chung toi da gui thu kich hoat vao hom thu cua ban. Vui long kiem tra hom thu.')  # An email has sent to your mailbox. Please check your email to confirm.')
             except Exception as e:
                 print(e.__str__())
-                return send_error(message='Could not send a confirmation email to your mailbox.')
+                return send_error(
+                    message='Khong the gui thu kich hoat vao email cua ban. Vui long thu lai.')  # Could not send a confirmation email to your mailbox.')
 
     # @staticmethod
     def resend_confirmation(self, data):
@@ -126,15 +135,22 @@ class AuthController:
         user = User.query.filter_by(email=email).first()
         if user:
             if user.confirmed:
-                return 'Tài khoản email đã được kích hoạt trước đó, vui lòng đăng nhập.'
+                # response = {'message': 'Tài khoản email đã được kích hoạt trước đó, vui lòng đăng nhập.'}
+                message = 'Tai khoan email cua ban da duoc kich hoat truoc do, vui long dang nhap.'
+                return message  # send_result(data=marshal(response, AuthDto.message_response))
             user.confirmed = True
             # user.active = True
             # user.email_confirmed = True
             user.email_confirmed_at = datetime.now()
             db.session.commit()
-            return "Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập." #'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
+            # response = {'message': "Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập."}
+            message = 'Tai khoan email cua ban da duoc kich hoat. Vui long dang nhap.'
+            return message  # send_result(data=marshal(response, AuthDto.message_response))  # 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
         else:
-            return "Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a>hoovada.com</a> để yêu cầu mã xác thực mới." #'Invalid confirmation token.'
+            # message = 'Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a href="http://hoovada.com">hoovada.com</a> để yêu cầu mã xác thực mới.'
+            message = 'Ma kich hoat cua ban khong dung hoac da het han. Vui long vao trang Web hoovada.com de yeu cau ma xac thuc moi.'
+            # return_message = get_response_message(message=message)
+            return message  # 'Invalid confirmation token.'
 
     # @staticmethod
     def login_user(self, data):
@@ -147,7 +163,8 @@ class AuthController:
             if user and user.check_password(data['password']):
                 if not user.confirmed:
                     self.resend_confirmation(data=data)
-                    return send_error(message='Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                    return send_error(
+                        message='Tai khoan email cua ban chua duoc xac nhan. Vui long dang nhap hop thu cua ban de tien hanh xac thuc.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
                 auth_token = encode_auth_token(user_id=user.id)
                 user.active = True
                 db.session.commit()
@@ -157,10 +174,12 @@ class AuthController:
                     return {'access_token': auth_token.decode('utf8')}
                     # return send_result(message=auth_token)  # user
             else:
-                return send_error(message='Email or Password does not match')
+                return send_error(
+                    message='Email hoac Mat khau khong dung, vui long thu lai')  # Email or Password does not match')
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not login, please try again later. Error {}'.format(e.__str__()))
+            return send_error(
+                message='Khong the dang nhap, vui long thu lai.')  # Could not login, please try again later. Error {}'.format(e.__str__()))
 
     # @staticmethod
     def logout_user(self, req):

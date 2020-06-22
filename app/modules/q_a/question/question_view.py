@@ -44,6 +44,7 @@ class QuestionList(Resource):
 class Question(Resource):
     @token_required
     # @api.marshal_with(question)
+    # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, id):
         '''

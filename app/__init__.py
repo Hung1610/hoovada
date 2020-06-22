@@ -38,4 +38,7 @@ def create_app(config):
     app = init_app(config_name=config)
     api.init_app(app)
     api.add_namespace(ns_hello)
+    api.app.config['RESTFUL_JSON'] = {
+        'ensure_ascii': False
+    }
     return app
