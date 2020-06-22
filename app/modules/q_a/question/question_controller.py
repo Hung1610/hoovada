@@ -7,7 +7,7 @@ from sqlalchemy import desc
 
 from app import db
 from app.modules.common.controller import Controller
-from app.modules.q_a.question.question import Question
+from app.modules.q_a.question.question import Question, QuestionTopicView
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
@@ -21,12 +21,16 @@ class QuestionController(Controller):
         '''
         Search questions.
 
+        NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
+
         :param args:
         :return:
         '''
+        # searches = QuestionTopicView.query.all()
+
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
-        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous = None, None, None, None, None, None, None, None
+        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_id = None, None, None, None, None, None, None, None, None
         if 'title' in args:
             title = args['title']
         if 'user_id' in args:
@@ -71,38 +75,51 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if title is None and user_id is None and fixed_topic_id is None and created_date is None and updated_date is None and anonymous is None:
+        if 'topic_id' in args:
+            try:
+                topic_id = int(args['topic_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if title is None and user_id is None and fixed_topic_id is None and created_date is None and updated_date is None and anonymous is None and topic_id is None:
             send_error(message='Provide params to search.')
-        query = db.session.query(Question)
+        query = db.session.query(QuestionTopicView)  # query search from view
         is_filter = False
         if title is not None and not str(title).strip().__eq__(''):
             title = '%' + title.strip() + '%'
-            query = query.filter(Question.title.like(title))
+            query = query.filter(QuestionTopicView.title.like(title))
             is_filter = True
         if user_id is not None:
-            query = query.filter(Question.user_id == user_id)
+            query = query.filter(QuestionTopicView.user_id == user_id)
             is_filter = True
         if fixed_topic_id is not None:
-            query = query.filter(Question.fixed_topic_id == fixed_topic_id)
+            query = query.filter(QuestionTopicView.fixed_topic_id == fixed_topic_id)
             is_filter = True
         if created_date is not None:
-            query = query.filter(Question.created_date == created_date)
+            query = query.filter(QuestionTopicView.created_date == created_date)
             is_filter = True
         if updated_date is not None:
-            query = query.filter(Question.updated_date == updated_date)
+            query = query.filter(QuestionTopicView.updated_date == updated_date)
             is_filter = True
         if from_date is not None:
-            query = query.filter(Question.created_date >= from_date)
+            query = query.filter(QuestionTopicView.created_date >= from_date)
             is_filter = True
         if to_date is not None:
-            query = query.filter(Question.created_date <= to_date)
+            query = query.filter(QuestionTopicView.created_date <= to_date)
+            is_filter = True
+        if topic_id is not None:
+            query = query.filter(QuestionTopicView.topic_id == topic_id)
             is_filter = True
         if is_filter:
             questions = query.all()
             if questions is not None and len(questions) > 0:
                 results = list()
                 for question in questions:
+                    # kiem tra den topic
                     result = question.__dict__
+                    # get user info
+                    user = User.query.filter_by(id=question.user_id).first()
+                    result['user'] = user
                     # get all topics that question belongs to
                     question_id = question.id
                     question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
@@ -156,6 +173,9 @@ class QuestionController(Controller):
                 # Add topics and get back list of topic for question
                 try:
                     result = question.__dict__
+                    # get user info
+                    user = User.query.filter_by(id=question.user_id).first()
+                    result['user'] = user
                     # add question_topics
                     question_id = question.id
                     topics = list()
@@ -235,6 +255,9 @@ class QuestionController(Controller):
             return send_error(message='Could not find question with the ID {}'.format(object_id))
         else:
             result = question.__dict__
+            # get user info
+            user = User.query.filter_by(id=question.user_id).first()
+            result['user'] = user
             # get all topics that question belongs to
             question_id = question.id
             question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
@@ -269,6 +292,9 @@ class QuestionController(Controller):
                 question.last_activity = datetime.utcnow()
                 db.session.commit()
                 result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
                 # get all topics that question belongs to
                 question_id = question.id
                 question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()

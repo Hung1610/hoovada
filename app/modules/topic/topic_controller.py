@@ -112,7 +112,7 @@ class TopicController(Controller):
                 return send_result(message='Topic was created successfully.',
                                    data=marshal(topic, TopicDto.model_topic_response))
             else:  # topic already exist
-                return send_error(message='The topic with name {} already exist'.format(data['name']))
+                return send_error(message='The topic with name {} and parent topic id {} already exist'.format(data['name'], data['parent_id']))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Coult not create topic. Contact administrator for solution.')
@@ -164,6 +164,8 @@ class TopicController(Controller):
             topic = Topic.query.filter_by(id=object_id).first()
             if not topic:
                 return send_error(message='Topic with the ID {} not found.'.format(object_id))
+            elif topic.is_fixed:
+                return send_error(message='Could not update for fixed topic.')
             else:
                 topic = self._parse_topic(data=data, topic=topic)
                 db.session.commit()
