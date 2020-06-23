@@ -88,7 +88,14 @@ class AnswerController(Controller):
         if is_filter:
             answers = query.all()
             if answers is not None and len(answers) > 0:
-                return send_result(marshal(answers, AnswerDto.model_response), message='Success')
+                # get user information for each answer.
+                results = list()
+                for answer in answers:
+                    result = answer.__dict__
+                    user = User.query.filter_by(id=answer.user_id).first()
+                    result['user'] = user
+                    results.append(result)
+                return send_result(marshal(results, AnswerDto.model_response), message='Success')
             else:
                 return send_result(message='Could not find any answers')
         else:
@@ -109,10 +116,12 @@ class AnswerController(Controller):
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
-
+            result = answer.__dict__
             # update answer_count cho user
             try:
                 user = User.query.filter_by(id=answer.user_id).first()
+                # update user information for answer
+                result['user'] = user
                 user.answer_count += 1
                 db.session.commit()
             except Exception as e:
@@ -127,7 +136,8 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-            return send_result(message='Answer created successfully', data=marshal(answer, AnswerDto.model_response))
+            # get user
+            return send_result(message='Answer created successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create answer.')
@@ -152,7 +162,12 @@ class AnswerController(Controller):
         if answer is None:
             return send_error(message='Could not find answer with the ID {}.'.format(object_id))
         else:
-            return send_result(data=marshal(answer, AnswerDto.model_response), message='Success')
+            # get user information for each answer.
+            result = answer.__dict__
+            user = User.query.filter_by(id=answer.user_id).first()
+            result['user'] = user
+            # return send_result(marshal(result, AnswerDto.model_response), message='Success')
+            return send_result(data=marshal(result, AnswerDto.model_response), message='Success')
 
     def update(self, object_id, data):
         if object_id is None:
@@ -168,7 +183,12 @@ class AnswerController(Controller):
                 answer.updated_date = datetime.utcnow()
                 answer.last_activity = datetime.utcnow()
                 db.session.commit()
-                return send_result(message='Update successfully', data=marshal(answer, AnswerDto.model_response))
+                # get user information for each answer.
+                result = answer.__dict__
+                user = User.query.filter_by(id=answer.user_id).first()
+                result['user'] = user
+                # return send_result(marshal(result, AnswerDto.model_response), message='Success')
+                return send_result(message='Update successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not update answer.")
