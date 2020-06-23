@@ -5,7 +5,7 @@ from app.modules.common.model import Model
 class Message(Model):
     __tablename__ = 'message'
 
-    message_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.UnicodeText)
     sent_time = db.Column(db.DateTime)
     read_time = db.Column(db.DateTime)

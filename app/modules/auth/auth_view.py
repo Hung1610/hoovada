@@ -2,27 +2,72 @@ from flask import request
 
 from app.modules.auth.auth_controller import AuthController
 from app.modules.auth.auth_dto import AuthDto
+from app.modules.auth.decorator import token_required
 from app.modules.common.view import Resource
+from app.modules.user.user_dto import UserDto
 
 api = AuthDto.api
-_auth = AuthDto.model
+_auth_register = AuthDto.model_register
+_auth_login = AuthDto.model_login
+_user_info = UserDto.model_response
 
 
 @api.route('/register')
 class Register(Resource):
     '''
+    Register new user.
 
     '''
+    @api.expect(_auth_register)
     def post(self):
-        pass
+        '''
+        Register new user.
+
+        :param display_name: The name to display in website (optional).
+
+        :param email: The email to register.
+
+        :param password: The password to register.
+
+        :return: En confirmation email will be sent to user's mailbox to activate account.
+        '''
+        post_data = request.json
+        controller = AuthController()
+        return controller.register(post_data)
+
+@api.route('/resend_confirmation')
+class ResendConfirmation(Resource):
+    @api.expect(_auth_login)
+    def post(self):
+        '''
+        Resend confirmation email.
+
+        :return:
+        '''
+        data = api.payload
+        controller = AuthController()
+        return controller.resend_confirmation(data=data)
+
+@api.route('/confirmation/<token>')
+class ConfirmationEmail(Resource):
+    def get(self, token):
+        '''
+        Check confirmation token.
+
+        :param token: The token to confirm.
+
+        :return:
+        '''
+        controller = AuthController()
+        return controller.confirm_email(token=token)
 
 @api.route('/login')
 class Login(Resource):
     '''
     API login
     '''
-
-    @api.expect(_auth)
+    # @api.expect(_auth)
+    @api.expect(_auth_login)
     def post(self):
         """
         Login user to the system.
@@ -33,7 +78,8 @@ class Login(Resource):
         :return: All information of user if he logged in and None if he did not log in.
         """
         post_data = request.json
-        return AuthController.login_user(data=post_data)
+        controller = AuthController()
+        return controller.login_user(data=post_data)
 
 
 @api.route('/logout')
@@ -41,9 +87,8 @@ class Logout(Resource):
     '''
     API logout
     '''
-
-    @api.expect(_auth)
-    def post(self):
+    @token_required
+    def get(self):
         """
         Logout the user from the system.
         -------------
@@ -52,19 +97,26 @@ class Logout(Resource):
         """
         # auth_header = request.headers.get('Authorization')
         # return ControllerAuth.logout_user(data=auth_header)
-        post_data = request.json
-        return AuthController.logout_user(data=post_data)
+        # post_data = request.json
+        controller = AuthController()
+        return controller.logout_user(req=request)
 
 
 @api.route('/info')
 class UserInfor(Resource):
     '''
-    API User's information.
-    '''
+    API to get user information.
 
+    After user logging in successfully, user will get token, and this token will be used to get information.
+    '''
+    @token_required
+    @api.response(code=200, model=_user_info, description='Model for user information.')
     def get(self):
         """
-        Trả lại các thông tin về role của người dùng, order tương ứng.
-        :return:
+        Get all user's information.
+
+        :return: User's information.
         """
-        return AuthController.get_logged_user(request)
+        controller = AuthController()
+        return controller.get_user_info(request)
+        # return AuthController.get_logged_user(request)

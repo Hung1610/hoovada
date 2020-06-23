@@ -900,3 +900,7 @@ fabric.properties
 .idea/modules.xml
 .idea/rSettings.xml
 .idea/vcs.xml
+
+.vscode
+.vscode/
+.vscode/*.*
