@@ -5,7 +5,7 @@ from app.modules.common.model import Model
 class RequestLog(Model):
     __tablename__ = 'request_log'
 
-    request_log_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     ip_address = db.Column(db.String)
     country_short = db.Column(db.String)
     country_long = db.Column(db.String)
