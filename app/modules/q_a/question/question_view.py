@@ -65,6 +65,8 @@ class Question(Resource):
         '''
         Update existing question by its ID.
 
+        NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
+
         :param id: The ID of the question.
 
         :return:
