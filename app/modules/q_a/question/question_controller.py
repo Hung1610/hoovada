@@ -143,6 +143,10 @@ class QuestionController(Controller):
             return send_error(message='Question must contain at least the title.')
         if not 'user_id' in data:
             return send_error(message='Question must contain user_id (included anonymous)')
+        if not 'fixed_topic_id' in data:
+            return send_error(message='The fixed_topic_id must be included.')
+        if not 'topic_ids' in data:
+            return send_error(message='The list of topic_ids must be included.')
         try:
             title = data['title']
             user_id = data['user_id']
@@ -281,6 +285,8 @@ class QuestionController(Controller):
             return send_error(message="Question ID is null")
         if not isinstance(data, dict):
             return send_error(message="Data is not in dictionary form.")
+        if 'topic_ids' in data:
+            del data['topic_ids']
         try:
             question = Question.query.filter_by(id=object_id).first()
             if question is None:
@@ -304,7 +310,7 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
-                return send_result(message="Update successfully", data=marshal(question, QuestionDto.model))
+                return send_result(message="Update successfully", data=marshal(result, QuestionDto.model_question_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update question.')
