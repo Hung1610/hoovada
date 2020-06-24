@@ -143,6 +143,10 @@ class QuestionController(Controller):
             return send_error(message='Question must contain at least the title.')
         if not 'user_id' in data:
             return send_error(message='Question must contain user_id (included anonymous)')
+        if not 'fixed_topic_id' in data:
+            return send_error(message='The fixed_topic_id must be included.')
+        if not 'topic_ids' in data:
+            return send_error(message='The list of topic_ids must be included.')
         try:
             title = data['title']
             user_id = data['user_id']

@@ -83,8 +83,8 @@ class QuestionTopic(Resource):
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('question_id', type=str, required=False, help='Search record by question ID.')
-parser.add_argument('topic_id', type=str, required=False, help='Search records by topic ID.')
+parser.add_argument('question_id', type=str, required=False, help='The question ID.')
+parser.add_argument('topic_id', type=str, required=False, help='The topic ID.')
 
 
 @api.route('/search')
@@ -106,3 +106,18 @@ class QuestionTopicSearch(Resource):
         args = parser.parse_args()
         controller = QuestionTopicController()
         return controller.search(args=args)
+
+
+@api.route('/delete')
+@api.expect(parser)
+class QuestionTopicDelete(Resource):
+    @token_required
+    def delete(self):
+        '''
+        Delete question_topic by question_id and topic_id
+
+        :return:
+        '''
+        args = parser.parse_args()
+        controller = QuestionTopicController()
+        return controller.delete_by_question_id_topic_id(args)
