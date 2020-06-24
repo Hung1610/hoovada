@@ -108,9 +108,13 @@ class AnswerController(Controller):
             return send_error(message="Please fill the question ID")
         if not 'answer' in data:
             return send_error(message='Please fill the answer body before sending.')
+        if not 'user_id' in data:
+            return send_error(message='Please fill the user ID')
         try:
             # add new answer
             answer = self._parse_answer(data=data, answer=None)
+            if answer.answer.__str__().strip().__eq__(''):
+                return send_error(message='The answer must include content.')
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
@@ -174,12 +178,24 @@ class AnswerController(Controller):
             return send_error(message="Answer ID is null")
         if data is None or not isinstance(data, dict):
             return send_error(message="Data is null or not in dictionary form. Check again.")
+        # if not 'question_id' in data:
+        #     return send_error(message="Please fill the question ID")
+        # if not 'answer' in data:
+        #     return send_error(message='Please fill the answer body before sending.')
+        # if not 'user_id' in data:
+        #     return send_error(message='Please fill the user ID')
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
                 return send_error(message="Answer with the ID {} not found.".format(object_id))
             else:
                 answer = self._parse_answer(data=data, answer=answer)
+                if answer.answer.__str__().strip().__eq__(''):
+                    return send_error(message='The answer must include content.')
+                if answer.question_id is None:
+                    return send_error(message='The question_id must be included.')
+                if answer.user_id is None:
+                    return send_error(message='The user_id must be included.')
                 answer.updated_date = datetime.utcnow()
                 answer.last_activity = datetime.utcnow()
                 db.session.commit()
