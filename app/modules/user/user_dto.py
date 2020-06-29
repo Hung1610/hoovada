@@ -153,6 +153,8 @@ class UserDto(Dto):
         'question_favorited_count': fields.Integer(required=False),
         'question_share_count': fields.Integer(required=False),
         'question_shared_count': fields.Integer(required=False),
+        'question_report_count': fields.Integer(required=False),
+        'question_reported_count': fields.Integer(required=False),
 
         'answer_count': fields.Integer(required=False),
         'answer_share_count': fields.Integer(required=False),
@@ -163,6 +165,8 @@ class UserDto(Dto):
         'answer_upvoted_count': fields.Integer(required=False),
         'answer_downvote_count': fields.Integer(required=False),
         'answer_downvoted_count': fields.Integer(required=False),
+        'answer_report_count': fields.Integer(required=False),
+        'answer_reported_count': fields.Integer(required=False),
 
         'topic_follow_count': fields.Integer(required=False),
         'topic_followed_count': fields.Integer(required=False),
@@ -177,6 +181,8 @@ class UserDto(Dto):
         'comment_downvote_count': fields.Integer(required=False),
         'comment_downvoted_count': fields.Integer(required=False),
         'comment_report_count': fields.Integer(required=False),
-        'comment_reported_count': fields.Integer(required=False)
+        'comment_reported_count': fields.Integer(required=False),
 
+        'user_report_count': fields.Integer(required=False),
+        'user_reported_count': fields.Integer(required=False)
     })
