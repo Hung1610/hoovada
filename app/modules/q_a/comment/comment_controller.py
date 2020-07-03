@@ -100,7 +100,7 @@ class CommentController(Controller):
 
             # update comment count cho answer.
             try:
-                answer = Answer.query.filter(id=comment.answer_id).first()
+                answer = Answer.query.filter_by(id=comment.answer_id).first()
                 answer.comment_count += 1
                 db.session.commit()
             except Exception as e:
@@ -197,7 +197,7 @@ class CommentController(Controller):
         if comment is None:
             comment = Comment()
         if 'comment' in data:
-            comment.comment_body = data['comment_body']
+            comment.comment = data['comment']
         # if 'created_date' in data:
         #     try:
         #         comment.created_date = datetime.fromisoformat(data['created_date'])
