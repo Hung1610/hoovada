@@ -5,8 +5,12 @@ from flask_restx import marshal
 
 from app import db
 from app.modules.common.controller import Controller
+from app.modules.q_a.answer.answer import Answer
+from app.modules.q_a.comment.comment import Comment
 from app.modules.q_a.favorite.favorite import Favorite
 from app.modules.q_a.favorite.favorite_dto import FavoriteDto
+from app.modules.q_a.question.question import Question
+from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 
 
@@ -84,15 +88,15 @@ class FavoriteController(Controller):
             query = query.filter(Favorite.comment_id == comment_id)
             is_filter = True
         if from_date is not None:
-            query = query.filter(Favorite.favorite_date >= from_date)
+            query = query.filter(Favorite.created_date >= from_date)
             is_filter = True
         if to_date is not None:
-            query = query.filter(Favorite.favorite_date <= to_date)
+            query = query.filter(Favorite.created_date <= to_date)
             is_filter = True
         if is_filter:
             favorites = query.all()
             if favorites is not None and len(favorites) > 0:
-                return send_result(data=marshal(favorites, FavoriteDto.model), message='Success')
+                return send_result(data=marshal(favorites, FavoriteDto.model_response), message='Success')
             else:
                 return send_result(message='Could not find any favorites.')
         else:
@@ -107,15 +111,245 @@ class FavoriteController(Controller):
             favorite = self._parse_favorite(data=data, favorite=None)
             db.session.add(favorite)
             db.session.commit()
-            return send_result(message='Favorite was created successfully', data=marshal(favorite, FavoriteDto.model))
+            return send_result(message='Favorite was created successfully',
+                               data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create favorite.')
 
+    # ----------region for user-------#
+    def create_favorite_user(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Data is not correct or not in dictionary form. Please fill params.')
+        if not 'user_id' in data:
+            return send_error(message='User ID must be included')
+        if not 'favorited_user_id' in data:
+            return send_error(message='The favorited_user_id must be included.')
+        try:
+            user_id = data['user_id']
+            favorited_user_id = data['favorited_user_id']
+            favorite = Favorite.query.filter(Favorite.user_id == user_id,
+                                             Favorite.favorited_user_id == favorited_user_id).first()
+            if favorite:
+                return send_result(message='You are already favorited this user.')
+            else:
+                favorite = self._parse_favorite(data=data, favorite=None)
+                favorite.created_date = datetime.utcnow()
+                favorite.updated_time = datetime.utcnow()
+                db.session.add(favorite)
+                db.session.commit()
+                # update user_favorite_count va user_favorited_count
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message='Could not add favorite user.')
+
+    def delete_favorite_user(self, object_id):
+        if object_id is None:
+            return send_error(message='The ID must not be null')
+        try:
+            favorite = Favorite.query.filter_by(id=object_id).first()
+            if not favorite:
+                return send_result(message='Could not find favorite with the ID {}'.format(object_id))
+            else:
+                db.session.delete(favorite)
+                db.session.commit()
+                return send_result(message='Delete successfully.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not delete the favorite. Try again later.')
+
+    # ----------region for question------#
+    def create_favorite_question(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Data is not correct or not in dictionary form. Please fill params.')
+        if not 'user_id' in data:
+            return send_error(message='User ID must be included')
+        if not 'question_id' in data:
+            return send_error(message='The question_id must be included.')
+        try:
+            user_id = data['user_id']
+            question_id = data['question_id']
+            favorite = Favorite.query.filter(Favorite.user_id == user_id, Favorite.question_id == question_id).first()
+            if favorite:
+                return send_result(message='You favorired this question')
+            else:
+                favorite = self._parse_favorite(data=data, favorite=None)
+                favorite.created_date = datetime.utcnow()
+                favorite.updated_time = datetime.utcnow()
+                db.session.add(favorite)
+                db.session.commit()
+                try:
+                    # get user
+                    user = User.query.filter_by(id=user_id).first()
+                    # get user favorited
+                    question = Question.query.filter_by(id=question_id).first()
+                    user_favorited = User.query.filter_by(id=question.user_id).first()
+
+                    # Update question_favorite_count cho bảng user
+                    user.question_favorite_count += 1
+                    # Update question_favorited_count cho bảng user
+                    user_favorited.question_favorited_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                return send_result(data=marshal(favorite, FavoriteDto.model_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not create favorite. Try again.')
+
+    def delete_favorite_question(self, object_id):
+        if object_id is None:
+            return send_error(message='The ID must not be null')
+        try:
+            favorite = Favorite.query.filter_by(id=object_id).first()
+            if not favorite:
+                return send_result(message='Could not find favorite with the ID {}'.format(object_id))
+            else:
+                if favorite.question_id is None:
+                    return send_result(message='You tried to hack our system. Stop doing this.')
+                # xóa favorite từ bảng favorite
+                db.session.delete(favorite)
+                db.session.commit()
+                try:
+                    # Update question_favorite_count cho bảng user
+                    user = User.query.filter_by(id=favorite.user_id).first()
+                    user.question_favorite_count -= 1
+                    # Update question_favorited_count cho bảng user
+                    question = Question.query.filter_by(id=favorite.question_id).first()
+                    user_favorited = User.query.filter_by(id=question.user_id).first()
+                    user_favorited.question_favorited_count -= 1
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+                return send_result(message='Delete successfully.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not delete the favorite. Try again later.')
+
+    # ---------region for answer---------#
+    def create_favorite_answer(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Data is not correct or not in dictionary form. Please fill params.')
+        if not 'user_id' in data:
+            return send_error(message='User ID must be included')
+        if not 'answer_id' in data:
+            return send_error(message='The answer_id must be included.')
+        try:
+            user_id = data['user_id']
+            answer_id = data['answer_id']
+            # check favorite
+            favorite = Favorite.query.filter(Favorite.user_id == user_id, Favorite.answer_id == answer_id).first()
+            if favorite:
+                return send_result(message='You favorited this answer')
+            else:
+                favorite = self._parse_favorite(data=data, favorite=None)
+                favorite.created_date = datetime.utcnow()
+                favorite.updated_time = datetime.utcnow()
+                db.session.add(favorite)
+                db.session.commit()
+                # update other values
+                try:
+                    user = User.query.filter_by(id=user_id).first()
+                    answer = Answer.query.filter_by(id=answer_id).first()
+                    user_favorited = User.query.filter_by(id=answer.user_id).first()
+                    # Update answer_favorite_count cho bảng user
+                    user.answer_favorite_count += 1
+                    # Update answer_favorited_count cho bảng user
+                    user_favorited.answer_favorited_count += 1
+                    db.session.commit()
+                except Exception as e:
+                    print(e.__str__())
+                return send_result(data=marshal(favorite, FavoriteDto.model_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not created favorite. Try again.')
+
+    def delete_favorite_answer(self, object_id):
+        if object_id is None:
+            return send_error(message='The ID must not be null')
+        try:
+            favorite = Favorite.query.filter_by(id=object_id).first()
+            if not favorite:
+                return send_result(message='Could not find favorite with the ID {}'.format(object_id))
+            else:
+                if favorite.answer_id is None:
+                    return send_result(message='You tried to hack our system. Stop doing this.')
+                # xóa favorite từ bảng favorite
+                db.session.delete(favorite)
+                db.session.commit()
+                try:
+                    # Update question_favorite_count cho bảng user
+                    user = User.query.filter_by(id=favorite.user_id).first()
+                    user.answer_favorite_count -= 1
+                    # Update question_favorited_count cho bảng user
+                    answer = Answer.query.filter_by(id=favorite.answer_id).first()
+                    user_favorited = User.query.filter_by(id=answer.user_id).first()
+                    user_favorited.answer_favorited_count -= 1
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+                return send_result(message='Delete successfully.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not delete the favorite. Try again later.')
+
+    # ---------region for comment--------#
+    def create_favorite_comment(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Data is not correct or not in dictionary form. Please fill params.')
+        if not 'user_id' in data:
+            return send_error(message='User ID must be included')
+        if not 'comment_id' in data:
+            return send_error(message='The comment_id must be included.')
+        try:
+            user_id = data['user_id']
+            comment_id = data['comment_id']
+            # check favorite
+            favorite = Favorite.query.filter(Favorite.user_id == user_id, Favorite.answer_id == comment_id).first()
+            if favorite:
+                return send_result(message='You favorited this comment')
+            else:
+                favorite = self._parse_favorite(data=data, favorite=None)
+                favorite.created_date = datetime.utcnow()
+                favorite.updated_time = datetime.utcnow()
+                db.session.add(favorite)
+                db.session.commit()
+                # # update other values
+                # try:
+                #     user = User.query.filter_by(id=user_id).first()
+                #     comment = Comment.query.filter_by(id=comment_id).first()
+                #     user_favorited = User.query.filter_by(id=comment.user_id).first()
+                #     # Update comment_favorite_count cho bảng user
+                #     user.commen
+                #     # Update comment_favorited_count cho bảng user
+                return send_result(data=marshal(favorite, FavoriteDto.model_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not created favorite. Try again.')
+
+    def delete_favorite_comment(self, object_id):
+        if object_id is None:
+            return send_error(message='The ID must not be null')
+        try:
+            favorite = Favorite.query.filter_by(id=object_id).first()
+            if not favorite:
+                return send_result(message='Could not find favorite with the ID {}'.format(object_id))
+            else:
+                if favorite.comment_id is None:
+                    return send_result(message='You tried to hack out system. Stop doing this.')
+                # xóa favorite từ bảng favorite
+                db.session.delete(favorite)
+                db.session.commit()
+                return send_result(message='Delete successfully.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not delete the favorite. Try again later.')
+
     def get(self):
         try:
             favorites = Favorite.query.all()
-            return send_result(data=marshal(favorites, FavoriteDto.model), message='Success')
+            return send_result(data=marshal(favorites, FavoriteDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not load favorites.')
@@ -127,7 +361,7 @@ class FavoriteController(Controller):
         if favorite is None:
             return send_error(message='Could not find favorite with ID {}'.format(object_id))
         else:
-            return send_result(data=marshal(favorite, FavoriteDto.model), message='Success')
+            return send_result(data=marshal(favorite, FavoriteDto.model_response), message='Success')
 
     def update(self, object_id, data):
         if object_id is None:
@@ -141,7 +375,8 @@ class FavoriteController(Controller):
             else:
                 favorite = self._parse_favorite(data=data, favorite=favorite)
                 db.session.commit()
-                return send_result(message='Update favorite successfully', data=marshal(favorite, FavoriteDto.model))
+                return send_result(message='Update favorite successfully',
+                                   data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update favorite.')
@@ -195,10 +430,10 @@ class FavoriteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'favorite_date' in data:
-            try:
-                favorite.favorite_date = dateutil.parser.isoparse(data['favorite_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        # if 'favorite_date' in data:
+        #     try:
+        #         favorite.favorite_date = dateutil.parser.isoparse(data['favorite_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
         return favorite

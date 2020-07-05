@@ -56,6 +56,12 @@ class VoteAnswer(Resource):
         data = api.payload
         return controller.update_answer_vote(object_id=id, data=data)
 
+    @token_required
+    @api.param(name='id', description='The ID of vote')
+    def delete(self, id):
+        controller = VoteController()
+        return controller.delete_answer_vote(object_id=id)
+
 
 @api.route('/comment')
 class VoteComment(Resource):
@@ -76,48 +82,54 @@ class VoteComment(Resource):
         data = api.payload
         return controller.update_comment_vote(object_id=id, data=data)
 
-
-@api.route('/<int:id>')
-class Vote(Resource):
     @token_required
-    # @api.marshal_with(vote)
-    def get(self, id):
-        '''
-        Get vote by its ID.
-
-        :param id: The ID of the vote.
-
-        :return: The vote with the specific ID.
-        '''
-        controller = VoteController()
-        return controller.get_by_id(object_id=id)
-
-    # @token_required
-    # @api.expect(vote_response)
-    # # @api.marshal_with(vote)
-    # def put(self, id):
-    #     '''
-    #     Update existing vote by its ID.
-    #
-    #     :param id: The ID of the vote which need to be updated.
-    #
-    #     :return: The updated vote if success and null vice versa.
-    #     '''
-    #     data = api.payload
-    #     controller = VoteController()
-    #     return controller.update(object_id=id, data=data)
-
-    @token_required
+    @api.param(name='id', description='The ID of vote')
     def delete(self, id):
-        '''
-        Delete vote by its ID.
-
-        :param id: The ID of the vote.
-
-        :return:
-        '''
         controller = VoteController()
-        return controller.delete(object_id=id)
+        return controller.delete_comment_vote(object_id=id)
+
+
+# @api.route('/<int:id>')
+# class Vote(Resource):
+#     @token_required
+#     # @api.marshal_with(vote)
+#     def get(self, id):
+#         '''
+#         Get vote by its ID.
+#
+#         :param id: The ID of the vote.
+#
+#         :return: The vote with the specific ID.
+#         '''
+#         controller = VoteController()
+#         return controller.get_by_id(object_id=id)
+#
+#     # @token_required
+#     # @api.expect(vote_response)
+#     # # @api.marshal_with(vote)
+#     # def put(self, id):
+#     #     '''
+#     #     Update existing vote by its ID.
+#     #
+#     #     :param id: The ID of the vote which need to be updated.
+#     #
+#     #     :return: The updated vote if success and null vice versa.
+#     #     '''
+#     #     data = api.payload
+#     #     controller = VoteController()
+#     #     return controller.update(object_id=id, data=data)
+#
+#     @token_required
+#     def delete(self, id):
+#         '''
+#         Delete vote by its ID.
+#
+#         :param id: The ID of the vote.
+#
+#         :return:
+#         '''
+#         controller = VoteController()
+#         return controller.delete(object_id=id)
 
 
 parser = reqparse.RequestParser()

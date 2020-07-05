@@ -11,5 +11,5 @@ class Favorite(Model):
     question_id = db.Column(db.Integer)
     answer_id = db.Column(db.Integer)
     comment_id = db.Column(db.Integer)
-    favorite_date = db.Column(db.DateTime)
-    # favorite_time = db.Column(db.Time)
+    created_date = db.Column(db.DateTime)
+    updated_time = db.Column(db.Time)

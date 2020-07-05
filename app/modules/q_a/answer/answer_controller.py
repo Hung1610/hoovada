@@ -220,7 +220,7 @@ class AnswerController(Controller):
 
                 # delete from comment
 
-                # delete from reporting
+                # delete from report
 
                 # delete from share
 

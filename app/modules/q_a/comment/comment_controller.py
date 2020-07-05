@@ -61,7 +61,14 @@ class CommentController(Controller):
         if is_filter:
             comments = query.all()
             if comments is not None and len(comments) > 0:
-                return send_result(marshal(comments, CommentDto.model_response), message='Success')
+                results = list()
+                for comment in comments:
+                    result = comment.__dict__
+                    # get thong tin user
+                    user = User.query.filter_by(id=comment.user_id).first()
+                    result['user'] = user
+                    results.append(result)
+                return send_result(marshal(results, CommentDto.model_response), message='Success')
             else:
                 return send_result(message='Could not find any comments.')
         else:
@@ -93,14 +100,22 @@ class CommentController(Controller):
 
             # update comment count cho answer.
             try:
-                answer = Answer.query.filter(id=comment.answer_id).first()
+                answer = Answer.query.filter_by(id=comment.answer_id).first()
                 answer.comment_count += 1
                 db.session.commit()
             except Exception as e:
                 print(e.__str__())
                 pass
-            return send_result(message='Comment was created successfully',
-                               data=marshal(comment, CommentDto.model_response))
+            try:
+                result = comment.__dict__
+                # get thong tin user
+                user = User.query.filter_by(id=comment.user_id).first()
+                result['user'] = user
+                return send_result(message='Comment was created successfully',
+                                   data=marshal(result, CommentDto.model_response))
+            except Exception as e:
+                print(e.__str__())
+                return send_result(data=marshal(comment, CommentDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create comment')
@@ -124,7 +139,15 @@ class CommentController(Controller):
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
         else:
-            return send_result(data=marshal(comment, CommentDto.model_response), message='Success')
+            try:
+                result = comment.__dict__
+                # get thong tin user
+                user = User.query.filter_by(id=comment.user_id).first()
+                result['user'] = user
+                return send_result(data=marshal(result, CommentDto.model_response), message='Success')
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not get comment with the ID {}'.format(object_id))
 
     def update(self, object_id, data):
         if object_id is None:
@@ -139,7 +162,11 @@ class CommentController(Controller):
                 comment = self._parse_comment(data=data, comment=comment)
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
-                return send_result(message='Update successfully', data=marshal(comment, CommentDto.model_response))
+                result = comment.__dict__
+                # get thong tin user
+                user = User.query.filter_by(id=comment.user_id).first()
+                result['user'] = user
+                return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
@@ -170,7 +197,7 @@ class CommentController(Controller):
         if comment is None:
             comment = Comment()
         if 'comment' in data:
-            comment.comment_body = data['comment_body']
+            comment.comment = data['comment']
         # if 'created_date' in data:
         #     try:
         #         comment.created_date = datetime.fromisoformat(data['created_date'])
