@@ -2,8 +2,8 @@ from app import db
 from app.modules.common.model import Model
 
 
-class Reporting(Model):
-    __tablename__ = 'reporting'
+class Report(Model):
+    __tablename__ = 'report'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)

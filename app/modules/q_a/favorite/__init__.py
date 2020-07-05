@@ -1,0 +1,1 @@
+from .favorite_view import api

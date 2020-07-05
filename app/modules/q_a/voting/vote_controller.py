@@ -245,15 +245,55 @@ class VoteController(Controller):
                 return send_error(message='Up-vote and down-vote can not be the same at the same time.')
             if vote_parse.up_vote == vote.up_vote and vote_parse.down_vote == vote.down_vote:
                 return send_result(message='The values of upvote and downvote have not changed.')
+            # get answer
+            answer = Answer.query.filter_by(id=vote.answer_id).first()
+            # get user who voted
+            user = User.query.filter_by(id=vote.user_id).first()
+            # get user whose question has been voted
+            # get user whose answer has been upvoted
+            user_voted = User.query.filter_by(id=answer.user_id).first()
             if vote_parse.up_vote:  # if user change vote from down_vote to up_vote
-                # set down
-                vote.up_vote = True
+                # update downvote_count cho answer
+                answer.downvote_count -= 1
+                # update answer_downvote_count cho user
+                user.answer_downvote_count -= 1
+                # update answer_downvoted_count cho user
+                user_voted.answer_downvoted_count -= 1
 
+                ## for upvote
+                # update upvote_count cho answer
+                answer.upvote_count += 1
+                # update answer_upvote_count cho user
+                user.answer_upvote_count += 1
+                # update answer_upvoted_count cho user
+                user_voted.answer_upvoted_count += 1
+
+                # update up_vote and down_vote cho vote
+                vote.up_vote = True
                 vote.down_vote = False
             if vote_parse.down_vote:
-                pass
+                # update upvote_count cho answer
+                answer.upvote_count -= 1
+                # Update answer_upvote_count cho user
+                user.answer_upvote_count -= 1
+                # Update answer_upvoted_count cho user
+                user_voted.answer_upvoted_count -= 1
+
+                # Update downvote_count cho answer
+                answer.downvote_count += 1
+                # Update answer_downvote_count cho user
+                user.answer_downvote_count += 1
+                # Update answer_downvoted_count cho user
+                user_voted.answer_downvoted_count += 1
+
+                # Update up_vote và down_vote cho vote
+                vote.up_vote = False
+                vote.down_vote = True
+            # Lưu lại dữ liệu
+            db.session.commit()
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message='Could not update vote. Try again later.')
 
     def update_comment_vote(self, object_id, data):
@@ -265,6 +305,64 @@ class VoteController(Controller):
             return send_error(message='User ID must be included.')
         if not 'comment_id' in data:
             return send_error(message='The `comment_id` must be included.')
+        try:
+            # check vote
+            vote = Vote.query.filter_by(id=object_id).first()
+            if not vote:
+                return send_error(message='The vote with the ID {} does not exist.'.format(object_id))
+            vote_parse = self._parse_vote(data=data, vote=None)
+            if vote_parse.up_vote == vote_parse.up_vote:
+                return send_error(message='Up-vote and down-vote can not be the same at the same time.')
+            if vote_parse.up_vote == vote.up_vote and vote_parse.down_vote == vote.down_vote:
+                return send_result(message='The values of upvote and downvote have not changed.')
+            # get the comment
+            comment = Comment.query.filter_by(id=vote.comment_id).first()
+            # get the user who voted
+            user = User.query.filter_by(id=vote.user_id).first()
+            # get the user whose comment voted
+            user_voted = User.query.filter_by(id=comment.user_id).first()
+            if vote_parse.up_vote:
+                # Update downvote_count cho table comment
+                comment.downvote_count -= 1
+                # Update comment_downvote_count cho table user
+                user.comment_downvote_count -= 1
+                # Update comment_downvoted_count cho table user
+                user_voted.comment_downvoted_count -= 1
+
+                # Update upvote_count cho table comment
+                comment.upvote_count += 1
+                # Update comment_upvote_count cho table user
+                user.comment_upvote_count += 1
+                # Update comment_upvoted_count cho table user
+                user_voted.comment_upvoted_count += 1
+                # Update up_vote và down_vote cho vote
+                vote.up_vote = True
+                vote.down_vote = False
+
+            if vote_parse.down_vote:
+                # Update upvote_count cho table comment
+                comment.upvote_count -= 1
+                # Update comment_upvote_count cho table user
+                user.comment_upvote_count -= 1
+                # Update comment_upvoted_count cho table user
+                user_voted.comment_upvoted_count -= 1
+
+                # Update downvote_count cho table comment
+                comment.downvote_count += 1
+                # Update comment_downvote_count cho table user
+                user.comment_downvote_count += 1
+                # Update comment_downvoted_count cho table user
+                user_voted.comment_downvoted_count += 1
+
+                # Update up_vote và down_vote cho vote
+                vote.up_vote = False
+                vote.down_vote = True
+            # Lưu lại dữ liệu
+            db.session.commit()
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message='Could not update vote.')
 
     def delete(self, object_id):
         if object_id is None:
@@ -282,10 +380,81 @@ class VoteController(Controller):
             return send_error(message='Could not delete vote with ID {}.'.format(object_id))
 
     def delete_answer_vote(self, object_id):
-        pass
+        if object_id is None:
+            return send_error(message='ID must be included to delete.')
+        try:
+            vote = Vote.query.filter_by(id=object_id).first()
+            if vote is None:
+                return send_error(message='Vote with ID {} not found.'.format(object_id))
+            else:
+                # lay ra answer
+                answer = Answer.query.filter_by(id=vote.answer_id).first()
+                # lay ra user who voted
+                user = User.query.filter_by(id=vote.user_id).first()
+                # lay ra user whose answer has been voted
+                user_voted = User.query.filter_by(id=answer.user_id).first()
+                if vote.up_vote:
+                    # Cập nhật upvote_count cho answer
+                    answer.upvote_count -= 1
+                    # Cập nhật answer_upvote_count cho user
+                    user.answer_upvote_count -= 1
+                    # Cập nhật answer_upvoted_count cho user
+                    user_voted.answer_upvoted_count -= 1
+                if vote.down_vote:
+                    # Cập nhật downvote_count cho answer
+                    answer.downvote_count -= 1
+                    # Cập nhật answer_downvote_count cho user
+                    user.answer_downvote_count -= 1
+                    # Cập nhật answer_downvoted_count cho user
+                    user_voted.answer_downvoted_count -= 1
+                # commit change to db first
+                db.session.commit()
+                # delete vote
+                db.session.delete(vote)
+                db.session.commit()
+                return send_result(message='Vote with the ID {} was deleted.'.format(object_id))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not delete vote with ID {}.'.format(object_id))
 
     def delete_comment_vote(self, object_id):
-        pass
+        if object_id is None:
+            return send_error(message='ID must be included to delete.')
+        try:
+            vote = Vote.query.filter_by(id=object_id).first()
+            if vote is None:
+                return send_error(message='Vote with ID {} not found.'.format(object_id))
+            else:
+                # lay ra comment
+                comment = Comment.query.filter_by(id=vote.comment_id).first()
+                # lay ra user
+                user = User.query.filter_by(id=vote.user_id).first()
+                # lay ra user_voted
+                user_voted = User.query.filter_by(id=comment.user_id).first()
+                if vote.up_vote:
+                    # Cập nhật upvote_count cho comment
+                    comment.upvote_count -= 1
+                    # Cập nhật comment_upvote_count cho user
+                    user.comment_upvote_count -= 1
+                    # Cập nhật comment_upvoted_count cho user
+                    user_voted.comment_upvoted_count -= 1
+                if vote.down_vote:
+                    # Cập nhật downvote_count cho comment
+                    comment.downvote_count -= 1
+                    # Cập nhật comment_downvote_count cho user
+                    user.comment_downvote_count -= 1
+                    # Cập nhật comment_downvoted_count cho user
+                    user_voted.comment_downvoted_count -= 1
+                # commit changes to db first
+                db.session.commit()
+                # delete vote
+                db.session.delete(vote)
+                db.session.commit()
+                return send_result(message='Vote with the ID {} was deleted.'.format(object_id))
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message='Could not delete vote with ID {}'.format(object_id))
 
     def _parse_vote(self, data, vote=None):
         if vote is None:

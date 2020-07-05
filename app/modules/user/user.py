@@ -127,6 +127,8 @@ class User(Model):
     question_favorited_count = db.Column(db.Integer, default=0)
     question_share_count = db.Column(db.Integer, default=0)
     question_shared_count = db.Column(db.Integer, default=0)
+    question_report_count = db.Column(db.Integer, default=0)
+    question_reported_count = db.Column(db.Integer, default=0)
 
     answer_count = db.Column(db.Integer, default=0)  # number answers user created
     answer_share_count = db.Column(db.Integer, default=0)
@@ -137,6 +139,8 @@ class User(Model):
     answer_upvoted_count = db.Column(db.Integer, default=0)
     answer_downvote_count = db.Column(db.Integer, default=0)
     answer_downvoted_count = db.Column(db.Integer, default=0)
+    answer_report_count = db.Column(db.Integer, default=0)
+    answer_reported_count = db.Column(db.Integer, default=0)
 
     topic_follow_count = db.Column(db.Integer, default=0)
     topic_followed_count = db.Column(db.Integer, default=0)
@@ -152,6 +156,9 @@ class User(Model):
     comment_downvoted_count = db.Column(db.Integer, default=0)
     comment_report_count = db.Column(db.Integer, default=0)
     comment_reported_count = db.Column(db.Integer, default=0)
+
+    user_report_count = db.Column(db.Integer, default=0)
+    user_reported_count = db.Column(db.Integer, default=0)
 
     # @hybrid_property
     # def about_me(self):
