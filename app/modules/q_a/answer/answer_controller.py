@@ -1,16 +1,20 @@
 import json
 from datetime import datetime
 import dateutil.parser
+from flask import request
 
 from flask_restx import marshal
 
 from app import db
+from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question import Question
+from app.modules.q_a.voting.vote import Vote
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
+from app.utils.sensitive_words import check_sensitive
 
 
 class AnswerController(Controller):
@@ -94,6 +98,12 @@ class AnswerController(Controller):
                     result = answer.__dict__
                     user = User.query.filter_by(id=answer.user_id).first()
                     result['user'] = user
+                    # lay thong tin up_vote down_vote cho current user
+                    current_user, _ = AuthController.get_logged_user(request)
+                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+                    if vote is not None:
+                        result['up_vote'] = vote.up_vote
+                        result['down_vote'] = vote.down_vote
                     results.append(result)
                 return send_result(marshal(results, AnswerDto.model_response), message='Success')
             else:
@@ -115,6 +125,9 @@ class AnswerController(Controller):
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message='The answer must include content.')
+            is_sensitive = check_sensitive(answer.answer)
+            if is_sensitive:
+                return send_error(message='Please be polite. Your answer contains sensitive word.')
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
@@ -140,7 +153,9 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-            # get user
+            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
+            result['up_vote'] = False
+            result['down_vote'] = False
             return send_result(message='Answer created successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
@@ -170,6 +185,12 @@ class AnswerController(Controller):
             result = answer.__dict__
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
+            # lay thong tin up_vote down_vote cho current user
+            current_user, _ = AuthController.get_logged_user(request)
+            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+            if vote is not None:
+                result['up_vote'] = vote.up_vote
+                result['down_vote'] = vote.down_vote
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(data=marshal(result, AnswerDto.model_response), message='Success')
 
@@ -192,6 +213,9 @@ class AnswerController(Controller):
                 answer = self._parse_answer(data=data, answer=answer)
                 if answer.answer.__str__().strip().__eq__(''):
                     return send_error(message='The answer must include content.')
+                is_sensitive = check_sensitive(answer.answer)
+                if is_sensitive:
+                    return send_error(message='Please be polite. Your answer contains sensitive word.')
                 if answer.question_id is None:
                     return send_error(message='The question_id must be included.')
                 if answer.user_id is None:
@@ -203,6 +227,12 @@ class AnswerController(Controller):
                 result = answer.__dict__
                 user = User.query.filter_by(id=answer.user_id).first()
                 result['user'] = user
+                # lay thong tin up_vote down_vote cho current user
+                current_user, _ = AuthController.get_logged_user(request)
+                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+                if vote is not None:
+                    result['up_vote'] = vote.up_vote
+                    result['down_vote'] = vote.down_vote
                 # return send_result(marshal(result, AnswerDto.model_response), message='Success')
                 return send_result(message='Update successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:

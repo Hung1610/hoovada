@@ -1,18 +1,22 @@
 import json
 from datetime import datetime
 import dateutil.parser
+from flask import request
 
 from flask_restx import marshal
 from sqlalchemy import desc
 
 from app import db
+from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionTopicView
 from app.modules.q_a.question.question_dto import QuestionDto
+from app.modules.q_a.voting.vote import Vote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
+from app.utils.sensitive_words import check_sensitive
 
 
 class QuestionController(Controller):
@@ -129,6 +133,12 @@ class QuestionController(Controller):
                         topic = Topic.query.filter_by(id=topic_id).first()
                         topics.append(topic)
                     result['topics'] = topics
+                    # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                    current_user, _ = AuthController.get_logged_user(request)
+                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+                    if vote is not None:
+                        result['up_vote'] = vote.up_vote
+                        result['down_vote'] = vote.down_vote
                     results.append(result)
                 return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
             else:
@@ -150,9 +160,15 @@ class QuestionController(Controller):
         try:
             title = data['title']
             user_id = data['user_id']
+            is_sensitive = check_sensitive(title)
+            if is_sensitive:
+                return send_error(message='Your question consists of sensitve word.')
             question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
+                is_sensitive = check_sensitive(question.question)
+                if is_sensitive:
+                    return send_error(message='Your question consists of sensitve word.')
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
                 db.session.add(question)
@@ -193,6 +209,9 @@ class QuestionController(Controller):
                         db.session.commit()
                         topics.append(topic)
                     result['topics'] = topics
+                    # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                    result['up_vote'] = False
+                    result['down_vote'] = False
                     return send_result(message='Question was created successfully.',
                                        data=marshal(result, QuestionDto.model_question_response))
                 except Exception as e:
@@ -245,6 +264,12 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                current_user, _ = AuthController.get_logged_user(request)
+                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+                if vote is not None:
+                    result['up_vote'] = vote.up_vote
+                    result['down_vote'] = vote.down_vote
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
         except Exception as e:
@@ -271,6 +296,12 @@ class QuestionController(Controller):
                 topic = Topic.query.filter_by(id=topic_id).first()
                 topics.append(topic)
             result['topics'] = topics
+            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+            current_user, _ = AuthController.get_logged_user(request)
+            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+            if vote is not None:
+                result['up_vote'] = vote.up_vote
+                result['down_vote'] = vote.down_vote
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def update(self, object_id, data):
@@ -293,6 +324,13 @@ class QuestionController(Controller):
                 return send_error(message="Question with the ID {} not found".format(object_id))
             else:
                 question, _ = self._parse_question(data=data, question=question)
+                # check sensitive after updating
+                is_sensitive = check_sensitive(question.title)
+                if is_sensitive:
+                    return send_error(message='Could not update. Your question title contains sensitive word.')
+                is_sensitive = check_sensitive(question.question)
+                if is_sensitive:
+                    return send_error(message='Could not update. Your question contains sensitive word.')
                 # update topics to question_topic table
                 question.updated_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
@@ -310,7 +348,14 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
-                return send_result(message="Update successfully", data=marshal(result, QuestionDto.model_question_response))
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                current_user, _ = AuthController.get_logged_user(request)
+                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+                if vote is not None:
+                    result['up_vote'] = vote.up_vote
+                    result['down_vote'] = vote.down_vote
+                return send_result(message="Update successfully",
+                                   data=marshal(result, QuestionDto.model_question_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update question.')
