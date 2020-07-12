@@ -129,6 +129,10 @@ class User(Model):
     question_shared_count = db.Column(db.Integer, default=0)
     question_report_count = db.Column(db.Integer, default=0)
     question_reported_count = db.Column(db.Integer, default=0)
+    question_upvote_count = db.Column(db.Integer, default=0)
+    question_upvoted_count = db.Column(db.Integer, default=0)
+    question_downvote_count = db.Column(db.Integer, default=0)
+    question_downvoted_count = db.Column(db.Integer, default=0)
 
     answer_count = db.Column(db.Integer, default=0)  # number answers user created
     answer_share_count = db.Column(db.Integer, default=0)

@@ -5,36 +5,57 @@ from .vote_controller import VoteController
 from ...auth.decorator import admin_token_required, token_required
 
 api = VoteDto.api
+vote_request_question = VoteDto.model_request_question
 vote_request_answer = VoteDto.model_request_answer
 vote_request_comment = VoteDto.model_request_comment
 vote_response = VoteDto.model_response
 
 
-# @api.route('')
-# class VoteList(Resource):
-#     # @admin_token_required
-#     # # @api.marshal_list_with(vote)
-#     # def get(self):
-#     #     '''
-#     #     Get list of votes from database.
-#     #
-#     #     :return: The list of votes.
-#     #     '''
-#     #     controller = VoteController()
-#     #     return controller.get()
-#
-#     @token_required
-#     @api.expect(vote_response)
-#     # @api.marshal_with(vote)
-#     def post(self):
-#         '''
-#         Create new vote.
-#
-#         :return: The new vote if it was created successfully and null vice versa.
-#         '''
-#         data = api.payload
-#         controller = VoteController()
-#         return controller.create(data=data)
+@api.route('/question')
+class VoteQuestion(Resource):
+    @token_required
+    @api.expect(vote_request_question)
+    @api.response(code=200, model=vote_response, description='The model for vote response.')
+    def post(self):
+        '''
+        Create vote on question.
+
+        :return:
+        '''
+        controller = VoteController()
+        data = api.payload
+        return controller.create_question_vote(data=data)
+
+    # @api.route('<int:id>/answer')
+    @token_required
+    @api.expect(vote_request_question)
+    @api.param(name='id', description='The ID of vote')
+    @api.response(code=200, model=vote_response, description='The model for vote response.')
+    def put(self, id):
+        '''
+        Update vote on question.
+
+        :param id: The vote ID.
+
+        :return:
+        '''
+        controller = VoteController()
+        data = api.payload
+        return controller.update_question_vote(object_id=id, data=data)
+
+    @token_required
+    @api.param(name='id', description='The ID of vote')
+    def delete(self, id):
+        '''
+        Delete vote on question.
+
+        :param id: The vote ID.
+
+        :return:
+        '''
+        controller = VoteController()
+        return controller.delete_question_vote(object_id=id)
+
 
 @api.route('/answer')
 class VoteAnswer(Resource):
@@ -42,6 +63,11 @@ class VoteAnswer(Resource):
     @api.expect(vote_request_answer)
     @api.response(code=200, model=vote_response, description='The model for vote response.')
     def post(self):
+        '''
+        Create vote on answer.
+
+        :return:
+        '''
         controller = VoteController()
         data = api.payload
         return controller.create_answer_vote(data=data)
@@ -52,6 +78,13 @@ class VoteAnswer(Resource):
     @api.param(name='id', description='The ID of vote')
     @api.response(code=200, model=vote_response, description='The model for vote response.')
     def put(self, id):
+        '''
+        Update vote on answer.
+
+        :param id: The vote ID.
+
+        :return:
+        '''
         controller = VoteController()
         data = api.payload
         return controller.update_answer_vote(object_id=id, data=data)
@@ -59,6 +92,13 @@ class VoteAnswer(Resource):
     @token_required
     @api.param(name='id', description='The ID of vote')
     def delete(self, id):
+        '''
+        Delete vote on answer.
+
+        :param id: The vote ID.
+
+        :return:
+        '''
         controller = VoteController()
         return controller.delete_answer_vote(object_id=id)
 
@@ -69,6 +109,11 @@ class VoteComment(Resource):
     @api.expect(vote_request_comment)
     @api.response(code=200, model=vote_response, description='The model for vote response.')
     def post(self):
+        '''
+        Create vote on comment.
+
+        :return:
+        '''
         controller = VoteController()
         data = api.payload
         return controller.create_comment_vote(data=data)
@@ -78,6 +123,13 @@ class VoteComment(Resource):
     @api.param(name='id', description='The ID of vote')
     @api.response(code=200, model=vote_response, description='The model for vote response.')
     def put(self, id):
+        '''
+        Update vote on comment.
+
+        :param id: The vote ID.
+
+        :return:
+        '''
         controller = VoteController()
         data = api.payload
         return controller.update_comment_vote(object_id=id, data=data)
@@ -85,6 +137,13 @@ class VoteComment(Resource):
     @token_required
     @api.param(name='id', description='The ID of vote')
     def delete(self, id):
+        '''
+        Delete vote on comment.
+
+        :param id: The vote ID.
+
+        :return:
+        '''
         controller = VoteController()
         return controller.delete_comment_vote(object_id=id)
 
