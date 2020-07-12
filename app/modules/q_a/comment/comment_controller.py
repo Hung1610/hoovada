@@ -10,6 +10,7 @@ from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.q_a.question.question import Question
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
+from app.utils.sensitive_words import check_sensitive
 
 
 class CommentController(Controller):
@@ -85,6 +86,9 @@ class CommentController(Controller):
             return send_error(message='The answer_id must be included.')
         try:
             comment = self._parse_comment(data=data, comment=None)
+            is_sensitive = check_sensitive(comment.comment)
+            if is_sensitive:
+                return send_error(message='Please be polite. Your comment contains sensitive word.')
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
@@ -160,6 +164,9 @@ class CommentController(Controller):
                 return send_error(message='Comment with the ID {} not found.'.format(object_id))
             else:
                 comment = self._parse_comment(data=data, comment=comment)
+                is_sensitive = check_sensitive(comment.comment)
+                if is_sensitive:
+                    return send_error(message='Please be polite. Your comment contains sensitive word.')
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__
