@@ -8,3 +8,5 @@ class Follow(Model):
     id = db.Column(db.Integer, primary_key=True)
     follower_id = db.Column(db.Integer)
     followed_id = db.Column(db.Integer)
+    question_id = db.Column(db.Integer)
+    answer_id = db.Column(db.Integer)

@@ -1,7 +1,7 @@
 from flask_restx import Api
 
 from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, \
-    ns_comment, ns_vote, ns_favorite, ns_share, ns_report
+    ns_comment, ns_vote, ns_favorite, ns_share, ns_report, ns_upload
 
 authorizations = {
     'apikey': {
@@ -31,5 +31,6 @@ def init_api():
     api.add_namespace(ns_favorite, '/api/v1/favorite')
     api.add_namespace(ns_share, '/api/v1/share')
     api.add_namespace(ns_report, '/api/v1/report')
+    api.add_namespace(ns_upload, '/api/v1/file_upload')
 
     return api
