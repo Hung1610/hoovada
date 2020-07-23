@@ -1,4 +1,4 @@
-sensitive_words = ['lồn', 'dm', 'đủ mẹ', 'đủ má', ' đù', 'đụ', 'đéo', 'dái', 'địt', 'vãi', 'cu', 'dâm đãng', 'làm tình',
+sensitive_words = ['lồn', 'dm', 'du me', 'đu me', 'đủ mẹ', 'đủ má', ' đù', 'đụ', 'đéo', 'dái', 'địt', 'vãi', 'cu', 'dâm đãng', 'làm tình',
                    'cuto', 'chat sex', 'loạn luân', 'slm', 'dkm', 'porn', 'dú', 'bú', 'giao lưu sex', 'nc sex', 'xxx',
                    'fuck ', 'chat xxx', 'sax', 'phá trinh', 'tùm gái', ' tìm trai', 'tìm bạn nữ', 'childporn',
                    'trai bao', 'gái bao', 'web sex', 'phim sex', 'film sex', 'child porn', 'gái dâm', 'trai dâm',

@@ -1,8 +1,8 @@
 from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
-from .share_dto import ShareDto
-from .share_controller import ShareController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.share.share_dto import ShareDto
+from app.modules.q_a.share.share_controller import ShareController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = ShareDto.api
 share_request = ShareDto.model_request

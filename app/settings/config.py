@@ -12,7 +12,8 @@ class Config:
         os.path.dirname(os.path.dirname(__file__)))  # os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
     STATIC_FOLDER = os.path.join(PROJECT_ROOT, 'static')
-    IMAGE_FOLDER = os.path.join(STATIC_FOLDER, 'images')
+    #IMAGE_FOLDER = os.path.join(STATIC_FOLDER, 'images')
+    IMAGE_FOLDER = '/images'
     AVATAR_FOLDER = os.path.join(IMAGE_FOLDER, 'avatars')
 
     BCRYPT_LOG_ROUNDS = 13
@@ -22,7 +23,7 @@ class Config:
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_USERNAME =  'admin@hoovada.com'
-    MAIL_PASSWORD = 'acjydcftuegpdftn'
+    MAIL_PASSWORD = 
     MAIL_DEFAULT_SENDER ='admin@hoovada.com'
 
     MAIL_PORT = 587
@@ -31,14 +32,14 @@ class Config:
     # MAIL_PORT = 465
     # MAIL_USE_TLS = False
     # MAIL_USE_SSL = True
-    WASABI_ACCESS_KEY = 'YGK7CVV0GOQN0Y2XQVOA'
-    WASABI_SECRET_ACCESS_KEY = 'v0MZToTrefJ571tcOXJ5YJB04I4dvGvNl02ew4aH'
+    WASABI_ACCESS_KEY = 
+    WASABI_SECRET_ACCESS_KEY = 
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://dev:hoovada%40@167.99.66.93:1507/hoovada'
+    SQLALCHEMY_DATABASE_URI = #'mysql+pymysql://<name>:<pass>@<dp ip>:<db port>/<db name>'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # ENV = 'dev'
     # DB_NAME = 'dev.db'

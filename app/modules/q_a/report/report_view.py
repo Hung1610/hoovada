@@ -1,8 +1,8 @@
 from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
-from .report_dto import ReportDto
-from .report_controller import ReportController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.report.report_dto import ReportDto
+from app.modules.q_a.report.report_controller import ReportController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = ReportDto.api
 report_request = ReportDto.model_request

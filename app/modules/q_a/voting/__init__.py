@@ -1,1 +1,1 @@
-from .vote_view import api
+from app.modules.q_a.voting.vote_view import api

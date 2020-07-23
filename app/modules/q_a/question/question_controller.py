@@ -162,13 +162,13 @@ class QuestionController(Controller):
             user_id = data['user_id']
             is_sensitive = check_sensitive(title)
             if is_sensitive:
-                return send_error(message='Your question consists of sensitve word.')
+                return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
             question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
                 is_sensitive = check_sensitive(question.question)
                 if is_sensitive:
-                    return send_error(message='Your question consists of sensitve word.')
+                    return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
                 db.session.add(question)
@@ -327,10 +327,10 @@ class QuestionController(Controller):
                 # check sensitive after updating
                 is_sensitive = check_sensitive(question.title)
                 if is_sensitive:
-                    return send_error(message='Could not update. Your question title contains sensitive word.')
+                    return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
                 is_sensitive = check_sensitive(question.question)
                 if is_sensitive:
-                    return send_error(message='Could not update. Your question contains sensitive word.')
+                    return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
                 # update topics to question_topic table
                 question.updated_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()

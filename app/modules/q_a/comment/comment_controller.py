@@ -88,7 +88,7 @@ class CommentController(Controller):
             comment = self._parse_comment(data=data, comment=None)
             is_sensitive = check_sensitive(comment.comment)
             if is_sensitive:
-                return send_error(message='Please be polite. Your comment contains sensitive word.')
+                return send_error(message='Nội dung câu bình luận của bạn không hợp lệ.')
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
@@ -166,7 +166,7 @@ class CommentController(Controller):
                 comment = self._parse_comment(data=data, comment=comment)
                 is_sensitive = check_sensitive(comment.comment)
                 if is_sensitive:
-                    return send_error(message='Please be polite. Your comment contains sensitive word.')
+                    return send_error(message='Nội dung câu bình luận của bạn không hợp lệ.')
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__

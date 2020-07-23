@@ -129,6 +129,7 @@ class VoteController(Controller):
             db.session.commit()
             # update answer vote count in answer and user
             try:
+                
                 question = Question.query.filter_by(id=vote.question_id).first()
                 # user who votes
                 user = User.query.filter_by(id=vote.user_id).first()
@@ -138,7 +139,7 @@ class VoteController(Controller):
                     question.upvote_count += 1
                     user.question_upvote_count += 1
                     user_voted.answer_upvoted_count += 1
-                if vote.down_vote:
+                elif vote.down_vote:
                     question.downvote_count += 1
                     user.question_downvote_count += 1
                     user_voted.question_downvoted_count += 1
@@ -181,7 +182,7 @@ class VoteController(Controller):
                     answer.upvote_count += 1
                     user.answer_upvote_count += 1
                     user_voted.answer_upvoted_count += 1
-                if vote.down_vote:
+                elif vote.down_vote:
                     answer.downvote_count += 1
                     user.answer_downvote_count += 1
                     user_voted.answer_downvoted_count += 1
@@ -617,12 +618,12 @@ class VoteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        # if 'question_id' in data:
-        #     try:
-        #         vote.question_id = int(data['question_id'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
+        if 'question_id' in data:
+             try:
+                 vote.question_id = int(data['question_id'])
+             except Exception as e:
+                 print(e.__str__())
+                 pass
         if 'answer_id' in data:
             try:
                 vote.answer_id = int(data['answer_id'])

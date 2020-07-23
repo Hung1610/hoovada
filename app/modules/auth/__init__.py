@@ -1,1 +1,1 @@
-from .auth_view import api
+from app.modules.auth.auth_view import api

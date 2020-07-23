@@ -84,10 +84,10 @@ class TopicController(Controller):
         if not 'name' in data:
             return send_error(message='Topic name must be filled')
         else:
-            topic_name = data['check_sensitive']
+            topic_name = data['name']
             is_sensitive = check_sensitive(topic_name)
             if is_sensitive:
-                return send_error(message='Your topic name consist sensitive word.')
+                return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
         if not 'parent_id' in data:
             return send_error(message='Topic must have a parent topic.')
         try:
@@ -176,7 +176,7 @@ class TopicController(Controller):
                 topic = self._parse_topic(data=data, topic=topic)
                 is_sensitive = check_sensitive(topic.name)
                 if is_sensitive:
-                    return send_error(message='Your topic name consists of sensitive word.')
+                    return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
                 db.session.commit()
                 return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_topic_response))
         except Exception as e:

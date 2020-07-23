@@ -1,8 +1,8 @@
 from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
-from .favorite_dto import FavoriteDto
-from .favorite_controller import FavoriteController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.favorite.favorite_dto import FavoriteDto
+from app.modules.q_a.favorite.favorite_controller import FavoriteController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = FavoriteDto.api
 favorite_request = FavoriteDto.model_request

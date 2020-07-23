@@ -2,9 +2,9 @@ from datetime import datetime
 
 from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
-from .question_dto import QuestionDto
-from .question_controller import QuestionController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.question.question_dto import QuestionDto
+from app.modules.q_a.question.question_controller import QuestionController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = QuestionDto.api
 model_request = QuestionDto.model_question_request

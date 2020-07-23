@@ -1,1 +1,1 @@
-from .report_view import api
+from app.modules.q_a.report.report_view import api

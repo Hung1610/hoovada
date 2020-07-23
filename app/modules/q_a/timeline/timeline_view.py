@@ -1,8 +1,8 @@
 from flask_restx import Resource
 # from app.modules.common.decorator import token_required
-from .timeline_dto import TimelineDto
-from .timeline_controller import TimelineController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.timeline.timeline_dto import TimelineDto
+from app.modules.q_a.timeline.timeline_controller import TimelineController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = TimelineDto.api
 timeline = TimelineDto.model

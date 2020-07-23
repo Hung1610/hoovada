@@ -1,1 +1,1 @@
-from .favorite_view import api
+from app.modules.q_a.favorite.favorite_view import api

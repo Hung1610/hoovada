@@ -1,8 +1,8 @@
 from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
-from .vote_dto import VoteDto
-from .vote_controller import VoteController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.voting.vote_dto import VoteDto
+from app.modules.q_a.voting.vote_controller import VoteController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = VoteDto.api
 vote_request_question = VoteDto.model_request_question

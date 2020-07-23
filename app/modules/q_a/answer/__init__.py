@@ -1,1 +1,1 @@
-from .answer_view import api
+from app.modules.q_a.answer.answer_view import api

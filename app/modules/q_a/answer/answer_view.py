@@ -1,8 +1,8 @@
 from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
-from .answer_dto import AnswerDto
-from .answer_controller import AnswerController
-from ...auth.decorator import admin_token_required, token_required
+from app.modules.q_a.answer.answer_dto import AnswerDto
+from app.modules.q_a.answer.answer_controller import AnswerController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 api = AnswerDto.api
 answer_request = AnswerDto.model_request

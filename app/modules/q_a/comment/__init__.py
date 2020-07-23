@@ -1,1 +1,1 @@
-from .comment_view import api
+from app.modules.q_a.comment.comment_view import api

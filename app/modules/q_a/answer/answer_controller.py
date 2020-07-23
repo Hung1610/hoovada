@@ -127,7 +127,7 @@ class AnswerController(Controller):
                 return send_error(message='The answer must include content.')
             is_sensitive = check_sensitive(answer.answer)
             if is_sensitive:
-                return send_error(message='Please be polite. Your answer contains sensitive word.')
+                return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
@@ -215,7 +215,7 @@ class AnswerController(Controller):
                     return send_error(message='The answer must include content.')
                 is_sensitive = check_sensitive(answer.answer)
                 if is_sensitive:
-                    return send_error(message='Please be polite. Your answer contains sensitive word.')
+                    return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
                 if answer.question_id is None:
                     return send_error(message='The question_id must be included.')
                 if answer.user_id is None:
