@@ -1,13 +1,24 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource, reqparse
+
+# own modules
 # from app.modules.common.decorator import token_required
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.answer_controller import AnswerController
 from app.modules.auth.decorator import admin_token_required, token_required
 
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
 api = AnswerDto.api
 answer_request = AnswerDto.model_request
 answer_response = AnswerDto.model_response
-
 
 @api.route('')
 class AnswerList(Resource):

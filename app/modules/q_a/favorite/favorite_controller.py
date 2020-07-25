@@ -1,10 +1,16 @@
-from datetime import datetime
-import logging
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+# built-in modules
+from datetime import datetime
+
+# third-party modules
 import dateutil.parser
 from flask_restx import marshal
 from sqlalchemy import and_
 
+
+# own modules
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
@@ -15,7 +21,11 @@ from app.modules.q_a.question.question import Question
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 
-logging.basicConfig(level = logging.DEBUG, filename = '/opt/hoovada.log', filemode = 'w')
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 class FavoriteController(Controller):
     def search(self, args):
@@ -111,12 +121,9 @@ class FavoriteController(Controller):
         if not 'user_id' in data:
             return send_error(message='User ID must be included.')
         try:
-            print("DEBUG0")
             favorite = self._parse_favorite(data=data, favorite=None)
-            print("DEBUG1")
             db.session.add(favorite)
             db.session.commit()
-            print("DEBUG2")
             return send_result(message='Favorite was created successfully',
                                data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
@@ -177,7 +184,7 @@ class FavoriteController(Controller):
             user_id = data['user_id']
             question_id = data['question_id']
             favorite = Favorite.query.filter(Favorite.user_id == user_id, Favorite.question_id == question_id).first()
-            logging.debug("DEBUG {}".format(favorite))
+            
             if favorite:
                 return send_result(message='Bạn đã thích câu hỏi này.')
             else:
