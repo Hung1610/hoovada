@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
+import re
+import ast
+from datetime import datetime
+
+# third-party modules
+from sqlalchemy import or_
+from flask_restx import marshal
+import dateutil.parser
+
+# own modules
+from app.modules.q_a.question.question import Question
+from app.modules.topic.topic import Topic
+from app.modules.user.user import User
+from app.modules.search.search_dto import SearchDto
+from app.utils.response import send_error, send_result
+from app import db
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+extensionsToCheck = ('ạ','ả','ã','à','á','â','ậ','ầ','ấ','ẩ','ẫ','ă','ắ','ằ','ặ','ẳ','ẵ','ó','ò','ọ','õ','ỏ','ô','ộ','ổ','ỗ','ồ','ố','ơ','ờ','ớ','ợ','ở','ỡ','é','è','ẻ','ẹ','ẽ','ê','ế','ề','ệ','ể','ễ','ú','ù','ụ','ủ','ũ','ư','ự','ữ','ử','ừ','ứ','í','ì','ị','ỉ','ĩ','ý','ỳ','ỷ','ỵ','ỹ','đ')
+
+class SearchController():
+
+    def search(self, args):
+        '''
+        Search questions.
+        :param args:
+        :return:
+        '''
+
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse the params.')
+        value = None
+        if 'value' in args:
+            try:
+                valueSearch = args['value']
+                
+                if any(ext in valueSearch for ext in extensionsToCheck) == True:
+                    emailSearch = True
+                else:
+                    emailSearch = False
+            except Exception as e:
+                print(e.__str__())
+                pass
+        
+        queryQuestion = db.session.query(Question)  # query search from view question
+        queryTopic = db.session.query(Topic)  # query search from view topic
+        queryUser = db.session.query(User)  # query search from view user
+
+        is_filter = False
+
+        if valueSearch is not None and not str(valueSearch).strip().__eq__(''):
+            valueSearch = '%' + valueSearch.strip() + '%'
+            queryQuestion = queryQuestion.filter(Question.title.like(valueSearch))
+            queryTopic = queryTopic.filter(Topic.name.like(valueSearch))
+
+            if emailSearch == False:
+                queryUser = queryUser.filter(or_(User.email.like(valueSearch), User.display_name.like(valueSearch)))
+            else:
+                queryUser = queryUser.filter(User.display_name.like(valueSearch))
+            is_filter = True
+        
+        if is_filter:
+            questions = queryQuestion.all()
+            topics = queryTopic.all()
+            users = queryUser.all()
+
+            resultQuestions = list()
+            resultTopics = list()
+            resultUsers = list()
+
+            # search questions
+            if questions is not None and len(questions) > 0:
+                for question in questions:
+                    result = question.__dict__
+                    resultQuestions.append(result)
+
+                resultQuestions = marshal(resultQuestions, SearchDto.model_search_question_res)
+
+            # search topics
+            if topics is not None and len(topics) > 0:
+                for topic in topics:
+                    result = topic.__dict__
+                    resultTopics.append(result)
+
+                resultTopics = marshal(resultTopics, SearchDto.model_search_topic_res)
+
+            # search users
+            if users is not None and len(users) > 0:
+                for user in users:
+                    result = user.__dict__
+                    resultUsers.append(result)
+
+                resultUsers = marshal(resultUsers, SearchDto.model_search_user_res)
+            
+            if resultQuestions == [] and resultTopics == [] and resultUsers == []:
+                return send_result(message='Could not find any result')
+
+            data = {'question': resultQuestions, 'topic': resultTopics, 'user': resultUsers}
+            return send_result(data, message='Success')
+        else:
+            return send_error(message='Could not find data. Please check your parameters again.')
