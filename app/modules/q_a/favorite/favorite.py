@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-# third-party modules
 # own modules
 from app import db
 from app.modules.common.model import Model

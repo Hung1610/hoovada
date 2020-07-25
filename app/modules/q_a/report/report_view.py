@@ -1,8 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource, reqparse
+
+# own modules
 # from app.modules.common.decorator import token_required
 from app.modules.q_a.report.report_dto import ReportDto
 from app.modules.q_a.report.report_controller import ReportController
 from app.modules.auth.decorator import admin_token_required, token_required
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 api = ReportDto.api
 report_request = ReportDto.model_request

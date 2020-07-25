@@ -1,15 +1,27 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 from datetime import datetime
 
+# third-party modules
 from flask_restx import Resource, reqparse
+
+# own modules
 # from app.modules.common.decorator import token_required
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.q_a.question.question_controller import QuestionController
 from app.modules.auth.decorator import admin_token_required, token_required
 
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
 api = QuestionDto.api
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
-
 
 @api.route('')
 class QuestionList(Resource):

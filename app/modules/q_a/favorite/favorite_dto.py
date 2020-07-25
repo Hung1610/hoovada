@@ -7,7 +7,6 @@ from flask_restx import fields, Namespace
 # own modules
 from app.modules.common.dto import Dto
 
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"

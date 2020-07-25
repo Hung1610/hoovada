@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
 # third-party modules
 from flask_restx import Namespace, fields
 

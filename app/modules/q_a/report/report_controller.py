@@ -1,8 +1,14 @@
-from datetime import datetime
-import dateutil.parser
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+# built-in modules
+from datetime import datetime
+
+# third-party modules
+import dateutil.parser
 from flask_restx import marshal
 
+# own modules
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
@@ -12,6 +18,11 @@ from app.modules.q_a.report.report import Report
 from app.modules.q_a.report.report_dto import ReportDto
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class ReportController(Controller):

@@ -1,4 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource, reqparse
+
+# own modules
 # from app.modules.common.decorator import token_required
 from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.q_a.comment.comment_controller import CommentController
@@ -7,6 +13,11 @@ from app.modules.auth.decorator import admin_token_required, token_required
 api = CommentDto.api
 comment_response = CommentDto.model_response
 comment_request = CommentDto.model_requesst
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 @api.route('')

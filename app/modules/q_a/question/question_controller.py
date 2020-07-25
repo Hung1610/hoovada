@@ -1,11 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 import json
 from datetime import datetime
+
+# third-party modules
 import dateutil.parser
 from flask import request
-
 from flask_restx import marshal
 from sqlalchemy import desc
 
+# own modules
 from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
@@ -17,6 +23,11 @@ from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class QuestionController(Controller):

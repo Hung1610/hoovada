@@ -9,7 +9,6 @@ import dateutil.parser
 from flask_restx import marshal
 from sqlalchemy import and_
 
-
 # own modules
 from app import db
 from app.modules.common.controller import Controller

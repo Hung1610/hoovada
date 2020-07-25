@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-# third-party modules
 # own modules
 from app.modules.q_a.favorite.favorite_view import api
 

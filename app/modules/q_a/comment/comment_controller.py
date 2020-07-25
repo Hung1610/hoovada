@@ -1,7 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 from datetime import datetime
 
+# third-party modules
 from flask_restx import marshal
 
+# own modules
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
@@ -11,6 +17,11 @@ from app.modules.q_a.question.question import Question
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class CommentController(Controller):
