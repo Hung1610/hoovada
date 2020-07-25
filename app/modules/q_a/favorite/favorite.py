@@ -12,4 +12,4 @@ class Favorite(Model):
     answer_id = db.Column(db.Integer)
     comment_id = db.Column(db.Integer)
     created_date = db.Column(db.DateTime)
-    updated_time = db.Column(db.Time)
+    updated_date = db.Column(db.DateTime)

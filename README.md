@@ -44,6 +44,7 @@ This project consists of the following components:
 
 ```bash
 sudo apt install unixodbc-dev
+sudo apt-get install python3-dev
 pip install -r requirements.txt
 ```
 - Run project:

@@ -15,7 +15,6 @@ from app.settings.config import Config
 from app.utils.util import encode_file_name
 
 AVATAR_FOLDER = Config.AVATAR_FOLDER
-STATIC_FOLDER = Config.STATIC_FOLDER
 IMAGE_FOLDER = Config.IMAGE_FOLDER
 
 
@@ -121,8 +120,6 @@ class UserController(Controller):
             file_name = 'user_' + str(user.id) + '_avatar'
             file_name = encode_file_name(file_name) + ".png"
             try:
-                if not os.path.exists(STATIC_FOLDER):
-                    os.mkdir(STATIC_FOLDER)
                 if not os.path.exists(IMAGE_FOLDER):
                     os.mkdir(IMAGE_FOLDER)
                 if not os.path.exists(AVATAR_FOLDER):

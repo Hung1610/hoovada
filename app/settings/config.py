@@ -11,7 +11,7 @@ class Config:
     APP_DIR = os.path.abspath(
         os.path.dirname(os.path.dirname(__file__)))  # os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
-    STATIC_FOLDER = os.path.join(PROJECT_ROOT, 'static')
+    #STATIC_FOLDER = os.path.join(PROJECT_ROOT, 'static')
     #IMAGE_FOLDER = os.path.join(STATIC_FOLDER, 'images')
     IMAGE_FOLDER = '/images'
     AVATAR_FOLDER = os.path.join(IMAGE_FOLDER, 'avatars')
