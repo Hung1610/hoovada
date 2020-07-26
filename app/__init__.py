@@ -1,9 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource
 from flask_restx import Namespace
 
+# own modules
 from .app import init_app, db
 from .apis import init_api
-from .utils.response import send_result
+from app.utils.response import send_result
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 ns_hello = Namespace(name='hello')
 api = init_api()

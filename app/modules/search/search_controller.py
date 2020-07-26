@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implement logic for search APIs"""
+
 # built-in modules
 import re
 import ast

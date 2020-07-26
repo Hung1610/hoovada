@@ -1,8 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource, reqparse
+
+# own modules
 # from app.modules.common.decorator import token_required
-from .user_topic_dto import UserTopicDto
-from .user_topic_controller import UserTopicController
+from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
+from app.modules.topic.user_topic.user_topic_controller import UserTopicController
 from app.modules.auth.decorator import admin_token_required, token_required
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 api = UserTopicDto.api
 user_topic_request = UserTopicDto.model_request
