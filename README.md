@@ -30,7 +30,11 @@ We follow this [code structure example](https://github.com/frol/flask-restplus-s
 - __manage.py__
 - __.gitignore__
 - __.pylintrc__
-
+- __.coveragerc__
+- __.editorconfig__
+- __.dockerignore__
+- __conftest.py__
+- __requirements.txt__
 
 Development environment
 ---
