@@ -21,7 +21,7 @@ from markdown import Markdown
 
 from app.app import mail
 from app.modules.user.blacklist import BlacklistToken
-from app.settings import config
+from app.settings.config import BaseConfig
 
 
 def encode_file_name(filename):
@@ -44,8 +44,8 @@ def generate_conformation_token(email):
 
     :return:
     """
-    serializer = URLSafeTimedSerializer(config.Config.SECRET_KEY)
-    return serializer.dumps(email, salt=config.Config.SECURITY_SALT)
+    serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
+    return serializer.dumps(email, salt=BaseConfig.SECURITY_SALT)
 
 
 def confirm_token(token, expirations=3600):
@@ -58,9 +58,9 @@ def confirm_token(token, expirations=3600):
 
     :return: email if success and None vice versa.
     """
-    serializer = URLSafeTimedSerializer(config.Config.SECRET_KEY)
+    serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
     try:
-        email = serializer.loads(token, salt=config.Config.SECURITY_SALT, max_age=expirations)
+        email = serializer.loads(token, salt=BaseConfig.SECURITY_SALT, max_age=expirations)
         return email
     except Exception as e:
         print(e.__str__())
@@ -79,7 +79,7 @@ def send_email(to, subject, template):
 
     :return:
     """
-    msg = Message(subject, sender=config.Config.MAIL_USERNAME, recipients=[to], html=template)
+    msg = Message(subject, sender=BaseConfig.MAIL_USERNAME, recipients=[to], html=template)
     mail.send(msg)
 
 
@@ -125,7 +125,7 @@ def encode_auth_token(user_id):
         }
         return jwt.encode(
             payload,
-            config.Config.SECRET_KEY,
+            BaseConfig.SECRET_KEY,
             algorithm='HS256'
         )
     except Exception as e:
@@ -142,7 +142,7 @@ def decode_auth_token(auth_token):
     :return: integer|string
     """
     try:
-        payload = jwt.decode(auth_token, config.Config.SECRET_KEY)
+        payload = jwt.decode(auth_token, BaseConfig.SECRET_KEY)
         is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
         if is_blacklisted_token:
             return None, 'Token blacklisted. Please log in again.'
