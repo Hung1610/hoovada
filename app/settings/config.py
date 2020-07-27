@@ -96,4 +96,4 @@ config_by_name = dict(
     test=TestingConfig
 )
 
-key = Config.SECRET_KEY
+key = BaseConfig.SECRET_KEY
