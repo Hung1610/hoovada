@@ -11,7 +11,7 @@ from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_result, send_error
 from app.modules.common.controller import Controller
-from app.settings.config import Config
+from app.settings.config import BaseConfig as Config
 from app.utils.util import encode_file_name
 
 AVATAR_FOLDER = Config.AVATAR_FOLDER
