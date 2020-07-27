@@ -70,3 +70,23 @@ $ pip3 install -r <path to project>/app/requirements.txt
 ```bash
 python manage.py
 ```
+
+Technology
+---
+
+- Backend Framework: Flask (moving to quart)
+- Frontend Framework/library: Angular
+- Mobile Framework: React Native
+- Data presentation: Json (moving to protobuf)
+- Database: MySQL
+
+### External services
+- Storage provider: wasabi
+- Email delivery service: sendgrid
+- Sms services: twilio
+- SSL Certificate: Letsencrypt
+- Server provider: digital ocean
+- Hostname provider: https://www.namecheap.com 
+
+
+
