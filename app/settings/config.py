@@ -1,74 +1,100 @@
 import os
 
 
-class Config:
+class BaseConfig:
+    # debug mode is turned off by default
     DEBUG = False
-    SECRET_KEY = os.environ.get('FLASK_SECRET', 'f495b66803a6512d')
-    SECURITY_SALT = os.environ.get('FLASK_SALT', '14be1971fc014f1b84')
+
+    # flask configuration
+    SECRET_KEY = os.environ.get('FLASK_SECRET')
+    SECURITY_SALT = os.environ.get('FLASK_SALT')
     # SECRET_KEY = '~y2cS[CN}cQ:kYyY[uF{[S#p?Goo]]$f(fG3WT1f/$qJA8^%#}lMkas<Igz8&NqkizV~}})f^e3U(gsPmjAv;rw9#oN&xyXy7v>UtwXpv[h!<~8YCdkHJ7C^[Ul<<yt/'
     # SECURITY_SALT = 'jjp~%te9b*}yUdw1JPuHBUR(!K]Os@?5~eGIMH*gQaS%g^[7ufkVpFrZ8Bu&4yh/O}tNm4lpjhGCRHOvdiegM@?UEpdydj7}ESjJq£H£byFbL$A>lLrLwtC<Y8Hx}0i?ub^p@FhWYNuC:/uHM7#x*(L{T2!Jpz#TGyQd2I*6Id>e9£$iBzVLI6R[G4z*~(4D0h<VQPRA}TA21SAyr@@iJIpJS5/Rxm6}F{[uBZ~TFrP~eDlsvs1m5s4IjM^C6&F?'
 
-    APP_DIR = os.path.abspath(
-        os.path.dirname(os.path.dirname(__file__)))  # os.path.abspath(os.path.dirname(__file__))  # This directory
+    # Email configuration
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_USE_SSL = False
+    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME') 
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
+
+    # Wasabi service
+    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY')
+    WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY')
+
+
+    # mysql configuration
+    DB_USER = os.environ.get('DB_USER')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_HOST = os.environ.get('DB_HOST')
+    DB_PORT = os.environ.get('DB_PORT')
+    DB_NAME = os.environ.get('DB_NAME')
+
+    # Locations
+    APP_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))  # os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
-    #STATIC_FOLDER = os.path.join(PROJECT_ROOT, 'static')
-    #IMAGE_FOLDER = os.path.join(STATIC_FOLDER, 'images')
     IMAGE_FOLDER = '/images'
     AVATAR_FOLDER = os.path.join(IMAGE_FOLDER, 'avatars')
 
+    # other configurations
     BCRYPT_LOG_ROUNDS = 13
     DEBUG_TB_ENABLED = False  # Disable Debug toolbar
     DEBUG_TB_INTERCEPT_REDIRECTS = False
+    # https://stackoverflow.com/questions/33738467/how-do-i-know-if-i-can-disable-sqlalchemy-track-modifications/33790196#33790196
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_USERNAME =  'admin@hoovada.com'
-    MAIL_PASSWORD = 
-    MAIL_DEFAULT_SENDER ='admin@hoovada.com'
 
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USE_SSL = False
-    # MAIL_PORT = 465
-    # MAIL_USE_TLS = False
-    # MAIL_USE_SSL = True
-    WASABI_ACCESS_KEY = 
-    WASABI_SECRET_ACCESS_KEY = 
+class DevelopmentConfig(BaseConfig):
+    """Development configuration."""
 
-
-class DevelopmentConfig(Config):
     DEBUG = True
+    DEBUG_TB_ENABLED = True
     SQLALCHEMY_ECHO = True
-    SQLALCHEMY_DATABASE_URI = #'mysql+pymysql://<name>:<pass>@<dp ip>:<db port>/<db name>'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # ENV = 'dev'
+
+    # if you want to use mysql 
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pass}@{host}:{port}/{name}'.format(
+         user=DB_USER,
+         password=DB_PASSWORD,
+         host=DB_HOST,
+         port=DB_PORT,
+         name=DB_NAME
+     )
+    
+    # If you want to use sqlite for development, Put the db file in project root
     # DB_NAME = 'dev.db'
-    # # Put the db file in project root
     # DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
-    DEBUG_TB_ENABLED = True
 
-
-class ProductionConfig(Config):
-    DEBUG = False
-    # DB_NAME = 'prod.db'
-    # DB_PATH = os.path.join(Config.PROJECT_ROOT, 'data', DB_NAME)
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
-    # DEBUG_TB_ENABLED = False  # Disable Debug toolbar
-
-
-class TestConfig(Config):
+   
+class TestingConfig(BaseConfig):
     """Test configuration."""
 
     TESTING = True
-    DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
 
 
+class ProductionConfig(BaseConfig):
+    """production configuration."""
+    
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pass}@{host}:{port}/{name}'.format(
+         user=DB_USER,
+         password=DB_PASSWORD,
+         host=DB_HOST,
+         port=DB_PORT,
+         name=DB_NAME,
+     )
+
+    # DEBUG_TB_ENABLED = False  # Disable Debug toolbar
+
+
 config_by_name = dict(
     dev=DevelopmentConfig,
-    prod=ProductionConfig
+    prod=ProductionConfig,
+    test=TestingConfig
 )
 
 key = Config.SECRET_KEY

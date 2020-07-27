@@ -1,43 +1,55 @@
 # **Hoovada-services**
 
-This is the repo for APIs services of project hoovada.com
+APIs services of the project hoovada.com
 
 Project Structure
 ---
 
-We follow this [code structure example](https://github.com/frol/flask-restplus-server-example) with the following components:
+We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point
 
 - __app__
-    
-    This is the main component of the project, it consists of all main sub-modules of the project. 
-    - extensions
+        - extensions
     - modules
         - common
+        - auth
+        - file_upload
+        - messaging
+        - q_a
+            - answer
+            - comment
+            - favorite
+            - question
+            - report
+            - share
+            - timeline
+            - voting
+        - search
+        - system
+            - feedback
+            - history
+            - notification
+            - request_log
+            - version
+        - topic
+            - question_topic
+            - user_topic
+        - user
+            - follow
+            - mail_address
+            - permission
+            - reputation
+            - user_permission
     - settings
     - templates
     - utils
     - apis.py
     - app.py
     - __requirements.txt__
-- __deploy__
-- __docs__
-- __flask_restx_patched__
-- __migrations__
-- __sql__
-- __tasks__
-- __tests__
-- __README.md__
-- __manage.py__
-- __.gitignore__
-- __.pylintrc__
-- __.coveragerc__
-- __.editorconfig__
-- __.dockerignore__
-- __conftest.py__
-- __requirements.txt__
 
-Development environment
+Development instruction
 ---
+
+### Environment setup
 
 - For Linux distribution, you might need to install dependencies
 ```
@@ -45,13 +57,13 @@ $ sudo apt install unixodbc-dev
 $ sudo apt-get install python3-dev
 ```
 
-- We use pypy3.6 running on conda environment
+- We use pypy3.6 running on conda environment for production (although you can use any python3 version for development)
 
 ```
 $ cd /tmp
 $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 $ sha256sum /tmp/Miniconda3-latest-Linux-x86_64.sh 
-$ bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p $HOME//usr/share/miniconda3
+$ bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /usr/share/miniconda3
 $ sudo ln -s /usr/share/miniconda3/bin/conda /usr/bin/
 
 $ conda create --name pypy_env
@@ -63,30 +75,63 @@ $ ln -s $HOME/.conda/envs/pypy_env/bin/pypy3 $HOME/.conda/envs/pypy_env/bin/pyth
 
 $ python -m ensurepip
 $ python -m pip install --upgrade pip
-$ pip3 install -r <path to project>/app/requirements.txt
+$ pip3 install -r <path to project>/requirements.txt
 ```
 
 - Run project:
-```bash
-python manage.py
+
+```
+$HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py
 ```
 
-Technology
+### Pylint
+
+- We encourage developers to run Pylint before submitting code
+
+```
+$ pip3 install pylint
+$ pylint <your files>
+```
+
+### logging
+
+
+
+
+### DB migration
+
+
+
+Built with
 ---
 
-- Backend Framework: Flask (moving to quart)
-- Frontend Framework/library: Angular
+- Language: pypy3.6 on conda
+- Backend Framework: Flask (moving to quartz in future)
+- Frontend Framework: Angular
 - Mobile Framework: React Native
-- Data presentation: Json (moving to protobuf)
+- Data presentation: Json (moving to protobuf in future)
 - Database: MySQL
 
 ### External services
 - Storage provider: wasabi
 - Email delivery service: sendgrid
-- Sms services: twilio
+- SMS service: twilio
 - SSL Certificate: Letsencrypt
 - Server provider: digital ocean
-- Hostname provider: https://www.namecheap.com 
+- Hostname provider: namecheap
 
 
+Versioning
+---
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://gitlab.com/hoovada/hoovada-services/-/tags). 
+
+
+Authors
+---
+* **hoovada.com team** 
+
+
+License
+---
+This project is licensed under a proprietary License - see the [LICENSE.md](LICENSE.md) file for details
 
