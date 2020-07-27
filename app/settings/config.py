@@ -54,7 +54,7 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_ECHO = True
 
     # if you want to use mysql 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pass}@{host}:{port}/{name}'.format(
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
          host=BaseConfig.DB_HOST,
@@ -79,7 +79,7 @@ class TestingConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     """production configuration."""
     
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pass}@{host}:{port}/{name}'.format(
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
          host=BaseConfig.DB_HOST,
