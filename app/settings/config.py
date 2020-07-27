@@ -25,7 +25,6 @@ class BaseConfig:
     WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY')
     WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY')
 
-
     # mysql configuration
     DB_USER = os.environ.get('DB_USER')
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
@@ -56,11 +55,11 @@ class DevelopmentConfig(BaseConfig):
 
     # if you want to use mysql 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pass}@{host}:{port}/{name}'.format(
-         user=DB_USER,
-         password=DB_PASSWORD,
-         host=DB_HOST,
-         port=DB_PORT,
-         name=DB_NAME
+         user=BaseConfig.DB_USER,
+         password=BaseConfig.DB_PASSWORD,
+         host=BaseConfig.DB_HOST,
+         port=BaseConfig.DB_PORT,
+         name=BaseConfig.DB_NAME
      )
     
     # If you want to use sqlite for development, Put the db file in project root
@@ -81,11 +80,11 @@ class ProductionConfig(BaseConfig):
     """production configuration."""
     
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pass}@{host}:{port}/{name}'.format(
-         user=DB_USER,
-         password=DB_PASSWORD,
-         host=DB_HOST,
-         port=DB_PORT,
-         name=DB_NAME,
+         user=BaseConfig.DB_USER,
+         password=BaseConfig.DB_PASSWORD,
+         host=BaseConfig.DB_HOST,
+         port=BaseConfig.DB_PORT,
+         name=BaseConfig.DB_NAME
      )
 
     # DEBUG_TB_ENABLED = False  # Disable Debug toolbar
