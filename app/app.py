@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 # third-party modules
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy

@@ -16,25 +16,19 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-ns_hello = Namespace(name='hello')
+ns_hello = Namespace(name='health')
 api = init_api()
 
 
-@ns_hello.route('')
-class HelloHoovada(Resource):
+@ns_hello.route('/health')
+class HealthCheck(Resource):
     def get(self):
         """
-        Testing the API
+        Use for Readiness and Liveness Probes
 
-        :return the 'Hello Hoovada' text
+        :return the 'OK!' text
         """
-        return send_result(message="Hello Hoovada")
-
-
-def init_hello():
-    '''
-    This is testing
-    '''
+        return send_result(message="OK!", code=200)
 
 
 def create_app(config):
@@ -45,7 +39,7 @@ def create_app(config):
 
     :return: an initialized app
     """
-    init_hello()
+
     app = init_app(config_name=config)
     api.init_app(app)
     api.add_namespace(ns_hello)
