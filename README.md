@@ -2,7 +2,7 @@
 
 APIs services of the project hoovada.com
 
-Project Structure
+Project Overview
 ---
 
 We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point
@@ -52,12 +52,12 @@ We follow this [structure example](https://github.com/frol/flask-restplus-server
 - Language: pypy3.6
 - Framework: Flask 
 - Rest APIs and OpenAPI: [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
-- Front-end data format: Json with flask_restx.marshal
+- Front-end data format: Json
 - DB migration: [alembic](https://pypi.org/project/alembic/)
-- ORM: [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
+- ORM: [SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
 - MySQL client library: [PyMySQL](https://pypi.org/project/PyMySQL/)
-- Wasabi storage client library: [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/sqs.html)
-- twilio client library; [twilio](https://pypi.org/project/twilio/)
+- Wasabi client library: [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/sqs.html)
+- twilio client library: [twilio](https://pypi.org/project/twilio/)
 
 
 ### Services
@@ -88,7 +88,7 @@ $ sudo apt install unixodbc-dev
 $ sudo apt-get install python3-dev
 ```
 
-- We use pypy3.6 running for production, so you can follow these step to set up pypy3.6 on conda environment
+- We use pypy3.6 running for production, you can follow these step to set up pypy3.6 on conda environment
 
 ```bash
 $ cd /tmp

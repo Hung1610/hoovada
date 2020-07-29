@@ -1,15 +1,14 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-File: util.py
-Purpose: This file contains some useful and essential function utilities.
+"""This file contains some useful and essential function utilities."""
 
-This is the applications utilities.
-"""
+# bulit-in modules
 import hashlib
 from datetime import datetime, timedelta
 from io import StringIO
 
+# third-party modules
 import jwt
 import markdown2
 from flask import url_for, render_template
@@ -19,9 +18,15 @@ from flask_restx import ValidationError
 from itsdangerous import URLSafeTimedSerializer
 from markdown import Markdown
 
+# own modules
 from app.app import mail
 from app.modules.user.blacklist import BlacklistToken
 from app.settings.config import BaseConfig
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def encode_file_name(filename):

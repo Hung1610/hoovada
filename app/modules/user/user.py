@@ -1,15 +1,24 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 from datetime import datetime, timedelta
 
+# third-party modules
 import jwt
 from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# own modules
 from app.modules.common.model import Model
 from app import db
-# from app.utils.hoovada_utils import remove_markdown, convert_markdown
-from app.settings import config
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class SignupUser(Model):

@@ -1,10 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# build-in modules
 import os
 from datetime import datetime
 import dateutil.parser
-from flask import url_for, request, send_file
 
+# third-party modules
+from flask import url_for, request, send_file
 from flask_restx import marshal
 
+# own modules
 from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
@@ -13,6 +19,12 @@ from app.utils.response import send_result, send_error
 from app.modules.common.controller import Controller
 from app.settings.config import BaseConfig as Config
 from app.utils.util import encode_file_name
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 AVATAR_FOLDER = Config.AVATAR_FOLDER
 IMAGE_FOLDER = Config.IMAGE_FOLDER
