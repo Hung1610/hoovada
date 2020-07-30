@@ -15,7 +15,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 def parse_args():
     parser = argparse.ArgumentParser( description='Arguments parsing for hoovada.')
-    
     group = parser.add_argument_group('Arguments')
 
     group.add_argument('-m', '--mode', default='dev', required=False, type=str, help='dev for development, test for testing and prod for production')
@@ -32,12 +31,10 @@ def main(args):
     else:
         debug = False
 
-    app = create_app(mode)
-    
+    app = create_app(args.mode)    
     app.run(debug=debug, host=args.ip, port=args.port)
 
 
 if __name__ == '__main__':
-    # app.run(debug=True, host='0.0.0.0', port=5001)
     args = parse_args()
     main(args)

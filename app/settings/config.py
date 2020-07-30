@@ -1,6 +1,4 @@
 import os
-import logging
-
 
 class BaseConfig:
     # debug mode is turned off by default
