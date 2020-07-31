@@ -42,6 +42,32 @@ class BaseConfig:
     # https://stackoverflow.com/questions/33738467/how-do-i-know-if-i-can-disable-sqlalchemy-track-modifications/33790196#33790196
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # FACEBOOK_SECRET = 'YOUR_FACEBOOK_SECRET'
+    GRAPH_API_URL = 'https://graph.facebook.com/me?'
+    FACEBOOK_FIELDS = [
+        'id',
+        'name',
+        'address',
+        'birthday',
+        'email',
+        'first_name',
+        'gender',
+        'last_name',
+        'middle_name',
+        'photos',
+        'picture'
+    ]
+    GOOGLE_PROFILE_URL = 'https://www.googleapis.com/oauth2/v1/userinfo'
+    # Twilio API credentials
+    # (find here https://www.twilio.com/console)
+    TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID')
+    TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN')
+
+    # Verification Service SID
+    # (create one here https://www.twilio.com/console/verify/services)
+    VERIFICATION_SID= os.environ.get('YOUR_VERIFICATION_SID')
+    LIMIT_VERIFY_SMS_TIME=60 # 60seconds
+
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""

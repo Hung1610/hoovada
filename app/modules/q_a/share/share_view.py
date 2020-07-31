@@ -1,8 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource, reqparse
+
+# own modules
 # from app.modules.common.decorator import token_required
 from app.modules.q_a.share.share_dto import ShareDto
 from app.modules.q_a.share.share_controller import ShareController
 from app.modules.auth.decorator import admin_token_required, token_required
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = ShareDto.api
 share_request = ShareDto.model_request
@@ -22,7 +33,7 @@ class ShareList(Resource):
     #     controller = ShareController()
     #     return controller.get()
 
-    @token_required
+    #@token_required
     @api.expect(share_request)
     @api.response(code=200, model=share_response, description='The model for share response.')
     def post(self):

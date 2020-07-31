@@ -67,6 +67,21 @@ class RecoveryUser(Model):
     recovered = db.Column(db.Boolean)
 
 
+class SocialAccount(Model):
+    """
+    Define the SocialAccount model.
+    """
+    __tablename__ = 'social_account'
+
+    id = db.Column(db.Integer, primary_key=True)
+    provider = db.Column(db.String(30))
+    uid = db.Column(db.String(200))
+    last_login = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
+    extra_data = db.Column(db.String)
+    user_id = db.Column(db.Integer)
+
+
 class User(Model):
     """
     Define the User model.
@@ -75,9 +90,14 @@ class User(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     # display_name = db.Column(db.String(128), unique=True)
-    display_name = db.Column(db.String)  # , default='')
+    display_name = db.Column(db.String, unique=True, nullable=False)  # , default='')
     # title = db.Column(db.String(10), default='')
     title = db.Column(db.String)  # , default='')
+
+    # user_name = db.Column(db.String, unique=True, nullable=False)
+    phone_number = db.Column(db.String, unique=True, nullable=True)
+    # verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     first_name = db.Column(db.String)  # (128), default='')
     middle_name = db.Column(db.String)  # (128), default='')

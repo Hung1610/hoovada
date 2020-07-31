@@ -1,7 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 from datetime import datetime
+
+# third-part modules
 import dateutil.parser
 from flask_restx import marshal
+from flask import request
 
+# own modules
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
@@ -10,7 +18,13 @@ from app.modules.q_a.share.share import Share
 from app.modules.q_a.share.share_dto import ShareDto
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
+from app.modules.auth.auth_controller import AuthController
 
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ShareController(Controller):
     def search(self, args):
@@ -106,13 +120,16 @@ class ShareController(Controller):
 
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error()
-        if not 'user_id' in data:
-            return send_error()
+            return send_error(message='Dữ liệu không đúng định dạng hoặc thiếu, vui lòng kiểm tra lại')
+        user, message = AuthController.get_logged_user(request)
+
+        #if not 'user_id' in data:
+        #    return send_error()
+        
         if not 'question_id' in data and not 'answer_id' in data:
-            return send_error(message='At least question_id or answer_id must be included in payload.')
+            return send_error(message='Phải có ít nhất 1 câu hỏi hoặc 1 câu trả lời.')
         try:
-            share = self._parse_share(data=data, share=None)
+            share = self._parse_share(data=data)
             if share.question_id and share.answer_id:
                 return send_result(message='Stop hacking our website.')
             share.created_date = datetime.utcnow()
@@ -120,17 +137,34 @@ class ShareController(Controller):
             db.session.commit()
             # update other values
             try:
-                user = User.query.filter_by(id=share.user_id).first()
+                #user = User.query.filter_by(id=share.user_id).first()
                 if share.question_id:
-                    user.question_share_count += 1
+                    if user:
+                        user.question_share_count += 1
+
                     question = Question.query.filter_by(id=share.question_id).first()
+                    if not question:
+                        return send_error(message='Không tìm thấy câu hỏi')
+                    
                     user_voted = User.query.filter_by(id=question.user_id).first()
+                    if not user_voted:
+                        return send_error(message='Không tìm thấy chủ của câu hỏi')
                     user_voted.question_shared_count += 1
+                
                 if share.answer_id:
-                    user.answer_share_count += 1
+                    if user:
+                        user.answer_share_count += 1
+                    
                     answer = Answer.query.filter_by(id=share.answer_id).first()
+                    if not answer:
+                        return send_error(message='Không tìm thấy câu trả lời')
+
                     user_voted = User.query.filter_by(id=answer.user_id).first()
+                    if not user_voted:
+                        return send_error(message='Không tìm thấy tác giả câu trả lời')
                     user_voted.answer_shared_count += 1
+                if user:
+                    share.user_id = user.id
                 db.session.commit()
             except Exception as e:
                 pass
@@ -138,6 +172,9 @@ class ShareController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create share')
+
+    def get_by_id(self):
+        pass
 
     def get(self):
         pass
@@ -148,9 +185,8 @@ class ShareController(Controller):
     def delete(self, object_id):
         pass
 
-    def _parse_share(self, data, share=None):
-        if share is None:
-            share = Share()
+    def _parse_share(self, data):
+        share = Share()
         if 'user_id' in data:
             try:
                 share.user_id = int(data['user_id'])

@@ -4,6 +4,7 @@
 """This file contains some useful and essential function utilities."""
 
 # bulit-in modules
+import re
 import hashlib
 from datetime import datetime, timedelta
 from io import StringIO
@@ -17,9 +18,14 @@ from flask_mail import Message
 from flask_restx import ValidationError
 from itsdangerous import URLSafeTimedSerializer
 from markdown import Markdown
+from twilio.rest import Client
+from password_strength import PasswordPolicy
+import phonenumbers
 
 # own modules
 from app.app import mail
+from app.modules.user.user import User
+from app import db, logger
 from app.modules.user.blacklist import BlacklistToken
 from app.settings.config import BaseConfig
 
@@ -27,6 +33,9 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+client = Client(username=config.Config.TWILIO_ACCOUNT_SID, password=config.Config.TWILIO_AUTH_TOKEN)
 
 
 def encode_file_name(filename):
@@ -225,3 +234,104 @@ def convert_markdown(string):
 
 def remove_markdown(text):
     return __md.convert(text)
+
+
+def no_accent_vietnamese(s):
+    """
+    Convert accented Vietnamese into unsigned
+    """
+    s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
+    s = re.sub(r'[ÀÁẠẢÃĂẰẮẶẲẴÂẦẤẬẨẪ]', 'A', s)
+    s = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', s)
+    s = re.sub(r'[ÈÉẸẺẼÊỀẾỆỂỄ]', 'E', s)
+    s = re.sub(r'[òóọỏõôồốộổỗơờớợởỡ]', 'o', s)
+    s = re.sub(r'[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]', 'O', s)
+    s = re.sub(r'[ìíịỉĩ]', 'i', s)
+    s = re.sub(r'[ÌÍỊỈĨ]', 'I', s)
+    s = re.sub(r'[ùúụủũưừứựửữ]', 'u', s)
+    s = re.sub(r'[ƯỪỨỰỬỮÙÚỤỦŨ]', 'U', s)
+    s = re.sub(r'[ỳýỵỷỹ]', 'y', s)
+    s = re.sub(r'[ỲÝỴỶỸ]', 'Y', s)
+    s = re.sub(r'[Đ]', 'D', s)
+    s = re.sub(r'[đ]', 'd', s)
+    return s
+
+
+def send_verification_sms(to=''):
+    """
+    Send verification code to that phone number
+    """
+    user = User.query.filter_by(phone_number=to).first()
+    service = config.Config.VERIFICATION_SID
+    verification = client.verify \
+        .services(service) \
+        .verifications \
+        .create(to=to, channel='sms')
+    if verification and verification.sid and user:
+        user.verification_sms_time = datetime.utcnow()
+        db.session.commit()
+    return verification.sid
+
+
+def validate_username(user_name):
+    """
+    Ensure that username only has letter, number and chraters (_.-).
+    """
+    return re.match("^[a-zA-Z0-9_.-]+$", user_name)
+
+
+def validate_phone_number(phone_number):
+    """
+    Ensure that is correct phone number.
+    """
+    try:
+        phone_number = phonenumbers.parse(phone_number, None)
+        return phonenumbers.is_valid_number(phone_number)
+    except Exception as e:
+        logger.error(e.__str__())
+        return False
+    # return re.match('^(09|01[2|6|8|9])+([0-9]{8})$', phone_number)
+
+
+def check_verification(phone, code):
+    """
+    Verify code sent to that phone number
+    """
+    user = User.query.filter_by(phone_number=phone).first()
+    service = config.Config.VERIFICATION_SID
+    try:
+        verification_check = client.verify \
+            .services(service) \
+            .verification_checks \
+            .create(to=phone, code=code)
+
+        if verification_check.status == "approved":
+            current_time = datetime.utcnow()
+            difference = current_time - user.verification_sms_time
+            return difference.seconds <= config.Config.LIMIT_VERIFY_SMS_TIME
+        return False
+    except Exception as e:
+        return False
+
+
+def check_password(password):
+    """
+    Ensure that passwords have at least 8 characters with two uppercase letters, two numbers and two special characters.
+    """
+    policy = PasswordPolicy.from_names(
+        length=8,  # min length: 8
+        uppercase=1,  # need min. 1 uppercase letters
+        numbers=1,  # need min. 1 digits
+        special=1,  # need min. 1 special characters
+        #nonletters=2,  # need min. 2 non-letter characters (digits, specials, anything)
+    )
+    return policy.test(password)
+
+
+def validate_email(email):
+    """
+    Ensure that is correct email.
+    """
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    return re.search(regex, email)
+

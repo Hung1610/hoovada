@@ -50,7 +50,6 @@ ALTER TABLE `social_account` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_I
 ALTER TABLE `user` MODIFY `email` varchar(255) COLLATE utf8_general_ci NULL;
 
 
-
 DELETE FROM `user_topic` WHERE `topic_id` = (SELECT `id` FROM `topic` WHERE `name` = "Sản phẩm của yahoo");
 DELETE FROM `question_topic` WHERE `topic_id` = (SELECT `id` FROM `topic` WHERE `name` = "Sản phẩm của yahoo");
 DELETE FROM `topic` WHERE `name` = "Sản phẩm của yahoo"

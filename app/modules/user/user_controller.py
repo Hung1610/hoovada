@@ -73,6 +73,24 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(object_id))
 
+
+    def get_by_user_name(self, user_name):
+        if user_name is None:
+            return send_error(message="The user_name must not be null.")
+        try:
+            user = User.query.filter_by(display_name=user_name).first()
+            if user is None:
+                return send_error(data="Could not find user by this user name")
+            else:
+                # when call to this function, increase the profile_views
+                user.profile_views += 1
+                db.session.commit()
+                return send_result(data=marshal(user, UserDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not get user by ID {}.'.format(user_name))
+
+
     def update(self, object_id, data):
         '''
         Doest now allow to update `id`, `email`, `password`, `profile_views`.
@@ -94,7 +112,7 @@ class UserController(Controller):
         if 'profile_views' in data:
             return send_error(message='Profile views is not allowed to update.')
         try:
-            user = User.query.filter_by(id=object_id).first()
+            user = User.query.filter_by(display_name=user_name).first()
             if not user:
                 return send_error(message='User not found')
             else:
@@ -105,9 +123,10 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not update user')
 
-    def delete(self, object_id):
+
+    def delete(self, user_name):
         try:
-            user = User.query.filter_by(id=object_id).first()
+            user = User.query.filter_by(display_name=user_name).first()
             if not user:
                 return send_error(message='User not found')
             else:
@@ -117,6 +136,7 @@ class UserController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not delete user')
+
 
     def upload_avatar(self, args):
         if not isinstance(args, dict) or not 'avatar' in args:
@@ -146,6 +166,7 @@ class UserController(Controller):
         else:
             return send_error(message='Please attach or check your photo before uploading.')
 
+
     def get_avatar(self):
         # upload here
         filename = request.args.get('filename')
@@ -159,6 +180,7 @@ class UserController(Controller):
         # if user is None:
         #     return send_error(message)
         # return user.avatar
+
 
     def _parse_user(self, data, user=None):
         if user is None:

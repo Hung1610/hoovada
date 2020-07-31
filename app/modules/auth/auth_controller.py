@@ -1,19 +1,36 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 import json
+import hmac
+import hashlib
+import requests
 from datetime import datetime
 
+# third-party modules
 import chardet
 from flask import make_response
 from flask_restx import marshal
 
+# own modules
+from app.settings.config import Config
+
 from app import db
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.blacklist import BlacklistToken
+from app.modules.user.user import User, SocialAccount
 from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 # from app.utils.hoovada_utils import send_email
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
-    get_response_message
+    get_response_message, check_verification, check_password, validate_email
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def save_token(token):
@@ -56,6 +73,47 @@ def get_id(user_id, role):
     pass
 
 
+def save_social_account(provider, extra_data):
+    social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
+    if social_account is not None:
+        user = User.query.filter_by(id=social_account.user_id).first()
+        if (user is not None):
+            auth_token = encode_auth_token(user_id=user.id)
+            if auth_token:
+                return {'access_token': auth_token.decode('utf8')}
+        return send_error(message="Đăng nhập thất bại, vui lòng thử lại!")
+    else:
+        email = extra_data.get('email', '')
+        if (AuthController.check_user_exist(email)):
+            return send_result(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(
+                email))
+        user_name = no_accent_vietnamese(
+            extra_data['name']).strip().replace(' ', '_').lower()
+        user_name = AuthController.create_user_name(user_name)
+        # display_name = extra_data.get('name', '')
+        first_name = extra_data.get('first_name', '')
+        last_name = extra_data.get('last_name', '')
+        middle_name = extra_data.get('middle_name', '')
+        user = User(display_name=user_name, email=email,
+                    confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
+        user.set_password(password=provider + '_' + str(user_name))
+        try:
+            db.session.add(user)
+            db.session.commit()
+            social_account = SocialAccount(provider=provider, uid=extra_data.get(
+                'id'), extra_data=json.dumps(extra_data), user_id=user.id)
+            db.session.add(social_account)
+            db.session.commit()
+            auth_token = encode_auth_token(user_id=user.id)
+            if auth_token:
+                return {'access_token': auth_token.decode('utf8')}
+            return send_error(message="Đăng nhập thất bại, vui lòng thử lại!")
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            return send_error(message="Đăng nhập thất bại, vui lòng thử lại!")
+
+
 class AuthController:
     """
     This class is used to authenticate and authorize the user.
@@ -63,11 +121,15 @@ class AuthController:
 
     @staticmethod
     def check_user_exist(email):
+        ''' Check user exist by its email. One email on one register
+        
+        Args:
+            email (string)
+
+        Return:
+            Boolean
         '''
-        Check user exist by its email. One email on one register
-        :param email:
-        :return:
-        '''
+
         # password_hash = generate_password_hash(password=password)
         user = User.query.filter_by(email=email).first()
         if user is not None:  # user is exist.
@@ -75,23 +137,327 @@ class AuthController:
         else:
             return False
 
+    @staticmethod
+    def check_phone_number_exist(phone_number):
+        ''' Check phone number exist by its phone_number. One phone number on one register
+        
+        Args:
+            phone_number (string)
+        
+        Returns
+            Boolean
+        '''
+
+        # password_hash = generate_password_hash(password=password)
+        user = User.query.filter_by(phone_number=phone_number).first()
+        if user is not None:  # user is exist.
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def check_user_name_exist(user_name):
+        ''' Check user exist by its user_name. One user_name on one register
+        
+        Args:
+            user_name (string)
+        
+        Returns:
+            Boolean
+        '''
+
+        # password_hash = generate_password_hash(password=password)
+        user = User.query.filter_by(display_name=user_name).first()
+        return user is not None
+
+    @staticmethod
+    def create_user_name(user_name):
+        ''' Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB
+        
+        Args:
+            user_name (string)
+        
+        Returns
+            String
+        '''
+        if (not AuthController.check_user_name_exist(user_name)):
+            return user_name
+        count = 1
+        while AuthController.check_user_name_exist(user_name + '_' + str(count)):
+            count += 1
+        return user_name + '_' + str(count)
+
+
+    def login_with_google(self, data):
+
+        if not isinstance(data, dict):
+            return send_error( message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')
+
+        if not 'access_token' in data or str(data['access_token']).strip().__eq__(''):
+            return send_error(message="Vui lòng cung cấp access_token!")
+        
+        access_token = str(data['access_token'])
+        resp = requests.get(Config.GOOGLE_PROFILE_URL, params={'access_token': access_token, 'alt': 'json'})
+        
+        resp.raise_for_status()
+        extra_data = resp.json()
+        return save_social_account('google', extra_data)
+
+
+    def login_with_facebook(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')
+
+        if not 'access_token' in data or str(data['access_token']).strip().__eq__(''):
+            return send_error(message="Vui lòng cung cấp access_token!")
+
+        access_token = str(data['access_token'])
+        key = Config.FACEBOOK_SECRET.encode('utf-8')
+        msg = access_token.encode('utf-8')
+        appsecret_proof = hmac.new(key, msg, hashlib.sha256).hexdigest()
+        resp = requests.get(
+            Config.GRAPH_API_URL,
+            params={
+                'fields': ','.join(Config.FACEBOOK_FIELDS),
+                'access_token': access_token,
+                'appsecret_proof': appsecret_proof
+            })
+
+        if (resp.status_code != 200):
+            return send_error(message="Access token không đúng hoặc hết hạn, vui lòng thử lại!")
+        
+        resp.raise_for_status()
+        extra_data = resp.json()
+        return save_social_account('facebook', extra_data)
+
+    def sms_register(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.')
+        
+        if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp số điện thoại!")
+
+        if not 'password' in data or str(data['password']).strip().__eq__(''):
+            # Pleases provide a password.')
+            return send_error(message='Vui lòng cung cấp mật khẩu')
+
+        if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
+            # Pleases provide a username.')
+            return send_error(message='Vui lòng cung cấp username')
+        
+        if len(check_password(data['password'])) > 0:
+            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt.')
+        
+        display_name = data['display_name']
+        if not validate_username(display_name):
+            return send_error(message='User name chỉ chấp nhận chữ, số và các kí tự "-._"')
+        
+        if AuthController.check_user_name_exist(display_name):
+            return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
+
+        phone_number = data['phone_number']
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+        
+        if AuthController.check_phone_number_exist(phone_number):
+            return send_error(message='Số điện thoại đã tồn tại, vui lòng đăng nhập!')
+        # display_name = ''
+        password = data['password']
+        # if 'display_name' in data:
+        #     display_name = data['display_name']
+        code = send_verification_sms(phone_number)
+        if code is not None:
+            user = User(display_name=display_name, phone_number=phone_number, confirmed=False)
+            user.set_password(password=password)
+
+            try:
+                db.session.add(user)
+                db.session.commit()
+                return send_result( message='Chúng tôi đã gửi mã kích hoạt đến số điện thoại {}. Vui lòng kiểm tra tin nhắn.'. format(phone_number))
+            
+            except Exception as e:
+                print(e.__str__())
+                db.session.rollback()
+                return send_error(message='Đăng kí thất bại, vui lòng thử lại!')
+        else:
+           return send_error(message='Số điện thoại không đúng định dạng!')
+
+    def confirm_sms(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng hoặc thiếu, vui lòng kiểm tra lại')
+        
+        if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp số điện thoại!")
+        
+        phone_number = data['phone_number']
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+        
+        if not 'code' in data or str(data['code']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp mã xác nhận!")
+        
+        code = data['code']
+        user = User.query.filter_by(phone_number=phone_number).first()
+        
+        if user:
+            if user.confirmed:
+                return send_error(message='Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập!')
+            else:
+                if check_verification(phone_number, code):
+                    user.confirmed = True
+                    db.session.commit()
+                    return send_result(message='Tài khoản của bạn đã được kích hoạt. vui lòng đăng nhập!')
+                return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
+        else:
+            return send_error(message='Số điện thoại {} chưa đăng kí, vui lòng kiểm tra lại!'.format(phone_number))
+    
+    # @staticmethod
+    def resend_confirmation_sms(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')
+
+        if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
+            return send_error(message="Vui lòng cung cấp số điện thoại!")
+        
+        phone_number = data['phone_number']
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+        
+        if not AuthController.check_phone_number_exist(phone_number=phone_number):
+            return send_error(message='Người dùng chưa đăng kí!')
+        try:
+            code = send_verification_sms(phone_number)
+            if code is not None:
+                return send_result(
+                    message='Chúng tôi đã gửi mã kích hoạt đến số điện thoại {}. Vui lòng kiểm tra tin nhắn!'. format(phone_number))
+            else:
+                return send_error(message='Gửi tin nhắn thất bại, vui lòng thử lại!')
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Gửi tin nhắn thất bại, vui lòng thử lại!')
+    
+    def sms_login_with_password(self, data):
+        """
+        Login user handling.
+        """
+        try:
+            # print(data)
+            user = User.query.filter_by(phone_number=data['phone_number']).first()
+            if user and user.check_password(data['password']):
+                if not user.confirmed:
+                    self.resend_confirmation_sms(data)
+                    return send_error(
+                        message='Tài khoản với số điệnt thoại của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                auth_token = encode_auth_token(user_id=user.id)
+                user.active = True
+                db.session.commit()
+                # if user.blocked:
+                #     return None  # error(message='User has been blocked')
+                if auth_token:
+                    return {'access_token': auth_token.decode('utf8')}
+                    # return send_result(message=auth_token)  # user
+            else:
+                return send_error(
+                    message='Số điện thoại hoặc mật khẩu không đúng, vui lòng thử lại')  # Email or Password does not match')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Không thể đăng nhập, vui lòng thử lại.')  # Could not login, please try again later. Error {}'.format(e.__str__()))
+
+    def sms_login_with_code(self, data):
+        """
+        Login user handling.
+        """
+        try:
+            # print(data)
+            user = User.query.filter_by(phone_number=data['phone_number']).first()
+            if user:
+                if not user.confirmed:
+                    self.resend_confirmation_sms(data)
+                    return send_error(message='Tài khoản với số điệnt thoại của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực!')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+               
+                code = send_verification_sms(data['phone_number'])
+                if code is not None:
+                    return send_result(message='Chúng tôi đã gửi mã xác nhận tới số điện thoại {}, vui lòng kiểm tra!'.format(
+                data['phone_number']))
+            else:
+                return send_error(message='Số điện thoại không đúng, vui lòng thử lại!')  # Email or Password does not match')
+        
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Không thể đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
+    
+    def sms_login_with_code_confirm(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')
+        
+        if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
+            return send_error(message="Vui lòng cung cấp số điện thoại!")
+        
+        phone_number = data['phone_number']
+        code = data['code']
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+        
+        if not 'code' in data or str(data['code']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp mã xác nhận!")
+        
+        user = User.query.filter_by(phone_number=phone_number).first()
+        if user:
+            if not user.confirmed:
+                self.resend_confirmation_sms(data)
+                return send_error(message='Tài khoản của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực!')
+            
+            if check_verification(phone_number, code):
+                auth_token = encode_auth_token(user_id=user.id)
+                user.active = True
+                db.session.commit()
+                # if user.blocked:
+                #     return None  # error(message='User has been blocked')
+                if auth_token:
+                    return {'access_token': auth_token.decode('utf8')}
+            else:
+                return send_error(message='Mã đăng nhập không đúng hoặc đã hết hạn, vui lòng thử lại!')
+
+        return send_error(message='Đăng nhập thất bại, vui lòng thử lại!')
+
     # @staticmethod
     def register(self, data):
         if not isinstance(data, dict):
             return send_error(
-                message='Du lieu khong dung dinh dang hoac thieu. Vui long kiem tra lai')  # Data is not correct or not in dictionary form. Try again.')
+                message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.')
+        
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message="Vui long cung cap Email")  # Please provide an email")
+            return send_error(message='Vui lòng cung cấp Email!')  # Please provide an email")
+        
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message='Vui long cung cap mat khau')  # Pleases provide a password.')
-        display_name = ''
-        if 'display_name' in data:
-            display_name = data['display_name']
+            return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide a password.')
+        
+        if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
+        # Pleases provide a username.')
+            return send_error(message='Vui lòng cung cấp tên người dùng!')
+        # display_name = ''
+        # if 'display_name' in data:
+        #     display_name = data['display_name']
+        if not validate_email(data['email']):
+            return send_error(message='Địa chỉ Email không đúng!')
+        
+        if len(check_password(data['password'])) > 0:
+            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt')
+        
         email = data['email']
         password = data['password']
         if AuthController.check_user_exist(email=email):
-            return send_result(message='Nguoi dung voi dia chi Email {} da ton tai, vui long dang nhap.'.format(
-                email))  # User already exist.')
+            return send_result(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))  # User already exist.')
+        
+        if AuthController.check_user_name_exist(display_name):
+            return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(
+                display_name))  # User already exist.')
+        
         user = User(display_name=display_name, email=email, confirmed=False)
         user.set_password(password=password)
         try:
@@ -106,28 +472,29 @@ class AuthController:
         if is_confirmed:
             try:
                 send_confirmation_email(to=user.email)
-                return send_result(
-                    message='Chung toi da gui thu kich hoat vao hom thu cua ban. Vui long kiem tra hom thu.')  # An email has sent to your mailbox. Please check your email to confirm.')
+                return send_result(message='Chúng tôi đã gửi thư kích họat vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')  # An email has sent to your mailbox. Please check your email to confirm.')
+            
             except Exception as e:
                 print(e.__str__())
-                return send_error(
-                    message='Khong the gui thu kich hoat vao email cua ban. Vui long thu lai.')  # Could not send a confirmation email to your mailbox.')
+                return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')  # Could not send a confirmation email to your mailbox.')
 
     # @staticmethod
     def resend_confirmation(self, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is not correct or not in dictionary format. Try again.')
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')
+        
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message="Please provide an email")
+            return send_error(message='Vui lòng cung cấp Email!')
+        
         email = data['email']
         if not AuthController.check_user_exist(email=email):
-            return send_error(message='User is not registered.')
+            return send_error(message='Người dùng chưa đăng ký!')
         try:
             send_confirmation_email(to=email)
-            return send_result(message='An email has sent to your mailbox. Please check your email to confirm.')
+            return send_result(message='Chúng tôi đã gửi thư kích họat vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not send a confirmation email to your mailbox.')
+            return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')
 
     # @staticmethod
     def confirm_email(self, token):
@@ -136,7 +503,7 @@ class AuthController:
         if user:
             if user.confirmed:
                 # response = {'message': 'Tài khoản email đã được kích hoạt trước đó, vui lòng đăng nhập.'}
-                message = 'Tai khoan email cua ban da duoc kich hoat truoc do, vui long dang nhap.'
+                message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui long đăng nhập.'
                 return message  # send_result(data=marshal(response, AuthDto.message_response))
             user.confirmed = True
             # user.active = True
@@ -144,11 +511,11 @@ class AuthController:
             user.email_confirmed_at = datetime.now()
             db.session.commit()
             # response = {'message': "Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập."}
-            message = 'Tai khoan email cua ban da duoc kich hoat. Vui long dang nhap.'
+            message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
             return message  # send_result(data=marshal(response, AuthDto.message_response))  # 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
         else:
             # message = 'Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a href="http://hoovada.com">hoovada.com</a> để yêu cầu mã xác thực mới.'
-            message = 'Ma kich hoat cua ban khong dung hoac da het han. Vui long vao trang Web hoovada.com de yeu cau ma xac thuc moi.'
+            message = 'Ma kich hoat của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             # return_message = get_response_message(message=message)
             return message  # 'Invalid confirmation token.'
 
@@ -175,7 +542,7 @@ class AuthController:
                     # return send_result(message=auth_token)  # user
             else:
                 return send_error(
-                    message='Email hoac Mat khau khong dung, vui long thu lai')  # Email or Password does not match')
+                    message='Email hoặc mật khẫu không đúng, vui lòng thu lai')  # Email or Password does not match')
         except Exception as e:
             print(e.__str__())
             return send_error(
@@ -186,6 +553,7 @@ class AuthController:
         '''
         Logout user handling.
         '''
+
         auth_token = None
         api_key = None
         # auth = False
@@ -212,6 +580,7 @@ class AuthController:
             # return redirect('') # to logout page
         else:
             return send_error(message='Provide a valid auth token')
+
 
     def get_user_info(self, req):
         '''

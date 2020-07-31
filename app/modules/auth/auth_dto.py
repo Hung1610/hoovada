@@ -1,11 +1,50 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Namespace, fields
 
+# own modules
 from app.modules.common.dto import Dto
 
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class AuthDto(Dto):
     name = 'auth'
     api = Namespace(name)
+
+    model_sms_register = api.model('sms_register', {
+        'display_name': fields.String(required=False),
+        'phone_number': fields.String(required=True),
+        'password': fields.String(required=True)
+    })
+    
+    model_confirm_sms = api.model('confirm_sms', {
+        'phone_number': fields.String(required=True),
+        'code': fields.String(required=True)
+    })
+    
+    model_resend_confirmation_sms = api.model('resend_confirmation_sms', {
+        'phone_number': fields.String(required=True),
+    })
+    
+    model_sms_login_with_password = api.model('sms_login_with_password', {
+        'phone_number': fields.String(required=True),
+        'password': fields.String(required=True),
+    })
+    
+    model_sms_login_with_code = api.model('sms_login_with_code', {
+        'phone_number': fields.String(required=True),
+    })
+    
+    model_sms_login_with_code_confirm = api.model('sms_login_with_code_confirm', {
+        'phone_number': fields.String(required=True),
+        'code': fields.String(required=True),
+    })
+
     model_register = api.model('register', {
         'display_name': fields.String(required=False),
         'email': fields.String(required=True),
@@ -15,6 +54,10 @@ class AuthDto(Dto):
     model_login = api.model('login', {
         'email': fields.String(required=True),
         'password': fields.String(requried=True)
+    })
+
+    model_social_login = api.model('social_login', {
+        'access_token': fields.String(required=True),
     })
 
     message_response = api.model('response', {

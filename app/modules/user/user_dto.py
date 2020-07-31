@@ -1,7 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Namespace, fields
 
+# own module
 from app.modules.common.dto import Dto
 
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class SignupUserDto(Dto):
     name = 'signup_user'
@@ -100,6 +109,7 @@ class UserDto(Dto):
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
         'title': fields.String(required=False),
+        'phone_number': fields.String(required=False),
 
         'first_name': fields.String(required=False),
         'middle_name': fields.String(required=False),

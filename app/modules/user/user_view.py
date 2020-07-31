@@ -1,3 +1,4 @@
+
 from flask import request
 from werkzeug.datastructures import FileStorage
 
@@ -5,6 +6,11 @@ from app.modules.common.view import Resource
 from app.modules.user.user_dto import UserDto
 from .user_controller import UserController
 from ..auth.decorator import admin_token_required, token_required
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = UserDto.api
 user_request = UserDto.model_request
@@ -42,12 +48,13 @@ class UserList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:id>')
+#@api.route('/<int:id>')
+@api.route('/<string:user_name>')
 class User(Resource):
     @token_required
     # @api.marshal_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
-    def get(self, id):
+    def get(self, user_name):
         """``
         Get all information for specific user with ID `id`
         -------------------
@@ -57,12 +64,13 @@ class User(Resource):
         :return: The user with given ID in dictionary form.
         """
         controller = UserController()
-        return controller.get_by_id(object_id=id)
+            # return controller.get_by_id(object_id=id)
+        return controller.get_by_user_name(user_name)
 
     @token_required
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
-    def put(self, id):
+    def put(self, user_name):
         '''
         Update an existed user in the system.
         --------------------
@@ -71,20 +79,20 @@ class User(Resource):
         '''
         data = api.payload
         controller = UserController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(user_name=user_name, data=data)
 
     @token_required
     def delete(self, id):
-        '''
-        Delete the user with the ID `id`
+            '''
+        Delete the user with the user_name `user_name`
         -----------------
 
-        :param id: The ID of the user to be deleted.
+        :param user_name: The user_name of the user to be deleted.
 
         :return: True if user delete successfully and False vice versa.
         '''
         controller = UserController()
-        return controller.delete(object_id=id)
+        return controller.delete(user_name=user_name)
 
 
 avatar_upload = api.parser()

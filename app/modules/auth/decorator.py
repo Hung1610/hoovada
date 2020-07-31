@@ -1,9 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 from functools import wraps
 
+# third-party modules
+from flask import request
+
+# own modules
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error
 
-from flask import request
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def token_required(f):
