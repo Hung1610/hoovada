@@ -4,8 +4,8 @@ from werkzeug.datastructures import FileStorage
 
 from app.modules.common.view import Resource
 from app.modules.user.user_dto import UserDto
-from .user_controller import UserController
-from ..auth.decorator import admin_token_required, token_required
+from app.user.user_controller import UserController
+from app.auth.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,11 +23,10 @@ class UserList(Resource):
     # @api.marshal_list_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
-        """
-        Returns all users in the system.
-        ------------------
+        """ Returns all users in the system.
 
-        :return List of users.
+        Returns
+            List of users.
         """
         controller = UserController()
         return controller.get()
@@ -36,12 +35,12 @@ class UserList(Resource):
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
-        '''
-        Create new user.
-        -------------------
-        All data to create a new user is stored in dictionary form.
+        '''Create new user.
+        Args:
+            All data to create a new user is stored in dictionary form.
 
-        :return: New user is created successfully and error vice versa.
+        Returns:
+             New user is created successfully and error vice versa.
         '''
         data = api.payload
         controller = UserController()
@@ -80,7 +79,7 @@ class User(Resource):
         Returns:
              The user data after updated.
         '''
-        
+
         data = api.payload
         controller = UserController()
         return controller.update(user_name=user_name, data=data)
@@ -100,9 +99,7 @@ class User(Resource):
 
 
 avatar_upload = api.parser()
-avatar_upload.add_argument('avatar', location='files',
-                           type=FileStorage, required=True, help='The image file to upload')
-
+avatar_upload.add_argument('avatar', location='files',type=FileStorage, required=True, help='The image file to upload')
 avatar_download = api.parser()
 avatar_download.add_argument('filename', type=str, required=True, help='The name of the avatar')
 
