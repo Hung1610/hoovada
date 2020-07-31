@@ -14,8 +14,7 @@ from flask import make_response
 from flask_restx import marshal
 
 # own modules
-from app.settings.config import Config
-
+import app.settings.BaseConfig as Config
 from app import db
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.blacklist import BlacklistToken
