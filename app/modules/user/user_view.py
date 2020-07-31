@@ -55,14 +55,15 @@ class User(Resource):
     # @api.marshal_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
-        """``
-        Get all information for specific user with ID `id`
-        -------------------
+        """Get all information for specific user with ID `id`
+        
+        Args:
+            id (int): The ID of the user.
 
-        :param id: The ID of the user.
-
-        :return: The user with given ID in dictionary form.
+        Returns: 
+            The user with given ID in dictionary form.
         """
+
         controller = UserController()
             # return controller.get_by_id(object_id=id)
         return controller.get_by_user_name(user_name)
@@ -71,25 +72,28 @@ class User(Resource):
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
-        '''
-        Update an existed user in the system.
-        --------------------
+        '''Update an existed user in the system.
+        
+        Args:
+            user_name(string)
 
-        :return: The user data after updated.
+        Returns:
+             The user data after updated.
         '''
+        
         data = api.payload
         controller = UserController()
         return controller.update(user_name=user_name, data=data)
 
     @token_required
     def delete(self, id):
-            '''
-        Delete the user with the user_name `user_name`
-        -----------------
+        ''' Delete the user with the user_name `user_name`
+        
+        Args:
+            user_name (string): The user_name of the user to be deleted.
 
-        :param user_name: The user_name of the user to be deleted.
-
-        :return: True if user delete successfully and False vice versa.
+        Returns: 
+            True if user delete successfully and False vice versa.
         '''
         controller = UserController()
         return controller.delete(user_name=user_name)
