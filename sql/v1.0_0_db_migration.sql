@@ -1,0 +1,75 @@
+
+# production
+ALTER TABLE share change shared_date created_date datetime;
+ALTER TABLE user ADD COLUMN user_report_count int(11) default 0;
+ALTER TABLE user ADD COLUMN user_reported_count int(11) default 0;
+ALTER TABLE user ADD COLUMN question_report_count int(11) default 0;
+ALTER TABLE user ADD COLUMN question_reported_count int(11) default 0;
+ALTER TABLE user ADD COLUMN answer_report_count int(11) default 0;
+ALTER TABLE user ADD COLUMN answer_reported_count int(11) default 0;
+ALTER TABLE user ADD COLUMN question_upvote_count int(11) default 0;
+ALTER TABLE user ADD COLUMN question_upvoted_count int(11) default 0;
+ALTER TABLE user ADD COLUMN question_downvote_count int(11) default 0;
+ALTER TABLE user ADD COLUMN question_downvoted_count int(11) default 0;
+
+
+# testing
+ALTER TABLE favorite change updated_time updated_date datetime;
+UPDATE user SET user_report_count=0 WHERE user_report_count is NULL;
+UPDATE user SET user_reported_count=0 WHERE user_reported_count is NULL;
+UPDATE user SET question_report_count=0 WHERE question_report_count is NULL;
+UPDATE user SET question_reported_count=0 WHERE question_reported_count is NULL;
+UPDATE user SET answer_report_count=0 WHERE answer_report_count is NULL;
+UPDATE user SET answer_reported_count=0 WHERE answer_reported_count is NULL;
+UPDATE user SET question_upvote_count=0 WHERE question_upvote_count is NULL;
+UPDATE user SET question_upvoted_count=0 WHERE question_upvoted_count is NULL;
+UPDATE user SET question_downvote_count=0 WHERE question_downvote_count is NULL;
+UPDATE user SET question_downvoted_count=0 WHERE question_downvoted_count is NULL;
+
+
+# both
+CREATE TABLE `social_account` (
+  `id` int(11) NOT NULL,
+  `provider` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `uid` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `last_login` datetime(6) NOT NULL,
+  `date_joined` datetime(6) NOT NULL,
+  `extra_data` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `user` ADD COLUMN `phone_number` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL;
+ALTER TABLE `user` ADD COLUMN `verification_sms_time` datetime DEFAULT NULL;
+
+ALTER TABLE `user`
+  ADD UNIQUE KEY `display_name` (`display_name`),
+  ADD UNIQUE KEY `phone_number` (`phone_number`);
+
+ALTER TABLE `social_account` ADD PRIMARY KEY (`id`);
+ALTER TABLE `social_account` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+ALTER TABLE `user` MODIFY `email` varchar(255) COLLATE utf8_general_ci NULL;
+
+
+
+DELETE FROM `user_topic` WHERE `topic_id` = (SELECT `id` FROM `topic` WHERE `name` = "Sản phẩm của yahoo");
+DELETE FROM `question_topic` WHERE `topic_id` = (SELECT `id` FROM `topic` WHERE `name` = "Sản phẩm của yahoo");
+DELETE FROM `topic` WHERE `name` = "Sản phẩm của yahoo"
+
+CREATE TABLE `user_employment` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `position` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `company` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `start_year` year(4) DEFAULT NULL,
+  `end_year` year(4) DEFAULT NULL,
+  `is_currently_work` tinyint(1) DEFAULT NULL,
+  `is_default` tinyint(1) DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+ALTER TABLE `user_employment`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `user_employment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

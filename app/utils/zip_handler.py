@@ -1,5 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in
 import zipfile
 import os
+
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def unzip_file(filename, path_to_extract):

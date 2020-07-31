@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
 sensitive_words = ['lồn', 'dm', 'du me', 'đu me', 'đủ mẹ', 'đủ má', ' đù', 'đụ', 'đéo', 'dái', 'địt', 'vãi', 'cu', 'dâm đãng', 'làm tình',
                    'cuto', 'chat sex', 'loạn luân', 'slm', 'dkm', 'porn', 'dú', 'bú', 'giao lưu sex', 'nc sex', 'xxx',
                    'fuck ', 'chat xxx', 'sax', 'phá trinh', 'tùm gái', ' tìm trai', 'tìm bạn nữ', 'childporn',

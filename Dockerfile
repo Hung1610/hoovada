@@ -1,6 +1,6 @@
 FROM pypy:3
 
-WORKDIR /usr/src/app
+WORKDIR /
 
 COPY . .
 

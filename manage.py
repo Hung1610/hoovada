@@ -7,6 +7,7 @@ import argparse
 # own modules
 from app import create_app
 
+__version__ = '1.0.0'
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
