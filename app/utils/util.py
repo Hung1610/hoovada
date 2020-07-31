@@ -25,7 +25,7 @@ import phonenumbers
 # own modules
 from app.app import mail
 from app.modules.user.user import User
-from app import db, logger
+from app import db
 from app.modules.user.blacklist import BlacklistToken
 from app.settings.config import BaseConfig
 
