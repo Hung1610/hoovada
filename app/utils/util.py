@@ -35,7 +35,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-client = Client(username=config.Config.TWILIO_ACCOUNT_SID, password=config.Config.TWILIO_AUTH_TOKEN)
+client = Client(username=BaseConfig.TWILIO_ACCOUNT_SID, password=BaseConfig.TWILIO_AUTH_TOKEN)
 
 
 def encode_file_name(filename):
@@ -262,14 +262,16 @@ def send_verification_sms(to=''):
     Send verification code to that phone number
     """
     user = User.query.filter_by(phone_number=to).first()
-    service = config.Config.VERIFICATION_SID
+    service = BaseConfig.VERIFICATION_SID
     verification = client.verify \
         .services(service) \
         .verifications \
         .create(to=to, channel='sms')
+
     if verification and verification.sid and user:
         user.verification_sms_time = datetime.utcnow()
         db.session.commit()
+    
     return verification.sid
 
 
@@ -298,7 +300,8 @@ def check_verification(phone, code):
     Verify code sent to that phone number
     """
     user = User.query.filter_by(phone_number=phone).first()
-    service = config.Config.VERIFICATION_SID
+    service = BaseConfig.VERIFICATION_SID
+    
     try:
         verification_check = client.verify \
             .services(service) \
@@ -308,8 +311,9 @@ def check_verification(phone, code):
         if verification_check.status == "approved":
             current_time = datetime.utcnow()
             difference = current_time - user.verification_sms_time
-            return difference.seconds <= config.Config.LIMIT_VERIFY_SMS_TIME
+            return difference.seconds <= BaseConfig.LIMIT_VERIFY_SMS_TIME
         return False
+    
     except Exception as e:
         return False
 
