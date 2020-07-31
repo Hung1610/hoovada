@@ -1,11 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+#third-party modules
 from flask import request
 from werkzeug.datastructures import FileStorage
 
+# own modules
 from app.modules.common.view import Resource
 from app.modules.user.user_dto import UserDto
-from app.user.user_controller import UserController
-from app.auth.decorator import admin_token_required, token_required
+from app.modules.user.user_controller import UserController
+from app.modules.auth.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -8,7 +8,7 @@ from app.modules.q_a import ns_question, ns_answer, ns_comment, ns_vote, ns_favo
 from app.modules.topic import ns_topic, ns_user_topic, ns_question_topic
 from app.modules.file_upload import api as ns_upload
 from app.modules.search import ns_search
-from app.user.user_view import api
+from app.modules.user.user_view import api
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
