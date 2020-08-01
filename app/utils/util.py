@@ -285,11 +285,17 @@ def send_verification_sms(to=''):
     return verification.sid
 
 
-def validate_username(user_name):
+def is_valid_username(user_name):
     """ Ensure that username only has letter, number and chraters (_.-).
+        
+    Args:
+        user_name (string): display name
+    
+    Returns:
+        Boolean
     """
     
-    return re.match("^[a-zA-Z0-9_.-]+$", user_name)
+    return re.match("^[a-zA-Z0-9_.-]+$", user_name) is not None
 
 
 def validate_phone_number(phone_number):

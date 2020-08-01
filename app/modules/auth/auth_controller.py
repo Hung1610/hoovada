@@ -249,8 +249,8 @@ class AuthController:
             return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt.')
         
         display_name = data['display_name']
-        if not validate_username(display_name):
-            return send_error(message='User name chỉ chấp nhận chữ, số và các kí tự "-._"')
+        if is_valid_username(display_name) is False:
+            return send_error(message='Tên hiển thị chỉ chấp nhận chữ, số và các kí tự "-._"')
         
         if AuthController.check_user_name_exist(display_name):
             return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
@@ -349,8 +349,8 @@ class AuthController:
             if user and user.check_password(data['password']):
                 if not user.confirmed:
                     self.resend_confirmation_sms(data)
-                    return send_error(
-                        message='Tài khoản với số điệnt thoại của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                    return send_error(message='Tài khoản với số điện thoại của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                
                 auth_token = encode_auth_token(user_id=user.id)
                 user.active = True
                 db.session.commit()
@@ -446,16 +446,17 @@ class AuthController:
             return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt')
         
         email = data['email']
+        display_name = data['display_name']
         password = data['password']
         if AuthController.check_user_exist(email=email):
             return send_result(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))  # User already exist.')
         
         if AuthController.check_user_name_exist(display_name):
-            return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(
-                display_name))  # User already exist.')
+            return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
         
         user = User(display_name=display_name, email=email, confirmed=False)
         user.set_password(password=password)
+
         try:
             # user.save()
             db.session.add(user)
@@ -499,7 +500,7 @@ class AuthController:
         if user:
             if user.confirmed:
                 # response = {'message': 'Tài khoản email đã được kích hoạt trước đó, vui lòng đăng nhập.'}
-                message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui long đăng nhập.'
+                message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
                 return message  # send_result(data=marshal(response, AuthDto.message_response))
             user.confirmed = True
             # user.active = True
@@ -517,17 +518,17 @@ class AuthController:
 
     # @staticmethod
     def login_user(self, data):
+        """ Login user handling.
         """
-        Login user handling.
-        """
+
         try:
             # print(data)
             user = User.query.filter_by(email=data['email']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:
                     self.resend_confirmation(data=data)
-                    return send_error(
-                        message='Tai khoan email cua ban chua duoc xac nhan. Vui long dang nhap hop thu cua ban de tien hanh xac thuc.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                    return send_error( message='Tai khoan email cua ban chua duoc xac nhan. Vui long dang nhap hop thu cua ban de tien hanh xac thuc.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                
                 auth_token = encode_auth_token(user_id=user.id)
                 user.active = True
                 db.session.commit()
@@ -536,13 +537,13 @@ class AuthController:
                 if auth_token:
                     return {'access_token': auth_token.decode('utf8')}
                     # return send_result(message=auth_token)  # user
+            
             else:
-                return send_error(
-                    message='Email hoặc mật khẫu không đúng, vui lòng thu lai')  # Email or Password does not match')
+                return send_error(message='Email hoặc mật khẩu không đúng, vui lòng thử lại!')  # Email or Password does not match')
+        
         except Exception as e:
             print(e.__str__())
-            return send_error(
-                message='Khong the dang nhap, vui long thu lai.')  # Could not login, please try again later. Error {}'.format(e.__str__()))
+            return send_error(message='Không thễ đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
 
     # @staticmethod
     def logout_user(self, req):
@@ -593,9 +594,9 @@ class AuthController:
 
     @staticmethod
     def get_logged_user(req):
+        ''' User information retrieving.
         '''
-        User information retrieving.
-        '''
+
         auth_token = None
         api_key = None
         # auth = False
