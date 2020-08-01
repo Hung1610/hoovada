@@ -32,7 +32,7 @@ def send_result(data=None, message='OK', code=200, status=True):
     return res, code
 
 
-def send_error(data=None, message='Failed', code=200, status=False):
+def send_error(data=None, message='Failed', code=400, status=False):
     """
     :param data: The search_data to respond
     :param message: The message to respond
