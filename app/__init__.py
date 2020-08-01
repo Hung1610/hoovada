@@ -23,21 +23,25 @@ api = init_api()
 @ns_hello.route('/health')
 class HealthCheck(Resource):
     def get(self):
-        """
-        Use for Readiness and Liveness Probes
+        """ Use for Readiness and Liveness Probes
+        
+        Args:
+            None
 
-        :return the 'OK!' text
+        Returns
+           200 code for success 
         """
         return send_result(message="OK!", code=200)
 
 
 def create_app(config):
-    """
-    Create an app
+    """ Create an app
 
-    :param: config
+    Args:
+        config (dict)
 
-    :return: an initialized app
+    Returns:
+        object - An initialized app
     """
 
     app = init_app(config_name=config)

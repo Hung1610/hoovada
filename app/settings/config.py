@@ -1,5 +1,4 @@
 import os
-import logging
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -29,11 +28,11 @@ class BaseConfig:
     WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY')
 
     # mysql configuration
-    DB_USER = os.environ.get('DB_USER')
-    DB_PASSWORD = os.environ.get('DB_PASSWORD')
-    DB_HOST = os.environ.get('DB_HOST')
+    DB_USER = os.environ.get('DB_USER', 'dev')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hoovada')
+    DB_HOST = os.environ.get('DB_HOST', 'localhost')
     DB_PORT = os.environ.get('DB_PORT', '3360')
-    DB_NAME = os.environ.get('DB_NAME', '')
+    DB_NAME = os.environ.get('DB_NAME', 'hoovada')
 
     # Locations
     APP_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))  # os.path.abspath(os.path.dirname(__file__))  # This directory
@@ -81,7 +80,7 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     DEBUG_TB_ENABLED = True
     SQLALCHEMY_ECHO = True
-    LOG_LEVEL = logging.DEBUG
+    BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
 
     # if you want to use mysql 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
@@ -97,14 +96,18 @@ class DevelopmentConfig(BaseConfig):
     # DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
 
-   
+
 class TestingConfig(BaseConfig):
     """Test configuration."""
 
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
-    LOG_LEVEL = logging.INFO
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
+         user=BaseConfig.DB_USER,
+         password=BaseConfig.DB_PASSWORD,
+         host=BaseConfig.DB_HOST,
+         port=BaseConfig.DB_PORT,
+         name=BaseConfig.DB_NAME
+     )    
 
 
 class ProductionConfig(BaseConfig):
@@ -117,8 +120,6 @@ class ProductionConfig(BaseConfig):
          port=BaseConfig.DB_PORT,
          name=BaseConfig.DB_NAME
      )
-
-    LOG_LEVEL = logging.INFO
 
 
 config_by_name = dict(

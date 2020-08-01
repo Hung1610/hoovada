@@ -66,9 +66,5 @@ CREATE TABLE `user_employment` (
   `created_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-
-ALTER TABLE `user_employment`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `user_employment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `user_employment` ADD PRIMARY KEY (`id`);
+ALTER TABLE `user_employment` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

@@ -39,39 +39,45 @@ client = Client(username=BaseConfig.TWILIO_ACCOUNT_SID, password=BaseConfig.TWIL
 
 
 def encode_file_name(filename):
-    '''
-    Encode the filename (without extension).
+    ''' Encode the filename (without extension).
 
-    :param filename: The filename.
+    Args:
+        filename: The filename.
 
-    :return: The encoded filename.
+    Returns:
+         The encoded filename.
     '''
+
     encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
     return encoded
 
 
 def generate_conformation_token(email):
-    """
-    Confirmation email token
+    """ Confirmation email token
 
-    :param email: The email used to generate confirmation token.
+    Args:
+        email: The email used to generate confirmation token.
 
-    :return:
+    Return:
+
     """
     serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
     return serializer.dumps(email, salt=BaseConfig.SECURITY_SALT)
 
 
 def confirm_token(token, expirations=3600):
+    """ Confirm token.
+
+    Args:
+        token: The token to confirm.
+
+    Returns
+        expirations: The expiration time.
+
+    Returns:
+         email if success and None vice versa.
     """
-    Confirm token.
 
-    :param token: The token to confirm.
-
-    :param expirations: The expiration time.
-
-    :return: email if success and None vice versa.
-    """
     serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
     try:
         email = serializer.loads(token, salt=BaseConfig.SECURITY_SALT, max_age=expirations)
@@ -82,29 +88,29 @@ def confirm_token(token, expirations=3600):
 
 
 def send_email(to, subject, template):
+    """ Send an email.
+
+    Args:
+        to: The email-address to send to.
+        subject: The subject of the email.
+        template: The template to generate email.
+
+    Return:
     """
-    Send an email.
-
-    :param to: The email-address to send to.
-
-    :param subject: The subject of the email.
-
-    :param template: The template to generate email.
-
-    :return:
-    """
+    
     msg = Message(subject, sender=BaseConfig.MAIL_USERNAME, recipients=[to], html=template)
     mail.send(msg)
 
 
 def send_confirmation_email(to):
-    """
-    Send a confirmation email to the registered user.
+    """ Send a confirmation email to the registered user.
 
-    :param to: The email address to send to.
+    Args:
+        to: The email address to send to.
 
-    :return:
+    Return:
     """
+    
     token = generate_conformation_token(email=to)
     confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
@@ -112,25 +118,27 @@ def send_confirmation_email(to):
 
 
 def get_response_message(message):
-    """
-    Get HTML message to return to user.
+    """ Get HTML message to return to user.
 
-    :param message: The message to return.
+    Args:
+         message: The message to return.
 
-    :return:
+    Return:
     """
+    
     html = render_template('response.html', message=message)
     return html
 
 
 def encode_auth_token(user_id):
-    '''
-    Generate the Auth token.
+    ''' Generate the Auth token.
 
-    :param user_id: The user's ID to generate token
+    Args:
+         user_id: The user's ID to generate token
 
-    :return:
+    Return:
     '''
+    
     try:
         payload = {
             'exp': datetime.utcnow() + timedelta(days=30, seconds=5),
@@ -148,13 +156,15 @@ def encode_auth_token(user_id):
 
 
 def decode_auth_token(auth_token):
-    """
-    Validates the auth token
+    """ Validates the auth token
 
-    :param auth_token:
+    Args:
+         auth_token:
 
-    :return: integer|string
+    Return:
+         integer|string
     """
+
     try:
         payload = jwt.decode(auth_token, BaseConfig.SECRET_KEY)
         is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
@@ -170,8 +180,7 @@ def decode_auth_token(auth_token):
 
 def password_validator(form, field):
     """Ensure that passwords have at least 6 characters with one lowercase letter, one uppercase letter and one number.
-
-    Override this method to customize the password validator.
+        Override this method to customize the password validator.
     """
 
     # Convert string to list of characters
@@ -198,6 +207,7 @@ def password_validator(form, field):
 def username_validator(form, field):
     """Ensure that Usernames contains at least 5 alphanumeric characters.
     """
+
     username = field.data
     if len(username) < 5:
         raise ValidationError(_l('Username must be at least 5 characters long'))
@@ -237,9 +247,9 @@ def remove_markdown(text):
 
 
 def no_accent_vietnamese(s):
+    """ Convert accented Vietnamese into unsigned
     """
-    Convert accented Vietnamese into unsigned
-    """
+    
     s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
     s = re.sub(r'[ÀÁẠẢÃĂẰẮẶẲẴÂẦẤẬẨẪ]', 'A', s)
     s = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', s)
@@ -258,9 +268,9 @@ def no_accent_vietnamese(s):
 
 
 def send_verification_sms(to=''):
+    """ Send verification code to that phone number
     """
-    Send verification code to that phone number
-    """
+    
     user = User.query.filter_by(phone_number=to).first()
     service = BaseConfig.VERIFICATION_SID
     verification = client.verify \
@@ -276,16 +286,16 @@ def send_verification_sms(to=''):
 
 
 def validate_username(user_name):
+    """ Ensure that username only has letter, number and chraters (_.-).
     """
-    Ensure that username only has letter, number and chraters (_.-).
-    """
+    
     return re.match("^[a-zA-Z0-9_.-]+$", user_name)
 
 
 def validate_phone_number(phone_number):
+    """ Ensure that is correct phone number.
     """
-    Ensure that is correct phone number.
-    """
+    
     try:
         phone_number = phonenumbers.parse(phone_number, None)
         return phonenumbers.is_valid_number(phone_number)
@@ -296,9 +306,9 @@ def validate_phone_number(phone_number):
 
 
 def check_verification(phone, code):
+    """ Verify code sent to that phone number
     """
-    Verify code sent to that phone number
-    """
+    
     user = User.query.filter_by(phone_number=phone).first()
     service = BaseConfig.VERIFICATION_SID
     
@@ -319,9 +329,9 @@ def check_verification(phone, code):
 
 
 def check_password(password):
+    """ Ensure that passwords have at least 8 characters with two uppercase letters, two numbers and two special characters.
     """
-    Ensure that passwords have at least 8 characters with two uppercase letters, two numbers and two special characters.
-    """
+
     policy = PasswordPolicy.from_names(
         length=8,  # min length: 8
         uppercase=1,  # need min. 1 uppercase letters
@@ -332,10 +342,16 @@ def check_password(password):
     return policy.test(password)
 
 
-def validate_email(email):
+def is_valid_email(email):
+    """ Validate email address
+
+        Args:
+            email (string): email address
+
+        Returns:
+            boolean   
     """
-    Ensure that is correct email.
-    """
-    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-    return re.search(regex, email)
+
+    regex = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.search(regex, email) is not None
 

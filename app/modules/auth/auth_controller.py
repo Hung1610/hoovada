@@ -24,7 +24,7 @@ from app.modules.user.user_dto import UserDto
 # from app.utils.hoovada_utils import send_email
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
-    get_response_message, check_verification, check_password, validate_email
+    get_response_message, check_verification, check_password, is_valid_email
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -437,13 +437,10 @@ class AuthController:
             return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide a password.')
         
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-        # Pleases provide a username.')
-            return send_error(message='Vui lòng cung cấp tên người dùng!')
-        # display_name = ''
-        # if 'display_name' in data:
-        #     display_name = data['display_name']
-        if not validate_email(data['email']):
-            return send_error(message='Địa chỉ Email không đúng!')
+            return send_error(message='Vui lòng cung cấp tên người dùng!') # Pleases provide a username.')
+
+        if is_valid_email(data['email']) is False:
+            return send_error(message='Địa chỉ Email không hợp lệ!')
         
         if len(check_password(data['password'])) > 0:
             return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt')
