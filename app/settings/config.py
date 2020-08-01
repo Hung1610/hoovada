@@ -18,13 +18,13 @@ class BaseConfig:
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
     MAIL_USE_SSL = False
-    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'admin@hoovada.com')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'admin@hoovada.com') 
+    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovadateam@gmail.com')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovadateam@gmail.com') 
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # Wasabi service
-    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY')
+    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', 'YGK7CVV0GOQN0Y2XQVOA')
     WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY')
 
     # mysql configuration
@@ -65,12 +65,12 @@ class BaseConfig:
     GOOGLE_PROFILE_URL = 'https://www.googleapis.com/oauth2/v1/userinfo'
     # Twilio API credentials
     # (find here https://www.twilio.com/console)
-    TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID')
+    TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'ACac3ae54cf10eec9d9512397aec598d4f')
     TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN')
 
     # Verification Service SID
     # (create one here https://www.twilio.com/console/verify/services)
-    VERIFICATION_SID= os.environ.get('YOUR_VERIFICATION_SID')
+    VERIFICATION_SID= os.environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
     LIMIT_VERIFY_SMS_TIME=60 # 60seconds
 
 

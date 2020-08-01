@@ -84,8 +84,8 @@ def save_social_account(provider, extra_data):
     else:
         email = extra_data.get('email', '')
         if (AuthController.check_user_exist(email)):
-            return send_result(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(
-                email))
+            return send_result(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(email))
+            
         user_name = no_accent_vietnamese(
             extra_data['name']).strip().replace(' ', '_').lower()
         user_name = AuthController.create_user_name(user_name)
