@@ -18,14 +18,14 @@ class BaseConfig:
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
     MAIL_USE_SSL = False
-    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovadateam@gmail.com')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovadateam@gmail.com') 
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gydijkoduvmmcjjx')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # Wasabi service
     WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', 'YGK7CVV0GOQN0Y2XQVOA')
-    WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY')
+    WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY', 'v0MZToTrefJ571tcOXJ5YJB04I4dvGvNl02ew4aH')  # test bucket
 
     # mysql configuration
     DB_USER = os.environ.get('DB_USER', 'dev')
@@ -35,7 +35,7 @@ class BaseConfig:
     DB_NAME = os.environ.get('DB_NAME', 'hoovada')
 
     # Locations
-    APP_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))  # os.path.abspath(os.path.dirname(__file__))  # This directory
+    APP_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
     IMAGE_FOLDER = '/images'
     AVATAR_FOLDER = os.path.join(IMAGE_FOLDER, 'avatars')
@@ -65,8 +65,8 @@ class BaseConfig:
     GOOGLE_PROFILE_URL = 'https://www.googleapis.com/oauth2/v1/userinfo'
     # Twilio API credentials
     # (find here https://www.twilio.com/console)
-    TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'ACac3ae54cf10eec9d9512397aec598d4f')
-    TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN')
+    TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
+    TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
 
     # Verification Service SID
     # (create one here https://www.twilio.com/console/verify/services)
@@ -92,7 +92,6 @@ class DevelopmentConfig(BaseConfig):
      )
     
     # If you want to use sqlite for development, Put the db file in project root
-    # DB_NAME = 'dev.db'
     # DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
 
