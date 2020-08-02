@@ -21,7 +21,6 @@ from app.modules.user.blacklist import BlacklistToken
 from app.modules.user.user import User, SocialAccount
 from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
-# from app.utils.hoovada_utils import send_email
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
     get_response_message, check_verification, check_password, is_valid_email
@@ -84,7 +83,7 @@ def save_social_account(provider, extra_data):
     else:
         email = extra_data.get('email', '')
         if (AuthController.check_user_exist(email)):
-            return send_result(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(email))
+            return send_error(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(email))
             
         user_name = no_accent_vietnamese(
             extra_data['name']).strip().replace(' ', '_').lower()
@@ -96,6 +95,7 @@ def save_social_account(provider, extra_data):
         user = User(display_name=user_name, email=email,
                     confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
         user.set_password(password=provider + '_' + str(user_name))
+        
         try:
             db.session.add(user)
             db.session.commit()
@@ -107,6 +107,7 @@ def save_social_account(provider, extra_data):
             if auth_token:
                 return {'access_token': auth_token.decode('utf8')}
             return send_error(message="Đăng nhập thất bại, vui lòng thử lại!")
+        
         except Exception as e:
             print(e)
             db.session.rollback()
@@ -253,7 +254,7 @@ class AuthController:
             return send_error(message='Tên hiển thị chỉ chấp nhận chữ, số và các kí tự "-._"')
         
         if AuthController.check_user_name_exist(display_name):
-            return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
+            return send_error(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -449,10 +450,10 @@ class AuthController:
         display_name = data['display_name']
         password = data['password']
         if AuthController.check_user_exist(email=email):
-            return send_result(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))  # User already exist.')
+            return send_error(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))  # User already exist.')
         
         if AuthController.check_user_name_exist(display_name):
-            return send_result(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
+            return send_error(message='Người dùng với tên {} đã tồn tại, vui lòng thử lại!'.format(display_name))  # User already exist.')
         
         user = User(display_name=display_name, email=email, confirmed=False)
         user.set_password(password=password)
@@ -469,7 +470,7 @@ class AuthController:
         if is_confirmed:
             try:
                 send_confirmation_email(to=user.email)
-                return send_result(message='Chúng tôi đã gửi thư kích họat vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')  # An email has sent to your mailbox. Please check your email to confirm.')
+                return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')  # An email has sent to your mailbox. Please check your email to confirm.')
             
             except Exception as e:
                 print(e.__str__())
@@ -488,7 +489,8 @@ class AuthController:
             return send_error(message='Người dùng chưa đăng ký!')
         try:
             send_confirmation_email(to=email)
-            return send_result(message='Chúng tôi đã gửi thư kích họat vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
+            return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
+            
         except Exception as e:
             print(e.__str__())
             return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')
