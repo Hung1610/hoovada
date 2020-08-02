@@ -6,8 +6,8 @@ from flask_restx import Resource
 from flask_restx import Namespace
 
 # own modules
-from .app import init_app, db
-from .apis import init_api
+from app.app import init_app, db
+from app.apis import init_api
 from app.utils.response import send_result
 
 __author__ = "hoovada.com team"

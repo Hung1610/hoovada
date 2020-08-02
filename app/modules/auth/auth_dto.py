@@ -14,7 +14,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class AuthDto(Dto):
     name = 'auth'
-    api = Namespace(name)
+    api = Namespace(name, description='auth related operations')
 
     model_sms_register = api.model('sms_register', {
         'display_name': fields.String(required=False),

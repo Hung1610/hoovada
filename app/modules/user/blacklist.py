@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+    #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # build-in modules
@@ -15,9 +15,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class BlacklistToken(Model):
+    """ Token model_auth for storing JWT tokens
     """
-    Token model_auth for storing JWT tokens
-    """
+
     __tablename__ = 'blacklist_tokens'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -27,6 +27,9 @@ class BlacklistToken(Model):
     def __init__(self, token):
         self.token = token
         self.blacklisted_on = datetime.datetime.now()
+
+    def __repr__(self):
+        return '<id: token: {}'.format(self.token)
 
     @staticmethod
     def check_blacklist(auth_token):

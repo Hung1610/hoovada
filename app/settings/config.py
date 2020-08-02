@@ -99,7 +99,9 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     """Test configuration."""
 
+    DEBUG = True
     TESTING = True
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,

@@ -134,9 +134,10 @@ def encode_auth_token(user_id):
     ''' Generate the Auth token.
 
     Args:
-         user_id: The user's ID to generate token
+        user_id: The user's ID to generate token
 
     Return:
+        string
     '''
     
     try:

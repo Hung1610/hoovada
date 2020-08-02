@@ -71,6 +71,7 @@ class User(Resource):
             # return controller.get_by_id(object_id=id)
         return controller.get_by_user_name(user_name)
 
+
     @token_required
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
@@ -87,6 +88,7 @@ class User(Resource):
         data = api.payload
         controller = UserController()
         return controller.update(user_name=user_name, data=data)
+
 
     @token_required
     def delete(self, id):
