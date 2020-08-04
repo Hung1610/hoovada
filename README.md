@@ -140,11 +140,6 @@ $ git push -u origin <your branch name>
 - You can use the default values in config.py for your development/testing.
 
 
-### DB setup
-
-- For quick DB setup on your local development, you can use sqlite instead of mysql
-
-
 ### Run project on development environment
 
 ```bash

@@ -20,12 +20,12 @@ class BaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gydijkoduvmmcjjx')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # Wasabi service
-    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', 'YGK7CVV0GOQN0Y2XQVOA')
-    WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY', 'v0MZToTrefJ571tcOXJ5YJB04I4dvGvNl02ew4aH')  # test bucket
+    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', 'YGK7CVV0GOQN0Y2XQVOA') # test bucket
+    WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY', '')  
 
     # mysql configuration
     DB_USER = os.environ.get('DB_USER', 'dev')
@@ -48,7 +48,7 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # social
-    FACEBOOK_SECRET = os.environ.get('FACEBOOK_SECRET', 'f677942d840c504cc86190b3aad6ef7d') 
+    FACEBOOK_SECRET = os.environ.get('FACEBOOK_SECRET', '') 
     GRAPH_API_URL = 'https://graph.facebook.com/me?'
     FACEBOOK_FIELDS = [
         'id',
@@ -68,7 +68,7 @@ class BaseConfig:
     # Twilio API credentials
     # (find here https://www.twilio.com/console)
     TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
-    TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
+    TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN', '') # TEST Credentials
     # (create one here https://www.twilio.com/console/verify/services)
     VERIFICATION_SID= os.environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
     LIMIT_VERIFY_SMS_TIME=60 # 60seconds
@@ -90,11 +90,6 @@ class DevelopmentConfig(BaseConfig):
          port=BaseConfig.DB_PORT,
          name=BaseConfig.DB_NAME
      )
-    
-    # If you want to use sqlite for development, Put the db file in project root
-    # DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
-
 
 class TestingConfig(BaseConfig):
     """Test configuration."""
@@ -102,6 +97,7 @@ class TestingConfig(BaseConfig):
     DEBUG = True
     TESTING = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
+    BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
