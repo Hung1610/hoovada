@@ -85,8 +85,7 @@ def save_social_account(provider, extra_data):
         if (AuthController.check_user_exist(email)):
             return send_error(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(email))
             
-        user_name = no_accent_vietnamese(
-            extra_data['name']).strip().replace(' ', '_').lower()
+        user_name = no_accent_vietnamese(extra_data['name']).strip().replace(' ', '_').lower()
         user_name = AuthController.create_user_name(user_name)
         # display_name = extra_data.get('name', '')
         first_name = extra_data.get('first_name', '')
@@ -361,8 +360,8 @@ class AuthController:
                     return {'access_token': auth_token.decode('utf8')}
                     # return send_result(message=auth_token)  # user
             else:
-                return send_error(
-                    message='Số điện thoại hoặc mật khẩu không đúng, vui lòng thử lại')  # Email or Password does not match')
+                return send_error(message='Số điện thoại hoặc mật khẩu không đúng, vui lòng thử lại')  # Email or Password does not match')
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message='Không thể đăng nhập, vui lòng thử lại.')  # Could not login, please try again later. Error {}'.format(e.__str__()))

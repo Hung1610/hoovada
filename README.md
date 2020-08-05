@@ -5,52 +5,18 @@ APIs services of the project hoovada.com
 Project Overview
 ---
 
-We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point
+- We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point
 
-- __app__
-    - extensions
-    - modules
-        - common
-        - auth
-        - file_upload
-        - messaging
-        - q_a
-            - answer
-            - comment
-            - favorite
-            - question
-            - report
-            - share
-            - timeline
-            - voting
-        - search
-        - system
-            - feedback
-            - history
-            - notification
-            - request_log
-            - version
-        - topic
-            - question_topic
-            - user_topic
-        - user
-            - follow
-            - mail_address
-            - permission
-            - reputation
-            - user_permission
-    - settings
-    - templates
-    - utils
-    - apis.py
-    - app.py
-    - requirements.txt (please put all your third-party library here)
+- The app/requirements.txt is where you should put your new third-party libraries
+
+- Conf file is at app/settings/config.py, we use environment variables to manage conf in production. You can use the default values in config.py for your development.
 
 
 ### Built with
 
 - Language: pypy3.6
 - Framework: Flask 
+- Database: MySQL (Percona Distribution)
 - OpenAPI: [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
 - Front-end data format: [Json](https://pyjwt.readthedocs.io/en/latest/)
 - DB migration: [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) and [alembic](https://pypi.org/project/alembic/)
@@ -63,12 +29,10 @@ We follow this [structure example](https://github.com/frol/flask-restplus-server
 
 ### Services
 
-- Database: MySQL
 - Storage provider: wasabi
 - Email delivery service: sendgrid
 - SMS service: twilio
-- SSL Certificate: Letsencrypt
-- Server provider: digital ocean
+- Infrastructure provider: digital ocean
 - Hostname provider: namecheap
 
 ### Future consideration
@@ -82,11 +46,13 @@ Development instruction
 
 ### Environments definition
 
-- Production: the real environment where we deploy hoovada.com
+- Production: the real environment where we deploy www.hoovada.com
 
-- Testing: replicate production environment as much as possible, we also expose OpenAPI on testing environment for frontend to integrate APIs.
+- Staging: replicate production environment as much as possible
 
-- Development: local environment where developers do their coding
+- Testing: run on 165.22.97.24, we expose OpenAPI on testing environment for frontend to integrate APIs.
+
+- Development: developers' local desktop
 
 
 ### Development environment setup
@@ -127,25 +93,23 @@ $ pip3 install -r <path to project>/requirements.txt
 $ git clone https://gitlab.com/hoovada/hoovada-services.git
 $ git checkout -b dev origin/dev
 $ git checkout <your branch name>
+
 // do your development 
 $ git add --all 
 $ git commit -s -am "your message"
+
+// You might also need to rebase from upstream remote branch before pushing
+$ git rebase upstream/dev
+
+// To push your branch
 $ git push -u origin <your branch name>
 ```
-
-### Config
-
-- Configuration file is located at app/settings/config.py, we use environmental variables to add variable for production deployment. 
-
-- You can use the default values in config.py for your development/testing.
-
 
 ### Run project on development environment
 
 ```bash
-$ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p 5001
+$ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
 ```
-
 
 ### Test on testing environment
 
@@ -159,9 +123,10 @@ $ sudo systemctl stop hoovada
 $ git checkout -b <your branch name> origin/<your branch name>
 $ git fetch && git pull
 $ sudo systemctl start hoovada
+
 // you can see the stderr and stdout with
 $ sudo journalctl -u hoovada -f
-// Now you should see swagger of your branch at 165.22.97.24:5001
+// Now you should see swagger of your branch at 165.22.97.24:<port>
 
 // After finish testing your branch, you should revert back to dev branch
 $ cd /home/dev/hoovada-services
