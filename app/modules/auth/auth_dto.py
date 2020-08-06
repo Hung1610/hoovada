@@ -60,6 +60,10 @@ class AuthDto(Dto):
         'access_token': fields.String(required=True),
     })
 
+    model_reset_password_email = api.model('reset_password_email', {
+        'email': fields.String(required=True),
+    })
+
     message_response = api.model('response', {
         'message': fields.String(required=True)
     })

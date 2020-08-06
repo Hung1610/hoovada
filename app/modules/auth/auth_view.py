@@ -28,9 +28,10 @@ _auth_sms_login_with_password = AuthDto.model_sms_login_with_password
 _auth_model_sms_login_with_code = AuthDto.model_sms_login_with_code
 _auth_model_sms_login_with_code_confirm = AuthDto.model_sms_login_with_code_confirm
 _auth_social_login = AuthDto.model_social_login
+_auth_reset_password_email = AuthDto.model_reset_password_email
 
 @api.route('/sms/register')
-class Register(Resource):
+class SmsRegister(Resource):
     '''
     Register new user with sms
     '''
@@ -52,7 +53,7 @@ class Register(Resource):
         return controller.sms_register(post_data)
 
 @api.route('/sms/confirm')
-class Register(Resource):
+class SmsConfirm(Resource):
     '''
     Confirm new user registered with sms
     '''
@@ -74,7 +75,7 @@ class Register(Resource):
 
 
 @api.route('/sms/resend_confirm')
-class Register(Resource):
+class SmsResendConfirm(Resource):
     '''
     Resend Confirm code to user registered with sms
     '''
@@ -96,7 +97,7 @@ class Register(Resource):
 
 
 @api.route('/sms/login_password')
-class Register(Resource):
+class SmsLoginPassword(Resource):
     '''
     API sms login
     '''
@@ -119,7 +120,7 @@ class Register(Resource):
 
 
 @api.route('/sms/login_code')
-class Register(Resource):
+class SmsLoginCode(Resource):
     '''
     API sms login
     '''
@@ -140,7 +141,7 @@ class Register(Resource):
 
 
 @api.route('/sms/login_code/confirm')
-class Register(Resource):
+class SmsLoginCodeConfirm(Resource):
     '''
     API sms login
     '''
@@ -222,6 +223,41 @@ class ConfirmationEmail(Resource):
         return controller.confirm_email(token=token)
 
 
+@api.route('/password-reset-email/')
+class PasswordResetEmail(Resource):
+    @api.expect(_auth_reset_password_email)
+    def post(self):
+        ''' 
+        Request password reset by email.
+        '''
+        post_data = request.json
+        controller = AuthController()
+        return controller.reset_password_by_email(data=post_data)
+
+
+@api.route('/password-reset-email-confirm/<token>')
+class PasswordResetEmailConfirm(Resource):
+    @api.expect(_auth_reset_password_email)
+    def post(self, token):
+        ''' 
+        Confirm password reset by email.
+        '''
+        controller = AuthController()
+        return controller.reset_password_by_email_confirm(token=token)
+
+        
+@api.route('/change-password-token/')
+class ChangePasswordByToken(Resource):
+    @api.expect(_auth_reset_password_email)
+    def post(self):
+        ''' 
+        Change password by token received through email.
+        '''
+        post_data = request.json
+        controller = AuthController()
+        return controller.change_passwork_by_email_token(data=post_data)
+
+
 @api.route('/login')
 class Login(Resource):
     '''
@@ -246,7 +282,7 @@ class Login(Resource):
 
 
 @api.route('/social_login/facebook')
-class Login(Resource):
+class FacebookLogin(Resource):
     '''
     API login
     '''
@@ -268,7 +304,7 @@ class Login(Resource):
 
 
 @api.route('/social_login/google')
-class Login(Resource):
+class GoogleLogin(Resource):
     '''
     API login
     '''
