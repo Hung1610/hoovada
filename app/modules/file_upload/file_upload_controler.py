@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask import request
 from flask_restx import marshal
 
+# own modules
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.file_upload.file_upload_dto import FileUploadDto
@@ -9,6 +14,10 @@ from app.utils.response import send_error, send_result
 from app.utils.util import encode_file_name
 from app.utils.wasabi import upload_file
 
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FileUploadController(Controller):
 
