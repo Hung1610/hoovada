@@ -5,9 +5,9 @@ APIs services of the project hoovada.com
 Project Overview
 ---
 
-- We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point
+- We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point.
 
-- The app/requirements.txt is where you should put your new third-party libraries
+- The app/requirements.txt is where you should put your new third-party libraries.
 
 - Conf file is at app/settings/config.py, we use environment variables to manage conf in production. You can use the default values in config.py for your development.
 
@@ -50,8 +50,6 @@ Development instruction
 
 - Staging: replicate production environment as much as possible
 
-- Testing: run on 165.22.97.24, we expose OpenAPI on testing environment for frontend to integrate APIs.
-
 - Development: developers' local desktop
 
 
@@ -92,7 +90,7 @@ $ pip3 install -r <path to project>/requirements.txt
 ```bash
 $ git clone https://gitlab.com/hoovada/hoovada-services.git
 $ git checkout -b dev origin/dev
-$ git checkout <your branch name>
+$ git checkout -b <your branch name>
 
 // do your development 
 $ git add --all 
@@ -105,33 +103,13 @@ $ git rebase upstream/dev
 $ git push -u origin <your branch name>
 ```
 
+- Then you can create merge-request with the source branch being your branch and the target branch is dev branch
+
+
 ### Run project on development environment
 
 ```bash
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
-```
-
-### Test on testing environment
-
-- You can log in to testing environment at 165.22.97.24, and run your own branch
-
-```bash
-$ cd /home/dev/hoovada-services
-
-// If the code is running in dev branch, you should stop it first
-$ sudo systemctl stop hoovada
-$ git checkout -b <your branch name> origin/<your branch name>
-$ git fetch && git pull
-$ sudo systemctl start hoovada
-
-// you can see the stderr and stdout with
-$ sudo journalctl -u hoovada -f
-// Now you should see swagger of your branch at 165.22.97.24:<port>
-
-// After finish testing your branch, you should revert back to dev branch
-$ cd /home/dev/hoovada-services
-$ git checkout dev
-$ sudo systemctl restart hoovada
 ```
 
 ### Pylint
@@ -143,9 +121,23 @@ $ pip3 install pylint
 $ pylint <your files>
 ```
 
+### Testing with docker image
+
+- Please make sure that your branch can be built into docker image
+
+```bash
+$ sudo docker build -t <name of image> .
+$ sudo docker image ls
+$ sudo docker run -p 80:5000 --name test <name of image>
+```
+
+- Browser to http://localhost:80 and/or http://localhost:80/docs to see your APIs
+
+
 Versioning
 ---
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://gitlab.com/hoovada/hoovada-services/-/tags). 
+
 
 License
 ---

@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 import os
 
 __author__ = "hoovada.com team"
@@ -90,6 +94,7 @@ class DevelopmentConfig(BaseConfig):
          port=BaseConfig.DB_PORT,
          name=BaseConfig.DB_NAME
      )
+
 
 class TestingConfig(BaseConfig):
     """Test configuration."""
