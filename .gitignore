@@ -905,3 +905,5 @@ fabric.properties
 .vscode
 .vscode/
 .vscode/*.*
+
+venv/

@@ -52,7 +52,7 @@ def encode_file_name(filename):
     return encoded
 
 
-def generate_conformation_token(email):
+def generate_confirmation_token(email):
     """ Confirmation email token
 
     Args:
@@ -111,8 +111,8 @@ def send_confirmation_email(to):
     Return:
     """
     
-    token = generate_conformation_token(email=to)
-    confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
+    token = generate_confirmation_token(email=to)
+    confirm_url = url_for('auth.confirmation', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
     send_email(to, 'Xác nhận đăng ký', html)
 
@@ -126,8 +126,8 @@ def send_password_reset_email(to):
     Return:
     """
     
-    token = generate_conformation_token(email=to)
-    confirm_url = url_for('auth_reset_password_by_email_confirmation', token=token, _external=True)
+    token = generate_confirmation_token(email=to)
+    confirm_url = url_for('auth.password-reset-email-confirm', token=token, _external=True)
     html = render_template('password_reset.html', confirm_url=confirm_url)
     send_email(to, 'Yêu cầu thay đổi mật khẩu', html)
 

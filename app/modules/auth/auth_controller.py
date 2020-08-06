@@ -23,7 +23,7 @@ from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
-    get_response_message, check_verification, check_password, is_valid_email
+    get_response_message, check_verification, check_password, is_valid_email, generate_conformation_token
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -104,7 +104,7 @@ def save_social_account(provider, extra_data):
             db.session.commit()
             auth_token = encode_auth_token(user_id=user.id)
             if auth_token:
-                return {'access_token': auth_token.decode('utf8')}
+                return send_result(data={'access_token': auth_token.decode('utf8')})
             return send_error(message="Đăng nhập thất bại, vui lòng thử lại!")
         
         except Exception as e:
@@ -186,7 +186,6 @@ class AuthController:
             count += 1
         return user_name + '_' + str(count)
 
-
     def login_with_google(self, data):
 
         if not isinstance(data, dict):
@@ -201,7 +200,6 @@ class AuthController:
         resp.raise_for_status()
         extra_data = resp.json()
         return save_social_account('google', extra_data)
-
 
     def login_with_facebook(self, data):
         if not isinstance(data, dict):
@@ -476,8 +474,9 @@ class AuthController:
                 db.session.rollback()
                 return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')  # Could not send a confirmation email to your mailbox.')
 
-
     def reset_password_by_sms(self, data):
+        """Reset password request by SMS OTP
+        """        
         if not isinstance(data, dict):
             return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.')
         
@@ -499,6 +498,31 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Không thể gửi thư reset password vào email của bạn. Vui lòng thử lại!')
 
+    def reset_password_by_sms_confirm(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng hoặc thiếu, vui lòng kiểm tra lại')
+        
+        if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp số điện thoại!")
+        
+        if not 'code' in data or str(data['code']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp mã xác nhận!")
+        
+        phone_number = data['phone_number']
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+        code = data['code']
+        user = User.query.filter_by(phone_number=phone_number).first()
+        
+        if user:
+            if check_verification(phone_number, code):
+                message = "Xác thực thành công. Hãy nhập mật khẩu mới."
+                return send_result(data={'reset_token':generate_confirmation_token(phone_number)},message=message)
+            return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
+        else:
+            return send_error(message='Số điện thoại {} chưa đăng kí, vui lòng kiểm tra lại!'.format(phone_number))
 
     def reset_password_by_email(self, data):
         """Reset password request. Send password reset confirmation link to email.
@@ -520,7 +544,6 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Không thể gửi thư reset password vào email của bạn. Vui lòng thử lại!')
         
-
     def reset_password_by_email_confirm(self, token):
         """Reset password confirmation after link on email is clicked
 
@@ -534,38 +557,49 @@ class AuthController:
         user = User.query.filter_by(email=email).first()
         if user:
             message = "Xác thực thành công. Hãy nhập mật khẩu mới."
-            return send_result(message=message)
+            return send_result(data={'reset_token':token},message=message)
         else:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_error(message=message)  # 'Invalid confirmation token.'
 
-    
-    def change_passwork_by_email_token(self, data):
+    def change_passwork_by_token(self, data):
         """Change password using token received in email
         """        
         if not isinstance(data, dict):
             return send_error(
-                message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.')
+                message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.
 
         if not 'token' in data or str(data['token']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp token!')  # Pleases provide a valid token.')
+            return send_error(message='Vui lòng cung cấp token!')  # Pleases provide a valid token.
+
+        if not 'token_type' in data or str(data['token_type']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp token type!')  # Pleases provide a token type. (email/phone)
         
-        if not 'old_password' in data or str(data['old_password']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp mật khẩu cũ!')  # Pleases provide the old password.')
+        if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp mật khẩu xác nhận!')  # Pleases provide the old password.
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide a password.')
-        
-        if len(check_password(data['password'])) > 0:
-            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt')
+            return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide a password.
 
-        token = data['token']
-        old_password = data['old_password']
+        token = data['reset_token']
+        password_confirm = data['password_confirm']
         password = data['password']
+        token_type = data['token_type']
+        
+        if password != password_confirm:
+            return send_error(message='Mật khẩu xác nhận không đúng. Vui lòng nhập lại!')
+            
+        if len(check_password(password)) > 0:
+            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt!')
 
-        email = confirm_token(token)
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(old_password):
+        if token_type == 'email':
+            email = confirm_token(token)
+            user = User.query.filter_by(email=email).first()
+        else:
+            phone_number = confirm_token(token)
+            user = User.query.filter_by(phone_number=phone_number).first()
+
+        if user :
             user.set_password(password=password)
             try:
                 db.session.commit()
@@ -578,7 +612,6 @@ class AuthController:
         else:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_error(message=message)  # 'Invalid confirmation token.'
-
 
     # @staticmethod
     def resend_confirmation(self, data):
@@ -650,7 +683,6 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Không thễ đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
 
-
     # @staticmethod
     def logout_user(self, req):
         '''
@@ -683,7 +715,6 @@ class AuthController:
             # return redirect('') # to logout page
         else:
             return send_error(message='Provide a valid auth token')
-
 
     def get_user_info(self, req):
         '''

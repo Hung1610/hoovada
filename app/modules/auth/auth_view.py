@@ -29,6 +29,8 @@ _auth_model_sms_login_with_code = AuthDto.model_sms_login_with_code
 _auth_model_sms_login_with_code_confirm = AuthDto.model_sms_login_with_code_confirm
 _auth_social_login = AuthDto.model_social_login
 _auth_reset_password_email = AuthDto.model_reset_password_email
+_auth_reset_password_phone = AuthDto.model_reset_password_phone
+_auth_change_password_token = AuthDto.model_change_password_token
 
 @api.route('/sms/register')
 class SmsRegister(Resource):
@@ -229,6 +231,12 @@ class PasswordResetEmail(Resource):
     def post(self):
         ''' 
         Request password reset by email.
+        
+        Args:
+            email (string): The adddress to send reset password email.
+
+        Return:
+            None
         '''
         post_data = request.json
         controller = AuthController()
@@ -237,25 +245,74 @@ class PasswordResetEmail(Resource):
 
 @api.route('/password-reset-email-confirm/<token>')
 class PasswordResetEmailConfirm(Resource):
-    @api.expect(_auth_reset_password_email)
     def post(self, token):
         ''' 
         Confirm password reset by email.
+        
+        Args:
+            token (string): The token to confirm.
+
+        Return:
+            reset_token (string): The token to use for setting new password.
         '''
         controller = AuthController()
         return controller.reset_password_by_email_confirm(token=token)
 
-        
-@api.route('/change-password-token/')
-class ChangePasswordByToken(Resource):
-    @api.expect(_auth_reset_password_email)
+
+@api.route('/password-reset-phone/')
+class PasswordResetPhone(Resource):
+    @api.expect(_auth_reset_password_phone)
     def post(self):
         ''' 
-        Change password by token received through email.
+        Request password reset by phone number.
+        
+        Args:
+            phone_number (string): The phone_number to send reset password OTP.
+
+        Return:
+            None
         '''
         post_data = request.json
         controller = AuthController()
-        return controller.change_passwork_by_email_token(data=post_data)
+        return controller.reset_password_by_sms(data=post_data)
+
+
+@api.route('/password-reset-phone-confirm/<token>')
+class PasswordResetPhoneConfirm(Resource):
+    def post(self, token):
+        ''' 
+        Confirm password reset by phone number.
+        
+        Args:
+            token (string): The token to confirm.
+
+        Return:
+            reset_token (string): The token to use for setting new password.
+        '''
+        post_data = request.json
+        controller = AuthController()
+        return controller.reset_password_by_sms_confirm(data=post_data)
+
+        
+@api.route('/change-password-token/')
+class ChangePasswordByToken(Resource):
+    @api.expect(_auth_change_password_token)
+    def post(self):
+        ''' 
+        Change password using password reset token.
+        
+        Args:
+            reset_token (string): The token to confirm.
+            token_type (string): The type of token to confirm ('email'/'phone').
+            password (string): The new password.
+            password_confirm (string): Confirm the new password.
+
+        Return:
+            None.
+        '''
+        post_data = request.json
+        controller = AuthController()
+        return controller.change_passwork_by_token(data=post_data)
 
 
 @api.route('/login')
