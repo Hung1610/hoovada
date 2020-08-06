@@ -16,11 +16,11 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-ns_hello = Namespace(name='health')
+ns_health = Namespace(name='health')
 api = init_api()
 
 
-@ns_hello.route('/health')
+@ns_health.route('/')
 class HealthCheck(Resource):
     def get(self):
         """ Use for Readiness and Liveness Probes
@@ -46,7 +46,7 @@ def create_app(config):
 
     app = init_app(config_name=config)
     api.init_app(app)
-    api.add_namespace(ns_hello)
+    api.add_namespace(ns_health)
     api.app.config['RESTFUL_JSON'] = {
         'ensure_ascii': False
     }
