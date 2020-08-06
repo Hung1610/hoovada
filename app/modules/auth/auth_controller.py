@@ -78,7 +78,7 @@ def save_social_account(provider, extra_data):
         if (user is not None):
             auth_token = encode_auth_token(user_id=user.id)
             if auth_token:
-                return {'access_token': auth_token.decode('utf8')}
+                return send_result(data={'access_token': auth_token.decode('utf8')})
         return send_error(message="Đăng nhập thất bại, vui lòng thử lại!")
     else:
         email = extra_data.get('email', '')
@@ -273,7 +273,7 @@ class AuthController:
             try:
                 db.session.add(user)
                 db.session.commit()
-                return send_result( message='Chúng tôi đã gửi mã kích hoạt đến số điện thoại {}. Vui lòng kiểm tra tin nhắn.'. format(phone_number))
+                return send_result(message='Chúng tôi đã gửi mã kích hoạt đến số điện thoại {}. Vui lòng kiểm tra tin nhắn.'. format(phone_number))
             
             except Exception as e:
                 print(e.__str__())
@@ -357,7 +357,7 @@ class AuthController:
                 # if user.blocked:
                 #     return None  # error(message='User has been blocked')
                 if auth_token:
-                    return {'access_token': auth_token.decode('utf8')}
+                    return send_result(data={'access_token': auth_token.decode('utf8')})
                     # return send_result(message=auth_token)  # user
             else:
                 return send_error(message='Số điện thoại hoặc mật khẩu không đúng, vui lòng thử lại')  # Email or Password does not match')
@@ -477,6 +477,29 @@ class AuthController:
                 return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')  # Could not send a confirmation email to your mailbox.')
 
 
+    def reset_password_by_sms(self, data):
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.')
+        
+        if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
+            # Please provide an phone_number")
+            return send_error(message="Vui lòng cung cấp số điện thoại!")
+
+        phone_number = data['phone_number']
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+        
+        if not check_phone_number_exist(phone_number):
+            return send_error(message='Người dùng chưa tồn tại, vui lòng đăng ký!')
+
+        try:
+            code = send_verification_sms(phone_number)
+            return send_result(message='Đã gửi OTP đến số điện thoại đăng ký.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Không thể gửi thư reset password vào email của bạn. Vui lòng thử lại!')
+
+
     def reset_password_by_email(self, data):
         """Reset password request. Send password reset confirmation link to email.
         """        
@@ -490,9 +513,9 @@ class AuthController:
         email = data['email']
         if not check_user_exist(email):
             return send_error(message='Người dùng chưa đăng ký!')
-
         try:
             send_password_reset_email(to=email)
+            return send_result(message='Đã gửi email reset password đến địa chỉ email đăng ký.')
         except Exception as e:
             print(e.__str__())
             return send_error(message='Không thể gửi thư reset password vào email của bạn. Vui lòng thử lại!')
@@ -511,7 +534,7 @@ class AuthController:
         user = User.query.filter_by(email=email).first()
         if user:
             message = "Xác thực thành công. Hãy nhập mật khẩu mới."
-            return message
+            return send_result(message=message)
         else:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_error(message=message)  # 'Invalid confirmation token.'
@@ -551,6 +574,7 @@ class AuthController:
                 db.session.rollback()
                 message = 'Cập nhật mật khẩu thất bại.'
                 return send_error(message=message)  # 'Failed password update.'
+            return send_result(message='Cập nhật mật khẩu thành công.')
         else:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_error(message=message)  # 'Invalid confirmation token.'
@@ -583,7 +607,7 @@ class AuthController:
             if user.confirmed:
                 # response = {'message': 'Tài khoản email đã được kích hoạt trước đó, vui lòng đăng nhập.'}
                 message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
-                return message  # send_result(data=marshal(response, AuthDto.message_response))
+                return send_result(message=message)  # send_result(data=marshal(response, AuthDto.message_response))
             user.confirmed = True
             # user.active = True
             # user.email_confirmed = True
@@ -591,18 +615,17 @@ class AuthController:
             db.session.commit()
             # response = {'message': "Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập."}
             message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
-            return message  # send_result(data=marshal(response, AuthDto.message_response))  # 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
+            return send_result(message=message)  # send_result(data=marshal(response, AuthDto.message_response))  # 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
         else:
             # message = 'Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a href="http://hoovada.com">hoovada.com</a> để yêu cầu mã xác thực mới.'
             message = 'Ma kich hoat của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             # return_message = get_response_message(message=message)
-            return message  # 'Invalid confirmation token.'
+            return send_result(message=message)  # 'Invalid confirmation token.'
 
     # @staticmethod
     def login_user(self, data):
         """ Login user handling.
         """
-
         try:
             # print(data)
             user = User.query.filter_by(email=data['email']).first()
@@ -617,7 +640,7 @@ class AuthController:
                 # if user.blocked:
                 #     return None  # error(message='User has been blocked')
                 if auth_token:
-                    return {'access_token': auth_token.decode('utf8')}
+                    return send_result(data={'access_token': auth_token.decode('utf8')})
                     # return send_result(message=auth_token)  # user
             
             else:
