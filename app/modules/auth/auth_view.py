@@ -31,6 +31,7 @@ _auth_social_login = AuthDto.model_social_login
 _auth_reset_password_email = AuthDto.model_reset_password_email
 _auth_reset_password_phone = AuthDto.model_reset_password_phone
 _auth_change_password_token = AuthDto.model_change_password_token
+_auth_change_password = AuthDto.model_change_password
 
 @api.route('/sms/register')
 class SmsRegister(Resource):
@@ -210,7 +211,6 @@ class ResendConfirmation(Resource):
 
 @api.route('/confirmation/<token>')
 class ConfirmationEmail(Resource):
-
     def get(self, token):
         ''' Check confirmation token.
         
@@ -225,7 +225,7 @@ class ConfirmationEmail(Resource):
         return controller.confirm_email(token=token)
 
 
-@api.route('/password-reset-email/')
+@api.route('/password-reset-email', endpoint='password-reset-email')
 class PasswordResetEmail(Resource):
     @api.expect(_auth_reset_password_email)
     def post(self):
@@ -243,7 +243,7 @@ class PasswordResetEmail(Resource):
         return controller.reset_password_by_email(data=post_data)
 
 
-@api.route('/password-reset-email-confirm/<token>')
+@api.route('/password-reset-email-confirm/<token>', endpoint='password-reset-email')
 class PasswordResetEmailConfirm(Resource):
     def post(self, token):
         ''' 
@@ -259,7 +259,7 @@ class PasswordResetEmailConfirm(Resource):
         return controller.reset_password_by_email_confirm(token=token)
 
 
-@api.route('/password-reset-phone/')
+@api.route('/password-reset-phone')
 class PasswordResetPhone(Resource):
     @api.expect(_auth_reset_password_phone)
     def post(self):
@@ -294,7 +294,7 @@ class PasswordResetPhoneConfirm(Resource):
         return controller.reset_password_by_sms_confirm(data=post_data)
 
         
-@api.route('/change-password-token/')
+@api.route('/change-password-token')
 class ChangePasswordByToken(Resource):
     @api.expect(_auth_change_password_token)
     def post(self):
@@ -313,6 +313,26 @@ class ChangePasswordByToken(Resource):
         post_data = request.json
         controller = AuthController()
         return controller.change_passwork_by_token(data=post_data)
+
+
+@api.route('/change-password')
+class ChangePassword(Resource):
+    @api.expect(_auth_change_password)
+    def post(self):
+        ''' 
+        Change password using password reset token.
+        
+        Args:
+            old_password (string): User's current password.
+            password (string): The new password.
+            password_confirm (string): Confirm the new password.
+
+        Return:
+            None.
+        '''
+        post_data = request.json
+        controller = AuthController()
+        return controller.change_passwork(data=post_data)
 
 
 @api.route('/login')

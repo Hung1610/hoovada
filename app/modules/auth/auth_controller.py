@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 # third-party modules
 import chardet
-from flask import make_response
+from flask import make_response, request
 from flask_restx import marshal
 
 # own modules
@@ -560,6 +560,47 @@ class AuthController:
             return send_result(data={'reset_token':token},message=message)
         else:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
+            return send_error(message=message)  # 'Invalid confirmation token.'
+
+    def change_passwork(self, data):
+        """Change password for current user
+        """        
+        if not isinstance(data, dict):
+            return send_error(
+                message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.
+        
+        if not 'password' in data or str(data['password']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide a password.
+        
+        if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp mật khẩu xác nhận!')  # Pleases provide password confirmation.
+        
+        if not 'old_password' in data or str(data['password']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide the old password.
+
+        password_confirm = data['password_confirm']
+        password = data['password']
+        old_password = data['old_password']
+        
+        if password != password_confirm:
+            return send_error(message='Mật khẩu xác nhận không đúng. Vui lòng nhập lại!')
+            
+        if len(check_password(password)) > 0:
+            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt!')
+
+        user, _ = get_logged_user(request)
+        if user and user.check_password(old_password):
+            user.set_password(password=password)
+            try:
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                db.session.rollback()
+                message = 'Cập nhật mật khẩu thất bại.'
+                return send_error(message=message)  # 'Failed password update.'
+            return send_result(message='Cập nhật mật khẩu thành công.')
+        else:
+            message = 'Mật khẩu cũ không đúng!'
             return send_error(message=message)  # 'Invalid confirmation token.'
 
     def change_passwork_by_token(self, data):
