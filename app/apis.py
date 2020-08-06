@@ -25,11 +25,11 @@ authorizations = {
 
 def init_api():
     api = Api(title='Hoovada APIs',
-              version='0.1',
+              version='1.0',
               description='The Hoovada APIs',
               authorizations=authorizations,
-              security='apikey'
-              )
+              security='apikey',
+              doc='/doc/')
     api.add_namespace(ns_auth, '/api/v1/auth')
     api.add_namespace(ns_user, '/api/v1/user')
     api.add_namespace(ns_topic, '/api/v1/topic')

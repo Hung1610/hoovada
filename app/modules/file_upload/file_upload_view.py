@@ -1,9 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
 from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
 
+# own modules
 from app.modules.auth.decorator import token_required
 from app.modules.file_upload.file_upload_controler import FileUploadController
 from app.modules.file_upload.file_upload_dto import FileUploadDto
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = FileUploadDto.api
 
