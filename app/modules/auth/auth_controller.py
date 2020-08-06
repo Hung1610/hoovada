@@ -473,6 +473,7 @@ class AuthController:
             
             except Exception as e:
                 print(e.__str__())
+                db.session.rollback()
                 return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')  # Could not send a confirmation email to your mailbox.')
 
 
