@@ -135,7 +135,7 @@ class SmsLoginCode(Resource):
         Args:
             phone_number (string): The phone_number to register.
 
-        Return: 
+        Returns: 
             None
         '''
         post_data = request.json
@@ -157,7 +157,7 @@ class SmsLoginCodeConfirm(Resource):
             phone_number (string): The phone_number to register.
             code (string): The code get from sms.
 
-        Return:
+        Returns:
             None
         '''
 
@@ -217,7 +217,7 @@ class ConfirmationEmail(Resource):
         Args:
             token (string): The token to confirm.
 
-        Return:
+        Returns:
             None
         '''
 
@@ -416,7 +416,7 @@ class Logout(Resource):
         Args:
             None
 
-        Return
+        Returns:
             None
         """
 

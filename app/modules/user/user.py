@@ -120,9 +120,6 @@ class User(Model):
 
     reputation = db.Column(db.Integer, default=0)
     profile_views = db.Column(db.Integer, default=0)
-    city = db.Column(db.String)  # (100), default='')
-    country = db.Column(db.String)  # (100), default='')
-    website_url = db.Column(db.String)  # (200), default='')
 
     # about_me = db.Column(db.String(3000))
     about_me = db.Column(db.Text, default='')
@@ -130,8 +127,6 @@ class User(Model):
     about_me_html = db.Column(db.Text, default='')
 
     people_reached = db.Column(db.Integer, default=0)
-    job_role = db.Column(db.String)  # (255), default='')
-    company = db.Column(db.String)  # (255), default='')
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)

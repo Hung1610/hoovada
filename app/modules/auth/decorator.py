@@ -18,8 +18,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def token_required(f):
-    """
-    Check token for further actions.
+    """ Check token for further actions.
     """
 
     @wraps(f)
@@ -33,11 +32,7 @@ def token_required(f):
 
 
 def admin_token_required(f):
-    '''
-    Check admin rights for further actions.
-
-    :param f:
-    :return:
+    ''' Check admin rights for further actions.
     '''
     @wraps(f)
     def decorated(*args, **kwargs):

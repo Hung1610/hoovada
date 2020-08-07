@@ -126,12 +126,12 @@ $ pylint <your files>
 - Please make sure that your branch can be built into docker image
 
 ```bash
-$ sudo docker build -t <name of image> .
-$ sudo docker image ls
-$ sudo docker run -p 80:5000 --name test <name of image>
+$ docker build -t <name of image> .
+$ docker image ls
+$ docker run -p 80:5000 --env-file=<env file> <name of image> 
 ```
 
-- Browser to http://localhost:80 and/or http://localhost:80/docs to see your APIs
+- Browser to http://localhost:80 and/or http://localhost:80/api/v1/doc to see your APIs
 
 
 Versioning

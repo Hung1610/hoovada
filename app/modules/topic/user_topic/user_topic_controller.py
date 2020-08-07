@@ -52,7 +52,15 @@ class UserTopicController(Controller):
         if is_filter:
             question_topics = query.all()
             if question_topics is not None and len(question_topics) > 0:
-                return send_result(data=marshal(question_topics, UserTopicDto.model), message='Success')
+                results = list()
+                for question_topic in question_topics:
+                    # get topics infor
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                    result['topics'] = topics
+                    results.append(result)
+                return send_result(marshal(results, UserTopicDto.model_response), message='Success')
             else:
                 return send_result(message='Not found.', code=201)
         else:

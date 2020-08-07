@@ -123,7 +123,7 @@ class QuestionController(Controller):
             query = query.filter(QuestionTopicView.created_date <= to_date)
             is_filter = True
         if topic_id is not None:
-            query = query.filter(QuestionTopicView.topic_id == topic_id)
+            query = query.filter(QuestionTopicView.topic_id == topic_id,QuestionTopicView.fixed_topic_id != 1)
             is_filter = True
         if is_filter:
             questions = query.all()
@@ -238,7 +238,7 @@ class QuestionController(Controller):
 
     def get(self):
         try:
-            questions = Question.query.order_by(desc(Question.created_date)).limit(50).all()
+            questions = Question.query.order_by(desc(Question.upvote_count),desc(Question.created_date)).limit(50).all()
             # for question in questions:
             #     # # chay cau lenh de cap nhat la fixed_topic_name
             #     # fixed_topic_id = question.fixed_topic_id
@@ -287,6 +287,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not load questions. Contact your administrator for solution.")
 
+
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")
@@ -315,14 +316,18 @@ class QuestionController(Controller):
                 result['down_vote'] = vote.down_vote
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
+
     def update(self, object_id, data):
+        ''' Thuc hien update nhu sau:
+            Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
+        
+        Args:
+            object_id:
+            data:
+        
+        Returns:
         '''
-        Thuc hien update nhu sau:
-        Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
-        :param object_id:
-        :param data:
-        :return:
-        '''
+
         if object_id is None:
             return send_error(message="Question ID is null")
         if not isinstance(data, dict):
@@ -483,3 +488,39 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
         return question, topic_ids
+
+
+    def get_by_topic_id(self,topic_id):
+        ''' Get all question of a topic that sorted based in upvote count
+
+            Args:
+
+            Returns:
+        '''
+
+        if topic_id is None:
+            return send_error("Topic ID Không được để trống")
+
+        questions = db.session.query(QuestionTopicView).filter(QuestionTopicView.topic_id == topic_id).order_by(desc(QuestionTopicView.upvote_count)).all()
+
+        if questions is not None and len(questions) > 0:
+            results = list()
+            for question in questions:
+                # kiem tra den topic
+                result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+                # get all topics that question belongs to
+                question_id = question.id
+                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                topics = list()
+                for question_topic in question_topics:
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                result['topics'] = topics
+                results.append(result)
+            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+        else:
+            return send_result(message='Không tìm thấy câu hỏi.')

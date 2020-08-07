@@ -136,3 +136,20 @@ class QuesstionSearch(Resource):
         args = parser.parse_args()
         controller = QuestionController()
         return controller.search(args=args)
+
+
+@api.route('/get_by_topic/<int:topic_id>')
+class GetQuestionByTopic(Resource):
+    # @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    #13/07/2020 thongnv - add param `topic_id`
+    def get(self,topic_id):
+        """
+        Get  all question of a topic that sorted based in upvote count.
+        ---------------------
+        :param `topic_id`: Search all questions by topic ID.
+
+        :return: Get all question of a topic that sorted based in upvote count.
+        """
+        controller = QuestionController()
+        return controller.get_by_topic_id(topic_id)
