@@ -35,11 +35,12 @@ class MyApi(Api):
 
 def init_api():
     api = MyApi(title='Hoovada APIs',
-              version='1.0',
-              description='The Hoovada APIs',
-              authorizations=authorizations,
-              security='apikey',
-              doc='/api/v1/doc') #doc=False
+                swagger='2.0',
+                version='1.0',
+                description='The Hoovada APIs',
+                authorizations=authorizations,
+                security='apikey',
+                doc='/api/v1/doc') #doc=False
 
     api.add_namespace(ns_auth, '/api/v1/auth')
     api.add_namespace(ns_user, '/api/v1/user')
