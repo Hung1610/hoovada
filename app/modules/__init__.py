@@ -13,6 +13,7 @@ from app.modules.user.user_view import api
 from app.modules.user.user_employment import api as ns_user_employment
 from app.modules.user.reputation import api as ns_reputation
 
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"

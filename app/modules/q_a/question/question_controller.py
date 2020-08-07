@@ -287,6 +287,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not load questions. Contact your administrator for solution.")
 
+
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")
@@ -315,14 +316,18 @@ class QuestionController(Controller):
                 result['down_vote'] = vote.down_vote
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
+
     def update(self, object_id, data):
+        ''' Thuc hien update nhu sau:
+            Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
+        
+        Args:
+            object_id:
+            data:
+        
+        Returns:
         '''
-        Thuc hien update nhu sau:
-        Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
-        :param object_id:
-        :param data:
-        :return:
-        '''
+
         if object_id is None:
             return send_error(message="Question ID is null")
         if not isinstance(data, dict):
@@ -486,12 +491,12 @@ class QuestionController(Controller):
 
 
     def get_by_topic_id(self,topic_id):
-    ''' Get all question of a topic that sorted based in upvote count
+        ''' Get all question of a topic that sorted based in upvote count
 
-        Args:
+            Args:
 
-        Returns:
-    '''
+            Returns:
+        '''
 
         if topic_id is None:
             return send_error("Topic ID Không được để trống")

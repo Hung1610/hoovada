@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
+from datetime import datetime
+
 # third-party module
 from flask_restx import fields, Namespace
 
@@ -88,7 +91,7 @@ class ShareDto(Dto):
         'vkontakte': fields.Boolean(description=''),
         'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
-        'link_copied': fields.Boolean(description='')
+        'link_copied': fields.Boolean(description=''),
         'question': fields.Nested(model_question, description='The user information'),
         'answer': fields.Nested(model_answer, description='The user information')
     })
