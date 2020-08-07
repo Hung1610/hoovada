@@ -38,6 +38,7 @@ def send_result(data=None, message='OK', code=200, status=True):
 
 def send_error(data=None, message='Failed', code=400, status=False):
     """ Send result if error
+    
     Args:
         data: The search_data to respond
         message (string): The message to respond

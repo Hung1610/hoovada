@@ -7,8 +7,6 @@ import boto3
 # own modules
 from app.settings.config import BaseConfig as Config
 
-
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"

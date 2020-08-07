@@ -261,12 +261,6 @@ class UserController(Controller):
             # except Exception as e:
             #     print(e.__str__())
             #     pass
-        if 'city' in data:
-            user.city = data['city']
-        if 'country' in data:
-            user.country = data['country']
-        if 'website_url' in data:
-            user.website_url = data['website_url']
 
         if 'about_me' in data:
             user.about_me = data['about_me']
@@ -281,10 +275,6 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'job_role' in data:
-            user.job_role = data['job_role']
-        if 'company' in data:
-            user.company = data['company']
 
         if 'show_email_publicly_setting' in data:
             try:

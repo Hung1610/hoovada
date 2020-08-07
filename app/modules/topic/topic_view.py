@@ -6,8 +6,8 @@ from flask_restx import Resource, reqparse
 
 # own modules
 # from app.modules.common.decorator import token_required
-from .topic_dto import TopicDto
-from .topic_controller import TopicController
+from app.modules.topic.topic_dto import TopicDto
+from app.modules.topic.topic_controller import TopicController
 from app.modules.auth.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -23,7 +23,7 @@ topic_response = TopicDto.model_topic_response
 
 @api.route('')
 class TopicList(Resource):
-    @admin_token_required
+    # @admin_token_required
     # @api.marshal_list_with(topic_response)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
@@ -116,15 +116,16 @@ class SubTopic(Resource):
         return controller.get_sub_topics(fixed_topic_id=topic_id)
 
 
-# @api.route('/create_topics')
-# class CreateFixedTopic(Resource):
-#     def get(self):
-#         '''
-#         Create fixed topics
-#         :return:
-#         '''
-#         controller = TopicController()
-#         return controller.create_topics()
+@api.route('/create_topics')
+class CreateFixedTopic(Resource):
+    def get(self):
+        '''
+        Create fixed topics
+        :return:
+        '''
+        controller = TopicController()
+        return controller.create_topics()
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=False, help='The name of the topic')
@@ -136,7 +137,7 @@ parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed to
 @api.route('/search')
 @api.expect(parser)
 class TopicSearch(Resource):
-    @token_required
+    #@token_required
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self):
         """
