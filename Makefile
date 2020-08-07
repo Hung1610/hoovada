@@ -1,6 +1,6 @@
 DOCKER_USER     := 
 DOCKER_PASS     := 
-REGISTRY   		:= tranlyvu/hoovada.com
+REGISTRY   		:= hoovada.com
 
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
@@ -14,13 +14,13 @@ IMG_PROD    	:= ${REGISTRY}:${VERSION}
 
 build-test:
 	@docker build -t ${IMG_TEST} --build-arg GIT_COMMIT=${GIT_COMMIT} .
- 
+
 push-test:
 	@docker push ${IMG_TEST}
 
 build-prod:
 	@docker build -t ${IMG_PROD} --build-arg GIT_COMMIT=${GIT_COMMIT} .
- 
+
 push-prod:
 	@docker push ${IMG_PROD}
 
