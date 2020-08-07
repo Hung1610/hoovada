@@ -31,6 +31,7 @@ class HealthCheck(Resource):
         Returns
            200 code for success 
         """
+        
         return send_result(message="OK!", code=200)
 
 
