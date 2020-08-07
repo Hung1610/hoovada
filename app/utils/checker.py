@@ -11,18 +11,18 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class Checker:
-    """
-    Class Checker is a util for checking type of object or something else
+    """ Checking type of object or something else
     """
 
     @staticmethod
     def is_date(date_str):
-        """
-        Check if the string is date type
+        """ Check if the string is date type
 
-        :param date_str: The string to check
+        Args 
+            date_str(str): The string to check
 
-        :return: True if the string is datetime format, and vise versa
+        Returns:
+            (boolean) True if the string is datetime format, and vise versa
         """
         try:
             parse(date_str)
@@ -32,11 +32,12 @@ class Checker:
 
     @staticmethod
     def is_numeric(number_str):
-        """
-        Check if the string is numeric type
+        """ Check if the string is numeric type
 
-        :param number_str: The String to check
+        Args:
+            number_str(str): The String to check
 
-        :return: True if the string is numeric format, and vise versa
+        Returns
+            (boolean) True if the string is numeric format, and vise versa
         """
         return str(number_str).isnumeric()

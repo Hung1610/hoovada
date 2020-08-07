@@ -544,7 +544,7 @@ class AuthController:
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Không thễ đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
+            return send_error(message='Không thể đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
 
     # @staticmethod
     def logout_user(self, req):

@@ -16,11 +16,11 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-ns_hello = Namespace(name='health')
+ns_health = Namespace(name='health')
 api = init_api()
 
 
-@ns_hello.route('/health')
+@ns_health.route('/')
 class HealthCheck(Resource):
     def get(self):
         """ Use for Readiness and Liveness Probes
@@ -31,6 +31,7 @@ class HealthCheck(Resource):
         Returns
            200 code for success 
         """
+        
         return send_result(message="OK!", code=200)
 
 
@@ -46,8 +47,14 @@ def create_app(config):
 
     app = init_app(config_name=config)
     api.init_app(app)
-    api.add_namespace(ns_hello)
+    api.add_namespace(ns_health)
     api.app.config['RESTFUL_JSON'] = {
         'ensure_ascii': False
     }
+    
+    app.config.SWAGGER_UI_DOC_EXPANSION = 'none'
+    app.config.SWAGGER_UI_OPERATION_ID = True
+    app.config.SWAGGER_UI_REQUEST_DURATION = True
+    app.config.SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "post"]
+
     return app

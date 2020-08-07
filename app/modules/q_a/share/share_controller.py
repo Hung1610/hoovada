@@ -20,11 +20,11 @@ from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.modules.auth.auth_controller import AuthController
 
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 class ShareController(Controller):
     def search(self, args):
@@ -243,3 +243,53 @@ class ShareController(Controller):
             except Exception as e:
                 pass
         return share
+
+def get_share_by_user_id(self,args):
+        '''
+        Search share.
+
+        :param args:
+        :param `user_id`: Search shares by user_id
+
+        :return: List of shares  (questions, answer) satisfy search condition.
+        '''
+
+        query = Share.query
+        if not isinstance(args, dict):
+            return send_error(message='Từ khoá truyền vào không đúng định dạng')
+        user_id = None 
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if user_id is None :
+            send_error(message='Không có từ khoá tìm kiếm.')
+
+        is_filter = False
+        if user_id is not None:
+            query = query.filter(Share.user_id == user_id)
+            is_filter = True
+
+        if is_filter:
+            shares = query.order_by(desc(Share.created_date)).all()
+            if shares is not None and len(shares) > 0:
+                results = list()
+                for share in shares:
+                    result = share.__dict__
+
+                    # get user info
+                    question = Question.query.filter_by(id=share.question_id).first()
+                    result['question'] = question
+
+                    # get user info
+                    answer = Answer.query.filter_by(id=share.answer_id).first()
+                    result['answer'] = answer
+
+                    results.append(result)
+                return send_result(data=marshal(results, ShareDto.model_share_response), message='Success')
+            else:
+                return send_result(message='Không tìm thấy kết quả chia sẻ')
+        else:
+            return send_error(message='Không tìm thấy kết quả. Vui lòng kiểm tra lại từ khoá tìm kiếm.')

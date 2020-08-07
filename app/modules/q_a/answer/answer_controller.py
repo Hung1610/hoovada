@@ -9,6 +9,7 @@ from datetime import datetime
 import dateutil.parser
 from flask import request
 from flask_restx import marshal
+from sqlalchemy import desc
 
 # own modules
 from app import db
@@ -179,7 +180,7 @@ class AnswerController(Controller):
         :return:
         '''
         try:
-            answers = Answer.query.limit(50).all()
+            answers = Answer.query.order_by(desc(Answer.created_date)).limit(50).all()
             return send_result(data=marshal(answers, AnswerDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())

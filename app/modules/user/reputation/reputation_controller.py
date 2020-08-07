@@ -1,8 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# built-in modules
 from datetime import datetime
 
+# third-party modules
+from flask_restx import marshal
+
+# own modules   
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.user.reputation.reputation import Reputation
+from app.modules.user.reputation.reputation_dto import ReputationDto
+from app.modules.user.user import User
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class ReputationController(Controller):
@@ -70,3 +85,41 @@ class ReputationController(Controller):
         except Exception as e:
             print(e.__str__())
             pass
+
+
+    def get_by_id(self, user_id):
+        pass
+
+    def search(self, args):
+            if not isinstance(args, dict):
+                return send_error(message='Từ khoá truyền vào không đúng định dạng.')
+            topic_id = None
+            if 'topic_id' in args:
+                try:
+                    topic_id = int(args['topic_id'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if topic_id is None :
+                return send_error(message='Vui lòng nhập từ khoá tìm kiếm.')
+            query = db.session.query(Reputation)
+            is_filter = False
+            if topic_id is not None:
+                query = query.filter(Reputation.topic_id == topic_id)
+                is_filter = True
+            if is_filter:
+                reputations = query.all()
+                if reputations is not None and len(reputations) > 0:
+                    results = list()
+                    for reputation in reputations:
+                        # get user info
+                        user = User.query.filter_by(id=reputation.user_id).first()
+                        result = user.__dict__
+
+                        result['reputation'] = reputation.__dict__
+                        results.append(result)
+                    return send_result(marshal(results, ReputationDto.user_reputation_response), message='Success')
+                else:
+                    return send_result(message='Không thể tìm thấy người dùng.')
+            else:
+                return send_error(message='Không thể tìm thấy người dùng. Vui lòng kiểm tra lại từ khoá tìm kiếm.')
