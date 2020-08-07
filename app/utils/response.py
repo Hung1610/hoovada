@@ -38,7 +38,7 @@ def send_result(data=None, message='OK', code=200, status=True):
 
 def send_error(data=None, message='Failed', code=400, status=False):
     """ Send result if error
-
+    
     Args:
         data: The search_data to respond
         message (string): The message to respond
@@ -47,12 +47,13 @@ def send_error(data=None, message='Failed', code=400, status=False):
     
     Returns:
         (dict, int) -  The returned response contains search_data and code.
+    `
         res = {
             'status': status,
             'code': code,
             'message': message,
             'data': data,
-        } 
+        } `
     """
     res = {
         'status': status,
