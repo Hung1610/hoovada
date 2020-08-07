@@ -52,3 +52,10 @@ CREATE TABLE `user_employment` (
 
 ALTER TABLE `user_employment` ADD PRIMARY KEY (`id`);
 ALTER TABLE `user_employment` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE user
+    DROP COLUMN city, 
+    DROP COLUMN country, 
+    DROP COLUMN job_role, 
+    DROP COLUMN company, 
+    DROP COLUMN website_url;

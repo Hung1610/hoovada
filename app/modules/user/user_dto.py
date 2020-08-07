@@ -79,17 +79,12 @@ class UserDto(Dto):
 
         'reputation': fields.Integer(required=False, default=0),
         # 'profile_views': fields.Integer(required=False, readonly=True),
-        'city': fields.String(required=False, default=''),
-        'country': fields.String(required=False, default=''),
-        'website_url': fields.String(required=False, default=''),
 
         'about_me': fields.String(required=False, default=''),
         'about_me_markdown': fields.String(required=False, default=''),
         'about_me_html': fields.String(required=False, default=''),
 
         'people_reached': fields.Integer(required=False, default=0),
-        'job_role': fields.String(required=False, default=''),
-        'company': fields.String(required=False, default=''),
 
         'show_email_publicly_setting': fields.Boolean(required=False, default=False),
         'hoovada_digests_setting': fields.Boolean(required=False, default=0),
@@ -132,17 +127,12 @@ class UserDto(Dto):
 
         'reputation': fields.Integer(required=False),
         'profile_views': fields.Integer(required=False, readonly=True),
-        'city': fields.String(required=False),
-        'country': fields.String(required=False),
-        'website_url': fields.String(required=False),
 
         'about_me': fields.String(required=False),
         'about_me_markdown': fields.String(required=False),
         'about_me_html': fields.String(required=False),
 
         'people_reached': fields.Integer(required=False),
-        'job_role': fields.String(required=False),
-        'company': fields.String(required=False),
 
         'show_email_publicly_setting': fields.Boolean(required=False),
         'hoovada_digests_setting': fields.Boolean(required=False),

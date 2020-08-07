@@ -8,6 +8,7 @@ from datetime import datetime
 # third-party modules
 from flask_restx import marshal
 import dateutil.parser
+from sqlalchemy import or_, and_, func, desc
 
 # own modules
 from app.modules.common.controller import Controller
@@ -26,17 +27,45 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class TopicController(Controller):
 
     def create_topics(self):
-        fixed_topics = ["Du lịch", "Gia đình & Quan hệ xã hội", "Giáo dục & Tham khảo", "Giải trí & Âm nhạc",
-                        "Khoa học Tự nhiên", "Khoa học Xã hội", "Kinh doanh & Tài chính", "Máy tính & Internet",
-                        "Môi trường", "Nhà & Vườn", "Nơi ăn uống", "Sản phẩm của Yahoo", "Sức khỏe",
-                        "Thai nghén & Nuôi dạy con", "Thể thao", "Thủ tục hành chính", "Tin tức & Sự kiện",
-                        "Trò chơi & Giải trí", "Văn hóa & Xã hội", "Văn học & Nhân văn", "Vật nuôi",
-                        "Vẻ đẹp & Phong cách", "Ô-tô & Vận tải", "Điện tử tiêu dùng", "Ẩm thực"]
+        fixed_topics = ["Những lĩnh vực khác",
+                        "hoovada.com", 
+                        "Du lịch", 
+                        "Gia đình & Quan hệ xã hội", 
+                        "Giáo dục & Tham khảo",
+                        "Giải trí & Âm nhạc",
+                        "Khoa học Tự nhiên", 
+                        "Khoa học Xã hội", 
+                        "Kinh doanh & Tài chính", 
+                        "Máy tính & Internet",
+                        "Môi trường", 
+                        "Nhà & Vườn", 
+                        "Nơi ăn uống", 
+                        "Sức khỏe",
+                        "Thai nghén & Nuôi dạy con", 
+                        "Thể thao", 
+                        "Thủ tục hành chính", 
+                        "Tin tức & Sự kiện",
+                        "Trò chơi & Giải trí", 
+                        "Văn hóa & Xã hội", 
+                        "Văn học & Nhân văn", 
+                        "Vật nuôi",
+                        "Vẻ đẹp & Phong cách", 
+                        "Ô-tô & Vận tải", 
+                        "Điện tử tiêu dùng", 
+                        "Ẩm thực", 
+                        "Doanh nghiệp địa phương",  
+                        "Chính trị",
+                        "Tôn giáo",
+                        "Đời tư",
+                        "Lĩnh vực người lớn"]
+
         try:
             for topic_name in fixed_topics:
-                topic = Topic(name=topic_name, is_fixed=True, user_id=3)
-                db.session.add(topic)
-                db.session.commit()
+                topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
+                if not topic:  # the topic does not exist
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=3)
+                    db.session.add(topic)
+                    db.session.commit()
         except Exception as e:
             print(e.__str__())
             pass
@@ -80,7 +109,7 @@ class TopicController(Controller):
             query = query.filter(Topic.is_fixed == is_fixed)
             is_filter = True
         if is_filter:
-            topics = query.all()
+            topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác"))).all()
             if topics is not None and len(topics) > 0:
                 return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
             else:
@@ -101,10 +130,16 @@ class TopicController(Controller):
         if not 'parent_id' in data:
             return send_error(message='Topic must have a parent topic.')
         try:
-            topic = Topic.query.filter(Topic.name == data['name'], Topic.parent_id == data['parent_id']).first()
+            topic = Topic.query.filter(or_(
+                and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
+                and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
+                and_(Topic.name == data['name'],Topic.name == data['name'], data['parent_id']>0))
+                ).first()
+
             if not topic:  # the topic does not exist
                 topic = self._parse_topic(data=data, topic=None)
                 topic.created_date = datetime.today()
+                topic.name = topic.name.capitalize()
                 db.session.add(topic)
                 db.session.commit()
                 # update count for fixed topic
@@ -187,6 +222,7 @@ class TopicController(Controller):
                 is_sensitive = check_sensitive(topic.name)
                 if is_sensitive:
                     return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+                topic.name = topic.name.capitalize()
                 db.session.commit()
                 return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_topic_response))
         except Exception as e:

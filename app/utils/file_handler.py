@@ -12,14 +12,13 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def directory_listing(folder_name, file_type=None):
-    """
-    Listing all file in specific directory.
+    """ Listing all file in specific directory.
 
-    :param folder_name: The folder from which files are loaded.
+    Args:
+        folder_name(string): The folder from which files are loaded.
+        file_type: The specific kind of files to load.
 
-    :param file_type: The specific kind of files to load.
-
-    :return:
+    Returns:
     """
     if not folder_name or str(folder_name).__eq__(''):
         raise Exception("Folder must not be empty.")
@@ -77,10 +76,11 @@ def copy_file_to_directory(source_file, target_dir):
 
 
 def get_file_content(filename):
-    """
-    Read content from file.
-    :param filename:
-    :return:
+    """ Read content from file.
+    Args:
+        filename:
+    
+    Returns:
     """
     if not filename:
         return None

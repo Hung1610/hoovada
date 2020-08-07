@@ -50,4 +50,10 @@ def create_app(config):
     api.app.config['RESTFUL_JSON'] = {
         'ensure_ascii': False
     }
+    
+    app.config.SWAGGER_UI_DOC_EXPANSION = 'none'
+    app.config.SWAGGER_UI_OPERATION_ID = True
+    app.config.SWAGGER_UI_REQUEST_DURATION = True
+    app.config.SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "post"]
+
     return app

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.q_a.share.share_view import api
+from app.modules.user.user_employment_view import api
 
 
 __author__ = "hoovada.com team"
