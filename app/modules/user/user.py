@@ -193,6 +193,8 @@ class User(Model):
     user_report_count = db.Column(db.Integer, default=0)
     user_reported_count = db.Column(db.Integer, default=0)
 
+    articles = db.relationship('Article', backref='article_by_user', lazy=True) # one-to-many relationship with table Article
+
     # @hybrid_property
     # def about_me(self):
     #     """Return the value of _about_me but the html version."""
