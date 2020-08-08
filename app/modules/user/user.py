@@ -28,11 +28,11 @@ class SignupUser(Model):
     __tablename__ = 'signup_user'
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String)
-    password_hash = db.Column(db.String)
+    email = db.Column(db.String(255))
+    password_hash = db.Column(db.String(255))
     registered_date = db.Column(db.Date)
     registered_time = db.Column(db.Time)
-    activation_code = db.Column(db.String)
+    activation_code = db.Column(db.String(255))
     code_created_date = db.Column(db.Date)
     code_created_time = db.Column(db.Time)
     code_duration_time = db.Column(db.Float)
@@ -49,11 +49,11 @@ class RecoveryUser(Model):
     __tablename__ = 'recovery_user'
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String)
-    new_password_hash = db.Column(db.String)
+    email = db.Column(db.String(255))
+    new_password_hash = db.Column(db.String(255))
     required_date = db.Column(db.Date)
     required_time = db.Column(db.Time)
-    recovery_code = db.Column(db.String)
+    recovery_code = db.Column(db.String(255))
     code_created_date = db.Column(db.Date)
     code_created_time = db.Column(db.Time)
     code_duration_time = db.Column(db.Float)
@@ -78,7 +78,7 @@ class SocialAccount(Model):
     uid = db.Column(db.String(200))
     last_login = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
-    extra_data = db.Column(db.String)
+    extra_data = db.Column(db.String(500))
     user_id = db.Column(db.Integer)
 
 
@@ -89,39 +89,39 @@ class User(Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    # display_name = db.Column(db.String(128), unique=True)
-    display_name = db.Column(db.String, unique=True, nullable=False)  # , default='')
-    # title = db.Column(db.String(10), default='')
-    title = db.Column(db.String)  # , default='')
+    # display_name = db.Column(db.String(255)(128), unique=True)
+    display_name = db.Column(db.String(255), unique=True, nullable=False)  # , default='')
+    # title = db.Column(db.String(255)(10), default='')
+    title = db.Column(db.String(255))  # , default='')
 
-    # user_name = db.Column(db.String, unique=True, nullable=False)
-    phone_number = db.Column(db.String, unique=True, nullable=True)
+    # user_name = db.Column(db.String(255), unique=True, nullable=False)
+    phone_number = db.Column(db.String(255), unique=True, nullable=True)
     # verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
 
-    first_name = db.Column(db.String)  # (128), default='')
-    middle_name = db.Column(db.String)  # (128), default='')
-    last_name = db.Column(db.String)  # (128), default='')
+    first_name = db.Column(db.String(255))  # (128), default='')
+    middle_name = db.Column(db.String(255))  # (128), default='')
+    last_name = db.Column(db.String(255))  # (128), default='')
 
-    gender = db.Column(db.String)  # (10), default='')
-    age = db.Column(db.String)  # (3), default='')
-    email = db.Column(db.String)  # (255), unique=True)
-    password_hash = db.Column(db.String)  # (128), default='')
+    gender = db.Column(db.String(255))  # (10), default='')
+    age = db.Column(db.String(255))  # (3), default='')
+    email = db.Column(db.String(255))  # (255), unique=True)
+    password_hash = db.Column(db.String(255))  # (128), default='')
 
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     joined_date = db.Column(db.DateTime, default=datetime.utcnow)
     confirmed = db.Column(db.Boolean, default=False)
     email_confirmed_at = db.Column(db.DateTime, nullable=True)
 
-    profile_pic_url = db.Column(db.String)  # (255), default='')
-    profile_pic_data_url = db.Column(db.String)  # (10000), default='')
+    profile_pic_url = db.Column(db.String(255))  # (255), default='')
+    profile_pic_data_url = db.Column(db.String(255))  # (10000), default='')
     admin = db.Column(db.Boolean, default=False)
     active = db.Column(db.Boolean, default=False)
 
     reputation = db.Column(db.Integer, default=0)
     profile_views = db.Column(db.Integer, default=0)
 
-    # about_me = db.Column(db.String(3000))
+    # about_me = db.Column(db.String(255)(3000))
     about_me = db.Column(db.Text, default='')
     about_me_markdown = db.Column(db.Text, default='')
     about_me_html = db.Column(db.Text, default='')
@@ -130,19 +130,19 @@ class User(Model):
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    # hoovada_digests_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
-    hoovada_digests_frequency_setting = db.Column(db.String, default='weekly')
+    # hoovada_digests_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
+    hoovada_digests_frequency_setting = db.Column(db.String(255), default='weekly')
 
     questions_you_asked_or_followed_setting = db.Column(db.Boolean, default=True)
-    # questions_you_asked_or_followed_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
-    questions_you_asked_or_followed_frequency_setting = db.Column(db.String, default='weekly')
+    # questions_you_asked_or_followed_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
+    questions_you_asked_or_followed_frequency_setting = db.Column(db.String(255), default='weekly')
     people_you_follow_setting = db.Column(db.Boolean, default=True)
 
-    # people_you_follow_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
-    people_you_follow_frequency_setting = db.Column(db.String, default='weekly')
+    # people_you_follow_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
+    people_you_follow_frequency_setting = db.Column(db.String(255), default='weekly')
     email_stories_topics_setting = db.Column(db.Boolean, default=True)
-    # email_stories_topics_frequency_setting = db.Column(db.String(6), nullable=False, default='weekly')
-    email_stories_topics_frequency_setting = db.Column(db.String, default='weekly')
+    # email_stories_topics_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
+    email_stories_topics_frequency_setting = db.Column(db.String(255), default='weekly')
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     # count values used for statistics

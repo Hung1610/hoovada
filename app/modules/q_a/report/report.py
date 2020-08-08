@@ -20,5 +20,5 @@ class Report(Model):
     answer_id = db.Column(db.Integer)
     comment_id = db.Column(db.Integer)
     inappropriate = db.Column(db.Boolean)
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     created_date = db.Column(db.DateTime)

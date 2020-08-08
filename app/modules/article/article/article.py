@@ -27,7 +27,7 @@ class Article(Model):
         nullable=False)
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'),
         nullable=False)
-    fixed_topic_name = db.Column(db.String)
+    fixed_topic_name = db.Column(db.String(255))
     html = db.Column(db.UnicodeText)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)

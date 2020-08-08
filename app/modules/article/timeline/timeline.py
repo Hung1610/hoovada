@@ -18,6 +18,6 @@ class TimeLine(Model):
     question_id = db.Column(db.Integer)
     answer_id = db.Column(db.Integer)
     comment_id = db.Column(db.Integer)
-    activity = db.Column(db.String)
+    activity = db.Column(db.String(255))
     activity_date = db.Column(db.Date)
     activity_time = db.Column(db.Time)
