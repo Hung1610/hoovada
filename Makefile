@@ -18,11 +18,18 @@ build-test:
 push-test:
 	@docker push ${IMG_TEST}
 
+deploy-test:
+	@kubernete set image deployment/backend backend=${IMG_TEST}
+
 build-prod:
 	@docker build -t ${IMG_PROD} --build-arg GIT_COMMIT=${GIT_COMMIT} .
 
 push-prod:
 	@docker push ${IMG_PROD}
+
+
+deploy-prod:
+	@kubernete set image deployment/hoovada-services hoovada-services=${IMG_PROD}
 
 login:
 	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}

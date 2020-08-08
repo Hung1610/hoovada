@@ -52,37 +52,6 @@ Development instruction
 
 - Development: developers' local desktop
 
-
-### Development environment setup
-
-- For Linux distribution, you might need to install dependencies
-
-```bash
-$ sudo apt install unixodbc-dev
-$ sudo apt-get install python3-dev
-```
-
-- We use pypy3.6 running on production, you can follow these step to set up pypy3.6 on conda environment
-
-```bash
-$ cd /tmp
-$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-$ sha256sum /tmp/Miniconda3-latest-Linux-x86_64.sh 
-$ bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /usr/share/miniconda3
-$ sudo ln -s /usr/share/miniconda3/bin/conda /usr/bin/
-
-$ conda create --name pypy_env
-$ conda env list
-$ conda activate pypy_env
-
-$ conda install -c conda-forge pypy3.6
-$ ln -s $HOME/.conda/envs/pypy_env/bin/pypy3 $HOME/.conda/envs/pypy_env/bin/python
-
-$ python -m ensurepip
-$ python -m pip install --upgrade pip
-$ pip3 install -r <path to project>/requirements.txt
-```
-
 ### Branch
 
 - Please branch out from dev 
@@ -105,6 +74,37 @@ $ git push -u origin <your branch name>
 
 - Then you can create merge-request with the source branch being your branch and the target branch is dev branch
 
+
+### Development environment setup
+
+- For Linux distribution, you might need to install dependencies
+
+```bash
+$ sudo apt install unixodbc-dev
+$ sudo apt-get install python3-dev
+```
+
+- We use pypy3.6 running on production, you can follow these step to set up pypy3.6 on conda environment for Linux
+
+```bash
+$ cd /tmp
+$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+$ sha256sum /tmp/Miniconda3-latest-Linux-x86_64.sh 
+$ bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /usr/share/miniconda3 
+$ sudo ln -s /usr/share/miniconda3/bin/conda /usr/bin/
+
+$ conda create --name pypy_env
+$ conda env list
+$ conda activate pypy_env
+
+$ conda install -c conda-forge pypy3.6
+$ ln -s $HOME/.conda/envs/pypy_env/bin/pypy3 $HOME/.conda/envs/pypy_env/bin/python
+// For Macos, the location might be $HOME/miniconda/envs/pypy_env/bin/pypy3
+
+$ python -m ensurepip
+$ python -m pip install --upgrade pip
+$ pip3 install -r <path to project>/requirements.txt
+```
 
 ### Run project on development environment
 

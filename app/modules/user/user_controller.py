@@ -226,7 +226,7 @@ class UserController(Controller):
                 pass
         if 'email_confirmed_at' in data:
             try:
-                user.email_confirmed_at = datetime.fromisoformat(data['email_confirmed_at'])
+                user.email_confirmed_at = dateutil.parser.isoparse(data['email_confirmed_at'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -320,7 +320,7 @@ class UserController(Controller):
             user.email_stories_topics_frequency_setting = data['email_stories_topics_frequency_setting']
         if 'last_message_read_time' in data:
             try:
-                user.last_message_read_time = datetime.fromisoformat(data['last_message_read_time'])
+                user.last_message_read_time = dateutil.parser.isoparse(data['last_message_read_time'])
             except Exception as e:
                 print(e.__str__())
                 pass

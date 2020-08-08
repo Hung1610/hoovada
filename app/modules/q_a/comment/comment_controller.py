@@ -6,6 +6,7 @@ from datetime import datetime
 
 # third-party modules
 from flask_restx import marshal
+import dateutil.parser
 
 # own modules
 from app import db
@@ -218,7 +219,7 @@ class CommentController(Controller):
             comment.comment = data['comment']
         # if 'created_date' in data:
         #     try:
-        #         comment.created_date = datetime.fromisoformat(data['created_date'])
+        #         comment.created_date = dateutil.parser.isoparse(data['created_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass

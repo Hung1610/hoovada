@@ -23,7 +23,8 @@ from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
-    get_response_message, check_verification, check_password, is_valid_email
+    get_response_message, no_accent_vietnamese, validate_phone_number, is_valid_username, send_verification_sms, \
+    check_verification, check_password, is_valid_email
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

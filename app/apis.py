@@ -35,7 +35,7 @@ class MyApi(Api):
 
 def init_api():
     api = MyApi(title='Hoovada APIs',
-                swagger='2.0',
+                #swagger='2.0',
                 version='1.0',
                 description='The Hoovada APIs',
                 authorizations=authorizations,
