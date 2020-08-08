@@ -56,25 +56,25 @@ class AnswerController(Controller):
                 pass
         # if 'created_date' in args:
         #     try:
-        #         created_date = datetime.fromisoformat(args['created_date'])
+        #         created_date = dateutil.parser.isoparse(args['created_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'updated_date' in args:
         #     try:
-        #         updated_date = datetime.fromisoformat(args['updated_date'])
+        #         updated_date = dateutil.parser.isoparse(args['updated_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         if 'from_date' in args:
             try:
-                from_date = datetime.fromisoformat(args['from_date'])
+                from_date = dateutil.parser.isoparse(args['from_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'to_date' in args:
             try:
-                to_date = datetime.fromisoformat(args['to_date'])
+                to_date = dateutil.parser.isoparse(args['to_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -279,13 +279,13 @@ class AnswerController(Controller):
         # if 'created_date' in data:
         #     try:
         #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
-        #         # answer.created_date = datetime.fromisoformat(data['created_date'])
+        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'updated_date' in data:
         #     try:
-        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #datetime.fromisoformat(data['update_date'])
+        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
