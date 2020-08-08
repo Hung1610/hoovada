@@ -1,6 +1,6 @@
 DOCKER_USER     := 
 DOCKER_PASS     := 
-REGISTRY   		:= tranlyvu/hoovada.com
+REGISTRY   		:= hoovada.com
 
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
@@ -28,7 +28,7 @@ push-prod:
 	@docker push ${IMG_PROD}
 
 deploy-prod:
-	@kubernete set image deployment/hoovada-services hoovada-services=${IMG_PROD}
+	@kubectl set image deployment/hoovada-services hoovada-services=${IMG_PROD}
 
 login:
 	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
