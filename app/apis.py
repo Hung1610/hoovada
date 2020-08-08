@@ -7,7 +7,8 @@ from flask import url_for
 
 # own modules
 from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, \
-    ns_comment, ns_vote, ns_favorite, ns_share, ns_report, ns_upload, ns_search, ns_user_employment, ns_reputation
+    ns_comment, ns_vote, ns_favorite, ns_share, ns_report, ns_upload, ns_search, ns_user_employment, ns_reputation,\
+    ns_article
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -47,6 +48,7 @@ def init_api():
     api.add_namespace(ns_user_employment, '/api/v1/user_employment')
     api.add_namespace(ns_reputation, '/api/v1/reputation')
     api.add_namespace(ns_topic, '/api/v1/topic')
+    api.add_namespace(ns_article, '/api/v1/article')
     api.add_namespace(ns_user_topic, '/api/v1/user_topic')
     api.add_namespace(ns_question, '/api/v1/question')
     api.add_namespace(ns_question_topic, '/api/v1/question_topic')

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from app.modules.common.dto import Dto
@@ -33,10 +33,7 @@ class ArticleDto(Dto):
         'title': fields.String(description='The title of the article'),
         'user_id': fields.Integer(description='The user ID'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
-        'article': fields.String(description='The content of the article'),
-        'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
-        'anonymous': fields.Boolean(default=False, description='The article was created by anonymous'),
+        'html': fields.String(description='The content of the article'),
         'user_hidden': fields.Boolean(default=False,
                                       description='The article wss created by user but the user want to be hidden'),
         'topic_ids': fields.List(fields.Integer, description='The list of topics')
@@ -48,14 +45,11 @@ class ArticleDto(Dto):
         'user': fields.Nested(model_article_user, description='The user information'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
-        'article': fields.String(description='The content of the article'),
+        'html': fields.String(description='The content of the article'),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of article views'),
         'last_activity': fields.DateTime(description='The last time this article was updated.'),
-        'answers_count': fields.Integer(default=0, description='The amount of answers on this article'),
-        'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
-        'anonymous': fields.Boolean(default=False, description='The article was created by anonymous'),
         'user_hidden': fields.Boolean(default=False,
                                       description='The article wss created by user but the user want to be hidden'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
@@ -66,3 +60,17 @@ class ArticleDto(Dto):
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user')
     })
+
+    model_get_parser = reqparse.RequestParser()
+    model_get_parser.add_argument('title', type=str, required=False, \
+        help='Search article by its title')
+    model_get_parser.add_argument('fixed_topic_id', type=str, required=False, \
+        help='Search all articles related to fixed-topic.')
+    model_get_parser.add_argument('topic_name', type=str, required=False, \
+        help='Search all articles related to topic.')
+    model_get_parser.add_argument('from_date', type=str, required=False, \
+        help='Search articles created later that this date.')
+    model_get_parser.add_argument('to_date', type=str, required=False, \
+        help='Search articles created before this data.')
+    model_get_parser.add_argument('anonymous', type=str, required=False, \
+        help='Search articles created by Anonymous.')

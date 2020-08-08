@@ -20,27 +20,39 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = ArticleDto.api
-model_request = ArticleDto.model_article_request
-model_response = ArticleDto.model_article_response
+_article_dto_request = ArticleDto.model_article_request
+_article_dto_response = ArticleDto.model_article_response
+_artcile_get_params = ArticleDto.model_get_parser
 
 @api.route('')
 class ArticleList(Resource):
-    @token_required
-    # @api.marshal_list_with(article)
-    @api.response(code=200, model=model_response, description='Model for article response.')
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.expect(_artcile_get_params)
     def get(self):
-        '''
-        Get list of articles from database.
+        """
+        Get all articles that satisfy conditions.
+        ---------------------
+        :param `title`: The name of the topics to search
 
-        :return: List of articles.
-        '''
+        :param `fixed_topic_id`: Search all articles by fixed topic ID.
+
+        :param `topic_name`: Search all articles by topic ID.
+
+        :param `from_date`: Search articles created after this date.
+
+        :param `to_date`: Search articles created before this date.
+
+        :param `anonymous`: Search articles created by anonymous.
+
+        :return: List of articles satisfy search condition.
+        """
+        args = _artcile_get_params.parse_args()
         controller = ArticleController()
-        return controller.get()
+        return controller.get(args=args)
 
     @token_required
-    @api.expect(model_request)
-    # @api.marshal_with(article)
-    @api.response(code=200, model=model_response, description='Model for article response.')
+    @api.expect(_article_dto_request)
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def post(self):
         '''
         Create new article and save to database.
@@ -54,10 +66,7 @@ class ArticleList(Resource):
 
 @api.route('/<int:id>')
 class Article(Resource):
-    @token_required
-    # @api.marshal_with(article)
-    # @api.param(name='id', description='The ID of thearticle.')
-    @api.response(code=200, model=model_response, description='Model for article response.')
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self, id):
         '''
         Get specific article by its ID.
@@ -70,9 +79,8 @@ class Article(Resource):
         return controller.get_by_id(object_id=id)
 
     @token_required
-    @api.expect(model_request)
-    # @api.marshal_with(article)
-    @api.response(code=200, model=model_response, description='Model for article response.')
+    @api.expect(_article_dto_request)
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def put(self, id):
         '''
         Update existing article by its ID.
@@ -98,41 +106,3 @@ class Article(Resource):
         '''
         controller = ArticleController()
         return controller.delete(object_id=id)
-
-
-parser = reqparse.RequestParser()
-parser.add_argument('title', type=str, required=False, help='Search article by its title')
-parser.add_argument('user_id', type=str, required=False, help='Search article by user_id (who created article)')
-parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all articles related to fixed-topic.')
-parser.add_argument('topic_id', type=str, required=False, help='Search all articles related to topic.')
-parser.add_argument('from_date', type=str, required=False, help='Search articles created later that this date.')
-parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
-parser.add_argument('anonymous', type=str, required=False, help='Search articles created by Anonymous.')
-
-
-@api.route('/search')
-@api.expect(parser)
-class QuesstionSearch(Resource):
-    @token_required
-    @api.response(code=200, model=model_response, description='Model for article response.')
-    def get(self):
-        """
-        Search all articles that satisfy conditions.
-        ---------------------
-        :param `title`: The name of the topics to search
-
-        :param `user_id`: Search articles by user_id (who created article)
-
-        :param `fixed_topic_id`: Search all articles by fixed topic ID.
-
-        :param `from_date`: Search articles created after this date.
-
-        :param `to_date`: Search articles created before this date.
-
-        :param `anonymous`: Search articles created by anonymous.
-
-        :return: List of articles satisfy search condition.
-        """
-        args = parser.parse_args()
-        controller = ArticleController()
-        return controller.search(args=args)

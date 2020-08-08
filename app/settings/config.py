@@ -37,6 +37,7 @@ class BaseConfig:
     DB_HOST = os.environ.get('DB_HOST', 'localhost')
     DB_PORT = os.environ.get('DB_PORT', '3306')
     DB_NAME = os.environ.get('DB_NAME', 'hoovada')
+    DB_CHARSET = 'utf8mb4'
 
     # Locations
     APP_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))  # This directory
@@ -87,12 +88,13 @@ class DevelopmentConfig(BaseConfig):
     BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
 
     # if you want to use mysql 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
          host=BaseConfig.DB_HOST,
          port=BaseConfig.DB_PORT,
-         name=BaseConfig.DB_NAME
+         name=BaseConfig.DB_NAME,
+         charset=BaseConfig.DB_CHARSET
      )
 
 
@@ -103,24 +105,26 @@ class TestingConfig(BaseConfig):
     TESTING = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
          host=BaseConfig.DB_HOST,
          port=BaseConfig.DB_PORT,
-         name=BaseConfig.DB_NAME
+         name=BaseConfig.DB_NAME,
+         charset=BaseConfig.DB_CHARSET
      )    
 
 
 class ProductionConfig(BaseConfig):
     """production configuration."""
     
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}'.format(
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
          host=BaseConfig.DB_HOST,
          port=BaseConfig.DB_PORT,
-         name=BaseConfig.DB_NAME
+         name=BaseConfig.DB_NAME,
+         charset=BaseConfig.DB_CHARSET
      )
 
 
