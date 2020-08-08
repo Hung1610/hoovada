@@ -24,7 +24,7 @@ class BaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gydijkoduvmmcjjx')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # Wasabi service
@@ -34,8 +34,8 @@ class BaseConfig:
     # mysql configuration
     DB_USER = os.environ.get('DB_USER', 'dev')
     DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hoovada')
-    DB_HOST = os.environ.get('DB_HOST', 'localhost')
-    DB_PORT = os.environ.get('DB_PORT', '3360')
+    DB_HOST = os.environ.get('DB_HOST', '188.166.229.10')
+    DB_PORT = os.environ.get('DB_PORT', '32766')
     DB_NAME = os.environ.get('DB_NAME', 'hoovada')
 
     # Locations

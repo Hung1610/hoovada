@@ -24,12 +24,12 @@ mail = Mail()
 
 def init_app(config_name):
     app = Flask(__name__)
+    CORS(app)
     # app.config['RESTFUL_JSON'] = {
     #     'ensure_ascii': False,
     #     'encoding':'utf8'
     # }
     app.config['JSON_AS_ASCII'] = False
-    CORS(app)
     app.config.from_object(config_by_name[config_name])
     db.init_app(app)
     flask_bcrypt.init_app(app)

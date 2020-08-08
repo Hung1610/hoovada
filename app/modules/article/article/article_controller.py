@@ -223,7 +223,7 @@ class ArticleController(Controller):
             for article in articles:
                 result = article.__dict__
                 # get user info
-                result['user'] = article.article_by_user
+                result['user'] = article.articles_by_user
                 # get all topics that article belongs to
                 article_topics = article.topics
                 result['topics'] = article_topics
@@ -252,7 +252,7 @@ class ArticleController(Controller):
         else:
             result = article.__dict__
             # get user info
-            result['user'] = article.article_by_user
+            result['user'] = article.articles_by_user
             # get all topics that article belongs to
             result['topics'] = article.topics
             # upvote/downvote status
@@ -306,7 +306,7 @@ class ArticleController(Controller):
             
             result = article.__dict__
             # get user info
-            result['user'] = article.article_by_user
+            result['user'] = article.articles_by_user
             # get all topics that article belongs to
             result['topics'] = article.topics
             # upvote/downvote status

@@ -112,7 +112,7 @@ def send_confirmation_email(to):
     """
     
     token = generate_confirmation_token(email=to)
-    confirm_url = url_for('auth.confirmation', token=token, _external=True)
+    confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
     send_email(to, 'Xác nhận đăng ký', html)
 
@@ -127,8 +127,8 @@ def send_password_reset_email(to):
     """
     
     token = generate_confirmation_token(email=to)
-    confirm_url = url_for('auth.password-reset-email-confirm', token=token, _external=True)
-    html = render_template('password_reset.html', confirm_url=confirm_url)
+    confirm_url = url_for('password_reset_email_confirm', token=token, _external=True)
+    html = render_template('reset_password.html', confirm_url=confirm_url)
     send_email(to, 'Yêu cầu thay đổi mật khẩu', html)
 
 

@@ -29,4 +29,4 @@ class Topic(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.String)
 
-    articles = db.relationship('Article', backref='fixed_topic', lazy=True) # one-to-many relationship with table Article
+    # articles = db.relationship('Article', backref='fixed_topic', lazy=True) # one-to-many relationship with table Article

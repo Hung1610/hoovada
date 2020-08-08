@@ -22,9 +22,9 @@ from app.modules.user.user import User, SocialAccount
 from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_error, send_result
-from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, generate_confirmation_token, \
+from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
     get_response_message, no_accent_vietnamese, validate_phone_number, is_valid_username, send_verification_sms, \
-    check_verification, check_password, is_valid_email
+    check_verification, check_password, is_valid_email, generate_confirmation_token, send_password_reset_email
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -536,7 +536,7 @@ class AuthController:
             return send_error(message='Vui lòng cung cấp Email!')  # Please provide an email")
 
         email = data['email']
-        if not check_user_exist(email):
+        if not AuthController.check_user_exist(email):
             return send_error(message='Người dùng chưa đăng ký!')
         try:
             send_password_reset_email(to=email)
@@ -611,7 +611,7 @@ class AuthController:
             return send_error(
                 message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.
 
-        if not 'token' in data or str(data['token']).strip().__eq__(''):
+        if not 'reset_token' in data or str(data['reset_token']).strip().__eq__(''):
             return send_error(message='Vui lòng cung cấp token!')  # Pleases provide a valid token.
 
         if not 'token_type' in data or str(data['token_type']).strip().__eq__(''):

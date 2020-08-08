@@ -75,7 +75,7 @@ class AuthDto(Dto):
         'password_confirm': fields.String(required=True),
     })
 
-    model_change_password = api.model('reset_password_email', {
+    model_change_password = api.model('change_password', {
         'old_password': fields.String(required=True),
         'password': fields.String(required=True),
         'password_confirm': fields.String(required=True),
