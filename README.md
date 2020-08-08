@@ -77,11 +77,10 @@ $ git push -u origin <your branch name>
 
 ### Development environment setup
 
-- For Linux distribution, you might need to install dependencies
+- For Linux distribution, you might need to install dependencies (optional)
 
 ```bash
 $ sudo apt install unixodbc-dev
-$ sudo apt-get install python3-dev
 ```
 
 - We use pypy3.6 running on production, you can follow these step to set up pypy3.6 on conda environment for Linux

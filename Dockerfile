@@ -4,8 +4,6 @@ WORKDIR /
 
 COPY ./app/requirements.txt /
 
-RUN pip3 install --force-reinstall --no-cache-dir cython
-
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
