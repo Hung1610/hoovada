@@ -243,7 +243,7 @@ class PasswordResetEmail(Resource):
         return controller.reset_password_by_email(data=post_data)
 
 
-@api.route('/password-reset-email-confirm/<token>', endpoint='password-reset-email')
+@api.route('/password-reset-email-confirm/<token>', endpoint='password-reset-email-confirm')
 class PasswordResetEmailConfirm(Resource):
     def post(self, token):
         ''' 
