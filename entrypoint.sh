@@ -8,7 +8,7 @@ set -e
 #fi
 
 #flask db init
-flask db stamp head
+#flask db stamp head
 flask db migrate
 flask db upgrade
 
