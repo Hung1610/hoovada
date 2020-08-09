@@ -14,4 +14,4 @@ LABEL git_commit=$GIT_COMMIT
 
 RUN echo $git_commit > /git-commit.txt
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "wsgi:app"]
+ENTRYPOINT ["entrypoint.sh"]
