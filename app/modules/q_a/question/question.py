@@ -21,7 +21,7 @@ class Question(Model):
     title = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer)
     fixed_topic_id = db.Column(db.Integer)
-    fixed_topic_name = db.Column(db.String)
+    fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
     html = db.Column(db.UnicodeText)
@@ -44,12 +44,12 @@ class QuestionTopicView(Model):
     __tablename__ = 'topic_question'
 
     topic_id = db.Column(db.Integer)
-    topic_name = db.Column(db.String)
+    topic_name = db.Column(db.String(255))
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer)
     fixed_topic_id = db.Column(db.Integer)
-    fixed_topic_name = db.Column(db.String)
+    fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
     html = db.Column(db.UnicodeText)

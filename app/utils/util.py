@@ -52,7 +52,7 @@ def encode_file_name(filename):
     return encoded
 
 
-def generate_conformation_token(email):
+def generate_confirmation_token(email):
     """ Confirmation email token
 
     Args:
@@ -111,10 +111,25 @@ def send_confirmation_email(to):
     Return:
     """
     
-    token = generate_conformation_token(email=to)
+    token = generate_confirmation_token(email=to)
     confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
     send_email(to, 'Xác nhận đăng ký', html)
+
+
+def send_password_reset_email(to):
+    """ Send a password reset email to the registered user.
+
+    Args:
+        to: The email address to send to.
+
+    Return:
+    """
+    
+    token = generate_confirmation_token(email=to)
+    confirm_url = url_for('password_reset_email_confirm', token=token, _external=True)
+    html = render_template('reset_password.html', confirm_url=confirm_url)
+    send_email(to, 'Yêu cầu thay đổi mật khẩu', html)
 
 
 def get_response_message(message):
@@ -130,7 +145,7 @@ def get_response_message(message):
     return html
 
 
-def encode_auth_token(user_id):
+def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
     ''' Generate the Auth token.
 
     Args:
@@ -142,7 +157,7 @@ def encode_auth_token(user_id):
     
     try:
         payload = {
-            'exp': datetime.utcnow() + timedelta(days=30, seconds=5),
+            'exp': datetime.utcnow() + delta,
             'iat': datetime.utcnow(),
             'sub': user_id
         }
