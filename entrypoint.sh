@@ -2,12 +2,12 @@
 
 set -e
 
-if [[ -d /migrations ]]; then
-    echo "Removing migrations folders"
-    rm -rf /migrations
-fi
+#if [[ -d /migrations ]]; then
+#    echo "Removing migrations folders"
+#    rm -rf /migrations
+#fi
 
-flask db init
+#flask db init
 flask db stamp head
 flask db migrate
 flask db upgrade
