@@ -7,7 +7,7 @@ class Feedback(Model):
 
     feedback_id = db.Column(db.Integer, primary_key=True)
     overall_rate = db.Column(db.Integer)
-    comment = db.Column(db.String)
+    comment = db.Column(db.String(500))
     created_date = db.Column(db.Date)
     created_time = db.Column(db.Time)
     user_id = db.Column(db.Integer)

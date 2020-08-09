@@ -4,6 +4,7 @@
 # third-party modules
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_mail import Mail
@@ -18,20 +19,22 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 db = SQLAlchemy()
+migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
 
 
 def init_app(config_name):
     app = Flask(__name__)
+    CORS(app)
     # app.config['RESTFUL_JSON'] = {
     #     'ensure_ascii': False,
     #     'encoding':'utf8'
     # }
     app.config['JSON_AS_ASCII'] = False
-    CORS(app)
     app.config.from_object(config_by_name[config_name])
     db.init_app(app)
+    migrate.init_app(app, db)
     flask_bcrypt.init_app(app)
     mail.init_app(app)
     return app

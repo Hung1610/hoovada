@@ -18,8 +18,8 @@ class UserEmployment(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    position = db.Column(db.String)
-    company = db.Column(db.String)
+    position = db.Column(db.String(255))
+    company = db.Column(db.String(255))
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
     is_currently_work = db.Column(db.Integer)
