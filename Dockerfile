@@ -14,4 +14,4 @@ LABEL git_commit=$GIT_COMMIT
 
 RUN echo $git_commit > /git-commit.txt
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
