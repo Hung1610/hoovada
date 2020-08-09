@@ -377,6 +377,10 @@ class QuestionController(Controller):
             return send_error(message='Could not update question.')
 
     def delete(self, object_id):
+        """ Delete question permanently- only Admin is allowed to performed this action accordingly to hoovada.com policy
+            User can only send delete request to Admin
+
+        """
         try:
             question = Question.query.filter_by(id=object_id).first()
             if question is None:
