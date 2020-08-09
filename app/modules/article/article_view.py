@@ -9,8 +9,8 @@ from flask_restx import Resource, reqparse
 
 # own modules
 # from app.modules.common.decorator import token_required
-from app.modules.article.article.article_dto import ArticleDto
-from app.modules.article.article.article_controller import ArticleController
+from app.modules.article.article_dto import ArticleDto
+from app.modules.article.article_controller import ArticleController
 from app.modules.auth.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -22,12 +22,12 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = ArticleDto.api
 _article_dto_request = ArticleDto.model_article_request
 _article_dto_response = ArticleDto.model_article_response
-_artcile_get_params = ArticleDto.model_get_parser
+_article_get_params = ArticleDto.model_get_parser
 
 @api.route('')
 class ArticleList(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    @api.expect(_artcile_get_params)
+    @api.expect(_article_get_params)
     def get(self):
         """
         Get all articles that satisfy conditions.
@@ -46,7 +46,7 @@ class ArticleList(Resource):
 
         :return: List of articles satisfy search condition.
         """
-        args = _artcile_get_params.parse_args()
+        args = _article_get_params.parse_args()
         controller = ArticleController()
         return controller.get(args=args)
 
@@ -71,7 +71,7 @@ class Article(Resource):
         '''
         Get specific article by its ID.
 
-        :param id: The ID of the article to get from.
+        :param id: The ID of the article to get.
 
         :return: The article if success and None vice versa.
         '''
@@ -84,8 +84,6 @@ class Article(Resource):
     def put(self, id):
         '''
         Update existing article by its ID.
-
-        NOTE: topic_ids does not be supported in update API. Please send article update format without topic_ids.
 
         :param id: The ID of the article.
 

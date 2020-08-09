@@ -25,8 +25,10 @@ class Article(Model):
     title = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
         nullable=False)
+    article_by_user = db.relationship('User', backref='articles', lazy=True) # one-to-many relationship with table Article
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'),
         nullable=False)
+    fixed_topic = db.relationship('Topic', backref='fixed_topic_articles', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)

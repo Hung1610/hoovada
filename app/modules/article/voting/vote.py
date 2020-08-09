@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
+import enum
+
 # own modules
 from app import db
 from app.modules.common.model import Model
@@ -10,15 +13,21 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+
+class VotingStatusEnum(enum.Enum):
+    NEUTRAL = 1
+    UPVOTED = 2
+    DOWNVOTED = 3
+
+
 class Vote(Model):
-    __tablename__ = 'vote'
+    __tablename__ = 'article_vote'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     article_id = db.Column(db.Integer)
-    answer_id = db.Column(db.Integer)
     comment_id = db.Column(db.Integer)
-    up_vote = db.Column(db.Boolean)
-    down_vote = db.Column(db.Boolean)
+    vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), \
+        nullable=False, server_default="NEUTRAL")
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)

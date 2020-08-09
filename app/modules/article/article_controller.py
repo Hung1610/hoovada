@@ -13,13 +13,13 @@ from sqlalchemy import desc
 
 # own modules
 from app import db
-from app.modules.article.article import constants
+from app.modules.article import constants
+from app.modules.article.article import Article
+from app.modules.article.article_dto import ArticleDto
+from app.modules.article.voting.vote import Vote, VotingStatusEnum
 from app.modules.auth.auth_controller import AuthController
 from app.modules.auth.decorator import token_required
 from app.modules.common.controller import Controller
-from app.modules.article.article.article import Article
-from app.modules.article.article.article_dto import ArticleDto
-# from app.modules.article.voting.vote import Vote
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
@@ -79,10 +79,10 @@ class ArticleController(Controller):
                     result['topics'] = topics
                     
                     # upvote/downvote status for current user
-                    # vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
-                    # if vote is not None:
-                    #     result['up_vote'] = vote.up_vote
-                    #     result['down_vote'] = vote.down_vote
+                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status else False
                     return send_result(message=constants.msg_create_success,
                                        data=marshal(result, ArticleDto.model_article_response))
                 except Exception as e:
@@ -228,8 +228,8 @@ class ArticleController(Controller):
                 current_user, _ = AuthController.get_logged_user(request)
                 vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
                 if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status else False
             except Exception as e:
                 print(e)
                 pass
@@ -281,8 +281,8 @@ class ArticleController(Controller):
                 current_user, _ = AuthController.get_logged_user(request)
                 vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
                 if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status else False
             except Exception as e:
                 print(e)
                 pass

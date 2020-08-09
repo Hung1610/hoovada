@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.article.article import api as ns_article
+from app.modules.article.article_view import api as ns_article
 
 
 __author__ = "hoovada.com team"
