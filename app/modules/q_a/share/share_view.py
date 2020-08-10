@@ -25,11 +25,11 @@ class ShareList(Resource):
     # @admin_token_required
     # @api.marshal_list_with(share_response)
     # def get(self):
-    #     '''
+    #     """
     #     Get list of shares from database.
     #
     #     :return: The list of shares.
-    #     '''
+    #     """
     #     controller = ShareController()
     #     return controller.get()
 
@@ -37,11 +37,11 @@ class ShareList(Resource):
     @api.expect(share_request)
     @api.response(code=200, model=share_response, description='The model for share response.')
     def post(self):
-        '''
+        """
         Create new share.
 
         :return: The new share if it was created successfully and null vice versa.
-        '''
+        """
         data = api.payload
         controller = ShareController()
         return controller.create(data=data)
@@ -53,13 +53,13 @@ class Share(Resource):
     @api.param(name='id', description='The ID of share')
     @api.response(code=200, model=share_response, description='The model for share response.')
     def get(self, id):
-        '''
+        """
         Get share by its ID.
 
         :param id: The ID of the share.
 
         :return: The share with the specific ID.
-        '''
+        """
         controller = ShareController()
         return controller.get_by_id(object_id=id)
 
@@ -68,26 +68,26 @@ class Share(Resource):
     @api.param(name='id', description='The share ID')
     @api.response(code=200, model=share_response, description='The model for share response.')
     def put(self, id):
-        '''
+        """
         Update existing share by its ID.
 
         :param id: The ID of the share which need to be updated.
 
         :return: The updated share if success and null vice versa.
-        '''
+        """
         data = api.payload
         controller = ShareController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        '''
+        """
         Delete share by its ID.
 
         :param id: The ID of the share.
 
         :return:
-        '''
+        """
         controller = ShareController()
         return controller.delete(object_id=id)
 
@@ -140,13 +140,13 @@ class ShareSearch(Resource):
     @token_required
     @api.response(code=200, model=share_response, description='Model for share response.')
     def get(self):
-        '''
+        """
         Search all shares (questions, answer) that satisfy conditions.
         ---------------------
         :param `user_id`: Search shares by user_id
 
         :return: List of shares  (questions, answer) satisfy search condition.
-        '''
+        """
         args = parser.parse_args()
         controller = ShareController()
         return controller.get_share_by_user_id(args=args)

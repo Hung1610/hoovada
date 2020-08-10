@@ -31,12 +31,12 @@ extensionsToCheck = ('ạ','ả','ã','à','á','â','ậ','ầ','ấ','ẩ','�
 class SearchController():
 
     def search(self, args):
-        ''' Search questions.
+        """ Search questions.
         
             Args:
 
             Returns
-        '''
+        """
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')

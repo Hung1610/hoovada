@@ -38,7 +38,7 @@ def init_api(mode):
 
     doc = False if mode == "prod" else "/api/v1/doc"
 
-    api = Api(title='Hoovada APIs',
+    api = MyApi(title='Hoovada APIs',
                 swagger='2.0',
                 version='1.0',
                 description='The Hoovada APIs',

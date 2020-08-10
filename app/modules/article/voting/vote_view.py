@@ -47,11 +47,11 @@ class VoteArticle(Resource):
     @api.expect(_vote_request_article)
     @api.response(code=200, model=_vote_response, description='The model for vote response.')
     def post(self, article_id):
-        '''
+        """
         Create/Update current user vote on article.
 
         :return:
-        '''
+        """
         controller = VoteController()
         data = api.payload
         return controller.create(article_id=article_id, data=data)
@@ -61,24 +61,24 @@ class VoteArticleById(Resource):
     @token_required
     # @api.marshal_with(vote)
     def get(self, article_id, user_id):
-        '''
+        """
         Get vote by article ID and user ID.
 
         :param id: The ID of the vote.
 
         :return: The vote with the specific ID.
-        '''
+        """
         controller = VoteController()
         return controller.get_by_id(article_id=article_id, user_id=user_id)
 
     @token_required
     def delete(self, article_id, user_id):
-        '''
+        """
         Delete vote on question.
 
         :param id: The vote ID.
 
         :return:
-        '''
+        """
         controller = VoteController()
         return controller.delete_question_vote(article_id=article_id, user_id=user_id)

@@ -245,14 +245,14 @@ class ShareController(Controller):
         return share
 
 def get_share_by_user_id(self,args):
-        '''
+        """
         Search share.
 
         :param args:
         :param `user_id`: Search shares by user_id
 
         :return: List of shares  (questions, answer) satisfy search condition.
-        '''
+        """
 
         query = Share.query
         if not isinstance(args, dict):

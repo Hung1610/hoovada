@@ -27,11 +27,11 @@ class UserTopicList(Resource):
     # # @api.marshal_list_with(user_topic)
     # @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
     # def get(self):
-    #     '''
+    #     """
     #     Get list of user_topics from database.
     #
     #     :return: The list of user_topics.
-    #     '''
+    #     """
     #     controller = UserTopicController()
     #     return controller.get()
 
@@ -40,11 +40,11 @@ class UserTopicList(Resource):
     # @api.marshal_with(user_topic)
     @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
     def post(self):
-        '''
+        """
         Create new user_topic.
 
         :return: The new user_topic if it was created successfully and null vice versa.
-        '''
+        """
         data = api.payload
         controller = UserTopicController()
         return controller.create(data=data)
@@ -56,13 +56,13 @@ class UserTopic(Resource):
     # @api.marshal_with(user_topic)
     @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
     def get(self, id):
-        '''
+        """
         Get user_topic by its ID.
 
         :param id: The ID of the user_topic.
 
         :return: The user_topic with the specific ID.
-        '''
+        """
         controller = UserTopicController()
         return controller.get_by_id(object_id=id)
 
@@ -71,26 +71,26 @@ class UserTopic(Resource):
     # # @api.marshal_with(user_topic)
     # @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
     # def put(self, id):
-    #     '''
+    #     """
     #     Update existing user_topic by its ID.
     #
     #     :param id: The ID of the user_topic which need to be updated.
     #
     #     :return: The updated user_topic if success and null vice versa.
-    #     '''
+    #     """
     #     data = api.payload
     #     controller = UserTopicController()
     #     return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        '''
+        """
         Delete user_topic by its ID.
 
         :param id: The ID of the user_topic.
 
         :return:
-        '''
+        """
         controller = UserTopicController()
         return controller.delete(object_id=id)
 

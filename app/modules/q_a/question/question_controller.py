@@ -33,14 +33,14 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class QuestionController(Controller):
 
     def search(self, args):
-        '''
-        Search questions.
-
+        """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
 
-        :param args:
-        :return:
-        '''
+        Args:
+
+        Returns:
+        
+        """
         # searches = QuestionTopicView.query.all()
 
         if not isinstance(args, dict):
@@ -318,7 +318,7 @@ class QuestionController(Controller):
 
 
     def update(self, object_id, data):
-        ''' Thuc hien update nhu sau:
+        """ Thuc hien update nhu sau:
             Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
         
         Args:
@@ -326,7 +326,7 @@ class QuestionController(Controller):
             data:
         
         Returns:
-        '''
+        """
 
         if object_id is None:
             return send_error(message="Question ID is null")
@@ -495,12 +495,12 @@ class QuestionController(Controller):
 
 
     def get_by_topic_id(self,topic_id):
-        ''' Get all question of a topic that sorted based in upvote count
+        """ Get all question of a topic that sorted based in upvote count
 
             Args:
 
             Returns:
-        '''
+        """
 
         if topic_id is None:
             return send_error("Topic ID Không được để trống")
