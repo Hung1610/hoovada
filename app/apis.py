@@ -28,11 +28,11 @@ class MyApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        if '80' in self.base_url or '443' in self.base_url:
-            scheme = 'https'
-        else:
-            scheme = 'http'
-        return url_for(self.endpoint('specs'), _external=True, _scheme=scheme)
+        #if '80' in self.base_url or '443' in self.base_url:
+        #    scheme = 'https'
+        #else:
+        #    scheme = 'http'
+        return url_for(self.endpoint('specs'), _external=True, _scheme='https')
 
 def init_api():
     api = MyApi(title='Hoovada APIs',
