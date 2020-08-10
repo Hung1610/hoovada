@@ -18,7 +18,7 @@ class Topic(Model):
     __tablename__ = 'topic'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String(255))
     count = db.Column(db.Integer, default=0) # chua ro truong nay su dung lam gi
     user_id = db.Column(db.Integer)  # who created this topic
     question_count = db.Column(db.Integer, default=0)  # amount of question related to this topic
@@ -27,4 +27,4 @@ class Topic(Model):
     parent_id = db.Column(db.Integer)  # the ID of parent topic
     is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))

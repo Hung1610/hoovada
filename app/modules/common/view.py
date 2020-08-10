@@ -12,6 +12,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+
 class Resource(BaseResource):
     """
     Abstract class from which all view classes will inherit.

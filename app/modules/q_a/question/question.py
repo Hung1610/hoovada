@@ -14,6 +14,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+
 class Question(Model):
     __tablename__ = 'question'
 
@@ -21,7 +22,7 @@ class Question(Model):
     title = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer)
     fixed_topic_id = db.Column(db.Integer)
-    fixed_topic_name = db.Column(db.String)
+    fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
     html = db.Column(db.UnicodeText)
@@ -40,16 +41,16 @@ class Question(Model):
     favorite_count = db.Column(db.Integer, default=0)
 
 
-class QuestionTopicView(Model):
+class QuestionTopicView():
     __tablename__ = 'topic_question'
 
     topic_id = db.Column(db.Integer)
-    topic_name = db.Column(db.String)
+    topic_name = db.Column(db.String(255))
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer)
     fixed_topic_id = db.Column(db.Integer)
-    fixed_topic_name = db.Column(db.String)
+    fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
     html = db.Column(db.UnicodeText)
