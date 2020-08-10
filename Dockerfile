@@ -14,4 +14,6 @@ LABEL git_commit=$GIT_COMMIT
 
 RUN echo $git_commit > /git-commit.txt
 
+EXPOSE 5000
+
 ENTRYPOINT ["./entrypoint.sh"]
