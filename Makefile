@@ -1,6 +1,6 @@
 DOCKER_USER     := 
 DOCKER_PASS     := 
-REGISTRY   		:= hoovada.com
+REGISTRY   		:= tranlyvu/hoovada.com
 
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)

@@ -60,6 +60,27 @@ class AuthDto(Dto):
         'access_token': fields.String(required=True),
     })
 
+    model_reset_password_email = api.model('reset_password_email', {
+        'email': fields.String(required=True),
+    })
+
+    model_reset_password_phone = api.model('reset_password_phone', {
+        'phone_number': fields.String(required=True),
+    })
+
+    model_change_password_token = api.model('change_password_token', {
+        'reset_token': fields.String(required=True),
+        'token_type': fields.String(required=True, choices=('email', 'phone')),
+        'password': fields.String(required=True),
+        'password_confirm': fields.String(required=True),
+    })
+
+    model_change_password = api.model('change_password', {
+        'old_password': fields.String(required=True),
+        'password': fields.String(required=True),
+        'password_confirm': fields.String(required=True),
+    })
+
     message_response = api.model('response', {
         'message': fields.String(required=True)
     })

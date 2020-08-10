@@ -127,7 +127,7 @@ $ pylint <your files>
 ```bash
 $ docker build -t <name of image> .
 $ docker image ls
-$ docker run -p 80:5000 --env-file=<env file> <name of image> 
+$ docker run -p 80:5000 <name of image> 
 ```
 
 - Browser to http://localhost:80 and/or http://localhost:80/api/v1/doc to see your APIs
