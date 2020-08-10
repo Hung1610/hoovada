@@ -18,9 +18,9 @@ api = VoteDto.api
 _vote_request_article = VoteDto.model_request_article
 _vote_response = VoteDto.model_response
 _vote_get_params = VoteDto.model_get_parser
+        
 
-
-@api.route('/<int:article_id>/vote')
+@api.route('')
 class VoteArticle(Resource):
     @token_required
     @api.expect(_vote_get_params)
@@ -56,29 +56,14 @@ class VoteArticle(Resource):
         data = api.payload
         return controller.create(article_id=article_id, data=data)
 
-@api.route('/<int:article_id>/vote/<int:user_id>')
-class VoteArticleById(Resource):
     @token_required
-    # @api.marshal_with(vote)
-    def get(self, article_id, user_id):
+    def delete(self, article_id):
         '''
-        Get vote by article ID and user ID.
+        Delete current user vote on question.
 
-        :param id: The ID of the vote.
-
-        :return: The vote with the specific ID.
-        '''
-        controller = VoteController()
-        return controller.get_by_id(article_id=article_id, user_id=user_id)
-
-    @token_required
-    def delete(self, article_id, user_id):
-        '''
-        Delete vote on question.
-
-        :param id: The vote ID.
+        :param article_id: The vote article ID.
 
         :return:
         '''
         controller = VoteController()
-        return controller.delete_question_vote(article_id=article_id, user_id=user_id)
+        return controller.delete(article_id=article_id)

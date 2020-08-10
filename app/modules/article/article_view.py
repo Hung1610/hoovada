@@ -8,7 +8,6 @@ from datetime import datetime
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.article_controller import ArticleController
 from app.modules.auth.decorator import admin_token_required, token_required
