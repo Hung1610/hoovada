@@ -32,13 +32,13 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class AnswerController(Controller):
 
     def search(self, args):
-        '''
+        """
         Search answers.
 
         :param args:
 
         :return:
-        '''
+        """
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
         user_id, question_id, from_date, to_date = None, None, None, None  # , None, None
@@ -174,11 +174,11 @@ class AnswerController(Controller):
             return send_error(message='Could not create answer.')
 
     def get(self):
-        '''
+        """
         [DEPRECATED]
         Hàm này được giữ lại, tuy nhiên sẽ không publish API, answers chỉ được nhận về qua search.
         :return:
-        '''
+        """
         try:
             answers = Answer.query.order_by(desc(Answer.created_date)).limit(50).all()
             return send_result(data=marshal(answers, AnswerDto.model_response), message='Success')

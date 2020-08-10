@@ -39,14 +39,14 @@ client = Client(username=BaseConfig.TWILIO_ACCOUNT_SID, password=BaseConfig.TWIL
 
 
 def encode_file_name(filename):
-    ''' Encode the filename (without extension).
+    """ Encode the filename (without extension).
 
     Args:
         filename: The filename.
 
     Returns:
          The encoded filename.
-    '''
+    """
 
     encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
     return encoded
@@ -146,14 +146,14 @@ def get_response_message(message):
 
 
 def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
-    ''' Generate the Auth token.
+    """ Generate the Auth token.
 
     Args:
         user_id: The user's ID to generate token
 
     Return:
         string
-    '''
+    """
     
     try:
         payload = {

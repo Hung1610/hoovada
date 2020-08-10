@@ -121,14 +121,14 @@ class AuthController:
 
     @staticmethod
     def check_user_exist(email):
-        ''' Check user exist by its email. One email on one register
+        """ Check user exist by its email. One email on one register
         
         Args:
             email (string)
 
         Return:
             Boolean
-        '''
+        """
 
         # password_hash = generate_password_hash(password=password)
         user = User.query.filter_by(email=email).first()
@@ -139,14 +139,14 @@ class AuthController:
 
     @staticmethod
     def check_phone_number_exist(phone_number):
-        ''' Check phone number exist by its phone_number. One phone number on one register
+        """ Check phone number exist by its phone_number. One phone number on one register
         
         Args:
             phone_number (string)
         
         Returns
             Boolean
-        '''
+        """
 
         # password_hash = generate_password_hash(password=password)
         user = User.query.filter_by(phone_number=phone_number).first()
@@ -157,14 +157,14 @@ class AuthController:
 
     @staticmethod
     def check_user_name_exist(user_name):
-        ''' Check user exist by its user_name. One user_name on one register
+        """ Check user exist by its user_name. One user_name on one register
         
         Args:
             user_name (string)
         
         Returns:
             Boolean
-        '''
+        """
 
         # password_hash = generate_password_hash(password=password)
         user = User.query.filter_by(display_name=user_name).first()
@@ -172,14 +172,14 @@ class AuthController:
 
     @staticmethod
     def create_user_name(user_name):
-        ''' Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB
+        """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB
         
         Args:
             user_name (string)
         
         Returns
             String
-        '''
+        """
         if (not AuthController.check_user_name_exist(user_name)):
             return user_name
         count = 1
@@ -727,9 +727,9 @@ class AuthController:
 
     # @staticmethod
     def logout_user(self, req):
-        '''
+        """
         Logout user handling.
-        '''
+        """
 
         auth_token = None
         api_key = None
@@ -759,13 +759,13 @@ class AuthController:
             return send_error(message='Provide a valid auth token')
 
     def get_user_info(self, req):
-        '''
+        """
         Get user information.
 
         :param req: The request to handle.
 
         :return:
-        '''
+        """
         user, message = AuthController.get_logged_user(req=req)
         if user is None:
             return send_error(message=message)
@@ -773,8 +773,8 @@ class AuthController:
 
     @staticmethod
     def get_logged_user(req):
-        ''' User information retrieving.
-        '''
+        """ User information retrieving.
+        """
 
         auth_token = None
         api_key = None

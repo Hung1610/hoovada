@@ -26,11 +26,11 @@ class AnswerList(Resource):
     # # @api.marshal_list_with(answer)
     # @api.response(code=200, model=answer_response, description='Model for answer response.')
     # def get(self):
-    #     '''
+    #     """
     #     Get the list of answers from database.
     #
     #     :return: List of answers.
-    #     '''
+    #     """
     #     controller = AnswerController()
     #     return controller.get()
 
@@ -39,11 +39,11 @@ class AnswerList(Resource):
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def post(self):
-        '''
+        """
         Create new answer.
 
         :return: The answer if success and null vice versa.
-        '''
+        """
         data = api.payload
         controller = AnswerController()
         return controller.create(data=data)
@@ -55,13 +55,13 @@ class Answer(Resource):
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self, id):
-        '''
+        """
         Get the answer by its ID.
 
         :param id: The ID of the answer.
 
         :return:
-        '''
+        """
         controller = AnswerController()
         return controller.get_by_id(object_id=id)
 
@@ -70,24 +70,24 @@ class Answer(Resource):
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def put(self, id):
-        '''
+        """
         Update the existing answer by its ID.
 
         :param id: The ID of the answer.
 
         :return:
-        '''
+        """
         data = api.payload
         controller = AnswerController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        '''
+        """
         Delete existing answer by its ID.
         :param id:
         :return:
-        '''
+        """
         controller = AnswerController()
         return controller.delete(object_id=id)
 

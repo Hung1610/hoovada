@@ -26,11 +26,11 @@ favorite_response = FavoriteDto.model_response
 #     # @admin_token_required
 #     # # @api.marshal_list_with(favorite)
 #     # def get(self):
-#     #     '''
+#     #     """
 #     #     Get list of favorites from database.
 #     #
 #     #     :return: The list of comments.
-#     #     '''
+#     #     """
 #     #     controller = FavoriteController()
 #     #     return controller.get()
 #
@@ -38,11 +38,11 @@ favorite_response = FavoriteDto.model_response
 #     @api.expect(favorite_request)
 #     @api.response(code=200, model=favorite_response, description='The model response for favorite.')
 #     def post(self):
-#         '''
+#         """
 #         Create new favorite.
 #
 #         :return: The new comment if it was created successfully and null vice versa.
-#         '''
+#         """
 #         data = api.payload
 #         controller = FavoriteController()
 #         return controller.create(data=data)
@@ -54,13 +54,13 @@ class Favorite(Resource):
     @api.param(name='id', description='The favorite ID')
     @api.response(code=200, model=favorite_response, description='The model for favorite.')
     def get(self, id):
-        '''
+        """
         Get favorite by its ID.
 
         :param comment_id: The ID of the comment.
 
         :return: The comment with the specific ID.
-        '''
+        """
         controller = FavoriteController()
         return controller.get_by_id(object_id=id)
 
@@ -68,26 +68,26 @@ class Favorite(Resource):
     # @api.expect(favorite_request)
     # @api.response(code=200, model=favorite_response, description='The model for favorite.')
     # def put(self, id):
-    #     '''
+    #     """
     #     Update existing comment by its ID.
     #
     #     :param comment_id: The ID of the comment which need to be updated.
     #
     #     :return: The updated comment if success and null vice versa.
-    #     '''
+    #     """
     #     data = api.payload
     #     controller = FavoriteController()
     #     return controller.update(object_id=id, data=data)
 
     # @token_required
     # def delete(self, id):
-    #     '''
+    #     """
     #     Delete comment by its ID.
     #
     #     :param comment_id: The ID of the comment.
     #
     #     :return:
-    #     '''
+    #     """
     #     controller = FavoriteController()
     #     return controller.delete(object_id=id)
 
@@ -98,13 +98,13 @@ class FavoriteUser(Resource):
     @api.expect(favorite_request)
     @api.response(code=200, model=favorite_response, description='The model for favorite.')
     def post(self):
-        '''
+        """
         Create a favorite on user.
 
         :param data: The data in dictionary form.
 
         :return: The favorite if success and null vice versa.
-        '''
+        """
         controller = FavoriteController()
         data = api.payload
         return controller.create_favorite_user(data=data)
@@ -112,13 +112,13 @@ class FavoriteUser(Resource):
     @token_required
     @api.param(name='id', description='The ID of the favorite to delete.')
     def delete(self, id):
-        '''
+        """
         Delete favorite on user.
 
         :param id: The ID of the favorite to delete.
 
         :return: True if success and False vice versa.
-        '''
+        """
         controller = FavoriteController()
         return controller.delete_favorite_user(object_id=id)
 

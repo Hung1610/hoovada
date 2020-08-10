@@ -22,9 +22,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class SignupUser(Model):
-    '''
+    """
     Define the SignUpUser Model.
-    '''
+    """
     __tablename__ = 'signup_user'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -43,9 +43,9 @@ class SignupUser(Model):
 
 
 class RecoveryUser(Model):
-    '''
+    """
     Define the RecoveryUser model.
-    '''
+    """
     __tablename__ = 'recovery_user'
 
     id = db.Column(db.Integer, primary_key=True)

@@ -17,7 +17,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 ns_health = Namespace(name='health')
-api = init_api()
 
 
 @ns_health.route('/')
@@ -29,32 +28,28 @@ class HealthCheck(Resource):
             None
 
         Returns
-           200 code for success 
+           None - 200 code for success 
         """
         
         return send_result(message="OK!", code=200)
 
 
-def create_app(config):
+def create_app(mode):
     """ Create an app
 
     Args:
-        config (dict)
+        mode (string): mode that the app is running on
 
     Returns:
         object - An initialized app
     """
 
-    app = init_app(config_name=config)
+    app = init_app(mode)
+    api = init_api(mode)
     api.init_app(app)
     api.add_namespace(ns_health)
     api.app.config['RESTFUL_JSON'] = {
         'ensure_ascii': False
     }
     
-    app.config.SWAGGER_UI_DOC_EXPANSION = 'none'
-    app.config.SWAGGER_UI_OPERATION_ID = True
-    app.config.SWAGGER_UI_REQUEST_DURATION = True
-    app.config.SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "post"]
-
     return app

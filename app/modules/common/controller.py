@@ -10,9 +10,9 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class Controller(ABC):
-    '''
+    """
     This class will control all interactions between clients, database server and other things.
-    '''
+    """
 
     @abstractmethod
     def create(self, data):

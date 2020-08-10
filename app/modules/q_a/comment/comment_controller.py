@@ -28,13 +28,13 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class CommentController(Controller):
 
     def search(self, args):
-        '''
+        """
         Search comments by params.
 
         :param args: Arguments in dictionary form.
 
         :return:
-        '''
+        """
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
         # user_id, question_id, answer_id = None, None, None
@@ -137,10 +137,10 @@ class CommentController(Controller):
             return send_error(message='Could not create comment')
 
     def get(self):
-        '''
+        """
         Giữ lại hàm này, tuy nhiên sẽ không cho phép nhận lại toàn bộ comments, mà nhận theo question hoặc answer thông qua hàm search.
         :return:
-        '''
+        """
         try:
             comments = Comment.query.all()
             return send_result(data=marshal(comments, CommentDto.model_response), message='Success')
