@@ -35,7 +35,7 @@ class BaseConfig:
     DB_USER = os.environ.get('DB_USER', 'dev')
     DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hoovada')
     DB_HOST = os.environ.get('DB_HOST', 'localhost')
-    DB_PORT = os.environ.get('DB_PORT', '3306')
+    DB_PORT = os.environ.get('DB_PORT', '3306') 
     DB_NAME = os.environ.get('DB_NAME', 'hoovada')
     DB_CHARSET = 'utf8mb4'
 

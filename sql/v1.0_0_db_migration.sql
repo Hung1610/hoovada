@@ -57,3 +57,9 @@ ALTER TABLE user
     DROP COLUMN job_role, 
     DROP COLUMN company, 
     DROP COLUMN website_url;
+
+ALTER TABLE user MODIFY COLUMN id Integer(11);
+ALTER TABLE topic MODIFY COLUMN id Integer(11);
+DELETE n1 FROM user n1, user n2 WHERE n1.id > n2.id AND n1.display_name = n2.display_name;
+RENAME TABLE topic_question to topic_question_view;
+
