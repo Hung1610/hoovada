@@ -31,10 +31,11 @@ extensionsToCheck = ('ạ','ả','ã','à','á','â','ậ','ầ','ấ','ẩ','�
 class SearchController():
 
     def search(self, args):
-        '''
-        Search questions.
-        :param args:
-        :return:
+        ''' Search questions.
+        
+            Args:
+
+            Returns
         '''
 
         if not isinstance(args, dict):

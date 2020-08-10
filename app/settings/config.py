@@ -9,6 +9,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+
 class BaseConfig:
     # debug mode is turned off by default
     DEBUG = False
@@ -83,9 +84,16 @@ class DevelopmentConfig(BaseConfig):
     """Development configuration."""
 
     DEBUG = True
+    TESTING = True
     DEBUG_TB_ENABLED = True
     SQLALCHEMY_ECHO = True
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
     BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
+    SWAGGER_UI_DOC_EXPANSION = 'none'
+    SWAGGER_UI_OPERATION_ID = True
+    SWAGGER_UI_REQUEST_DURATION = True
+    SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "post"]
+
 
     # if you want to use mysql 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
@@ -96,23 +104,6 @@ class DevelopmentConfig(BaseConfig):
          name=BaseConfig.DB_NAME,
          charset=BaseConfig.DB_CHARSET
      )
-
-
-class TestingConfig(BaseConfig):
-    """Test configuration."""
-
-    DEBUG = True
-    TESTING = True
-    PRESERVE_CONTEXT_ON_EXCEPTION = False
-    BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
-         user=BaseConfig.DB_USER,
-         password=BaseConfig.DB_PASSWORD,
-         host=BaseConfig.DB_HOST,
-         port=BaseConfig.DB_PORT,
-         name=BaseConfig.DB_NAME,
-         charset=BaseConfig.DB_CHARSET
-     )    
 
 
 class ProductionConfig(BaseConfig):
@@ -130,7 +121,6 @@ class ProductionConfig(BaseConfig):
 
 config_by_name = dict(
     dev=DevelopmentConfig,
-    test=TestingConfig,
     prod=ProductionConfig
 )
 

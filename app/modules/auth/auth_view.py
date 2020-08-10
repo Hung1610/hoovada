@@ -33,44 +33,47 @@ _auth_reset_password_phone = AuthDto.model_reset_password_phone
 _auth_change_password_token = AuthDto.model_change_password_token
 _auth_change_password = AuthDto.model_change_password
 
+
 @api.route('/sms/register')
 class SmsRegister(Resource):
-    '''
+    """
     Register new user with sms
-    '''
+    """
 
     @api.expect(_auth_sms_register)
     def post(self):
-        ''' Register new user.
+        """ Register new user.
         
         Args:
-            display_name (string): The name to display in website (optional).
+            display_name (string): The name to display in website.
             phone_number (string): The phone_number to register.
-            password(string): The password to register.
+            password (string): The password to register.
         
         Returns:
-            None, An verification code will be sent to user's phone number to activate account.
-        '''
+            None 
+            An verification code will be sent to user's phone number to activate account.
+        """
         post_data = request.json
         controller = AuthController()
         return controller.sms_register(post_data)
 
+
 @api.route('/sms/confirm')
 class SmsConfirm(Resource):
-    '''
-    Confirm new user registered with sms
-    '''
+    """
+    Confirm new user registered with sms code
+    """
 
     @api.expect(_auth_confirm_sms)
     def post(self):
-        ''' Check confirmation sms code.
+        """ Check confirmation sms code.
 
         Args:
             phone_number (string): The phone_number to register.
 
         Returns:
             None, verification code will be sent to user
-        '''
+        """
 
         post_data = request.json
         controller = AuthController()
@@ -79,20 +82,20 @@ class SmsConfirm(Resource):
 
 @api.route('/sms/resend_confirm')
 class SmsResendConfirm(Resource):
-    '''
+    """
     Resend Confirm code to user registered with sms
-    '''
+    """
 
     @api.expect(_auth_resend_confirm_sms)
     def post(self):
-        ''' Resend confirmation sms code.
+        """ Resend confirmation sms code.
 
         Args:
             phone_number (string): The phone_number to register.
 
         Returns:
             None, confirmation sms sent to user
-        '''
+        """
 
         post_data = request.json
         controller = AuthController()
@@ -101,13 +104,13 @@ class SmsResendConfirm(Resource):
 
 @api.route('/sms/login_password')
 class SmsLoginPassword(Resource):
-    '''
+    """
     API sms login
-    '''
+    """
 
     @api.expect(_auth_sms_login_with_password)
     def post(self):
-        ''' Login with sms and password.
+        """ Login with sms and password.
         
         Args:
             phone_number (string): The phone_number to register.
@@ -115,7 +118,7 @@ class SmsLoginPassword(Resource):
 
         Returns: 
             None
-        '''
+        """
 
         post_data = request.json
         controller = AuthController()
@@ -124,20 +127,20 @@ class SmsLoginPassword(Resource):
 
 @api.route('/sms/login_code')
 class SmsLoginCode(Resource):
-    '''
+    """
     API sms login
-    '''
+    """
 
     @api.expect(_auth_model_sms_login_with_code)
     def post(self):
-        ''' Login with sms and password.
+        """ Login with sms and password.
         
         Args:
             phone_number (string): The phone_number to register.
 
         Returns: 
             None
-        '''
+        """
         post_data = request.json
         controller = AuthController()
         return controller.sms_login_with_code(post_data)
@@ -145,13 +148,13 @@ class SmsLoginCode(Resource):
 
 @api.route('/sms/login_code/confirm')
 class SmsLoginCodeConfirm(Resource):
-    '''
+    """
     API sms login
-    '''
+    """
 
     @api.expect(_auth_model_sms_login_with_code_confirm)
     def post(self):
-        ''' Login with sms and password.
+        """ Login with sms and password.
     
         Args:
             phone_number (string): The phone_number to register.
@@ -159,7 +162,7 @@ class SmsLoginCodeConfirm(Resource):
 
         Returns:
             None
-        '''
+        """
 
         post_data = request.json
         controller = AuthController()
@@ -168,22 +171,23 @@ class SmsLoginCodeConfirm(Resource):
 
 @api.route('/register')
 class Register(Resource):
-    '''
+    """
     Register new user with email and password
-    '''
+    """
 
     @api.expect(_auth_register)
     def post(self):
-        ''' Register new user.
+        """ Register new user.
         
         Args:
-            display_name: The name to display in website (optional).
-            email: The email to register.
-            password: The password to register.
+            email (string): The email to register. 
+            display_name(string): The name to display in website.
+            password (string): The password to register.
         
         Returns:
-            None, an confirmation email will be sent to user's mailbox to activate account.
-        '''
+            None 
+            an confirmation email will be sent to user's mailbox to activate account.
+        """
 
         post_data = request.json
         controller = AuthController()
@@ -195,14 +199,14 @@ class ResendConfirmation(Resource):
     
     @api.expect(_auth_login)
     def post(self):
-        ''' Resend confirmation email.
+        """ Resend confirmation email.
         
         Args:
             None
 
         Return:
             None
-        '''
+        """
 
         data = api.payload
         controller = AuthController()
@@ -212,14 +216,14 @@ class ResendConfirmation(Resource):
 @api.route('/confirmation/<token>')
 class ConfirmationEmail(Resource):
     def get(self, token):
-        ''' Check confirmation token.
+        """ Check confirmation token.
         
         Args:
             token (string): The token to confirm.
 
         Returns:
             None
-        '''
+        """
 
         controller = AuthController()
         return controller.confirm_email(token=token)
@@ -229,15 +233,15 @@ class ConfirmationEmail(Resource):
 class PasswordResetEmail(Resource):
     @api.expect(_auth_reset_password_email)
     def post(self):
-        ''' 
+        """ 
         Request password reset by email.
         
         Args:
-            email (string): The adddress to send reset password email.
+            email (string): The address to send reset password email.
 
         Return:
             None
-        '''
+        """
         post_data = request.json
         controller = AuthController()
         return controller.reset_password_by_email(data=post_data)
@@ -246,7 +250,7 @@ class PasswordResetEmail(Resource):
 @api.route('/password-reset-email-confirm/<token>', endpoint='password_reset_email_confirm')
 class PasswordResetEmailConfirm(Resource):
     def post(self, token):
-        ''' 
+        """ 
         Confirm password reset by email.
         
         Args:
@@ -254,7 +258,7 @@ class PasswordResetEmailConfirm(Resource):
 
         Return:
             reset_token (string): The token to use for setting new password.
-        '''
+        """
         controller = AuthController()
         return controller.reset_password_by_email_confirm(token=token)
 
@@ -263,7 +267,7 @@ class PasswordResetEmailConfirm(Resource):
 class PasswordResetPhone(Resource):
     @api.expect(_auth_reset_password_phone)
     def post(self):
-        ''' 
+        """ 
         Request password reset by phone number.
         
         Args:
@@ -271,7 +275,7 @@ class PasswordResetPhone(Resource):
 
         Return:
             None
-        '''
+        """
         post_data = request.json
         controller = AuthController()
         return controller.reset_password_by_sms(data=post_data)
@@ -280,7 +284,7 @@ class PasswordResetPhone(Resource):
 @api.route('/password-reset-phone-confirm/<token>')
 class PasswordResetPhoneConfirm(Resource):
     def post(self, token):
-        ''' 
+        """ 
         Confirm password reset by phone number.
         
         Args:
@@ -288,7 +292,7 @@ class PasswordResetPhoneConfirm(Resource):
 
         Return:
             reset_token (string): The token to use for setting new password.
-        '''
+        """
         post_data = request.json
         controller = AuthController()
         return controller.reset_password_by_sms_confirm(data=post_data)
@@ -298,7 +302,7 @@ class PasswordResetPhoneConfirm(Resource):
 class ChangePasswordByToken(Resource):
     @api.expect(_auth_change_password_token)
     def post(self):
-        ''' 
+        """ 
         Change password using password reset token.
         
         Args:
@@ -309,7 +313,8 @@ class ChangePasswordByToken(Resource):
 
         Return:
             None.
-        '''
+        """
+        
         post_data = request.json
         controller = AuthController()
         return controller.change_passwork_by_token(data=post_data)
@@ -319,7 +324,7 @@ class ChangePasswordByToken(Resource):
 class ChangePassword(Resource):
     @api.expect(_auth_change_password)
     def post(self):
-        ''' 
+        """ 
         Change password using password reset token.
         
         Args:
@@ -329,7 +334,7 @@ class ChangePassword(Resource):
 
         Return:
             None.
-        '''
+        """
         post_data = request.json
         controller = AuthController()
         return controller.change_passwork(data=post_data)
@@ -337,9 +342,9 @@ class ChangePassword(Resource):
 
 @api.route('/login')
 class Login(Resource):
-    '''
+    """
     API login
-    '''
+    """
 
     # @api.expect(_auth)
     @api.expect(_auth_login)
@@ -351,8 +356,9 @@ class Login(Resource):
             password (string): the password of the user.
 
         Returns:
-            None, All information of user if he logged in and None if he did not log in.
+            None
         """
+
         post_data = request.json
         controller = AuthController()
         return controller.login_user(data=post_data)
@@ -360,9 +366,9 @@ class Login(Resource):
 
 @api.route('/social_login/facebook')
 class FacebookLogin(Resource):
-    '''
+    """
     API login
-    '''
+    """
 
     # @api.expect(_auth)
     @api.expect(_auth_social_login)
@@ -382,9 +388,9 @@ class FacebookLogin(Resource):
 
 @api.route('/social_login/google')
 class GoogleLogin(Resource):
-    '''
+    """
     API login
-    '''
+    """
 
     # @api.expect(_auth)
     @api.expect(_auth_social_login)
@@ -405,9 +411,9 @@ class GoogleLogin(Resource):
 
 @api.route('/logout')
 class Logout(Resource):
-    '''
+    """
     API logout
-    '''
+    """
 
     @token_required
     def get(self):
@@ -429,9 +435,9 @@ class Logout(Resource):
 
 @api.route('/info')
 class UserInfor(Resource):
-    '''
+    """
     Get user information. After user logging in successfully, user will get token, and this token will be used to get information.
-    '''
+    """
 
     @token_required
     @api.response(code=200, model=_user_info, description='Model for user information.')

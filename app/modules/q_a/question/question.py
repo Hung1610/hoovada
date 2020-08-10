@@ -42,7 +42,7 @@ class Question(Model):
 
 
 class QuestionTopicView():
-    __tablename__ = 'topic_question'
+    __tablename__ = 'topic_question_view'
 
     topic_id = db.Column(db.Integer)
     topic_name = db.Column(db.String(255))
