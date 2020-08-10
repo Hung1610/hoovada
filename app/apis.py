@@ -28,7 +28,7 @@ class MyApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        if ':80' in self.base_url or ':443' in self.base_url:
+        if '80' in self.base_url or '443' in self.base_url:
             scheme = 'https'
         else:
             scheme = 'http'
