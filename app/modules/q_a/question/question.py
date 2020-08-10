@@ -14,6 +14,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+
 class Question(Model):
     __tablename__ = 'question'
 
@@ -40,7 +41,7 @@ class Question(Model):
     favorite_count = db.Column(db.Integer, default=0)
 
 
-class QuestionTopicView(Model):
+class QuestionTopicView():
     __tablename__ = 'topic_question'
 
     topic_id = db.Column(db.Integer)
