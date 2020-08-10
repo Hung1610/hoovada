@@ -27,11 +27,11 @@ class UploadImage(Resource):
     @token_required
     @api.expect(avatar_upload)
     def post(self):
-        '''
+        """
         Upload avatar.
         -------------
         :return:
-        '''
+        """
         args = avatar_upload.parse_args()
         controller = FileUploadController()
         return controller.upload_image(args=args)

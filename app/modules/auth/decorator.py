@@ -32,8 +32,8 @@ def token_required(f):
 
 
 def admin_token_required(f):
-    ''' Check admin rights for further actions.
-    '''
+    """ Check admin rights for further actions.
+    """
     @wraps(f)
     def decorated(*args, **kwargs):
         user, message = AuthController.get_logged_user(request)

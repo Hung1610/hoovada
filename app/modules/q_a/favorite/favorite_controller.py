@@ -28,13 +28,13 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FavoriteController(Controller):
     def search(self, args):
-        '''
+        """
         Search favorites.
 
         :param args: The dictionary-like parameters.
 
         :return:
-        '''
+        """
         if not isinstance(args, dict):
             return send_error(message='Could not parse params. Check again.')
         user_id, favorited_user_id, question_id, answer_id, comment_id, from_date, to_date = None, None, None, None, None, None, None

@@ -29,11 +29,11 @@ class QuestionList(Resource):
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        '''
+        """
         Get list of questions from database.
 
         :return: List of questions.
-        '''
+        """
         controller = QuestionController()
         return controller.get()
 
@@ -42,11 +42,11 @@ class QuestionList(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        '''
+        """
         Create new question and save to database.
 
         :return: The question if success and None vice versa.
-        '''
+        """
         data = api.payload
         controller = QuestionController()
         return controller.create(data=data)
@@ -59,13 +59,13 @@ class Question(Resource):
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, id):
-        '''
+        """
         Get specific question by its ID.
 
         :param id: The ID of the question to get from.
 
         :return: The question if success and None vice versa.
-        '''
+        """
         controller = QuestionController()
         return controller.get_by_id(object_id=id)
 
@@ -74,7 +74,7 @@ class Question(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id):
-        '''
+        """
         Update existing question by its ID.
 
         NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
@@ -82,20 +82,20 @@ class Question(Resource):
         :param id: The ID of the question.
 
         :return:
-        '''
+        """
         data = api.payload
         controller = QuestionController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        '''
+        """
         Delete the question by its ID.
 
         :param id: The ID of the question.
 
         :return:
-        '''
+        """
         controller = QuestionController()
         return controller.delete(object_id=id)
 

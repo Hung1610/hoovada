@@ -92,7 +92,7 @@ class UserController(Controller):
 
 
     def update(self, object_id, data):
-        '''
+        """
         Doest now allow to update `id`, `email`, `password`, `profile_views`.
 
         :param object_id:
@@ -100,7 +100,7 @@ class UserController(Controller):
         :param data:
 
         :return:
-        '''
+        """
         if not isinstance(data, dict):
             return send_error(message='You must pass dictionary-like data.')
         if 'id' in data:
