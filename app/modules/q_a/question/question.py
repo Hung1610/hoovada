@@ -41,7 +41,7 @@ class Question(Model):
     favorite_count = db.Column(db.Integer, default=0)
 
 
-class QuestionTopicView():
+class QuestionTopicView(Model):
     __tablename__ = 'topic_question'
     __table_args__ = {'info': dict(is_view=True)}
 
