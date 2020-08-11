@@ -97,11 +97,11 @@ class ArticleController(Controller):
             return send_error(message=constants.msg_create_failed)
 
     def get(self, args):
-        '''
+        """
         Search articles.
         :param args:
         :return:
-        '''
+        """
         if not isinstance(args, dict):
             return send_error(message=constants.msg_wrong_data_format)
 

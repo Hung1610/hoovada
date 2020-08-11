@@ -25,12 +25,12 @@ class UserTopicList(Resource):
     @api.expect(user_employment_request)
     @api.response(code=200, model=user_employment_response, description='Model for question topic response.')
     def post(self):
-        ''' Create new user_employment.
+        """ Create new user_employment.
             
         Args      
         Returns:
             The new user_employment if it was created successfully.
-        '''
+        """
         data = api.payload
         controller = UserEmploymentController()
         return controller.create(data=data)

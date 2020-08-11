@@ -111,6 +111,8 @@ $ pip3 install -r <path to project>/requirements.txt
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
 ```
 
+- If you face with mixed-content issues https vs http, change api = MyApi() to api=Api() in app/apis.py for testing.
+
 ### Pylint
 
 - We encourage developers to run Pylint before submitting code
@@ -130,7 +132,9 @@ $ docker image ls
 $ docker run -p 80:5000 <name of image> 
 ```
 
-- Browser to http://localhost:80 and/or http://localhost:80/api/v1/doc to see your APIs
+- Browser to http://localhost:80/api/v1/doc to see your APIs.
+
+- If you face with mixed-content issues https vs http, change api = MyApi() to api=Api() in app/apis.py for testing.
 
 
 Versioning

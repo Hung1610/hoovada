@@ -26,13 +26,15 @@ parser.add_argument('value', type=str, required=True, help='The value of the sea
 class Search(Resource):
     @api.response(code=200, model=search_response, description='Model for success response.')
     def get(self):
-        """
-        Search all topics that satisfy conditions.
-        ---------------------
-        :value: The value of the search
+        """ Search all topics that satisfy conditions.
+        
+        Args:
+            value (string) The value of the search
 
-        :return: List of buyers
+        Returns
+            List of results
         """
+
         args = parser.parse_args()
         controller = SearchController()
         return controller.search(args=args)

@@ -25,11 +25,11 @@ class CommentList(Resource):
     # @admin_token_required
     # # @api.marshal_list_with(comment)
     # def get(self):
-    #     '''
+    #     """
     #     Get list of comments from database.
     #
     #     :return: The list of comments.
-    #     '''
+    #     """
     #     controller = CommentController()
     #     return controller.get()
 
@@ -38,11 +38,11 @@ class CommentList(Resource):
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self):
-        '''
+        """
         Create new comment.
 
         :return: The new comment if it was created successfully and null vice versa.
-        '''
+        """
         data = api.payload
         controller = CommentController()
         return controller.create(data=data)
@@ -54,13 +54,13 @@ class Comment(Resource):
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, id):
-        '''
+        """
         Get comment by its ID.
 
         :param id: The ID of the comment.
 
         :return: The comment with the specific ID.
-        '''
+        """
         controller = CommentController()
         return controller.get_by_id(object_id=id)
 
@@ -69,26 +69,26 @@ class Comment(Resource):
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def put(self, id):
-        '''
+        """
         Update existing comment by its ID.
 
         :param id: The ID of the comment which need to be updated.
 
         :return: The updated comment if success and null vice versa.
-        '''
+        """
         data = api.payload
         controller = CommentController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        '''
+        """
         Delete comment by its ID.
 
         :param id: The ID of the comment.
 
         :return:
-        '''
+        """
         controller = CommentController()
         return controller.delete(object_id=id)
 

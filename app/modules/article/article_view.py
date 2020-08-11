@@ -53,11 +53,11 @@ class ArticleList(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def post(self):
-        '''
+        """
         Create new article and save to database.
 
         :return: The article if success and None vice versa.
-        '''
+        """
         data = api.payload
         controller = ArticleController()
         return controller.create(data=data)
@@ -67,13 +67,13 @@ class ArticleList(Resource):
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self, id):
-        '''
+        """
         Get specific article by its ID.
 
         :param id: The ID of the article to get.
 
         :return: The article if success and None vice versa.
-        '''
+        """
         controller = ArticleController()
         return controller.get_by_id(object_id=id)
 
@@ -81,25 +81,25 @@ class Article(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def put(self, id):
-        '''
+        """
         Update existing article by its ID.
 
         :param id: The ID of the article.
 
         :return:
-        '''
+        """
         data = api.payload
         controller = ArticleController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        '''
+        """
         Delete the article by its ID.
 
         :param id: The ID of the article.
 
         :return:
-        '''
+        """
         controller = ArticleController()
         return controller.delete(object_id=id)

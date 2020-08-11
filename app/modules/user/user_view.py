@@ -39,13 +39,13 @@ class UserList(Resource):
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
-        '''Create new user.
+        """Create new user.
         Args:
             All data to create a new user is stored in dictionary form.
 
         Returns:
              New user is created successfully and error vice versa.
-        '''
+        """
         data = api.payload
         controller = UserController()
         return controller.create(data=data)
@@ -76,14 +76,14 @@ class User(Resource):
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
-        '''Update an existed user in the system.
+        """Update an existed user in the system.
         
         Args:
             user_name(string)
 
         Returns:
              The user data after updated.
-        '''
+        """
 
         data = api.payload
         controller = UserController()
@@ -92,14 +92,14 @@ class User(Resource):
 
     @token_required
     def delete(self, id):
-        ''' Delete the user with the user_name `user_name`
+        """ Delete the user with the user_name `user_name`
         
         Args:
             user_name (string): The user_name of the user to be deleted.
 
         Returns: 
             True if user delete successfully and False vice versa.
-        '''
+        """
         controller = UserController()
         return controller.delete(user_name=user_name)
 
@@ -115,22 +115,22 @@ class Avatar(Resource):
     # @token_required
     @api.expect(avatar_download)
     def get(self):
-        '''
+        """
         Download  avatar.
         -----------------
         :return:
-        '''
+        """
         controler = UserController()
         return controler.get_avatar()
 
     @token_required
     @api.expect(avatar_upload)
     def post(self):
-        '''
+        """
         Upload avatar.
         -------------
         :return:
-        '''
+        """
         args = avatar_upload.parse_args()
         controller = UserController()
         return controller.upload_avatar(args=args)

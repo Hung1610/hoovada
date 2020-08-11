@@ -223,7 +223,7 @@ class ReportController(Controller):
         pass
 
     def _parse_report(self, data, report=None):
-        '''
+        """
         Parse dictionary form data to report.
         ----------------------
 
@@ -232,7 +232,7 @@ class ReportController(Controller):
         :param report: A report as a param.
 
         :return: A report.
-        '''
+        """
         if report is None:
             report = Report()
         if 'user_id' in data:

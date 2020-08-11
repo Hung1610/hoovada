@@ -26,11 +26,11 @@ report_response = ReportDto.model_response
 #     @admin_token_required
 #     @api.marshal_list_with(report_response)
 #     def get(self):
-#         '''
+#         """
 #         Get list of reportings from database.
 #
 #         :return: The list of reportings.
-#         '''
+#         """
 #         controller = ReportController()
 #         return controller.get()
 #
@@ -38,11 +38,11 @@ report_response = ReportDto.model_response
 #     @api.expect(report_response)
 #     @api.marshal_with(report_response)
 #     def post(self):
-#         '''
+#         """
 #         Create new report.
 #
 #         :return: The new report if it was created successfully and null vice versa.
-#         '''
+#         """
 #         data = api.payload
 #         controller = ReportController()
 #         return controller.create(data=data)
@@ -97,13 +97,13 @@ class Reporting(Resource):
     @api.param(name='id', description='The ID of report.')
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, id):
-        '''
+        """
         Get report by its ID.
 
         :param id: The ID of the report.
 
         :return: The report with the specific ID.
-        '''
+        """
         controller = ReportController()
         return controller.get_by_id(object_id=id)
 
