@@ -33,6 +33,11 @@ class SearchDto(Dto):
         'display_name': fields.String(description='The display name of the topic')
     })
 
+    model_search_article_res = api.model('search_article_res', {
+        'id': fields.Integer(readonly=True, description=''),
+        'title': fields.String(description='The title of the article'),
+    })
+
     search_response = api.model('response', {
         'message': fields.String(required=True)
     })
