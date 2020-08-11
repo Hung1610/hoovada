@@ -92,15 +92,13 @@ def save_social_account(provider, extra_data):
         first_name = extra_data.get('first_name', '')
         last_name = extra_data.get('last_name', '')
         middle_name = extra_data.get('middle_name', '')
-        user = User(display_name=user_name, email=email,
-                    confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
+        user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
         user.set_password(password=provider + '_' + str(user_name))
         
         try:
             db.session.add(user)
             db.session.commit()
-            social_account = SocialAccount(provider=provider, uid=extra_data.get(
-                'id'), extra_data=json.dumps(extra_data), user_id=user.id)
+            social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
             db.session.add(social_account)
             db.session.commit()
             auth_token = encode_auth_token(user_id=user.id)
@@ -137,6 +135,7 @@ class AuthController:
         else:
             return False
 
+
     @staticmethod
     def check_phone_number_exist(phone_number):
         """ Check phone number exist by its phone_number. One phone number on one register
@@ -155,6 +154,7 @@ class AuthController:
         else:
             return False
 
+
     @staticmethod
     def check_user_name_exist(user_name):
         """ Check user exist by its user_name. One user_name on one register
@@ -169,6 +169,7 @@ class AuthController:
         # password_hash = generate_password_hash(password=password)
         user = User.query.filter_by(display_name=user_name).first()
         return user is not None
+
 
     @staticmethod
     def create_user_name(user_name):
@@ -187,6 +188,7 @@ class AuthController:
             count += 1
         return user_name + '_' + str(count)
 
+
     def login_with_google(self, data):
 
         if not isinstance(data, dict):
@@ -201,6 +203,7 @@ class AuthController:
         resp.raise_for_status()
         extra_data = resp.json()
         return save_social_account('google', extra_data)
+
 
     def login_with_facebook(self, data):
         if not isinstance(data, dict):
@@ -227,6 +230,7 @@ class AuthController:
         resp.raise_for_status()
         extra_data = resp.json()
         return save_social_account('facebook', extra_data)
+
 
     def sms_register(self, data):
         if not isinstance(data, dict):
@@ -281,6 +285,7 @@ class AuthController:
         else:
            return send_error(message='Số điện thoại không đúng định dạng!')
 
+
     def confirm_sms(self, data):
         if not isinstance(data, dict):
             return send_error(message='Dữ liệu không đúng định dạng hoặc thiếu, vui lòng kiểm tra lại')
@@ -312,6 +317,7 @@ class AuthController:
         else:
             return send_error(message='Số điện thoại {} chưa đăng kí, vui lòng kiểm tra lại!'.format(phone_number))
     
+
     # @staticmethod
     def resend_confirmation_sms(self, data):
         if not isinstance(data, dict):
@@ -338,10 +344,11 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Gửi tin nhắn thất bại, vui lòng thử lại!')
     
+
     def sms_login_with_password(self, data):
+        """ Login user handling.
         """
-        Login user handling.
-        """
+    
         try:
             # print(data)
             user = User.query.filter_by(phone_number=data['phone_number']).first()
@@ -365,10 +372,11 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Không thể đăng nhập, vui lòng thử lại.')  # Could not login, please try again later. Error {}'.format(e.__str__()))
 
+
     def sms_login_with_code(self, data):
+        """ Login user handling.
         """
-        Login user handling.
-        """
+
         try:
             # print(data)
             user = User.query.filter_by(phone_number=data['phone_number']).first()
@@ -388,6 +396,7 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Không thể đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
     
+
     def sms_login_with_code_confirm(self, data):
         if not isinstance(data, dict):
             return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')
@@ -423,6 +432,7 @@ class AuthController:
 
         return send_error(message='Đăng nhập thất bại, vui lòng thử lại!')
 
+
     # @staticmethod
     def register(self, data):
         if not isinstance(data, dict):
@@ -438,6 +448,7 @@ class AuthController:
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
             return send_error(message='Vui lòng cung cấp tên người dùng!') # Pleases provide a username.')
 
+        # check valid email - Vinh
         if is_valid_email(data['email']) is False:
             return send_error(message='Địa chỉ Email không hợp lệ!')
         
@@ -474,6 +485,7 @@ class AuthController:
                 print(e.__str__())
                 db.session.rollback()
                 return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')  # Could not send a confirmation email to your mailbox.')
+
 
     def reset_password_by_sms(self, data):
         """Reset password request by SMS OTP

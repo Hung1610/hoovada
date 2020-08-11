@@ -8,6 +8,7 @@ from datetime import datetime
 import dateutil.parser
 from flask_restx import marshal
 from flask import request
+from sqlalchemy import desc
 
 # own modules
 from app import db
@@ -244,14 +245,15 @@ class ShareController(Controller):
                 pass
         return share
 
-def get_share_by_user_id(self,args):
-        """
-        Search share.
 
-        :param args:
-        :param `user_id`: Search shares by user_id
+    def get_share_by_user_id(self,args):
+        """ Search share.
 
-        :return: List of shares  (questions, answer) satisfy search condition.
+        Args:
+            `user_id` (int): Search shares by user_id
+
+        Returns:
+             List of shares  (questions, answer) satisfy search condition.
         """
 
         query = Share.query
@@ -288,7 +290,7 @@ def get_share_by_user_id(self,args):
                     result['answer'] = answer
 
                     results.append(result)
-                return send_result(data=marshal(results, ShareDto.model_share_response), message='Success')
+                return send_result(data=marshal(results, ShareDto.model_response), message='Success')
             else:
                 return send_result(message='Không tìm thấy kết quả chia sẻ')
         else:
