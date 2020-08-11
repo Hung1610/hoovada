@@ -3,6 +3,8 @@
 
 # own modules
 from app.modules.article.article_view import api as ns_article
+from app.modules.article.voting.vote_view import api as ns_article_vote
+from app.modules.article.favorite.favorite_view import api as ns_article_favorite
 
 
 __author__ = "hoovada.com team"

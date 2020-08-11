@@ -6,7 +6,6 @@ from flask_restx import fields, Namespace, reqparse
 
 # own modules
 from app.modules.article.voting.vote import VotingStatusEnum
-from app.modules.article.article_dto import ArticleDto
 from app.modules.common.dto import Dto
 
 
@@ -17,7 +16,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class VoteDto(Dto):
-    api = ArticleDto.api
+    name = 'article_vote'
+    api = Namespace(name)
+
     model_request_article = api.model('vote_request_article_vote', {
         'vote_status': fields.Integer(description='1 - Neutral, 2 - Upvote, 3 - Downvote', default=False)
     })

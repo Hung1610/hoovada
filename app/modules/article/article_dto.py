@@ -6,6 +6,7 @@ from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from app.modules.common.dto import Dto
+from app.modules.article.voting import api as ns_article_vote
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

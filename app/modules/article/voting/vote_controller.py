@@ -26,7 +26,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class VoteController(Controller):
-    def get(self, article_id, args):
+    def get(self, args, article_id = None):
         """
         Search votes.
 
@@ -60,32 +60,24 @@ class VoteController(Controller):
             return send_error(message=constants.msg_lacking_query_params)
 
         query = Vote.query
-        is_filter = False
         if user_id is not None:
             query = query.filter(Vote.user_id == user_id)
-            is_filter = True
         if article_id is not None:
             query = query.filter(Vote.article_id == article_id)
-            is_filter = True
         if from_date is not None:
             query = query.filter(Vote.created_date >= from_date)
-            is_filter = True
         if to_date is not None:
             query = query.filter(Vote.created_date <= to_date)
-            is_filter = True
-        if is_filter:
-            votes = query.all()
-            if votes is not None and len(votes) > 0:
-                return send_result(data=marshal(votes, VoteDto.model_response), message='Success')
-            else:
-                return send_result(message=constants.msg_vote_not_found)
+        votes = query.all()
+        if votes is not None and len(votes) > 0:
+            return send_result(data=marshal(votes, VoteDto.model_response), message='Success')
         else:
-            return send_error(message=constants.msg_search_failed)
+            return send_result(message=constants.msg_vote_not_found)
 
-    def get_by_id(self, article_id, user_id):
-        if article_id is None:
+    def get_by_id(self, object_id):
+        if id is None:
             return send_error(message=constants.msg_lacking_id)
-        vote = Vote.query.filter_by(article_id=article_id, user_id=user_id).first()
+        vote = Vote.query.filter_by(id=object_id).first()
         if vote is None:
             return send_error(message=constants.msg_vote_not_found)
         else:
@@ -134,9 +126,11 @@ class VoteController(Controller):
             print(e)
             return send_error(message=constants.msg_create_failed.format(e))
 
-    def delete(self, article_id, user_id):
+    def delete(self, article_id):
+        current_user, _ = AuthController.get_logged_user(request)
+        user_id = current_user.id
         try:
-            vote = Vote.query.filter_by(article_id=article_id,user_id=user_id).first()
+            vote = Vote.query.filter_by(article_id=article_id, user_id=user_id).first()
             if vote is None:
                 return send_error(message=constants.msg_vote_not_found)
             else:

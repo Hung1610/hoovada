@@ -43,6 +43,7 @@ class Question(Model):
 
 class QuestionTopicView():
     __tablename__ = 'topic_question'
+    __table_args__ = {'info': dict(is_view=True)}
 
     topic_id = db.Column(db.Integer)
     topic_name = db.Column(db.String(255))
