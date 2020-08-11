@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.q_a.favorite.favorite_view import api
+from app.modules.article.favorite.favorite_view import api
 
 
 __author__ = "hoovada.com team"

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import fields, Namespace
+from flask_restx import fields, Namespace, reqparse
 
 # own modules
 from app.modules.common.dto import Dto
@@ -14,8 +14,20 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class FavoriteDto(Dto):
-    name = 'favorite'
+    name = 'article_favorite'
     api = Namespace(name)
+
+    model_topic_article_favorite = api.model('topic_article_favorite', {
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'name': fields.String(description='The name of the topic')
+    })
+
+    model_favorite_article = api.model('favorite_article', {
+        'title': fields.String(description='The title of the article'),
+        'user_id': fields.Integer(description='The user information'),
+        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
+        'topics': fields.List(fields.Nested(model_topic_article_favorite), description='The list of topics')
+    })
 
     model_request = api.model('favorite_request', {
         'user_id': fields.Integer(required=True, description='The user ID who favorited'),
@@ -28,10 +40,14 @@ class FavoriteDto(Dto):
     model_response = api.model('favorite_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
         'user_id': fields.Integer(required=True, description='The user ID who favorited'),
-        'favorited_user_id': fields.Integer(required=False, description='The user ID who has been favorited'),
-        'question_id': fields.Integer(required=False, description='The question ID which has been favorited'),
-        'answer_id': fields.Integer(required=False, description='The answer ID which has been favorited'),
-        'comment_id': fields.Integer(required=False, description='The comment ID which has been favorited'),
+        'article_id': fields.Integer(required=False, description='The user ID who has been favorited'),
+        'article':fields.Nested(model_favorite_article, description='The information of the article'),
         'created_date': fields.DateTime(required=False, description='The created date'),
         'updated_date': fields.DateTime(required=False, description='The updated date')
     })
+
+    model_get_parser = reqparse.RequestParser()
+    model_get_parser.add_argument('user_id', type=str, required=False, help='Search favorites by user_id')
+    model_get_parser.add_argument('from_date', type=str, required=False, help='Search all favorites by start voting date.')
+    model_get_parser.add_argument('to_date', type=str, required=False, help='Search all favorites by finish voting date.')
+    model_get_parser.add_argument('favorited_user_id', type=str, required=False, help='Search favorites by user owner of the article')

@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class Comment(Model):
-    __tablename__ = 'comment'
+    __tablename__ = 'article_comment'
 
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.UnicodeText)
