@@ -29,24 +29,47 @@ class QuestionList(Resource):
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
+<<<<<<< HEAD
         """
         Get list of questions from database.
 
         :return: List of questions.
         """
+=======
+        """ Get list of questions from database.
+        
+        Args:
+
+        Returns:
+             List of questions.
+        """
+
+>>>>>>> dev
         controller = QuestionController()
         return controller.get()
+
 
     @token_required
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
+<<<<<<< HEAD
         """
         Create new question and save to database.
 
         :return: The question if success and None vice versa.
         """
+=======
+        """ Create new question and save to database.
+        
+        Args:
+
+        Returns:
+             The question if success and None vice versa.
+        """
+
+>>>>>>> dev
         data = api.payload
         controller = QuestionController()
         return controller.create(data=data)
@@ -59,13 +82,25 @@ class Question(Resource):
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, id):
+<<<<<<< HEAD
         """
         Get specific question by its ID.
+=======
+        """ Get specific question by its ID.
+>>>>>>> dev
 
-        :param id: The ID of the question to get from.
+        Args:
+            id (int): The ID of the question to get from.
 
+        Returns:
+             The question if success and None vice versa.
+        """
+
+<<<<<<< HEAD
         :return: The question if success and None vice versa.
         """
+=======
+>>>>>>> dev
         controller = QuestionController()
         return controller.get_by_id(object_id=id)
 
@@ -74,28 +109,48 @@ class Question(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id):
+<<<<<<< HEAD
         """
         Update existing question by its ID.
+=======
+        """ Update existing question by its ID.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
+>>>>>>> dev
 
-        NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
+        Args:
+            id (int): The ID of the question.
 
-        :param id: The ID of the question.
+        Returns:
+        """
 
+<<<<<<< HEAD
         :return:
         """
+=======
+>>>>>>> dev
         data = api.payload
         controller = QuestionController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
+<<<<<<< HEAD
         """
         Delete the question by its ID.
+=======
+        """ Delete the question by its ID.
+>>>>>>> dev
 
-        :param id: The ID of the question.
+        Args:
+            id (int): The ID of the question.
 
+        Returns:
+        """
+
+<<<<<<< HEAD
         :return:
         """
+=======
+>>>>>>> dev
         controller = QuestionController()
         return controller.delete(object_id=id)
 
@@ -116,23 +171,22 @@ class QuesstionSearch(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
+        """ Search all questions that satisfy conditions.
+        
+        Args:
+
+            `title` (string): The name of the topics to search
+            `user_id` (int): Search questions by user_id (who created question)
+            `fixed_topic_id`(int): Search all questions by fixed topic ID.
+            `topic_id` (int): Search all questions by topic ID.
+            `from_date` (date): Search questions created after this date.
+            `to_date` (date): Search questions created before this date.
+            `anonymous`: Search questions created by anonymous.
+
+        Returns:
+            List of questions satisfy search condition.
         """
-        Search all questions that satisfy conditions.
-        ---------------------
-        :param `title`: The name of the topics to search
 
-        :param `user_id`: Search questions by user_id (who created question)
-
-        :param `fixed_topic_id`: Search all questions by fixed topic ID.
-
-        :param `from_date`: Search questions created after this date.
-
-        :param `to_date`: Search questions created before this date.
-
-        :param `anonymous`: Search questions created by anonymous.
-
-        :return: List of questions satisfy search condition.
-        """
         args = parser.parse_args()
         controller = QuestionController()
         return controller.search(args=args)
@@ -144,12 +198,14 @@ class GetQuestionByTopic(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
     #13/07/2020 thongnv - add param `topic_id`
     def get(self,topic_id):
-        """
-        Get  all question of a topic that sorted based in upvote count.
-        ---------------------
-        :param `topic_id`: Search all questions by topic ID.
+        """  Get all question of a topic that sorted based in upvote count.
 
-        :return: Get all question of a topic that sorted based in upvote count.
+        Args:
+            `topic_id` (int): Search all questions by topic ID.
+
+        Returns:
+             Get all question of a topic that sorted based in upvote count.
         """
+
         controller = QuestionController()
         return controller.get_by_topic_id(topic_id)

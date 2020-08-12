@@ -159,32 +159,23 @@ class ArticleController(Controller):
                 pass
 
         query = Article.query  # query search from view
-        is_filter = False
         if title and not str(title).strip().__eq__(''):
             title = '%' + title.strip() + '%'
             query = query.filter(Article.title.like(title))
-            is_filter = True
         if user_id:
             query = query.filter(Article.user_id == user_id)
-            is_filter = True
         if fixed_topic_id:
             query = query.filter(Article.fixed_topic_id == fixed_topic_id)
-            is_filter = True
         if created_date:
             query = query.filter(Article.created_date == created_date)
-            is_filter = True
         if updated_date:
             query = query.filter(Article.updated_date == updated_date)
-            is_filter = True
         if from_date:
             query = query.filter(Article.created_date >= from_date)
-            is_filter = True
         if to_date:
             query = query.filter(Article.created_date <= to_date)
-            is_filter = True
         if topic_id:
             query = query.filter(Article.topics.any(id=topic_id))
-            is_filter = True
 
         articles = query.all()
         if articles and len(articles) > 0:
