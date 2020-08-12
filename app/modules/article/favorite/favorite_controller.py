@@ -70,8 +70,6 @@ class FavoriteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if user_id is None and favorited_user_id is None and from_date is None and to_date is None:
-            return send_error(message=constants.msg_lacking_query_params)
 
         query = Favorite.query
         if user_id is not None:
