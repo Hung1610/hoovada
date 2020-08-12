@@ -108,14 +108,18 @@ class TopicController(Controller):
         if is_fixed is not None:
             query = query.filter(Topic.is_fixed == is_fixed)
             is_filter = True
+
+        # default: "Những lĩnh vực khác" trên frontend
         if is_filter:
             topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác"))).all()
             if topics is not None and len(topics) > 0:
                 return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
             else:
                 return send_error(message='Could not find any topics.')
+
         else:
             return send_error(message='Could not find topics with these parameters.')
+
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -127,9 +131,11 @@ class TopicController(Controller):
             is_sensitive = check_sensitive(topic_name)
             if is_sensitive:
                 return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+
         if not 'parent_id' in data:
             return send_error(message='Topic must have a parent topic.')
         try:
+            # check topuc already exists
             topic = Topic.query.filter(or_(
                 and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
                 and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
@@ -139,6 +145,8 @@ class TopicController(Controller):
             if not topic:  # the topic does not exist
                 topic = self._parse_topic(data=data, topic=None)
                 topic.created_date = datetime.today()
+
+                # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.add(topic)
                 db.session.commit()
@@ -164,9 +172,11 @@ class TopicController(Controller):
                                    data=marshal(topic, TopicDto.model_topic_response))
             else:  # topic already exist
                 return send_error(message='The topic with name {} and parent topic id {} already exist'.format(data['name'], data['parent_id']))
+        
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Coult not create topic. Contact administrator for solution.')
+            return send_error(message='Could not create topic, please try again!')
+
 
     def get(self):
         try:
@@ -184,6 +194,7 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -222,9 +233,12 @@ class TopicController(Controller):
                 is_sensitive = check_sensitive(topic.name)
                 if is_sensitive:
                     return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+
+                # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.commit()
                 return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_topic_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update topic.')

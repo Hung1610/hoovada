@@ -157,6 +157,7 @@ class QuestionController(Controller):
         else:
             return send_error(message='Could not find questions. Please check your parameters again.')
 
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form")
@@ -235,6 +236,7 @@ class QuestionController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message='Could not create question. Contact administrator for solution.')
+
 
     def get(self):
         try:
@@ -527,4 +529,5 @@ class QuestionController(Controller):
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
-            return send_result(message='Không tìm thấy câu hỏi.')
+            return send_result(message='Không tìm thấy câu hỏi! ')
+
