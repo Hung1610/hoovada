@@ -20,6 +20,9 @@ article_topics = db.Table('topic_article',
 
 class Article(Model):
     __tablename__ = 'article'
+    __table_args__ = (
+        db.Index("idx_article_title", "title", mysql_length=255),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)

@@ -205,7 +205,7 @@ class ArticleController(Controller):
             return send_error(message=constants.msg_lacking_id)
         article = Article.query.filter_by(id=object_id).first()
         if article is None:
-            return send_error(message=constants.msg_article_not_found_with_id.format(object_id))
+            return send_error(message=constants.msg_not_found_with_id.format(object_id))
         else:
             article.views_count += 1
             db.session.commit()
@@ -234,7 +234,7 @@ class ArticleController(Controller):
 
         article = Article.query.filter_by(id=object_id).first()
         if article is None:
-            return send_error(message=constants.msg_article_not_found_with_id.format(object_id))
+            return send_error(message=constants.msg_not_found_with_id.format(object_id))
 
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
@@ -287,7 +287,7 @@ class ArticleController(Controller):
         try:
             article = Article.query.filter_by(id=object_id).first()
             if article is None:
-                return send_error(message=constants.msg_article_not_found_with_id.format(object_id))
+                return send_error(message=constants.msg_not_found_with_id.format(object_id))
             else:
                 db.session.delete(article)
                 db.session.commit()
