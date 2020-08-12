@@ -6,6 +6,7 @@ from app.modules.article.article_view import api as ns_article
 from app.modules.article.voting.vote_view import api as ns_article_vote
 from app.modules.article.favorite.favorite_view import api as ns_article_favorite
 from app.modules.article.report.report_view import api as ns_article_report
+from app.modules.article.share.share_view import api as ns_article_share
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

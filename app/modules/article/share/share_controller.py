@@ -12,10 +12,10 @@ from flask import request
 # own modules
 from app import db
 from app.modules.common.controller import Controller
-from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.question.question import Question
-from app.modules.q_a.share.share import Share
-from app.modules.q_a.share.share_dto import ShareDto
+from app.modules.article import constants
+from app.modules.article.article import Article
+from app.modules.article.share.share import Share
+from app.modules.article.share.share_dto import ShareDto
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.modules.auth.auth_controller import AuthController
@@ -27,23 +27,14 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ShareController(Controller):
-    def search(self, args):
+    def get(self, article_id, args):
         if not isinstance(args, dict):
-            return send_error(message='Arguments must in dictionary form.')
-        user_id, question_id, answer_id, from_date, to_date, facebook, twitter, zalo, anonymous = None, None, None, None, None, None, None, None, None
+            return send_error(message=constants.msg_wrong_data_format)
+        user_id, from_date, to_date, facebook, twitter, zalo, anonymous = None, None, None, None, None, None, None
+
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
-            except Exception as e:
-                pass
-        if 'question_id' in args:
-            try:
-                question_id = int(args['question_id'])
-            except Exception as e:
-                pass
-        if 'answer_id' in args:
-            try:
-                answer_id = int(args['answer_id'])
             except Exception as e:
                 pass
         if 'from_date' in args:
@@ -78,106 +69,69 @@ class ShareController(Controller):
                 anonymous = bool(args['anonymous'])
             except Exception as e:
                 pass
-        if user_id is None and question_id is None and answer_id is None and from_date is None and to_date is None and facebook is None and twitter is None and zalo is None and anonymous is None:
-            return send_error(message='Please give params to search.')
-        query = db.session.query(Share)
-        is_filter = False
+
+        query = Share.query
         if user_id is not None:
             query = query.filter(Share.user_id == user_id)
-            is_filter = True
-        if question_id is not None:
-            query = query.filter(Share.question_id == question_id)
-            is_filter = True
-        if answer_id is not None:
-            query = query.filter(Share.answer_id == answer_id)
-            is_filter = True
+        if article_id is not None:
+            query = query.filter(Share.article_id == article_id)
         if from_date is not None:
             query = query.filter(Share.created_date >= from_date)
-            is_filter = True
         if to_date is not None:
             query = query.filter(Share.created_date <= to_date)
-            is_filter = True
         if facebook is not None:
             query = query.filter(Share.facebook == facebook)
-            is_filter = True
         if twitter is not None:
             query = query.filter(Share.twitter == twitter)
-            is_filter = True
         if zalo is not None:
             query = query.filter(Share.zalo == zalo)
-            is_filter = True
         if anonymous is not None:
             query = query.filter(Share.anonymous == anonymous)
-            is_filter = True
-        if is_filter:
-            shares = query.all()
-            if len(shares) > 0:
-                return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
-            else:
-                return send_result('Could not find any result.')
+        shares = query.all()
+        if len(shares) > 0:
+            return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
         else:
-            return send_result(message='Please give params to search.')
+            return send_result(constants.msg_not_found)
 
-    def create(self, data):
+    def create(self, article_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Dữ liệu không đúng định dạng hoặc thiếu, vui lòng kiểm tra lại')
-        user, message = AuthController.get_logged_user(request)
+            return send_error(message=constants.msg_wrong_data_format)
+        current_user, _ = AuthController.get_logged_user(request)
 
-        #if not 'user_id' in data:
-        #    return send_error()
-        
-        if not 'question_id' in data and not 'answer_id' in data:
-            return send_error(message='Phải có ít nhất 1 câu hỏi hoặc 1 câu trả lời.')
+        data['user_id'] = current_user.id
+        data['article_id'] = article_id
         try:
             share = self._parse_share(data=data)
-            if share.question_id and share.answer_id:
-                return send_result(message='Stop hacking our website.')
             share.created_date = datetime.utcnow()
             db.session.add(share)
             db.session.commit()
             # update other values
             try:
-                #user = User.query.filter_by(id=share.user_id).first()
-                if share.question_id:
-                    if user:
-                        user.question_share_count += 1
-
-                    question = Question.query.filter_by(id=share.question_id).first()
-                    if not question:
-                        return send_error(message='Không tìm thấy câu hỏi')
-                    
-                    user_voted = User.query.filter_by(id=question.user_id).first()
-                    if not user_voted:
-                        return send_error(message='Không tìm thấy chủ của câu hỏi')
-                    user_voted.question_shared_count += 1
-                
-                if share.answer_id:
-                    if user:
-                        user.answer_share_count += 1
-                    
-                    answer = Answer.query.filter_by(id=share.answer_id).first()
-                    if not answer:
-                        return send_error(message='Không tìm thấy câu trả lời')
-
-                    user_voted = User.query.filter_by(id=answer.user_id).first()
-                    if not user_voted:
-                        return send_error(message='Không tìm thấy tác giả câu trả lời')
-                    user_voted.answer_shared_count += 1
-                if user:
-                    share.user_id = user.id
+                article = Article.query.filter_by(id=share.article_id).first()
+                if not article:
+                    return send_error(message=constants.msg_not_found)
+                user_voted = User.query.filter_by(id=article.user_id).first()
+                if not user_voted:
+                    return send_error(message=constants.msg_not_found)
+                user_voted.article_shared_count += 1
+                if current_user:
+                    share.user_id = current_user.id
+                    current_user.article_share_count += 1
                 db.session.commit()
             except Exception as e:
                 pass
-            return send_result()
+            return send_result(data=marshal(share, ShareDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not create share')
+            return send_error(message=constants.msg_create_failed)
 
-    def get_by_id(self):
-        pass
-
-    def get(self):
-        pass
+    def get_by_id(self, object_id):
+        query = Share.query
+        report = query.filter(Share.id == object_id).first()
+        if report is None:
+            return send_error(message=constants.msg_not_found)
+        else:
+            return send_result(data=marshal(report, ShareDto.model_response), message='Success')
 
     def update(self, object_id, data):
         pass
@@ -192,14 +146,9 @@ class ShareController(Controller):
                 share.user_id = int(data['user_id'])
             except Exception as e:
                 pass
-        if 'question_id' in data:
+        if 'article_id' in data:
             try:
-                share.question_id = int(data['question_id'])
-            except Exception as e:
-                pass
-        if 'answer_id' in data:
-            try:
-                share.answer_id = int(data['answer_id'])
+                share.article_id = int(data['article_id'])
             except Exception as e:
                 pass
         if 'facebook' in data:

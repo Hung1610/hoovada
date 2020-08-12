@@ -18,7 +18,6 @@ from app.modules.article.article import Article
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.voting.vote import Vote, VotingStatusEnum
 from app.modules.auth.auth_controller import AuthController
-from app.modules.auth.decorator import token_required
 from app.modules.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
@@ -226,7 +225,7 @@ class ArticleController(Controller):
                 pass
             return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
 
-    def update(self, object_id, data):
+    def update(self, object_id, data, is_put=False):
         if object_id is None:
             return send_error(message=constants.msg_lacking_id)
         if not isinstance(data, dict):
@@ -235,6 +234,8 @@ class ArticleController(Controller):
         article = Article.query.filter_by(id=object_id).first()
         if article is None:
             return send_error(message=constants.msg_not_found_with_id.format(object_id))
+        if is_put:
+            article.title, article.fixed_topic_id, article.html, article.user_hidden = None, None, None, None
 
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
@@ -299,7 +300,12 @@ class ArticleController(Controller):
     def _parse_article(self, data, article=None):
         if article is None:
             article = Article()
-        article.title = data['title']
+        if 'title' in data:
+            try:
+                article.title = data['title']
+            except Exception as e:
+                print(e)
+                pass
         if 'user_id' in data:
             try:
                 article.user_id = data['user_id']
@@ -321,6 +327,14 @@ class ArticleController(Controller):
                 article.user_hidden = False
                 print(e)
                 pass
+            
+        if 'is_deleted' in data:
+            try:
+                article.is_deleted = int(data['is_deleted'])
+            except Exception as e:
+                print(e)
+                pass
+
         topic_ids = None
         if 'topic_ids' in data:
             try:

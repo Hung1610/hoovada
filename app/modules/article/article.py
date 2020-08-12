@@ -33,15 +33,16 @@ class Article(Model):
         nullable=False)
     fixed_topic = db.relationship('Topic', backref='fixed_topic_articles', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
-    views_count = db.Column(db.Integer, default=0)
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
-    upvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly upvote
-    downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
+    views_count = db.Column(db.Integer, default=0)
+    upvote_count = db.Column(db.Integer, default=0) 
+    downvote_count = db.Column(db.Integer, default=0)  
     share_count = db.Column(db.Integer, default=0)
     favorite_count = db.Column(db.Integer, default=0)
     topics = db.relationship('Topic', secondary=article_topics, lazy='subquery',
         backref=db.backref('articles', lazy=True))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    is_deleted = db.Column(db.Boolean, default=False)

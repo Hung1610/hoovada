@@ -31,11 +31,11 @@ class ReportUser(Resource):
         Search all votes that satisfy conditions.
         ---------------------
 
-        :user_id: Search votes by user_id
+        :user_id: Search reports by user_id
 
-        :question_id: Search all votes by question ID.
+        :from_date: Search reports created after this date.
 
-        :answer_id: Search votes by answer ID.
+        :to_date: Search reports created before this date.
 
         :return: List of comments.
         """

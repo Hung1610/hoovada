@@ -3,12 +3,13 @@ from app.modules.common.model import Model
 
 
 class Share(Model):
-    __tablename__ = 'share'
+    __tablename__ = 'article_share'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    question_id = db.Column(db.Integer)
-    answer_id = db.Column(db.Integer)
+    shared_by_user = db.relationship('User', backref='shares', lazy=True) # one-to-many relationship with table Article
+    article_id = db.Column(db.Integer)
+    shared_article = db.relationship('Article', backref='shares', lazy=True) # one-to-many relationship with table Article
     created_date = db.Column(db.Date)
     facebook = db.Column(db.Boolean)
     twitter = db.Column(db.Boolean)

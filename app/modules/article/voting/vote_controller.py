@@ -108,7 +108,7 @@ class VoteController(Controller):
                 # get user who was created article and was voted
                 user_voted = article.article_by_user
                 # TODO: update user reputation for user_voted and current_user
-                # if vote.up_vote:
+                # if vote.vote_status =="":
                 #     article.upvote_count += 1
                 #     current_user.question_upvote_count += 1
                 #     user_voted.answer_upvoted_count += 1

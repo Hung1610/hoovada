@@ -17,6 +17,7 @@ class Favorite(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
+    favorited_by_user = db.relationship('User', backref='favorited_articles', lazy=True) # one-to-many relationship with table User
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'),
         nullable=False)
     article = db.relationship('Article', backref='article_favorites', lazy=True) # one-to-many relationship with table Article
