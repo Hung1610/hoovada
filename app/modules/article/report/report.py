@@ -12,13 +12,11 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class Report(Model):
-    __tablename__ = 'report'
+    __tablename__ = 'article_report'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    question_id = db.Column(db.Integer)
-    answer_id = db.Column(db.Integer)
-    comment_id = db.Column(db.Integer)
+    article_id = db.Column(db.Integer)
     inappropriate = db.Column(db.Boolean)
     description = db.Column(db.String(255))
     created_date = db.Column(db.DateTime)
