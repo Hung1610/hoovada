@@ -17,6 +17,7 @@ from app.modules.article.voting.vote import Vote, VotingStatusEnum
 from app.modules.article.voting.vote_dto import VoteDto
 from app.modules.article.voting import constants
 from app.modules.user.user import User
+from app.modules.user.reputation.reputation import Reputation
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
 
@@ -92,9 +93,11 @@ class VoteController(Controller):
         try:
             # add or update vote
             is_insert = True
+            old_vote_status = None
             vote = Vote.query.filter(Vote.user_id == data['user_id'], \
                 Vote.article_id == data['article_id']).first()
             if vote:
+                old_vote_status = vote.vote_status
                 is_insert = False
             vote = self._parse_vote(data=data, vote=vote)
             vote.created_date = datetime.utcnow()
@@ -102,25 +105,42 @@ class VoteController(Controller):
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
-            # update answer vote count in article and user
-            try:
-                article = Article.query.filter_by(id=article_id).first()
-                # get user who was created article and was voted
-                user_voted = article.article_by_user
-                # TODO: update user reputation for user_voted and current_user
-                # if vote.vote_status =="":
-                #     article.upvote_count += 1
-                #     current_user.question_upvote_count += 1
-                #     user_voted.answer_upvoted_count += 1
-                # elif vote.down_vote:
-                #     article.downvote_count += 1
-                #     current_user.question_downvote_count += 1
-                #     user_voted.question_downvoted_count += 1
-                # db.session.commit()
-                return send_result(data=marshal(vote, VoteDto.model_response), message='Success')
-            except Exception as e:
-                print(e)
-                pass
+            if is_insert or (old_vote_status and old_vote_status != vote.vote_status):
+                # update answer vote count in article and user
+                try:
+                    article = Article.query.filter_by(id=article_id).first()
+                    # get user who was created article and was voted
+                    user_voted = article.article_by_user
+                    for topic in article.topics:
+                        # Article creator rep
+                        reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
+                            Reputation.topic_id == topic.id).first()
+                        if reputation_creator is None:
+                            reputation_creator = Reputation()
+                            reputation_creator.user_id = user_voted.id
+                            reputation_creator.topic_id = topic.id
+                            reputation_creator.score = 0
+                            db.session.add(reputation_creator)
+                        # Article voter rep
+                        reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
+                            Reputation.topic_id == topic.id).first()
+                        if reputation_voter is None:
+                            reputation_voter = Reputation()
+                            reputation_voter.user_id = user_voted.id
+                            reputation_voter.topic_id = topic.id
+                            reputation_voter.score = 0
+                            db.session.add(reputation_voter)
+                        # Set reputation score
+                        if vote.vote_status == VotingStatusEnum.UPVOTED:
+                            reputation_creator += 10
+                        elif vote.vote_status == VotingStatusEnum.DOWNVOTED:
+                            reputation_creator -= 2
+                            reputation_voter -= 2
+                        db.session.commit()
+                except Exception as e:
+                    print(e)
+                    pass
+            return send_result(data=marshal(vote, VoteDto.model_response), message='Success')
         except Exception as e:
             db.session.rollback()
             print(e)

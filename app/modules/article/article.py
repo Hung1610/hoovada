@@ -36,10 +36,12 @@ class Article(Model):
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
     views_count = db.Column(db.Integer, default=0)
+    # TODO: convert these to custom property 
     upvote_count = db.Column(db.Integer, default=0) 
     downvote_count = db.Column(db.Integer, default=0)  
     share_count = db.Column(db.Integer, default=0)
     favorite_count = db.Column(db.Integer, default=0)
+    #
     topics = db.relationship('Topic', secondary=article_topics, lazy='subquery',
         backref=db.backref('articles', lazy=True))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
