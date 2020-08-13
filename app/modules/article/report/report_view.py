@@ -21,7 +21,7 @@ report_request = ReportDto.model_request
 report_response = ReportDto.model_response
 _get_parser = ReportDto.get_parser
 
-@api.route('')
+@api.route('/<int:article_id>/report')
 class ReportUser(Resource):
     @token_required
     @api.expect(_get_parser)
@@ -52,7 +52,7 @@ class ReportUser(Resource):
         return controller.create(article_id=article_id, data=data)
 
 
-@api.route('/all/<int:id>')
+@api.route('/all/report/<int:id>')
 class Reporting(Resource):
     @admin_token_required
     @api.response(code=200, model=report_response, description='The model for report response.')

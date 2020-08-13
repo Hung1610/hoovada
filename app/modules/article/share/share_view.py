@@ -28,7 +28,7 @@ parser.add_argument('twitter', type=str, required=False, help='Search all shares
 parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')
 parser.add_argument('anonymous', type=str, required=False, help='Search all shares by anonymous.')
 
-@api.route('')
+@api.route('/<int:article_id>/share')
 class ShareList(Resource):
     def get(self, article_id):
         """
@@ -60,7 +60,7 @@ class ShareList(Resource):
         return controller.create(data=data, article_id=article_id)
 
 
-@api.route('/all/<int:id>')
+@api.route('/all/share/<int:id>')
 class Share(Resource):
     @token_required
     @api.response(code=200, model=share_response, description='The model for share response.')

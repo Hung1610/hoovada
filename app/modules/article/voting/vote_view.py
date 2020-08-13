@@ -20,7 +20,7 @@ _vote_response = VoteDto.model_response
 _vote_get_params = VoteDto.model_get_parser
         
 
-@api.route('')
+@api.route('/<int:article_id>/vote')
 class VoteArticle(Resource):
     @token_required
     @api.expect(_vote_get_params)

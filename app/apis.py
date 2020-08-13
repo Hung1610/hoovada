@@ -8,7 +8,7 @@ from flask import url_for
 # own modules
 from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, \
     ns_comment, ns_vote, ns_favorite, ns_share, ns_report, ns_upload, ns_search, ns_user_employment, ns_reputation,\
-    ns_article, ns_article_vote, ns_article_favorite, ns_article_report, ns_article_share
+    ns_article, ns_article_vote, ns_article_favorite, ns_article_report, ns_article_share, ns_article_comment
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -53,10 +53,11 @@ def init_api(mode):
     api.add_namespace(ns_reputation, '/reputation')
     api.add_namespace(ns_topic, '/topic')
     api.add_namespace(ns_article, '/article')
-    api.add_namespace(ns_article_vote, '/article/<int:article_id>/vote')
-    api.add_namespace(ns_article_favorite, '/article/<int:article_id>/favorite')
-    api.add_namespace(ns_article_report, '/article/<int:article_id>/report')
-    api.add_namespace(ns_article_share, '/article/<int:article_id>/share')
+    api.add_namespace(ns_article_vote, '/article')
+    api.add_namespace(ns_article_favorite, '/article')
+    api.add_namespace(ns_article_report, '/article')
+    api.add_namespace(ns_article_share, '/article')
+    api.add_namespace(ns_article_comment, '/article')
     api.add_namespace(ns_user_topic, '/user_topic')
     api.add_namespace(ns_question, '/question')
     api.add_namespace(ns_question_topic, '/question_topic')
