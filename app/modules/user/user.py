@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # third-party modules
-import jwt
 from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
@@ -118,15 +117,15 @@ class User(Model):
     admin = db.Column(db.Boolean, default=False)
     active = db.Column(db.Boolean, default=False)
 
-    reputation = db.Column(db.Integer, default=0)
-    profile_views = db.Column(db.Integer, default=0)
+    reputation = db.Column(db.Integer, server_default='0')
+    profile_views = db.Column(db.Integer, server_default='0')
 
     # about_me = db.Column(db.String(255)(3000))
     about_me = db.Column(db.Text, default='')
     about_me_markdown = db.Column(db.Text, default='')
     about_me_html = db.Column(db.Text, default='')
 
-    people_reached = db.Column(db.Integer, default=0)
+    people_reached = db.Column(db.Integer, server_default='0')
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
@@ -146,47 +145,47 @@ class User(Model):
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     # count values used for statistics
-    question_count = db.Column(db.Integer, default=0)  # number of questions user created
-    question_favorite_count = db.Column(db.Integer, default=0)
-    question_favorited_count = db.Column(db.Integer, default=0)
-    question_share_count = db.Column(db.Integer, default=0)
-    question_shared_count = db.Column(db.Integer, default=0)
-    question_report_count = db.Column(db.Integer, default=0)
-    question_reported_count = db.Column(db.Integer, default=0)
-    question_upvote_count = db.Column(db.Integer, default=0)
-    question_upvoted_count = db.Column(db.Integer, default=0)
-    question_downvote_count = db.Column(db.Integer, default=0)
-    question_downvoted_count = db.Column(db.Integer, default=0)
+    question_count = db.Column(db.Integer, server_default='0')  # number of questions user created
+    question_favorite_count = db.Column(db.Integer, server_default='0')
+    question_favorited_count = db.Column(db.Integer, server_default='0')
+    question_share_count = db.Column(db.Integer, server_default='0')
+    question_shared_count = db.Column(db.Integer, server_default='0')
+    question_report_count = db.Column(db.Integer, server_default='0')
+    question_reported_count = db.Column(db.Integer, server_default='0')
+    question_upvote_count = db.Column(db.Integer, server_default='0')
+    question_upvoted_count = db.Column(db.Integer, server_default='0')
+    question_downvote_count = db.Column(db.Integer, server_default='0')
+    question_downvoted_count = db.Column(db.Integer, server_default='0')
 
-    answer_count = db.Column(db.Integer, default=0)  # number answers user created
-    answer_share_count = db.Column(db.Integer, default=0)
-    answer_shared_count = db.Column(db.Integer, default=0)
-    answer_favorite_count = db.Column(db.Integer, default=0)
-    answer_favorited_count = db.Column(db.Integer, default=0)
-    answer_upvote_count = db.Column(db.Integer, default=0)
-    answer_upvoted_count = db.Column(db.Integer, default=0)
-    answer_downvote_count = db.Column(db.Integer, default=0)
-    answer_downvoted_count = db.Column(db.Integer, default=0)
-    answer_report_count = db.Column(db.Integer, default=0)
-    answer_reported_count = db.Column(db.Integer, default=0)
+    answer_count = db.Column(db.Integer, server_default='0')  # number answers user created
+    answer_share_count = db.Column(db.Integer, server_default='0')
+    answer_shared_count = db.Column(db.Integer, server_default='0')
+    answer_favorite_count = db.Column(db.Integer, server_default='0')
+    answer_favorited_count = db.Column(db.Integer, server_default='0')
+    answer_upvote_count = db.Column(db.Integer, server_default='0')
+    answer_upvoted_count = db.Column(db.Integer, server_default='0')
+    answer_downvote_count = db.Column(db.Integer, server_default='0')
+    answer_downvoted_count = db.Column(db.Integer, server_default='0')
+    answer_report_count = db.Column(db.Integer, server_default='0')
+    answer_reported_count = db.Column(db.Integer, server_default='0')
 
-    topic_follow_count = db.Column(db.Integer, default=0)
-    topic_followed_count = db.Column(db.Integer, default=0)
-    topic_created_count = db.Column(db.Integer, default=0)
+    topic_follow_count = db.Column(db.Integer, server_default='0')
+    topic_followed_count = db.Column(db.Integer, server_default='0')
+    topic_created_count = db.Column(db.Integer, server_default='0')
 
-    user_follow_count = db.Column(db.Integer, default=0)
-    user_followed_count = db.Column(db.Integer, default=0)
+    user_follow_count = db.Column(db.Integer, server_default='0')
+    user_followed_count = db.Column(db.Integer, server_default='0')
 
-    comment_count = db.Column(db.Integer, default=0)
-    comment_upvote_count = db.Column(db.Integer, default=0)
-    comment_upvoted_count = db.Column(db.Integer, default=0)
-    comment_downvote_count = db.Column(db.Integer, default=0)
-    comment_downvoted_count = db.Column(db.Integer, default=0)
-    comment_report_count = db.Column(db.Integer, default=0)
-    comment_reported_count = db.Column(db.Integer, default=0)
+    comment_count = db.Column(db.Integer, server_default='0')
+    comment_upvote_count = db.Column(db.Integer, server_default='0')
+    comment_upvoted_count = db.Column(db.Integer, server_default='0')
+    comment_downvote_count = db.Column(db.Integer, server_default='0')
+    comment_downvoted_count = db.Column(db.Integer, server_default='0')
+    comment_report_count = db.Column(db.Integer, server_default='0')
+    comment_reported_count = db.Column(db.Integer, server_default='0')
 
-    user_report_count = db.Column(db.Integer, default=0)
-    user_reported_count = db.Column(db.Integer, default=0)
+    user_report_count = db.Column(db.Integer, server_default='0')
+    user_reported_count = db.Column(db.Integer, server_default='0')
 
     # @hybrid_property
     # def about_me(self):

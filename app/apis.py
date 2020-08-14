@@ -28,11 +28,7 @@ class MyApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        if '80' in self.base_url or '443' in self.base_url:
-           scheme = 'https'
-        else:
-           scheme = 'http'
-        return url_for(self.endpoint('specs'), _external=True, _scheme=scheme)
+        return url_for(self.endpoint('specs'), _external=True, _scheme='https')
 
 def init_api(mode):
 
@@ -45,7 +41,7 @@ def init_api(mode):
                 authorizations=authorizations,
                 security='apikey',
                 prefix='/api/v1',
-                doc='/api/v1/doc') #doc=False
+                doc=doc)
 
     api.add_namespace(ns_auth, '/auth')
     api.add_namespace(ns_user, '/user')
