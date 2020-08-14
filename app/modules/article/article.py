@@ -4,9 +4,13 @@
 # built-in modules
 from datetime import datetime
 
+# third-party modules
+from sqlalchemy_utils import aggregated
+
 # own modules
 from app import db
 from app.modules.common.model import Model
+from app.modules.article.voting.vote import ArticleVote
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -37,10 +41,23 @@ class Article(Model):
     image_ids = db.Column(db.JSON)
     views_count = db.Column(db.Integer, default=0)
     # TODO: convert these to custom property 
-    upvote_count = db.Column(db.Integer, default=0) 
-    downvote_count = db.Column(db.Integer, default=0)  
-    share_count = db.Column(db.Integer, default=0)
-    favorite_count = db.Column(db.Integer, default=0)
+    # upvote_count = db.Column(db.Integer, default=0) 
+    # downvote_count = db.Column(db.Integer, default=0)  
+    # share_count = db.Column(db.Integer, default=0)
+    # favorite_count = db.Column(db.Integer, default=0)
+
+    @aggregated('votes', db.Column(db.Integer))
+    def upvote_count(self):
+        return db.func.sum(db.func.if_(ArticleVote.vote_status == 'UPVOTED', 1, 0))
+    @aggregated('votes', db.Column(db.Integer))
+    def downvote_count(self):
+        return db.func.sum(db.func.if_(ArticleVote.vote_status == 'DOWNVOTED', 1, 0))
+    @aggregated('shares', db.Column(db.Integer))
+    def share_count(self):
+        return db.func.count('1')
+    @aggregated('article_favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')
     #
     topics = db.relationship('Topic', secondary=article_topics, lazy='subquery',
         backref=db.backref('articles', lazy=True))

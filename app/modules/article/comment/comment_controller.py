@@ -11,7 +11,7 @@ from flask_restx import marshal
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.article.article import Article
-from app.modules.article.comment.comment import Comment
+from app.modules.article.comment.comment import ArticleComment
 from app.modules.article.comment.comment_dto import CommentDto
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
@@ -32,8 +32,6 @@ class CommentController(Controller):
 
         :return:
         """
-        if not isinstance(args, dict):
-            return send_error(message='Could not parse the params.')
         # user_id, question_id, answer_id = None, None, None
         user_id = None 
         if 'user_id' in args:
@@ -45,9 +43,9 @@ class CommentController(Controller):
         if user_id is None:
             send_error(message='Provide params to search.')
 
-        query = Comment.query
+        query = ArticleComment.query
         if user_id is not None:
-            query = query.filter(Comment.user_id == user_id)
+            query = query.filter(ArticleComment.user_id == user_id)
             
         comments = query.all()
         if comments is not None and len(comments) > 0:
@@ -92,7 +90,7 @@ class CommentController(Controller):
                 # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
-                return send_result(message='Comment was created successfully',
+                return send_result(message='ArticleComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:
                 print(e.__str__())
@@ -103,8 +101,8 @@ class CommentController(Controller):
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error('Comment ID is null')
-        comment = Comment.query.filter_by(id=object_id).first()
+            return send_error('ArticleComment ID is null')
+        comment = ArticleComment.query.filter_by(id=object_id).first()
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
         else:
@@ -120,13 +118,13 @@ class CommentController(Controller):
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message='Comment ID is null')
+            return send_error(message='ArticleComment ID is null')
         if data is None or not isinstance(data, dict):
             return send_error('Data is null or not in dictionary form. Check again.')
         try:
-            comment = Comment.query.filter_by(id=object_id).first()
+            comment = ArticleComment.query.filter_by(id=object_id).first()
             if comment is None:
-                return send_error(message='Comment with the ID {} not found.'.format(object_id))
+                return send_error(message='ArticleComment with the ID {} not found.'.format(object_id))
             else:
                 comment = self._parse_comment(data=data, comment=comment)
                 is_sensitive = check_sensitive(comment.comment)
@@ -146,9 +144,9 @@ class CommentController(Controller):
 
     def delete(self, object_id):
         try:
-            comment = Comment.query.filter_by(id=object_id)
+            comment = ArticleComment.query.filter_by(id=object_id)
             if comment is None:
-                return send_error(message='Comment with the ID {} not found.'.format(object_id))
+                return send_error(message='ArticleComment with the ID {} not found.'.format(object_id))
             else:
                 # ---------Delete from other tables----------#
                 # delete from vote
@@ -159,7 +157,7 @@ class CommentController(Controller):
 
                 db.session.delete(comment)
                 db.session.commit()
-                return send_result(message='Comment with the ID {} was deleted.'.format(object_id))
+                return send_result(message='ArticleComment with the ID {} was deleted.'.format(object_id))
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
@@ -167,7 +165,7 @@ class CommentController(Controller):
 
     def _parse_comment(self, data, comment=None):
         if comment is None:
-            comment = Comment()
+            comment = ArticleComment()
         if 'comment' in data:
             comment.comment = data['comment']
         if 'article_id' in data:

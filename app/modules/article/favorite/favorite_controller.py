@@ -14,9 +14,9 @@ from sqlalchemy import and_
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.article.article import Article
-from app.modules.article.comment.comment import Comment
+from app.modules.article.comment.comment import ArticleComment
 from app.modules.article.favorite import constants
-from app.modules.article.favorite.favorite import Favorite
+from app.modules.article.favorite.favorite import ArticleFavorite
 from app.modules.article.favorite.favorite_dto import FavoriteDto
 from app.modules.user.user import User
 from app.modules.auth.auth_controller import AuthController
@@ -37,8 +37,6 @@ class FavoriteController(Controller):
 
         :return:
         '''
-        if not isinstance(args, dict):
-            return send_error(message=constants.msg_wrong_data_format)
         user_id, favorited_user_id, from_date, to_date = None, None, None, None, None, None, None
         if 'user_id' in args:
             try:
@@ -65,15 +63,15 @@ class FavoriteController(Controller):
                 print(e.__str__())
                 pass
 
-        query = Favorite.query
+        query = ArticleFavorite.query
         if user_id is not None:
-            query = query.filter(Favorite.user_id == user_id)
+            query = query.filter(ArticleFavorite.user_id == user_id)
         if favorited_user_id is not None:
-            query = query.filter(Favorite.article.user_id == favorited_user_id)
+            query = query.filter(ArticleFavorite.article.user_id == favorited_user_id)
         if from_date is not None:
-            query = query.filter(Favorite.created_date >= from_date)
+            query = query.filter(ArticleFavorite.created_date >= from_date)
         if to_date is not None:
-            query = query.filter(Favorite.created_date <= to_date)
+            query = query.filter(ArticleFavorite.created_date <= to_date)
         favorites = query.all()
         if favorites is not None and len(favorites) > 0:
             return send_result(data=marshal(favorites, FavoriteDto.model_response), message='Success')
@@ -87,8 +85,8 @@ class FavoriteController(Controller):
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:
-            favorite = Favorite.query.filter(Favorite.user_id == data['user_id'],
-                                             Favorite.article_id == data['article_id']).first()
+            favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == data['user_id'],
+                                             ArticleFavorite.article_id == data['article_id']).first()
             if favorite:
                 return send_result(message=constants.msg_already_favorited)
 
@@ -106,7 +104,7 @@ class FavoriteController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=constants.msg_lacking_id)
-        favorite = Favorite.query.filter_by(id=object_id).first()
+        favorite = ArticleFavorite.query.filter_by(id=object_id).first()
         if favorite is None:
             return send_error(message=constants.msg_article_favorite_not_found)
         else:
@@ -119,7 +117,7 @@ class FavoriteController(Controller):
         current_user, _ = AuthController.get_logged_user(request)
         user_id = current_user.id
         try:
-            favorite = Favorite.query.filter_by(article_id=article_id, user_id=user_id).first()
+            favorite = ArticleFavorite.query.filter_by(article_id=article_id, user_id=user_id).first()
             if favorite is None:
                 return send_error(message=constants.msg_article_favorite_not_found)
             else:
@@ -132,7 +130,7 @@ class FavoriteController(Controller):
 
     def _parse_favorite(self, data, favorite=None):
         if favorite is None:
-            favorite = Favorite()
+            favorite = ArticleFavorite()
         if 'user_id' in data:
             try:
                 favorite.user_id = int(data['user_id'])
