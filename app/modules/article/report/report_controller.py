@@ -14,7 +14,7 @@ from app import db
 from app.modules.common.controller import Controller
 from app.modules.article import constants
 from app.modules.article.article import Article
-from app.modules.article.report.report import Report
+from app.modules.article.report.report import ArticleReport
 from app.modules.article.report.report_dto import ReportDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
@@ -28,8 +28,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ReportController(Controller):
     def get(self, article_id, args):
-        if not isinstance(args, dict):
-            return send_error(message=constants.msg_wrong_data_format)
         user_id, article_id, from_date, to_date = None, None, None, None
         if 'user_id' in args:
             try:
@@ -50,15 +48,15 @@ class ReportController(Controller):
                 print(e.__str__())
                 pass
             
-        query = Report.query
+        query = ArticleReport.query
         if user_id is not None:
-            query = query.filter(Report.user_id == user_id)
+            query = query.filter(ArticleReport.user_id == user_id)
         if article_id is not None:
-            query = query.filter(Report.article_id == article_id)
+            query = query.filter(ArticleReport.article_id == article_id)
         if from_date is not None:
-            query = query.filter(Report.created_date >= from_date)
+            query = query.filter(ArticleReport.created_date >= from_date)
         if to_date is not None:
-            query = query.filter(Report.created_date <= to_date)
+            query = query.filter(ArticleReport.created_date <= to_date)
         reports = query.all()
         if reports is not None and len(reports) > 0:
             return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
@@ -83,8 +81,8 @@ class ReportController(Controller):
             return send_error(message=constants.msg_create_failed)
 
     def get_by_id(self, object_id):
-        query = Report.query
-        report = query.filter(Report.id == object_id).first()
+        query = ArticleReport.query
+        report = query.filter(ArticleReport.id == object_id).first()
         if report is None:
             return send_error(message=constants.msg_not_found)
         else:
@@ -108,7 +106,7 @@ class ReportController(Controller):
         :return: A report.
         """
         if report is None:
-            report = Report()
+            report = ArticleReport()
         if 'user_id' in data:
             try:
                 report.user_id = int(data['user_id'])

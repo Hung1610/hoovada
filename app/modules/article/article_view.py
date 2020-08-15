@@ -10,7 +10,7 @@ from flask_restx import Resource, reqparse
 # own modules
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.article_controller import ArticleController
-from app.modules.auth.decorator import admin_token_required, token_required
+from app.modules.auth.decorator import token_required, admin_token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -90,9 +90,24 @@ class Article(Resource):
         """
         data = api.payload
         controller = ArticleController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(object_id=id, data=data, is_put=True)
 
     @token_required
+    @api.expect(_article_dto_request)
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    def patch(self, id):
+        """
+        Update existing article by its ID.
+
+        :param id: The ID of the article.
+
+        :return:
+        """
+        data = api.payload
+        controller = ArticleController()
+        return controller.update(object_id=id, data=data)
+
+    @admin_token_required
     def delete(self, id):
         """
         Delete the article by its ID.

@@ -16,9 +16,8 @@ from app import db
 from app.modules.article import constants
 from app.modules.article.article import Article
 from app.modules.article.article_dto import ArticleDto
-from app.modules.article.voting.vote import Vote, VotingStatusEnum
+from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
 from app.modules.auth.auth_controller import AuthController
-from app.modules.auth.decorator import token_required
 from app.modules.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
@@ -79,10 +78,10 @@ class ArticleController(Controller):
                     result['topics'] = topics
                     
                     # upvote/downvote status for current user
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status else False
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                     return send_result(message=constants.msg_create_success,
                                        data=marshal(result, ArticleDto.model_article_response))
                 except Exception as e:
@@ -102,9 +101,6 @@ class ArticleController(Controller):
         :param args:
         :return:
         """
-        if not isinstance(args, dict):
-            return send_error(message=constants.msg_wrong_data_format)
-
         # Get search parameters
         title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_id = None, None, None, None, None, None, None, None, None
         if 'title' in args:
@@ -190,11 +186,11 @@ class ArticleController(Controller):
                 # get fixed topic name
                 result['fixed_topic_name'] = article.fixed_topic.name
                 # get current user voting status for this article
-                # current_user, _ = AuthController.get_logged_user(request)
-                # vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
-                # if vote is not None:
-                #     result['up_vote'] = vote.up_vote
-                #     result['down_vote'] = vote.down_vote
+                current_user, _ = AuthController.get_logged_user(request)
+                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                if vote is not None:
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                 results.append(result)
             return send_result(marshal(results, ArticleDto.model_article_response), message='Success')
         else:
@@ -217,16 +213,16 @@ class ArticleController(Controller):
             # upvote/downvote status
             try:
                 current_user, _ = AuthController.get_logged_user(request)
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
+                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                 if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status else False
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
             except Exception as e:
                 print(e)
                 pass
             return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
 
-    def update(self, object_id, data):
+    def update(self, object_id, data, is_put=False):
         if object_id is None:
             return send_error(message=constants.msg_lacking_id)
         if not isinstance(data, dict):
@@ -235,6 +231,8 @@ class ArticleController(Controller):
         article = Article.query.filter_by(id=object_id).first()
         if article is None:
             return send_error(message=constants.msg_not_found_with_id.format(object_id))
+        if is_put:
+            article.title, article.fixed_topic_id, article.html, article.user_hidden = None, None, None, None
 
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
@@ -270,10 +268,10 @@ class ArticleController(Controller):
             # upvote/downvote status
             try:
                 current_user, _ = AuthController.get_logged_user(request)
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.article_id == article.id).first()
+                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                 if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status else False
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
             except Exception as e:
                 print(e)
                 pass
@@ -299,7 +297,12 @@ class ArticleController(Controller):
     def _parse_article(self, data, article=None):
         if article is None:
             article = Article()
-        article.title = data['title']
+        if 'title' in data:
+            try:
+                article.title = data['title']
+            except Exception as e:
+                print(e)
+                pass
         if 'user_id' in data:
             try:
                 article.user_id = data['user_id']
@@ -321,6 +324,14 @@ class ArticleController(Controller):
                 article.user_hidden = False
                 print(e)
                 pass
+            
+        if 'is_deleted' in data:
+            try:
+                article.is_deleted = int(data['is_deleted'])
+            except Exception as e:
+                print(e)
+                pass
+
         topic_ids = None
         if 'topic_ids' in data:
             try:

@@ -11,7 +11,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Report(Model):
+class ArticleReport(Model):
     __tablename__ = 'article_report'
 
     id = db.Column(db.Integer, primary_key=True)

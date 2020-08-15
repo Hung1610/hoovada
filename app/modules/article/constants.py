@@ -29,7 +29,7 @@ msg_delete_failed_with_id = 'Không thể xóa bài viết với ID {}'
 
 # # General Errors
 msg_wrong_data_format = 'Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!'
-msg_lacking_query_params = 'Vui lòng cung cấp thông tin để tìm kiếm.'
+msg_lacking_query_params = 'Query parameters not provided.'
 msg_not_found = 'Entry not found'
 msg_not_found_with_id = 'Entry not found with ID: {}'
 msg_search_failed = 'Tìm kiếm thất bại. Vui lòng xem lại dữ liệu.'

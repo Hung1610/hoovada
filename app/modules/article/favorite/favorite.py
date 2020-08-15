@@ -12,11 +12,12 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Favorite(Model):
+class ArticleFavorite(Model):
     __tablename__ = 'article_favorite'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    favorited_by_user = db.relationship('User', backref='favorited_articles', lazy=True) # one-to-many relationship with table User
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'),
         nullable=False)
     article = db.relationship('Article', backref='article_favorites', lazy=True) # one-to-many relationship with table Article

@@ -187,6 +187,9 @@ class User(Model):
     user_report_count = db.Column(db.Integer, server_default='0')
     user_reported_count = db.Column(db.Integer, server_default='0')
 
+    article_share_count = db.Column(db.Integer, server_default='0')
+    article_shared_count = db.Column(db.Integer, server_default='0')
+
     # @hybrid_property
     # def about_me(self):
     #     """Return the value of _about_me but the html version."""

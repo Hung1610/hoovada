@@ -21,7 +21,7 @@ report_request = ReportDto.model_request
 report_response = ReportDto.model_response
 _get_parser = ReportDto.get_parser
 
-@api.route('')
+@api.route('/<int:article_id>/report')
 class ReportUser(Resource):
     @token_required
     @api.expect(_get_parser)
@@ -31,11 +31,11 @@ class ReportUser(Resource):
         Search all votes that satisfy conditions.
         ---------------------
 
-        :user_id: Search votes by user_id
+        :user_id: Search reports by user_id
 
-        :question_id: Search all votes by question ID.
+        :from_date: Search reports created after this date.
 
-        :answer_id: Search votes by answer ID.
+        :to_date: Search reports created before this date.
 
         :return: List of comments.
         """
@@ -52,7 +52,7 @@ class ReportUser(Resource):
         return controller.create(article_id=article_id, data=data)
 
 
-@api.route('/all/<int:id>')
+@api.route('/all/report/<int:id>')
 class Reporting(Resource):
     @admin_token_required
     @api.response(code=200, model=report_response, description='The model for report response.')

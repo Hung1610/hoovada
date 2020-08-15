@@ -14,16 +14,13 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Comment(Model):
+class ArticleComment(Model):
     __tablename__ = 'article_comment'
 
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.UnicodeText)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    question_id = db.Column(db.Integer)
-    answer_id = db.Column(db.Integer)
+    article_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
-    upvote_count = db.Column(db.Integer, default=0)
-    downvote_count = db.Column(db.Integer, default=0)
-    report_count = db.Column(db.Integer, default=0)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
