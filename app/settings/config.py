@@ -28,6 +28,10 @@ class BaseConfig:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gydijkoduvmmcjjx')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
+    # need to set this so that email can be sent
+    MAIL_SUPPRESS_SEND = False
+    TESTING = False
+
     # Wasabi service
     WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', 'YGK7CVV0GOQN0Y2XQVOA') # test bucket
     WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY', '')  
@@ -84,7 +88,6 @@ class DevelopmentConfig(BaseConfig):
     """Development configuration."""
 
     DEBUG = True
-    TESTING = True
     DEBUG_TB_ENABLED = True
     SQLALCHEMY_ECHO = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
