@@ -24,7 +24,7 @@ authorizations = {
     }
 }
 
-class MyApi(Api):
+class HTTPSApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
@@ -34,7 +34,7 @@ def init_api(mode):
 
     doc = False if mode == "prod" else "/api/v1/doc"
 
-    api = Api(title='Hoovada APIs',
+    api = HTTPSApi(title='Hoovada APIs',
                 swagger='2.0',
                 version='1.0',
                 description='The Hoovada APIs',
