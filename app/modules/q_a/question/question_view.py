@@ -108,7 +108,6 @@ class Question(Resource):
         controller = QuestionController()
         return controller.delete(object_id=id)
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('title', type=str, required=False, help='Search question by its title')
 parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
@@ -146,20 +145,50 @@ class QuesstionSearch(Resource):
         return controller.search(args=args)
 
 
-@api.route('/get_by_topic/<int:topic_id>')
-class GetQuestionByTopic(Resource):
-    # @token_required
+@api.route('/get_by_slug/<string:slug>')
+class GetQuestionBySlug(Resource):
+    @token_required
+    # @api.marshal_with(question)
+    # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
-    #13/07/2020 thongnv - add param `topic_id`
-    def get(self,topic_id):
-        """  Get all question of a topic that sorted based in upvote count.
+    def get(self, slug):
+        """ Get specific question by its ID.
 
         Args:
-            `topic_id` (int): Search all questions by topic ID.
+            slug (string): The ID of the question to get from.
 
         Returns:
-             Get all question of a topic that sorted based in upvote count.
+            The question if success and None vice versa.
         """
 
         controller = QuestionController()
-        return controller.get_by_topic_id(topic_id)
+        return controller.get_by_slug(slug)
+
+@api.route('/update_slug')
+class UpdateSlug(Resource):
+    # @admin_token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def post(self):
+        """ Them Slug cho tat ca cac question trong Database
+        """
+
+        controller = QuestionController()
+        return controller.update_slug()
+
+# @api.route('/get_by_topic/<int:topic_id>')
+# class GetQuestionByTopic(Resource):
+#     # @token_required
+#     @api.response(code=200, model=model_response, description='Model for question response.')
+#     #13/07/2020 thongnv - add param `topic_id`
+#     def get(self,topic_id):
+#         """  Get all question of a topic that sorted based in upvote count.
+
+#         Args:
+#             `topic_id` (int): Search all questions by topic ID.
+
+#         Returns:
+#              Get all question of a topic that sorted based in upvote count.
+#         """
+
+#         controller = QuestionController()
+#         return controller.get_by_topic_id(topic_id)
