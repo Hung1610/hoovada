@@ -81,7 +81,7 @@ class BaseConfig:
     TWILIO_AUTH_TOKEN = os.environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
     # (create one here https://www.twilio.com/console/verify/services)
     VERIFICATION_SID = os.environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
-    LIMIT_VERIFY_SMS_TIME=60 # 60seconds
+    LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
 
 
 class DevelopmentConfig(BaseConfig):
