@@ -124,6 +124,7 @@ class TopicController(Controller):
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary type")
+        
         if not 'name' in data:
             return send_error(message='Topic name must be filled')
         else:
@@ -139,7 +140,7 @@ class TopicController(Controller):
             topic = Topic.query.filter(or_(
                 and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
                 and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
-                and_(Topic.name == data['name'],Topic.name == data['name'], data['parent_id']>0))
+                and_(Topic.name == data['name'],Topic.name == data['name'], int(data['parent_id'])>0))
                 ).first()
 
             if not topic:  # the topic does not exist
@@ -261,6 +262,7 @@ class TopicController(Controller):
             topic = Topic()
         if 'name' in data:
             topic.name = data['name']
+            
         if 'count' in data:
             try:
                 topic.count = int(data['count'])
