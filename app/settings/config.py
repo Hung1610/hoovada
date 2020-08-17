@@ -25,7 +25,7 @@ class BaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gydijkoduvmmcjjx')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'megkyvytyktpkkbo')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # need to set this so that email can be sent
