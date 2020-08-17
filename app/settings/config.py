@@ -23,13 +23,9 @@ class BaseConfig:
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
     MAIL_USE_SSL = False
-    #MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
-    #MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    #MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'megkyvytyktpkkbo')
-    MAIL_DEFAULT_SENDER = "admin@hoovada.com"
-    MAIL_USERNAME = "admin@hoovada.com"
-    MAIL_PASSWORD = "acjydcftuegpdftn"  
-
+    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # need to set this so that email can be sent
@@ -43,8 +39,8 @@ class BaseConfig:
     # mysql configuration
     DB_USER = os.environ.get('DB_USER', 'dev')
     DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hoovada')
-    DB_HOST = os.environ.get('DB_HOST', 'localhost')
-    DB_PORT = os.environ.get('DB_PORT', '3306') 
+    #DB_HOST = os.environ.get('DB_HOST', 'localhost')
+    #DB_PORT = os.environ.get('DB_PORT', '3306') 
     DB_NAME = os.environ.get('DB_NAME', 'hoovada')
     DB_CHARSET = 'utf8mb4'
 
