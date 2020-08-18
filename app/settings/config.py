@@ -25,12 +25,16 @@ class BaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gydijkoduvmmcjjx')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
     MAIL_SUPPRESS_SEND = False
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
+    # need to set this so that email can be sent
+    MAIL_SUPPRESS_SEND = False
+    TESTING = False
+
     # Wasabi service
-    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', 'YGK7CVV0GOQN0Y2XQVOA') # test bucket
+    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', '') # test bucket
     WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY', '')  
 
     # mysql configuration
@@ -74,18 +78,17 @@ class BaseConfig:
     
     # Twilio API credentials
     # (find here https://www.twilio.com/console)
-    TWILIO_ACCOUNT_SID= os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
-    TWILIO_AUTH_TOKEN= os.environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
+    TWILIO_ACCOUNT_SID = os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
+    TWILIO_AUTH_TOKEN = os.environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
     # (create one here https://www.twilio.com/console/verify/services)
-    VERIFICATION_SID= os.environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
-    LIMIT_VERIFY_SMS_TIME=60 # 60seconds
+    VERIFICATION_SID = os.environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
+    LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
 
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
 
     DEBUG = True
-    TESTING = True
     DEBUG_TB_ENABLED = True
     SQLALCHEMY_ECHO = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False

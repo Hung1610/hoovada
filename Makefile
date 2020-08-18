@@ -19,7 +19,7 @@ push-test:
 	@docker push ${IMG_TEST}
 
 deploy-test:
-	@kubectl set image deployment/backend backend=${IMG_TEST}
+	@kubectl set image deployment/backend backend=${IMG_TEST} -n hoovada-staging
 
 build-prod:
 	@docker build -t ${IMG_PROD} --build-arg GIT_COMMIT=${GIT_COMMIT} .

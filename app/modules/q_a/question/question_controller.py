@@ -23,6 +23,7 @@ from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from slugify import slugify
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -126,7 +127,7 @@ class QuestionController(Controller):
             query = query.filter(QuestionTopicView.topic_id == topic_id,QuestionTopicView.fixed_topic_id != 1)
             is_filter = True
         if is_filter:
-            questions = query.all()
+            questions = query.order_by(desc(QuestionTopicView.upvote_count)).all()
             if questions is not None and len(questions) > 0:
                 results = list()
                 for question in questions:
@@ -183,6 +184,7 @@ class QuestionController(Controller):
                     return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
+                question.slug = slugify(question.title)
                 db.session.add(question)
                 db.session.commit()
                 # update question_count for fixed topic
@@ -352,6 +354,7 @@ class QuestionController(Controller):
                 # update topics to question_topic table
                 question.updated_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
+                question.slug = slugify(question.title)
                 db.session.commit()
                 result = question.__dict__
                 # get user info
@@ -496,38 +499,75 @@ class QuestionController(Controller):
         return question, topic_ids
 
 
-    def get_by_topic_id(self,topic_id):
-        """ Get all question of a topic that sorted based in upvote count
+    # def get_by_topic_id(self,topic_id):
+    #     """ Get all question of a topic that sorted based in upvote count
 
-            Args:
+    #         Args:
 
-            Returns:
-        """
+    #         Returns:
+    #     """
 
-        if topic_id is None:
-            return send_error("Topic ID Không được để trống")
+    #     if topic_id is None:
+    #         return send_error("Topic ID Không được để trống")
 
-        questions = db.session.query(QuestionTopicView).filter(QuestionTopicView.topic_id == topic_id).order_by(desc(QuestionTopicView.upvote_count)).all()
+    #     questions = db.session.query(QuestionTopicView).filter(QuestionTopicView.topic_id == topic_id).order_by(desc(QuestionTopicView.upvote_count)).all()
 
-        if questions is not None and len(questions) > 0:
-            results = list()
-            for question in questions:
-                # kiem tra den topic
-                result = question.__dict__
-                # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
-                # get all topics that question belongs to
-                question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
-                results.append(result)
-            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+    #     if questions is not None and len(questions) > 0:
+    #         results = list()
+    #         for question in questions:
+    #             # kiem tra den topic
+    #             result = question.__dict__
+    #             # get user info
+    #             user = User.query.filter_by(id=question.user_id).first()
+    #             result['user'] = user
+    #             # get all topics that question belongs to
+    #             question_id = question.id
+    #             question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+    #             topics = list()
+    #             for question_topic in question_topics:
+    #                 topic_id = question_topic.topic_id
+    #                 topic = Topic.query.filter_by(id=topic_id).first()
+    #                 topics.append(topic)
+    #             result['topics'] = topics
+    #             results.append(result)
+    #         return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+    #     else:
+    #         return send_result(message='Không tìm thấy câu hỏi! ')
+
+    def get_by_slug(self, slug):
+        if slug is None:
+            return send_error("Question slug is null")
+        question = Question.query.filter_by(slug=slug).first()
+        if question is None:
+            return send_error(message='Could not find question with the slug {}'.format(slug))
         else:
-            return send_result(message='Không tìm thấy câu hỏi! ')
+            result = question.__dict__
+            # get user info
+            user = User.query.filter_by(id=question.user_id).first()
+            result['user'] = user
+            # get all topics that question belongs to
+            question_id = question.id
+            question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+            topics = list()
+            for question_topic in question_topics:
+                topic_id = question_topic.topic_id
+                topic = Topic.query.filter_by(id=topic_id).first()
+                topics.append(topic)
+            result['topics'] = topics
+            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+            current_user, _ = AuthController.get_logged_user(request)
+            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+            if vote is not None:
+                result['up_vote'] = vote.up_vote
+                result['down_vote'] = vote.down_vote
+            return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
+    def update_slug(self):
+        questions = Question.query.all()
+        try:
+            for question in questions:
+                question.slug = slugify(question.title)
+                db.session.commit()
+        except Exception as e:
+            print(e.__str__())
+            pass
