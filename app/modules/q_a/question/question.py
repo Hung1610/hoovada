@@ -39,6 +39,7 @@ class Question(Model):
     downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
     share_count = db.Column(db.Integer, default=0)
     favorite_count = db.Column(db.Integer, default=0)
+    slug = db.Column(db.UnicodeText)
 
 
 class QuestionTopicView(Model):
@@ -68,3 +69,4 @@ class QuestionTopicView(Model):
     downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
     share_count = db.Column(db.Integer, default=0)
     favorite_count = db.Column(db.Integer, default=0)
+    slug = db.Column(db.UnicodeText)

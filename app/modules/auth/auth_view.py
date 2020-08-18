@@ -182,11 +182,10 @@ class Register(Resource):
         Args:
             email (string): The email to register. 
             display_name(string): The name to display in website.
-            password (string): The password to register.
+            password (string): The password to register, at leas 8 characters, 1 number, 1 special symbol
         
         Returns:
-            None 
-            an confirmation email will be sent to user's mailbox to activate account.
+            A confirmation email will be sent to user's mailbox to activate account.
         """
 
         post_data = request.json

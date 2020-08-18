@@ -42,6 +42,19 @@ class TopicList(Resource):
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):
         """ Create new topic.
+        
+        Args:
+            name (string) : name of new topic
+            parent_id (int): the id of fix_topic that topic belongs to
+            user_id (int): the id of user that creating the topic, optional
+            count (int) : optional 
+            question_count (int): optional
+            user_count (int): optional
+            answer_count (int): optional
+            is_fixed (boolean): false for topic and true for fix_topic, optional
+            created_date (date): optional
+            description (string): optional
+            
 
         Returns:
              The new topic if it was created successfully and null vice versa.
