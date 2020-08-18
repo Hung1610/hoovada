@@ -29,6 +29,13 @@ class QuestionList(Resource):
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
+<<<<<<< HEAD
+        """
+        Get list of questions from database.
+
+        :return: List of questions.
+        """
+=======
         """ Get list of questions from database.
         
         Args:
@@ -37,6 +44,7 @@ class QuestionList(Resource):
              List of questions.
         """
 
+>>>>>>> dev
         controller = QuestionController()
         return controller.get()
 
@@ -46,6 +54,13 @@ class QuestionList(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
+<<<<<<< HEAD
+        """
+        Create new question and save to database.
+
+        :return: The question if success and None vice versa.
+        """
+=======
         """ Create new question and save to database.
         
         Args:
@@ -54,6 +69,7 @@ class QuestionList(Resource):
              The question if success and None vice versa.
         """
 
+>>>>>>> dev
         data = api.payload
         controller = QuestionController()
         return controller.create(data=data)
@@ -66,7 +82,12 @@ class Question(Resource):
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, id):
+<<<<<<< HEAD
+        """
+        Get specific question by its ID.
+=======
         """ Get specific question by its ID.
+>>>>>>> dev
 
         Args:
             id (int): The ID of the question to get from.
@@ -75,6 +96,11 @@ class Question(Resource):
              The question if success and None vice versa.
         """
 
+<<<<<<< HEAD
+        :return: The question if success and None vice versa.
+        """
+=======
+>>>>>>> dev
         controller = QuestionController()
         return controller.get_by_id(object_id=id)
 
@@ -83,7 +109,12 @@ class Question(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id):
+<<<<<<< HEAD
+        """
+        Update existing question by its ID.
+=======
         """ Update existing question by its ID.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
+>>>>>>> dev
 
         Args:
             id (int): The ID of the question.
@@ -91,13 +122,23 @@ class Question(Resource):
         Returns:
         """
 
+<<<<<<< HEAD
+        :return:
+        """
+=======
+>>>>>>> dev
         data = api.payload
         controller = QuestionController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
+<<<<<<< HEAD
+        """
+        Delete the question by its ID.
+=======
         """ Delete the question by its ID.
+>>>>>>> dev
 
         Args:
             id (int): The ID of the question.
@@ -105,6 +146,11 @@ class Question(Resource):
         Returns:
         """
 
+<<<<<<< HEAD
+        :return:
+        """
+=======
+>>>>>>> dev
         controller = QuestionController()
         return controller.delete(object_id=id)
 

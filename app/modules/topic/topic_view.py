@@ -27,12 +27,20 @@ class TopicList(Resource):
     # @api.marshal_list_with(topic_response)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
+<<<<<<< HEAD
+        """
+        Get list of topics from database.
+
+        :return: The list of topics.
+        """
+=======
         """ Get list of topics from database.
 
         Returns:
             The list of topics.
         """
 
+>>>>>>> dev
         controller = TopicController()
         return controller.get()
 
@@ -41,6 +49,13 @@ class TopicList(Resource):
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):
+<<<<<<< HEAD
+        """
+        Create new topic.
+
+        :return: The new topic if it was created successfully and null vice versa.
+        """
+=======
         """ Create new topic.
         
         Args:
@@ -60,6 +75,7 @@ class TopicList(Resource):
              The new topic if it was created successfully and null vice versa.
         """
         
+>>>>>>> dev
         data = api.payload
         controller = TopicController()
         return controller.create(data=data)
@@ -76,15 +92,25 @@ class Topic(Resource):
     # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self, id):
+<<<<<<< HEAD
+        """
+        Get topic by its ID.
+=======
         """ Get topic by its ID.
 
         Args:
             id (int): The ID of the topic.
+>>>>>>> dev
 
         Returns:
             The topic with the specific ID.
         """
 
+<<<<<<< HEAD
+        :return: The topic with the specific ID.
+        """
+=======
+>>>>>>> dev
         controller = TopicController()
         return controller.get_by_id(object_id=id)
 
@@ -94,15 +120,25 @@ class Topic(Resource):
     # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def put(self, id):
+<<<<<<< HEAD
+        """
+        Update existing topic by its ID.
+=======
         """ Update existing topic by its ID.
         
         Args:
             id (int) The ID of the topic which need to be updated.
+>>>>>>> dev
 
         Returns:
              The updated topic if success and null vice versa.
         """
 
+<<<<<<< HEAD
+        :return: The updated topic if success and null vice versa.
+        """
+=======
+>>>>>>> dev
         data = api.payload
         controller = TopicController()
         return controller.update(object_id=id, data=data)
@@ -110,14 +146,24 @@ class Topic(Resource):
 
     @token_required
     def delete(self, id):
+<<<<<<< HEAD
+        """
+        Delete topic by its ID.
+=======
         """ Delete topic by its ID.
         
         Args:
             id (int): The ID of the topic.
+>>>>>>> dev
 
         Returns:
         """
 
+<<<<<<< HEAD
+        :return:
+        """
+=======
+>>>>>>> dev
         controller = TopicController()
         return controller.delete(object_id=id)
 
@@ -128,14 +174,24 @@ class SubTopic(Resource):
     # @api.param(name='topic_id', description='The ID of fixed topic.')
     @api.response(code=200, model=topic_response, description='Get sub topics')
     def get(self, topic_id):
+<<<<<<< HEAD
+        """
+        Get sub-topics of fixed-topics.
+=======
         """ Get sub-topics of fixed-topics.
         
         Args:
             topic_id (int): The ID of fixed topic to get sub-topics.
+>>>>>>> dev
 
         Returns:
         """
 
+<<<<<<< HEAD
+        :return:
+        """
+=======
+>>>>>>> dev
         controller = TopicController()
         return controller.get_sub_topics(fixed_topic_id=topic_id)
 
@@ -143,11 +199,18 @@ class SubTopic(Resource):
 @api.route('/create_topics')
 class CreateFixedTopic(Resource):
     def get(self):
+<<<<<<< HEAD
+        """
+        Create fixed topics
+        :return:
+        """
+=======
         """  Create fixed topics
         
         Returns:
         """
 
+>>>>>>> dev
         controller = TopicController()
         return controller.create_topics()
 
