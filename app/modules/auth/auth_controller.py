@@ -470,15 +470,14 @@ class AuthController:
         try:
             # user.save()
             db.session.add(user)
-            db.session.commit()
             is_confirmed = True  # if saving is successfull --> send confirmation
         except Exception as e:
             print(e.__str__())
             is_confirmed = False
-            db.session.rollback()
         if is_confirmed:
             try:
                 send_confirmation_email(to=user.email)
+                db.session.commit()
                 return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')  # An email has sent to your mailbox. Please check your email to confirm.')
             
             except Exception as e:
