@@ -245,25 +245,15 @@ class ShareController(Controller):
                 pass
         return share
 
-<<<<<<< HEAD
-def get_share_by_user_id(self,args):
-        """
-        Search share.
-=======
->>>>>>> dev
 
     def get_share_by_user_id(self,args):
         """ Search share.
 
-<<<<<<< HEAD
-        :return: List of shares  (questions, answer) satisfy search condition.
-=======
         Args:
             `user_id` (int): Search shares by user_id
 
         Returns:
              List of shares  (questions, answer) satisfy search condition.
->>>>>>> dev
         """
 
         query = Share.query

@@ -26,11 +26,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class VoteController(Controller):
-<<<<<<< HEAD
-    def get(self, article_id, args):
-=======
     def get(self, args, article_id = None):
->>>>>>> dev
         """
         Search votes.
 

@@ -56,32 +56,10 @@ class VoteArticle(Resource):
         data = api.payload
         return controller.create(article_id=article_id, data=data)
 
-<<<<<<< HEAD
-@api.route('/<int:article_id>/vote/<int:user_id>')
-class VoteArticleById(Resource):
-    @token_required
-    # @api.marshal_with(vote)
-    def get(self, article_id, user_id):
-        """
-        Get vote by article ID and user ID.
-
-        :param id: The ID of the vote.
-
-        :return: The vote with the specific ID.
-        """
-        controller = VoteController()
-        return controller.get_by_id(article_id=article_id, user_id=user_id)
-
-    @token_required
-    def delete(self, article_id, user_id):
-        """
-        Delete vote on question.
-=======
     @token_required
     def delete(self, article_id):
         """
         Delete current user vote on question.
->>>>>>> dev
 
         :param article_id: The vote article ID.
 
