@@ -45,7 +45,7 @@ def encode_file_name(filename):
         filename: The filename.
 
     Returns:
-         The encoded filename.
+        string - The encoded filename.
     """
 
     encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
@@ -58,7 +58,8 @@ def generate_confirmation_token(email):
     Args:
         email: The email used to generate confirmation token.
 
-    Return:
+    Returns:
+        string
 
     """
     serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
@@ -69,10 +70,8 @@ def confirm_token(token, expirations=3600):
     """ Confirm token.
 
     Args:
-        token: The token to confirm.
-
-    Returns
-        expirations: The expiration time.
+        token (string): The token to confirm.
+        expirations (int): The expiration time.
 
     Returns:
          email if success and None vice versa.
@@ -96,6 +95,7 @@ def send_email(to, subject, template):
         template: The template to generate email.
 
     Return:
+        None
     """
     
     msg = Message(subject, sender=BaseConfig.MAIL_USERNAME, recipients=[to], html=template)
@@ -108,7 +108,8 @@ def send_confirmation_email(to):
     Args:
         to: The email address to send to.
 
-    Return:
+    Returns:
+        None
     """
     
     token = generate_confirmation_token(email=to)
@@ -123,7 +124,8 @@ def send_password_reset_email(to):
     Args:
         to: The email address to send to.
 
-    Return:
+    Returns:
+        None
     """
     
     token = generate_confirmation_token(email=to)
@@ -136,9 +138,10 @@ def get_response_message(message):
     """ Get HTML message to return to user.
 
     Args:
-         message: The message to return.
+        message: The message to return.
 
-    Return:
+    Returns:
+        string
     """
     
     html = render_template('response.html', message=message)
@@ -149,9 +152,9 @@ def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
     """ Generate the Auth token.
 
     Args:
-        user_id: The user's ID to generate token
+        user_id (int): The user's ID to generate token
 
-    Return:
+    Returns:
         string
     """
     
@@ -175,10 +178,10 @@ def decode_auth_token(auth_token):
     """ Validates the auth token
 
     Args:
-         auth_token:
+        auth_token (string): coded authentication token sent with request
 
-    Return:
-         integer|string
+    Returns:
+        integer - user_id or None
     """
 
     try:
@@ -262,8 +265,14 @@ def remove_markdown(text):
     return __md.convert(text)
 
 
-def no_accent_vietnamese(s):
+def convert_vietnamese_diacritics(s):
     """ Convert accented Vietnamese into unsigned
+
+    Args:
+        s (string)
+
+    Returns:
+        string
     """
     
     s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
@@ -315,7 +324,13 @@ def is_valid_username(user_name):
 
 
 def validate_phone_number(phone_number):
-    """ Ensure that is correct phone number.
+    """Ensure that is correct phone number.
+    
+    Args:
+        phone_number (string)
+
+    Returns:
+        Boolean
     """
     
     try:

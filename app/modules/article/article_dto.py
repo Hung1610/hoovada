@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ArticleDto(Dto):
     name = 'article'
-    api = Namespace(name)
+    api = Namespace(name, description="Article operations")
 
     model_topic = api.model('topic_for_article', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
@@ -34,8 +34,7 @@ class ArticleDto(Dto):
         'user_id': fields.Integer(description='The user ID'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'html': fields.String(description='The content of the article'),
-        'user_hidden': fields.Boolean(default=False,
-                                      description='The article wss created by user but the user want to be hidden'),
+        'user_hidden': fields.Boolean(default=False, description='The article was created by user but the user want to be hidden'),
         'topic_ids': fields.List(fields.Integer, description='The list of topics')
     })
 
@@ -50,8 +49,7 @@ class ArticleDto(Dto):
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of article views'),
         'last_activity': fields.DateTime(description='The last time this article was updated.'),
-        'user_hidden': fields.Boolean(default=False,
-                                      description='The article wss created by user but the user want to be hidden'),
+        'user_hidden': fields.Boolean(default=False, description='The article was created by user but the user want to be hidden'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
@@ -62,15 +60,9 @@ class ArticleDto(Dto):
     })
 
     model_get_parser = reqparse.RequestParser()
-    model_get_parser.add_argument('title', type=str, required=False, \
-        help='Search article by its title')
-    model_get_parser.add_argument('fixed_topic_id', type=str, required=False, \
-        help='Search all articles related to fixed-topic.')
-    model_get_parser.add_argument('topic_name', type=str, required=False, \
-        help='Search all articles related to topic.')
-    model_get_parser.add_argument('from_date', type=str, required=False, \
-        help='Search articles created later that this date.')
-    model_get_parser.add_argument('to_date', type=str, required=False, \
-        help='Search articles created before this data.')
-    model_get_parser.add_argument('anonymous', type=str, required=False, \
-        help='Search articles created by Anonymous.')
+    model_get_parser.add_argument('title', type=str, required=False, help='Search article by its title')
+    model_get_parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all articles related to fixed-topic.')
+    model_get_parser.add_argument('topic_name', type=str, required=False, help='Search all articles related to topic.')
+    model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
+    model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
+    model_get_parser.add_argument('anonymous', type=str, required=False, help='Search articles created by anonymous.')

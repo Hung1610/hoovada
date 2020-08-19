@@ -15,7 +15,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ReportDto(Dto):
     name = 'article_report'
-    api = Namespace(name)
+    api = Namespace(name, description="Article report operations")
+
     model_request = api.model('article_report_request', {
         'user_id': fields.Integer(description=''),
         'article_id': fields.Integer(description=''),

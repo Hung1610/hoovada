@@ -14,7 +14,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class SignupUserDto(Dto):
     name = 'signup_user'
-    api = Namespace(name)
+    api = Namespace(name, description="User operations")
+
     model = api.model(name, {
         'id': fields.Integer(),
         'email': fields.String(required=True),

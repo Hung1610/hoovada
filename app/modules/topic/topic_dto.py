@@ -14,7 +14,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class TopicDto(Dto):
     name = 'topic'
-    api = Namespace(name)
+    api = Namespace(name, description="Topic operations")
 
     model_sub_topic = api.model('sub_topic', {
         'id': fields.Integer(readonly=True),

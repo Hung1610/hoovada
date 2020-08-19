@@ -17,7 +17,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class AnswerDto(Dto):
     name = 'answer'
-    api = Namespace(name)
+    api = Namespace(name, description="Answer operations")
+
     answer_user = api.model('answer_user',{
         'id': fields.Integer(readonly=True, description = 'The user ID'),
         'display_name': fields.String(required=True, description = 'The display name of the user'),

@@ -5,7 +5,7 @@ from app.modules.common.dto import Dto
 
 class ShareDto(Dto):
     name = 'article_share'
-    api = Namespace(name)
+    api = Namespace(name, description="Article sharing operations")
 
     model_request = api.model('article_share_request', {
         'user_id': fields.Integer(description=''),

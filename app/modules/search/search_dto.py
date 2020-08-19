@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class SearchDto(Dto):
     name = 'search'
-    api = Namespace(name)
+    api = Namespace(name, description="Search operations")
 
     model_search_question_res = api.model('search_question_res', {
         'id': fields.Integer(readonly=True, description=''),

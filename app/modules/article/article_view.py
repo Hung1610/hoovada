@@ -29,25 +29,13 @@ class ArticleList(Resource):
     @api.expect(_article_get_params)
     def get(self):
         """
-        Get all articles that satisfy conditions.
-        ---------------------
-        :param `title`: The name of the topics to search
-
-        :param `fixed_topic_id`: Search all articles by fixed topic ID.
-
-        :param `topic_name`: Search all articles by topic ID.
-
-        :param `from_date`: Search articles created after this date.
-
-        :param `to_date`: Search articles created before this date.
-
-        :param `anonymous`: Search articles created by anonymous.
-
-        :return: List of articles satisfy search condition.
+        Get all articles that satisfy conditions
         """
+
         args = _article_get_params.parse_args()
         controller = ArticleController()
         return controller.get(args=args)
+
 
     @token_required
     @api.expect(_article_dto_request)
@@ -55,9 +43,8 @@ class ArticleList(Resource):
     def post(self):
         """
         Create new article and save to database.
-
-        :return: The article if success and None vice versa.
         """
+
         data = api.payload
         controller = ArticleController()
         return controller.create(data=data)
@@ -66,14 +53,12 @@ class ArticleList(Resource):
 @api.route('/<int:id>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.doc(params={'title': 'The name of the topics to search'})
     def get(self, id):
         """
         Get specific article by its ID.
-
-        :param id: The ID of the article to get.
-
-        :return: The article if success and None vice versa.
         """
+
         controller = ArticleController()
         return controller.get_by_id(object_id=id)
 
@@ -83,11 +68,8 @@ class Article(Resource):
     def put(self, id):
         """
         Update existing article by its ID.
-
-        :param id: The ID of the article.
-
-        :return:
         """
+
         data = api.payload
         controller = ArticleController()
         return controller.update(object_id=id, data=data, is_put=True)
@@ -98,11 +80,8 @@ class Article(Resource):
     def patch(self, id):
         """
         Update existing article by its ID.
-
-        :param id: The ID of the article.
-
-        :return:
         """
+
         data = api.payload
         controller = ArticleController()
         return controller.update(object_id=id, data=data)
@@ -111,10 +90,7 @@ class Article(Resource):
     def delete(self, id):
         """
         Delete the article by its ID.
-
-        :param id: The ID of the article.
-
-        :return:
         """
+
         controller = ArticleController()
         return controller.delete(object_id=id)

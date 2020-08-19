@@ -28,7 +28,6 @@ class ArticleVote(Model):
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
     voted_article =  db.relationship('Article', backref='votes', lazy=True) # one-to-many relationship with table Article
     comment_id = db.Column(db.Integer)
-    vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), \
-        nullable=False, server_default="NEUTRAL")
+    vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), nullable=False, server_default="NEUTRAL")
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)

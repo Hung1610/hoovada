@@ -27,18 +27,8 @@ class VoteArticle(Resource):
     def get(self, article_id):
         """
         Search all votes that satisfy conditions.
-        ---------------------
-
-        :user_id: Search votes by user_id
-
-        :article_id: Search all votes by article ID.
-
-        :from_date: Search votes by from date.
-
-        :to_date: Search votes by to date.
-
-        :return: List of comments.
         """
+
         args = _vote_get_params.parse_args()
         controller = VoteController()
         return controller.get(article_id=article_id, args=args)
@@ -49,9 +39,8 @@ class VoteArticle(Resource):
     def post(self, article_id):
         """
         Create/Update current user vote on article.
-
-        :return:
         """
+
         controller = VoteController()
         data = api.payload
         return controller.create(article_id=article_id, data=data)
@@ -60,10 +49,7 @@ class VoteArticle(Resource):
     def delete(self, article_id):
         """
         Delete current user vote on question.
-
-        :param article_id: The vote article ID.
-
-        :return:
         """
+        
         controller = VoteController()
         return controller.delete(article_id=article_id)

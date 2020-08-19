@@ -12,7 +12,7 @@ from app.modules.auth.decorator import admin_token_required, token_required
 
 api = CommentDto.api
 comment_response = CommentDto.model_response
-comment_request = CommentDto.model_requesst
+comment_request = CommentDto.model_request
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

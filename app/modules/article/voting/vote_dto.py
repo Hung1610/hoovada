@@ -17,7 +17,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class VoteDto(Dto):
     name = 'article_vote'
-    api = Namespace(name)
+    api = Namespace(name, description="Article voting operations")
 
     model_request_article = api.model('vote_request_article_vote', {
         'vote_status': fields.Integer(description='1 - Neutral, 2 - Upvote, 3 - Downvote', default=False)

@@ -20,17 +20,15 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 @api.route('')
-class UserTopicList(Resource):
+class UserEmploymentList(Resource):
     @token_required
     @api.expect(user_employment_request)
     @api.response(code=200, model=user_employment_response, description='Model for question topic response.')
     def post(self):
-        """ Create new user_employment.
-            
-        Args      
-        Returns:
-            The new user_employment if it was created successfully.
+        """ 
+        Create new user_employment.
         """
+
         data = api.payload
         controller = UserEmploymentController()
         return controller.create(data=data)
@@ -42,18 +40,13 @@ parser.add_argument('is_default', type=int, required=False, help='Search default
 
 @api.route('/search')
 @api.expect(parser)
-class UserTopicSearch(Resource):
+class UserEmploymentSearch(Resource):
     @token_required
     @api.response(code=200, model=user_employment_response, description='Model for user title response.')
     def get(self):
-        """ Search all employment that satisfy conditions.
+        """ 
+        Search all employment that satisfy conditions.
         
-        Args:
-            user_id: Search employment by user_id
-            is_default: Search default display
-
-        Returns:
-             List of employment
         """
         
         args = parser.parse_args()

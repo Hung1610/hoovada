@@ -27,11 +27,10 @@ class UserList(Resource):
     # @api.marshal_list_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
-        """ Returns all users in the system.
-
-        Returns
-            List of users.
+        """ 
+        Returns all users in the system.
         """
+        
         controller = UserController()
         return controller.get()
 
@@ -39,13 +38,10 @@ class UserList(Resource):
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
-        """Create new user.
-        Args:
-            All data to create a new user is stored in dictionary form.
-
-        Returns:
-             New user is created successfully and error vice versa.
         """
+        Create new user.
+        """
+
         data = api.payload
         controller = UserController()
         return controller.create(data=data)
@@ -58,13 +54,8 @@ class User(Resource):
     # @api.marshal_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
-        """Get all information for specific user with ID `id`
-        
-        Args:
-            id (int): The ID of the user.
-
-        Returns: 
-            The user with given ID in dictionary form.
+        """
+        Get all information for specific user with ID `id`
         """
 
         controller = UserController()
@@ -76,13 +67,8 @@ class User(Resource):
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
-        """Update an existed user in the system.
-        
-        Args:
-            user_name(string)
-
-        Returns:
-             The user data after updated.
+        """
+        Update an existed user in the system.
         """
 
         data = api.payload
@@ -92,14 +78,10 @@ class User(Resource):
 
     @token_required
     def delete(self, id):
-        """ Delete the user with the user_name `user_name`
-        
-        Args:
-            user_name (string): The user_name of the user to be deleted.
-
-        Returns: 
-            True if user delete successfully and False vice versa.
+        """ 
+        Delete the user with the user_name `user_name`
         """
+
         controller = UserController()
         return controller.delete(user_name=user_name)
 
@@ -117,9 +99,8 @@ class Avatar(Resource):
     def get(self):
         """
         Download  avatar.
-        -----------------
-        :return:
         """
+
         controler = UserController()
         return controler.get_avatar()
 
@@ -128,9 +109,8 @@ class Avatar(Resource):
     def post(self):
         """
         Upload avatar.
-        -------------
-        :return:
         """
+        
         args = avatar_upload.parse_args()
         controller = UserController()
         return controller.upload_avatar(args=args)

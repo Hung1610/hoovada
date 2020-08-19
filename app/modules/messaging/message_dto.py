@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class MessageDto(Dto):
     name = 'message'
-    api = Namespace(name)
+    api = Namespace(name, description="Message operations")
     model = api.model(name, {
         'id': fields.Integer(required=False),
         'message': fields.DateTime(),

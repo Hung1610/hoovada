@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FavoriteDto(Dto):
     name = 'article_favorite'
-    api = Namespace(name)
+    api = Namespace(name, description="Article favorite operations")
 
     model_topic_article_favorite = api.model('topic_article_favorite', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),

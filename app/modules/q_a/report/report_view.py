@@ -53,6 +53,10 @@ class ReportUser(Resource):
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self):
+        """
+        Create a report on user.
+        """
+
         controller = ReportController()
         data = api.payload
         return controller.create_report_user(data=data)
@@ -64,6 +68,10 @@ class ReportQuestion(Resource):
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self):
+        """
+        Create a report on question
+        """
+
         controller = ReportController()
         data = api.payload
         return controller.create_report_question(data=data)
@@ -75,6 +83,10 @@ class ReportAnswer(Resource):
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self):
+        """
+        Create a report on answer
+        """
+
         controller = ReportController()
         data = api.payload
         return controller.create_report_answer(data=data)
@@ -86,6 +98,10 @@ class ReportUser(Resource):
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self):
+        """
+        Create a report on comment
+        """
+
         controller = ReportController()
         data = api.payload
         return controller.create_report_comment(data=data)
@@ -99,11 +115,8 @@ class Reporting(Resource):
     def get(self, id):
         """
         Get report by its ID.
-
-        :param id: The ID of the report.
-
-        :return: The report with the specific ID.
         """
+        
         controller = ReportController()
         return controller.get_by_id(object_id=id)
 
@@ -124,17 +137,9 @@ class VoteSearch(Resource):
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self):
         """
-        Search all votes that satisfy conditions.
-        ---------------------
-
-        :user_id: Search votes by user_id
-
-        :question_id: Search all votes by question ID.
-
-        :answer_id: Search votes by answer ID.
-
-        :return: List of comments.
+        Search all reports that satisfy conditions.
         """
+
         args = parser.parse_args()
         controller = ReportController()
         return controller.search(args=args)
