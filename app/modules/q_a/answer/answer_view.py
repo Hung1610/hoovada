@@ -41,9 +41,8 @@ class AnswerList(Resource):
     def post(self):
         """
         Create new answer.
-
-        :return: The answer if success and null vice versa.
         """
+
         data = api.payload
         controller = AnswerController()
         return controller.create(data=data)
@@ -57,11 +56,8 @@ class Answer(Resource):
     def get(self, id):
         """
         Get the answer by its ID.
-
-        :param id: The ID of the answer.
-
-        :return:
         """
+
         controller = AnswerController()
         return controller.get_by_id(object_id=id)
 
@@ -72,11 +68,8 @@ class Answer(Resource):
     def put(self, id):
         """
         Update the existing answer by its ID.
-
-        :param id: The ID of the answer.
-
-        :return:
         """
+
         data = api.payload
         controller = AnswerController()
         return controller.update(object_id=id, data=data)
@@ -85,9 +78,8 @@ class Answer(Resource):
     def delete(self, id):
         """
         Delete existing answer by its ID.
-        :param id:
-        :return:
         """
+
         controller = AnswerController()
         return controller.delete(object_id=id)
 
@@ -107,19 +99,9 @@ class AnswerSearch(Resource):
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self):
         """
-        Search all topics that satisfy conditions.
-        ---------------------
-
-        :user_id: Search answers by user_id (who created question)
-
-        :question_id: Search all topics by fixed topic ID.
-
-        :from_date: Search answers created after this date.
-
-        :to_date: Search answers created before this date.
-
-        :return: List of buyers
+        Search all answers that satisfy conditions.
         """
+
         args = parser.parse_args()
         controller = AnswerController()
         return controller.search(args=args)

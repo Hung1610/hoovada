@@ -12,7 +12,7 @@ from app.modules.auth.decorator import admin_token_required, token_required
 
 api = CommentDto.api
 comment_response = CommentDto.model_response
-comment_request = CommentDto.model_requesst
+comment_request = CommentDto.model_request
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -40,9 +40,8 @@ class CommentList(Resource):
     def post(self):
         """
         Create new comment.
-
-        :return: The new comment if it was created successfully and null vice versa.
         """
+
         data = api.payload
         controller = CommentController()
         return controller.create(data=data)
@@ -56,11 +55,8 @@ class Comment(Resource):
     def get(self, id):
         """
         Get comment by its ID.
-
-        :param id: The ID of the comment.
-
-        :return: The comment with the specific ID.
         """
+
         controller = CommentController()
         return controller.get_by_id(object_id=id)
 
@@ -71,11 +67,8 @@ class Comment(Resource):
     def put(self, id):
         """
         Update existing comment by its ID.
-
-        :param id: The ID of the comment which need to be updated.
-
-        :return: The updated comment if success and null vice versa.
         """
+
         data = api.payload
         controller = CommentController()
         return controller.update(object_id=id, data=data)
@@ -84,11 +77,8 @@ class Comment(Resource):
     def delete(self, id):
         """
         Delete comment by its ID.
-
-        :param id: The ID of the comment.
-
-        :return:
         """
+
         controller = CommentController()
         return controller.delete(object_id=id)
 
@@ -107,16 +97,8 @@ class CommentSearch(Resource):
     def get(self):
         """
         Search all comments that satisfy conditions.
-        ---------------------
-
-        :user_id: Search comments by user_id
-
-        :question_id: Search all comments by question ID.
-
-        :answer_id: Search comments by answer ID.
-
-        :return: List of comments.
         """
+        
         args = parser.parse_args()
         controller = CommentController()
         return controller.search(args=args)

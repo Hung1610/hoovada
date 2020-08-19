@@ -29,9 +29,8 @@ class UploadImage(Resource):
     def post(self):
         """
         Upload avatar.
-        -------------
-        :return:
         """
+        
         args = avatar_upload.parse_args()
         controller = FileUploadController()
         return controller.upload_image(args=args)

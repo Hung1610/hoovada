@@ -15,14 +15,15 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class CommentDto(Dto):
     name = 'article_comment'
-    api = Namespace(name)
+    api = Namespace(name, description="Article comment operations")
+
     comment_user = api.model('article_comment_user', {
         'id': fields.Integer(readonly=True, description='The user ID'),
         'display_name': fields.String(required=True, description='The display name of the user'),
         'profile_pic_url': fields.String(required=True, description='The avatar address of the user')
     })
 
-    model_requesst = api.model('article_comment_request', {
+    model_request = api.model('article_comment_request', {
         'comment': fields.String(required=True, description='The content of the comment'),
         'user_id': fields.Integer(required=True, description='The user ID')
     })

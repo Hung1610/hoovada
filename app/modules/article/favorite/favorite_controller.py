@@ -33,10 +33,12 @@ class FavoriteController(Controller):
         '''
         Get/Search favorites.
 
-        :param args: The dictionary-like parameters.
+        Args:
+             The dictionary-like parameters.
 
-        :return:
+        Returns:
         '''
+        
         user_id, favorited_user_id, from_date, to_date = None, None, None, None, None, None, None
         if 'user_id' in args:
             try:

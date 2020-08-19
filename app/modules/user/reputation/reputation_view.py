@@ -26,17 +26,12 @@ parser.add_argument('topic_id', type=int, required=True, help='Search reputation
 
 @api.route('/search')
 @api.expect(parser)
-class UserTopicSearch(Resource):
+class UserReputationSearch(Resource):
     @token_required
     @api.response(code=200, model=user_reputation_response, description='Model for user title response.')
     def get(self):
-        """ Search all employment that satisfy conditions.
-        
-        Args:
-			topic_id(int): Search employment by topic_id
-
-        Return: 
-        	List of employment
+        """ 
+        Search all reputation that satisfy conditions.
         """
 
         args = parser.parse_args()

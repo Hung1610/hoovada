@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class QuestionDto(Dto):
     name = 'question'
-    api = Namespace(name)
+    api = Namespace(name, description="Question operations")
 
     model_topic = api.model('topic_for_question', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),

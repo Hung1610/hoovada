@@ -18,7 +18,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ShareDto(Dto):
     name = 'share'
-    api = Namespace(name)
+    api = Namespace(name, description="Question-Share operations")
 
     model_question = api.model('share_question',{
         'id': fields.Integer(readonly=True, description=''),

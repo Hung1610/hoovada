@@ -95,16 +95,16 @@ class ReportController(Controller):
         pass
 
     def _parse_report(self, data, report=None):
+        """ Parse dictionary form data to report.
+        
+        Args:
+            data: A dictionary form data.
+            report: A report as a param.
+
+        Returns: 
+            A report.
         """
-        Parse dictionary form data to report.
-        ----------------------
 
-        :param data: A dictionary form data.
-
-        :param report: A report as a param.
-
-        :return: A report.
-        """
         if report is None:
             report = ArticleReport()
         if 'user_id' in data:

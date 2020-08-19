@@ -14,73 +14,73 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class AuthDto(Dto):
     name = 'auth'
-    api = Namespace(name, description='auth related operations')
+    api = Namespace(name, description='Authentication operations')
 
     model_sms_register = api.model('sms_register', {
-        'display_name': fields.String(required=False),
-        'phone_number': fields.String(required=True),
-        'password': fields.String(required=True)
+        'display_name': fields.String(required=False, description='User display name'),
+        'phone_number': fields.String(required=True, description='The phone number used for registration'),
+        'password': fields.String(required=True, description='The password - at least 8 characters, 1 number, 1 special symbol')
     })
     
     model_confirm_sms = api.model('confirm_sms', {
-        'phone_number': fields.String(required=True),
-        'code': fields.String(required=True)
+        'phone_number': fields.String(required=True, description='The phone number used for registration'),
+        'code': fields.String(required=True, description='The sms code sent for confirmation')
     })
     
     model_resend_confirmation_sms = api.model('resend_confirmation_sms', {
-        'phone_number': fields.String(required=True),
+        'phone_number': fields.String(required=True, description='The phone_number used for registration'),
     })
     
     model_sms_login_with_password = api.model('sms_login_with_password', {
-        'phone_number': fields.String(required=True),
-        'password': fields.String(required=True),
+        'phone_number': fields.String(required=True, description='The phone number used for registration'),
+        'password': fields.String(required=True, description='The password - at least 8 characters, 1 number, 1 special symbol'),
     })
     
     model_sms_login_with_code = api.model('sms_login_with_code', {
-        'phone_number': fields.String(required=True),
+        'phone_number': fields.String(required=True, description='The phone number used for login'),
     })
     
     model_sms_login_with_code_confirm = api.model('sms_login_with_code_confirm', {
-        'phone_number': fields.String(required=True),
-        'code': fields.String(required=True),
+        'phone_number': fields.String(required=True, description='The phone number that used for login'),
+        'code': fields.String(required=True, description='The sms code for login'),
     })
 
     model_register = api.model('register', {
-        'display_name': fields.String(required=False),
-        'email': fields.String(required=True),
-        'password': fields.String(required=True)
+        'display_name': fields.String(required=False, description='The name to display after login'),
+        'email': fields.String(required=True, description='The user email used for registration'),
+        'password': fields.String(required=True, description='The password - at least 8 characters, 1 number, 1 special symbol')
     })
 
     model_login = api.model('login', {
-        'email': fields.String(required=True),
-        'password': fields.String(requried=True)
+        'email': fields.String(required=True, description='The user email used for registration'),
+        'password': fields.String(requried=True, description='The password - at least 8 characters, 1 number, 1 special symbol')
     })
 
     model_social_login = api.model('social_login', {
-        'access_token': fields.String(required=True),
+        'access_token': fields.String(required=True, description='The token get from login FB or Google'),
     })
 
     model_reset_password_email = api.model('reset_password_email', {
-        'email': fields.String(required=True),
+        'email': fields.String(required=True, description='The email used for reset password request with email'),
     })
 
     model_reset_password_phone = api.model('reset_password_phone', {
-        'phone_number': fields.String(required=True),
+        'phone_number': fields.String(required=True, description='The phone number for reset password request'),
     })
 
     model_change_password_token = api.model('change_password_token', {
-        'reset_token': fields.String(required=True),
-        'token_type': fields.String(required=True, choices=('email', 'phone')),
-        'password': fields.String(required=True),
-        'password_confirm': fields.String(required=True),
+        'reset_token': fields.String(required=True, description='The token for confirmation'),
+        'token_type': fields.String(required=True, choices=('email', 'phone'), description='The type of token to confirm (\'email\'/\'phone\')'),
+        'password': fields.String(required=True, description='The new password - at least 8 characters, 1 number, 1 special symbol'),
+        'password_confirm': fields.String(required=True, description='The new password'),
     })
 
     model_change_password = api.model('change_password', {
-        'old_password': fields.String(required=True),
-        'password': fields.String(required=True),
-        'password_confirm': fields.String(required=True),
+        'old_password': fields.String(required=True, description='Current password'),
+        'password': fields.String(required=True, description='The new password - at least 8 characters, 1 number, 1 special symbol'),
+        'password_confirm': fields.String(required=True, description='Confirm the new password'),
     })
 
     message_response = api.model('response', {
-        'message': fields.String(required=True)
+        'message': fields.String(required=True, description='')
     })

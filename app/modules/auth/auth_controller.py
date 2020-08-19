@@ -23,7 +23,7 @@ from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
-    get_response_message, no_accent_vietnamese, validate_phone_number, is_valid_username, send_verification_sms, \
+    get_response_message, convert_vietnamese_diacritics, validate_phone_number, is_valid_username, send_verification_sms, \
     check_verification, check_password, is_valid_email, generate_confirmation_token, send_password_reset_email
 
 __author__ = "hoovada.com team"
@@ -86,7 +86,7 @@ def save_social_account(provider, extra_data):
         if (AuthController.check_user_exist(email)):
             return send_error(message='Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(email))
             
-        user_name = no_accent_vietnamese(extra_data['name']).strip().replace(' ', '_').lower()
+        user_name = convert_vietnamese_diacritics(extra_data['name']).strip().replace(' ', '_').lower()
         user_name = AuthController.create_user_name(user_name)
         # display_name = extra_data.get('name', '')
         first_name = extra_data.get('first_name', '')
@@ -346,7 +346,7 @@ class AuthController:
     
 
     def sms_login_with_password(self, data):
-        """ Login user handling.
+        """ Login user with phone number and password
         """
     
         try:
@@ -374,7 +374,7 @@ class AuthController:
 
 
     def sms_login_with_code(self, data):
-        """ Login user handling.
+        """ Login user with phone number and send code 
         """
 
         try:
@@ -574,7 +574,7 @@ class AuthController:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_error(message=message)  # 'Invalid confirmation token.'
 
-    def change_passwork(self, data):
+    def change_password(self, data):
         """Change password for current user
         """        
         if not isinstance(data, dict):
@@ -615,7 +615,7 @@ class AuthController:
             message = 'Mật khẩu cũ không đúng!'
             return send_error(message=message)  # 'Invalid confirmation token.'
 
-    def change_passwork_by_token(self, data):
+    def change_password_by_token(self, data):
         """Change password using token received in email
         """        
         if not isinstance(data, dict):

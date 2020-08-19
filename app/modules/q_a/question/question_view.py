@@ -29,12 +29,8 @@ class QuestionList(Resource):
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Get list of questions from database.
-        
-        Args:
-
-        Returns:
-             List of questions.
+        """ 
+        Get list of questions from database.
         """
 
         controller = QuestionController()
@@ -46,12 +42,8 @@ class QuestionList(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        """ Create new question and save to database.
-        
-        Args:
-
-        Returns:
-             The question if success and None vice versa.
+        """ 
+        Create new question and save to database.
         """
 
         data = api.payload
@@ -66,13 +58,8 @@ class Question(Resource):
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, id):
-        """ Get specific question by its ID.
-
-        Args:
-            id (int): The ID of the question to get from.
-
-        Returns:
-             The question if success and None vice versa.
+        """ 
+        Get specific question by its ID.
         """
 
         controller = QuestionController()
@@ -83,12 +70,8 @@ class Question(Resource):
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id):
-        """ Update existing question by its ID.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
-
-        Args:
-            id (int): The ID of the question.
-
-        Returns:
+        """ 
+        Update existing question by its ID.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
         """
 
         data = api.payload
@@ -97,12 +80,8 @@ class Question(Resource):
 
     @token_required
     def delete(self, id):
-        """ Delete the question by its ID.
-
-        Args:
-            id (int): The ID of the question.
-
-        Returns:
+        """ 
+        Delete the question by its ID.
         """
 
         controller = QuestionController()
@@ -124,20 +103,8 @@ class QuesstionSearch(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Search all questions that satisfy conditions.
-        
-        Args:
-
-            `title` (string): The name of the topics to search
-            `user_id` (int): Search questions by user_id (who created question)
-            `fixed_topic_id`(int): Search all questions by fixed topic ID.
-            `topic_id` (int): Search all questions by topic ID.
-            `from_date` (date): Search questions created after this date.
-            `to_date` (date): Search questions created before this date.
-            `anonymous`: Search questions created by anonymous.
-
-        Returns:
-            List of questions satisfy search condition.
+        """ 
+        Search all questions that satisfy conditions.
         """
 
         args = parser.parse_args()
@@ -152,13 +119,8 @@ class GetQuestionBySlug(Resource):
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, slug):
-        """ Get specific question by its ID.
-
-        Args:
-            slug (string): The ID of the question to get from.
-
-        Returns:
-            The question if success and None vice versa.
+        """ 
+        Get specific question by its ID.
         """
 
         controller = QuestionController()
@@ -169,7 +131,8 @@ class UpdateSlug(Resource):
     # @admin_token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        """ Them Slug cho tat ca cac question trong Database
+        """ 
+        Update Slug for questions in DB
         """
 
         controller = QuestionController()
