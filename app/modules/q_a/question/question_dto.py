@@ -147,6 +147,7 @@ class QuestionDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
-        'down_vote':fields.Boolean(default=False, description='The value of downvote of current user')
+        'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
+        'slug': fields.String(description='The slug of the question')
         # 'image_ids':fields.String()
     })
