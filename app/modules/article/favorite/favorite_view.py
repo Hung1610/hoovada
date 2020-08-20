@@ -23,7 +23,6 @@ _vote_get_params = FavoriteDto.model_get_parser
 
 @api.route('/<int:article_id>/favorite')
 class FavoriteUser(Resource):
-    @token_required
     @api.expect(_vote_get_params)
     def get(self, article_id):
         """

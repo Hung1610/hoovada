@@ -12,7 +12,7 @@ from io import StringIO
 # third-party modules
 import jwt
 import markdown2
-from flask import url_for, render_template
+from flask import url_for, render_template, request
 from flask_babel import lazy_gettext as _l
 from flask_mail import Message
 from flask_restx import ValidationError
@@ -129,7 +129,7 @@ def send_password_reset_email(to):
     """
     
     token = generate_confirmation_token(email=to)
-    confirm_url = url_for('password_reset_email_confirm', token=token, _external=True)
+    confirm_url = request.url_root + 'auth/password-reset-email-confirm/' + token
     html = render_template('reset_password.html', confirm_url=confirm_url)
     send_email(to, 'Yêu cầu thay đổi mật khẩu', html)
 

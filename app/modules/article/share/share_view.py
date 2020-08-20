@@ -53,7 +53,6 @@ class ShareList(Resource):
 
 @api.route('/all/share/<int:id>')
 class Share(Resource):
-    @token_required
     @api.response(code=200, model=share_response, description='The model for share response.')
     def get(self, id):
         """
