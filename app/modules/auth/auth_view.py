@@ -35,6 +35,7 @@ _auth_change_password_token = AuthDto.model_change_password_token
 _auth_change_password = AuthDto.model_change_password
 
 
+
 @api.route('/sms/register')
 class SmsRegister(Resource):
 
