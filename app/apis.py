@@ -28,7 +28,7 @@ class HTTPSApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        return url_for(self.endpoint('specs'), _external=True, _scheme='https')
+        return url_for(self.endpoint('specs'), _external=True, _scheme='http')
 
 def init_api(mode):
 
