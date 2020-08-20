@@ -68,7 +68,7 @@ class AuthDto(Dto):
         'phone_number': fields.String(required=True, description='The phone number for reset password request'),
     })
 
-    model_reset_password_phone_confirm = api.model('reset_password_phone', {
+    model_reset_password_phone_confirm = api.model('reset_password_phone_confirm', {
         'phone_number': fields.String(required=True, description='The phone number for reset password request'),
         'code': fields.String(required=True, description='The OTP code sent through SMS'),
     })
