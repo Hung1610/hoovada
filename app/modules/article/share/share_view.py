@@ -33,16 +33,8 @@ class ShareList(Resource):
     def get(self, article_id):
         """
         Search all shares that satisfy conditions.
-        ---------------------
-
-        :user_id: Search shares by user_id
-
-        :from_date: Search shares created after this date.
-
-        :to_date: Search shares created before this date.
-
-        :return: List of comments.
         """
+
         args = parser.parse_args()
         controller = ShareController()
         return controller.get(args=args, article_id=article_id)
@@ -52,9 +44,8 @@ class ShareList(Resource):
     def post(self, article_id):
         """
         Create new share.
-
-        :return: The new share if it was created successfully and null vice versa.
         """
+
         data = api.payload
         controller = ShareController()
         return controller.create(data=data, article_id=article_id)
@@ -67,11 +58,8 @@ class Share(Resource):
     def get(self, id):
         """
         Get share by its ID.
-
-        :param id: The ID of the share.
-
-        :return: The share with the specific ID.
         """
+
         controller = ShareController()
         return controller.get_by_id(object_id=id)
 
@@ -81,11 +69,8 @@ class Share(Resource):
     def put(self, id):
         """
         Update existing share by its ID.
-
-        :param id: The ID of the share which need to be updated.
-
-        :return: The updated share if success and null vice versa.
         """
+
         data = api.payload
         controller = ShareController()
         return controller.update(object_id=id, data=data)
@@ -94,10 +79,7 @@ class Share(Resource):
     def delete(self, id):
         """
         Delete share by its ID.
-
-        :param id: The ID of the share.
-
-        :return:
         """
+        
         controller = ShareController()
         return controller.delete(object_id=id)

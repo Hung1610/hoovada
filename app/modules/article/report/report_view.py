@@ -29,16 +29,8 @@ class ReportUser(Resource):
     def get(self, article_id):
         """
         Search all votes that satisfy conditions.
-        ---------------------
-
-        :user_id: Search reports by user_id
-
-        :from_date: Search reports created after this date.
-
-        :to_date: Search reports created before this date.
-
-        :return: List of comments.
         """
+
         args = _get_parser.parse_args()
         controller = ReportController()
         return controller.get(article_id=article_id, args=args)
@@ -47,6 +39,10 @@ class ReportUser(Resource):
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, article_id):
+        """
+        Make report
+        """
+
         controller = ReportController()
         data = api.payload
         return controller.create(article_id=article_id, data=data)
@@ -59,10 +55,7 @@ class Reporting(Resource):
     def get(self, id):
         """
         Get report by its ID.
-
-        :param id: The ID of the report.
-
-        :return: The report with the specific ID.
         """
+
         controller = ReportController()
         return controller.get_by_id(object_id=id)

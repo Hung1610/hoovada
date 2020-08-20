@@ -34,11 +34,8 @@ class AnswerController(Controller):
     def search(self, args):
         """
         Search answers.
-
-        :param args:
-
-        :return:
         """
+        
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
         user_id, question_id, from_date, to_date = None, None, None, None  # , None, None

@@ -42,9 +42,8 @@ class QuestionTopicList(Resource):
     def post(self):
         """
         Create new question_topic.
-
-        :return: The new question_topic if it was created successfully and null vice versa.
         """
+
         data = api.payload
         controller = QuestionTopicController()
         return controller.create(data=data)
@@ -58,11 +57,8 @@ class QuestionTopic(Resource):
     def get(self, id):
         """
         Get question_topic by its ID.
-
-        :param id: The ID of the question_topic.
-
-        :return: The question_topic with the specific ID.
         """
+
         controller = QuestionTopicController()
         return controller.get_by_id(object_id=id)
 
@@ -85,11 +81,8 @@ class QuestionTopic(Resource):
     def delete(self, id):
         """
         Delete question_topic by its ID.
-
-        :param id: The ID of the question_topic.
-
-        :return:
         """
+
         controller = QuestionTopicController()
         return controller.delete(object_id=id)
 
@@ -107,14 +100,8 @@ class QuestionTopicSearch(Resource):
     def get(self):
         """
         Search all question-topics that satisfy conditions.
-        ---------------------
-
-        :question_id: The question ID.
-
-        :topic_id: The topic ID.
-
-        :return: List of buyers
         """
+
         args = parser.parse_args()
         controller = QuestionTopicController()
         return controller.search(args=args)
@@ -127,9 +114,8 @@ class QuestionTopicDelete(Resource):
     def delete(self):
         """
         Delete question_topic by question_id and topic_id
-
-        :return:
         """
+        
         args = parser.parse_args()
         controller = QuestionTopicController()
         return controller.delete_by_question_id_topic_id(args)

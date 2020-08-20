@@ -27,10 +27,8 @@ class TopicList(Resource):
     # @api.marshal_list_with(topic_response)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
-        """ Get list of topics from database.
-
-        Returns:
-            The list of topics.
+        """ 
+        Get list of topics from database.
         """
 
         controller = TopicController()
@@ -41,23 +39,8 @@ class TopicList(Resource):
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):
-        """ Create new topic.
-        
-        Args:
-            name (string) : name of new topic
-            parent_id (int): the id of fix_topic that topic belongs to
-            user_id (int): the id of user that creating the topic, optional
-            count (int) : optional 
-            question_count (int): optional
-            user_count (int): optional
-            answer_count (int): optional
-            is_fixed (boolean): false for topic and true for fix_topic, optional
-            created_date (date): optional
-            description (string): optional
-            
-
-        Returns:
-             The new topic if it was created successfully and null vice versa.
+        """ 
+        Create new topic.
         """
         
         data = api.payload
@@ -76,13 +59,8 @@ class Topic(Resource):
     # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self, id):
-        """ Get topic by its ID.
-
-        Args:
-            id (int): The ID of the topic.
-
-        Returns:
-            The topic with the specific ID.
+        """ 
+        Get topic by its ID.
         """
 
         controller = TopicController()
@@ -94,13 +72,9 @@ class Topic(Resource):
     # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def put(self, id):
-        """ Update existing topic by its ID.
-        
-        Args:
-            id (int) The ID of the topic which need to be updated.
+        """ 
+        Update existing topic by its ID.
 
-        Returns:
-             The updated topic if success and null vice versa.
         """
 
         data = api.payload
@@ -110,12 +84,8 @@ class Topic(Resource):
 
     @token_required
     def delete(self, id):
-        """ Delete topic by its ID.
-        
-        Args:
-            id (int): The ID of the topic.
-
-        Returns:
+        """ 
+        Delete topic by its ID.
         """
 
         controller = TopicController()
@@ -128,12 +98,8 @@ class SubTopic(Resource):
     # @api.param(name='topic_id', description='The ID of fixed topic.')
     @api.response(code=200, model=topic_response, description='Get sub topics')
     def get(self, topic_id):
-        """ Get sub-topics of fixed-topics.
-        
-        Args:
-            topic_id (int): The ID of fixed topic to get sub-topics.
-
-        Returns:
+        """ 
+        Get sub-topics of fixed-topics.
         """
 
         controller = TopicController()
@@ -142,10 +108,9 @@ class SubTopic(Resource):
 
 @api.route('/create_topics')
 class CreateFixedTopic(Resource):
-    def get(self):
-        """  Create fixed topics
-        
-        Returns:
+    def post(self):
+        """ 
+        Create fixed topics
         """
 
         controller = TopicController()
@@ -165,15 +130,8 @@ class TopicSearch(Resource):
     #@token_required
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self):
-        """ Search all topics that satisfy conditions.
-
-        Args:
-            name (string): The name of the topics to search
-            user_id (int): Search topic by user_id (who created topics)
-            parent_id (int): Search all topics by their parent topic ID.
-
-        Returns: 
-            List of buyers
+        """ 
+        Search all topics that satisfy conditions.
         """
 
         args = parser.parse_args()

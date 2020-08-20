@@ -42,9 +42,8 @@ class UserTopicList(Resource):
     def post(self):
         """
         Create new user_topic.
-
-        :return: The new user_topic if it was created successfully and null vice versa.
         """
+        
         data = api.payload
         controller = UserTopicController()
         return controller.create(data=data)
@@ -58,11 +57,8 @@ class UserTopic(Resource):
     def get(self, id):
         """
         Get user_topic by its ID.
-
-        :param id: The ID of the user_topic.
-
-        :return: The user_topic with the specific ID.
         """
+
         controller = UserTopicController()
         return controller.get_by_id(object_id=id)
 
@@ -86,11 +82,8 @@ class UserTopic(Resource):
     def delete(self, id):
         """
         Delete user_topic by its ID.
-
-        :param id: The ID of the user_topic.
-
-        :return:
         """
+
         controller = UserTopicController()
         return controller.delete(object_id=id)
 
@@ -107,14 +100,7 @@ class UserTopicSearch(Resource):
     @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
     def get(self):
         """
-        Search all topics that satisfy conditions.
-        ---------------------
-
-        :user_id: Search topic by user_id (who created topics)
-
-        :parent_id: Search all topics by their parent topic ID.
-
-        :return: List of buyers
+        Search all user topics that satisfy conditions.
         """
         args = parser.parse_args()
         controller = UserTopicController()

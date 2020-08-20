@@ -15,7 +15,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ReputationDto(Dto):
     name = 'reputation'
-    api = Namespace(name)
+    api = Namespace(name, description="Reputation operations")
+
     model_request = api.model('reputation_request', {
         'user_id': fields.Integer(required=True, description='The user ID'),
         'topic_id': fields.Integer(required=True, description='The Topic ID'),

@@ -30,11 +30,9 @@ class Article(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
-        nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     article_by_user = db.relationship('User', backref='articles', lazy=True) # one-to-many relationship with table Article
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'),
-        nullable=False)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     fixed_topic = db.relationship('Topic', backref='fixed_topic_articles', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
     user_hidden = db.Column(db.Boolean, default=False)
@@ -59,8 +57,7 @@ class Article(Model):
     def favorite_count(self):
         return db.func.count('1')
     #
-    topics = db.relationship('Topic', secondary=article_topics, lazy='subquery',
-        backref=db.backref('articles', lazy=True))
+    topics = db.relationship('Topic', secondary=article_topics, lazy='subquery', backref=db.backref('articles', lazy=True))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)

@@ -56,10 +56,6 @@ class Favorite(Resource):
     def get(self, id):
         """
         Get favorite by its ID.
-
-        :param comment_id: The ID of the comment.
-
-        :return: The comment with the specific ID.
         """
         controller = FavoriteController()
         return controller.get_by_id(object_id=id)
@@ -100,10 +96,6 @@ class FavoriteUser(Resource):
     def post(self):
         """
         Create a favorite on user.
-
-        :param data: The data in dictionary form.
-
-        :return: The favorite if success and null vice versa.
         """
         controller = FavoriteController()
         data = api.payload
@@ -114,10 +106,6 @@ class FavoriteUser(Resource):
     def delete(self, id):
         """
         Delete favorite on user.
-
-        :param id: The ID of the favorite to delete.
-
-        :return: True if success and False vice versa.
         """
         controller = FavoriteController()
         return controller.delete_favorite_user(object_id=id)
@@ -129,6 +117,9 @@ class FavoriteQuestion(Resource):
     @api.expect(favorite_request)
     @api.response(code=200, model=favorite_response, description='The model for favorite.')
     def post(self):
+        """
+        Create a favorite on question
+        """
 
         controller = FavoriteController()
         data = api.payload
@@ -137,6 +128,10 @@ class FavoriteQuestion(Resource):
     @token_required
     @api.param(name='id', description='The ID of the favorite to delete.')
     def delete(self, id):
+        """
+        Delete favorite on question
+        """
+
         controller = FavoriteController()
         return controller.delete_favorite_question(object_id=id)
 
@@ -147,6 +142,10 @@ class FavoriteAnswer(Resource):
     @api.expect(favorite_request)
     @api.response(code=200, model=favorite_response, description='The model for favorite.')
     def post(self):
+        """
+        Create a favorite on answer
+        """
+
         controller = FavoriteController()
         data = api.payload
         return controller.create_favorite_answer(data=data)
@@ -154,6 +153,10 @@ class FavoriteAnswer(Resource):
     @token_required
     @api.param(name='id', description='The ID of the favorite to delete.')
     def delete(self, id):
+        """
+        Delete favorite on answer
+        """
+
         controller = FavoriteController()
         return controller.delete_favorite_answer(object_id=id)
 
@@ -164,6 +167,10 @@ class FavoriteComment(Resource):
     @api.expect(favorite_request)
     @api.response(code=200, model=favorite_response, description='The model for favorite.')
     def post(self):
+        """
+        Create a favorite on comment
+        """
+
         controller = FavoriteController()
         data = api.payload
         return controller.create_favorite_comment(data=data)
@@ -171,6 +178,10 @@ class FavoriteComment(Resource):
     @token_required
     @api.param(name='id', description='The ID of the favorite to delete.')
     def delete(self, id):
+        """
+        Delete favorite on comment
+        """
+
         controller = FavoriteController()
         return controller.delete_favorite_comment(object_id=id)
 
@@ -193,16 +204,8 @@ class FavoriteSearch(Resource):
     def get(self):
         """
         Search all favorites that satisfy conditions.
-        ---------------------
-
-        :user_id: Search favorites by user_id
-
-        :question_id: Search all favorites by question ID.
-
-        :answer_id: Search favorites by answer ID.
-
-        :return: List of comments.
         """
+        
         args = parser.parse_args()
         controller = FavoriteController()
         return controller.search(args=args)

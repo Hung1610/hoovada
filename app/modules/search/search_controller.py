@@ -33,10 +33,6 @@ class SearchController():
 
     def search(self, args):
         """ Search questions.
-        
-            Args:
-
-            Returns
         """
 
         if not isinstance(args, dict):
