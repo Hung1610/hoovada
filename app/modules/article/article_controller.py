@@ -17,6 +17,7 @@ from app.modules.article import constants
 from app.modules.article.article import Article
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
+from app.modules.article.favorite.favorite import ArticleFavorite
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.topic.topic import Topic
@@ -82,6 +83,9 @@ class ArticleController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                    ArticleFavorite.article_id == article.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                     return send_result(message=constants.msg_create_success,
                                        data=marshal(result, ArticleDto.model_article_response))
                 except Exception as e:
@@ -191,6 +195,9 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                ArticleFavorite.article_id == article.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, ArticleDto.model_article_response), message='Success')
         else:
@@ -217,6 +224,9 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                ArticleFavorite.article_id == article.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
             except Exception as e:
                 print(e)
                 pass
@@ -272,6 +282,9 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                ArticleFavorite.article_id == article.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
             except Exception as e:
                 print(e)
                 pass
