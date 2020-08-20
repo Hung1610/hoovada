@@ -197,11 +197,11 @@ class PasswordResetPhone(Resource):
         return controller.reset_password_by_sms(data=post_data)
 
 
-@api.route('/password-reset-phone-confirm/<token>')
+@api.route('/password-reset-phone-confirm')
 class PasswordResetPhoneConfirm(Resource):
 
 
-    @api.doc(params={'token': 'The token used for confirmation'})
+    @api.expect(_auth_reset_password_phone_confirm)
     def post(self, token):
         """ 
         Check token for password reset with phone number.
