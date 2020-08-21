@@ -500,7 +500,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message='Số điện thoại không đúng định dạng!')
         
-        if not check_phone_number_exist(phone_number):
+        if not AuthController.check_phone_number_exist(phone_number):
             return send_error(message='Người dùng chưa tồn tại, vui lòng đăng ký!')
 
         try:
