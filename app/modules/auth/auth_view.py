@@ -204,9 +204,9 @@ class PasswordResetPhoneConfirm(Resource):
 
 
     @api.expect(_auth_reset_password_phone_confirm)
-    def post(self, token):
+    def post(self):
         """ 
-        Check token for password reset with phone number.
+        Check OTP for password reset with phone number.
         """
         post_data = request.json
         controller = AuthController()
