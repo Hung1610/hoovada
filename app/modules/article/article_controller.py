@@ -10,6 +10,7 @@ import dateutil.parser
 from flask import request
 from flask_restx import marshal
 from sqlalchemy import desc
+from bs4 import BeautifulSoup
 
 # own modules
 from app import db
@@ -52,7 +53,7 @@ class ArticleController(Controller):
             article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
-                is_sensitive = check_sensitive(article.html)
+                is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
                 article.created_date = datetime.utcnow()
@@ -262,7 +263,7 @@ class ArticleController(Controller):
             is_sensitive = check_sensitive(article.title)
             if is_sensitive:
                 return send_error(message=constants.msg_update_failed_insensitive_title)
-            is_sensitive = check_sensitive(article.html)
+            is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
             if is_sensitive:
                 return send_error(message=constants.msg_update_failed_insensitive_body)
             # update topics to article_topic table
