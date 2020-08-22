@@ -31,7 +31,6 @@ class ArticleDto(Dto):
 
     model_article_request = api.model('article_request', {
         'title': fields.String(description='The title of the article'),
-        'user_id': fields.Integer(description='The user ID'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'html': fields.String(description='The content of the article'),
         'user_hidden': fields.Boolean(default=False, description='The article was created by user but the user want to be hidden'),
