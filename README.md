@@ -2,6 +2,7 @@
 
 APIs services of the project hoovada.com
 
+
 Project Overview
 ---
 
@@ -19,7 +20,7 @@ Project Overview
 - Database: MySQL (Percona Distribution)
 - OpenAPI: [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
 - Front-end data format: [Json](https://pyjwt.readthedocs.io/en/latest/)
-- DB migration: [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) and [alembic](https://pypi.org/project/alembic/)
+- DB migration: [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/)
 - ORM: [SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
 - Hashing: [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/en/latest/)
 - MySQL client library: [PyMySQL](https://pypi.org/project/PyMySQL/)
@@ -35,6 +36,7 @@ Project Overview
 - Infrastructure provider: digital ocean
 - Hostname provider: namecheap
 
+
 ### Future consideration
 
 - Framework: [Quart](https://pypi.org/project/Quart/)
@@ -48,9 +50,10 @@ Development instruction
 
 - Production: the real environment where we deploy www.hoovada.com
 
-- Staging: replicate production environment as much as possible
+- Testing: replicate production environment as much as possible at www.test.hoovada.com
 
 - Development: developers' local desktop
+
 
 ### Branch
 
@@ -59,9 +62,10 @@ Development instruction
 ```bash
 $ git clone https://gitlab.com/hoovada/hoovada-services.git
 $ git checkout -b dev origin/dev
-$ git checkout -b <your branch name>
+$ git checkout -b <your branch name> dev
 
-// do your development 
+// do your development
+
 $ git add --all 
 $ git commit -s -am "your message"
 
@@ -72,20 +76,47 @@ $ git rebase upstream/dev
 $ git push -u origin <your branch name>
 ```
 
-- Then you can create merge-request with the source branch being your branch and the target branch is dev branch
+- Then you can create merge-request (top left corner of gitlab UI) with the source branch is your branch and the target branch is dev branch.
 
 
 ### Development environment setup
 
-- For Linux distribution, you might need to install dependencies (optional)
+- For testing, if you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py.
+
+#### Full set-up with docker
+
+- You can run both app and DB with docker
 
 ```bash
-$ sudo apt install unixodbc-dev
+// You need to build every time you update code
+$ cd <path to project>
+$ docker-compose build
+
+// Docker-compose up will run 3 dockers: API, DB and adminer for DB UI, REMEMBER to re-build before re-rerunning this 
+$ docker-compose up
+
+// Some other useful commands
+$ docker-compose ps
+$ docker-compose logs <name of container>
+
+// to completely wipe out the set-up
+$ docker-compose stop
+$ docker-compose rm
 ```
 
-- We use pypy3.6 running on production, you can follow these step to set up pypy3.6 on conda environment for Linux
+- Swagger:  http://localhost:5000/api/v1/doc 
+- adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
+
+
+#### Running API services only with no DB
+
+- To run API services on your desktop
 
 ```bash
+// For Linux distribution, you might need to install dependencies (not sure if this is still needed)
+$ $ sudo apt install unixodbc-dev
+
+//  We use pypy3.6 running on production, you can follow these step to set up pypy3.6 on conda environment for Linux
 $ cd /tmp
 $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 $ sha256sum /tmp/Miniconda3-latest-Linux-x86_64.sh 
@@ -103,15 +134,12 @@ $ ln -s $HOME/.conda/envs/pypy_env/bin/pypy3 $HOME/.conda/envs/pypy_env/bin/pyth
 $ python -m ensurepip
 $ python -m pip install --upgrade pip
 $ pip3 install -r <path to project>/requirements.txt
-```
 
-### Run project on development environment
+// Run project on development environment
 
-```bash
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
 ```
 
-- If you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py for testing.
 
 ### Pylint
 
@@ -121,20 +149,6 @@ $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p 
 $ pip3 install pylint
 $ pylint <your files>
 ```
-
-### Testing with docker image
-
-- Please make sure that your branch can be built into docker image
-
-```bash
-$ docker build -t <name of image> .
-$ docker image ls
-$ docker run -p 80:5000 <name of image> 
-```
-
-- Browser to http://localhost:80/api/v1/doc to see your APIs.
-
-- If you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py for testing.
 
 
 Versioning

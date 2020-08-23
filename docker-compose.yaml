@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: hoovada
+      MYSQL_USER: 'dev'
+      MYSQL_PASSWORD: hoovada
+      MYSQL_DATABASE: hoovada
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 80:8080
+    depends_on:
+      - db
+
+  backend:
+    image: backend
+    build:
+        context: .
+        dockerfile: ./docker/app/Dockerfile
+    ports:
+        - "5000:5000"
+    depends_on:
+        - db
+    environment:
+      DB_USER: 'dev'
+      DB_PASSWORD: hoovada
+      DB_HOST: db
+

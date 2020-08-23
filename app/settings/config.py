@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import os
+from os import environ, path, pardir
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -15,17 +15,17 @@ class BaseConfig:
     DEBUG = False
 
     # flask configuration
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'f495b66803a6512d')
-    SECURITY_SALT = os.environ.get('SECURITY_SALT', '14be1971fc014f1b84')
+    SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
+    SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')
 
     # Email configuration
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
+    MAIL_SERVER = environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(environ.get('MAIL_PORT') or 587)
+    MAIL_USE_TLS = environ.get('MAIL_USE_TLS', True)
     MAIL_USE_SSL = False
-    MAIL_USERNAME =  os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
+    MAIL_USERNAME =  environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
+    MAIL_DEFAULT_SENDER = environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
+    MAIL_PASSWORD = environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
     ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # need to set this so that email can be sent
@@ -33,22 +33,22 @@ class BaseConfig:
     TESTING = False
 
     # Wasabi service
-    WASABI_ACCESS_KEY = os.environ.get('WASABI_ACCESS_KEY', '') # test bucket
-    WASABI_SECRET_ACCESS_KEY = os.environ.get('WASABI_SECRET_ACCESS_KEY', '')  
+    WASABI_ACCESS_KEY = environ.get('WASABI_ACCESS_KEY', '') # test bucket
+    WASABI_SECRET_ACCESS_KEY = environ.get('WASABI_SECRET_ACCESS_KEY', '')  
 
     # mysql configuration
-    DB_USER = os.environ.get('DB_USER', 'dev')
-    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hoovada')
-    DB_HOST = os.environ.get('DB_HOST', 'localhost')
-    DB_PORT = os.environ.get('DB_PORT', '3306') 
-    DB_NAME = os.environ.get('DB_NAME', 'hoovada')
+    DB_USER = environ.get('DB_USER', 'dev')
+    DB_PASSWORD = environ.get('DB_PASSWORD', 'hoovada')
+    DB_HOST = environ.get('DB_HOST', 'localhost')
+    DB_PORT = environ.get('DB_PORT', '3306') 
+    DB_NAME = environ.get('DB_NAME', 'hoovada')
     DB_CHARSET = 'utf8mb4'
-
+    
     # Locations
-    APP_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))  # This directory
-    PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
+    APP_DIR = path.abspath(path.dirname(path.dirname(__file__)))  # This directory
+    PROJECT_ROOT = path.abspath(path.join(APP_DIR, pardir))
     IMAGE_FOLDER = '/images'
-    AVATAR_FOLDER = os.path.join(IMAGE_FOLDER, 'avatars')
+    AVATAR_FOLDER = path.join(IMAGE_FOLDER, 'avatars')
 
     # other configurations
     BCRYPT_LOG_ROUNDS = 13 # Number of times a password is hashed
@@ -58,7 +58,7 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # social
-    FACEBOOK_SECRET = os.environ.get('FACEBOOK_SECRET', '') 
+    FACEBOOK_SECRET = environ.get('FACEBOOK_SECRET', '') 
     GRAPH_API_URL = 'https://graph.facebook.com/me?'
     FACEBOOK_FIELDS = [
         'id',
@@ -77,10 +77,10 @@ class BaseConfig:
     
     # Twilio API credentials
     # (find here https://www.twilio.com/console)
-    TWILIO_ACCOUNT_SID = os.environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
-    TWILIO_AUTH_TOKEN = os.environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
+    TWILIO_ACCOUNT_SID = environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
+    TWILIO_AUTH_TOKEN = environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
     # (create one here https://www.twilio.com/console/verify/services)
-    VERIFICATION_SID = os.environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
+    VERIFICATION_SID = environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
     LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
 
 
