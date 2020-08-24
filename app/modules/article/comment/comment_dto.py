@@ -24,8 +24,7 @@ class CommentDto(Dto):
     })
 
     model_request = api.model('article_comment_request', {
-        'comment': fields.String(required=True, description='The content of the comment'),
-        'user_id': fields.Integer(required=True, description='The user ID')
+        'comment': fields.String(required=True, description='The content of the comment')
     })
 
     model_response = api.model('article_comment_response', {
