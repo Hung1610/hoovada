@@ -192,13 +192,14 @@ class ArticleController(Controller):
                 result['fixed_topic_name'] = article.fixed_topic.name
                 # get current user voting status for this article
                 current_user, _ = AuthController.get_logged_user(request)
-                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                ArticleFavorite.article_id == article.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
+                if current_user:
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                    ArticleFavorite.article_id == article.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, ArticleDto.model_article_response), message='Success')
         else:
@@ -221,13 +222,14 @@ class ArticleController(Controller):
             # upvote/downvote status
             try:
                 current_user, _ = AuthController.get_logged_user(request)
-                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                ArticleFavorite.article_id == article.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
+                if current_user:
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                    ArticleFavorite.article_id == article.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
             except Exception as e:
                 print(e)
                 pass
@@ -279,13 +281,14 @@ class ArticleController(Controller):
             # upvote/downvote status
             try:
                 current_user, _ = AuthController.get_logged_user(request)
-                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                ArticleFavorite.article_id == article.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
+                if current_user:
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                    ArticleFavorite.article_id == article.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
             except Exception as e:
                 print(e)
                 pass

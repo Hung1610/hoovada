@@ -66,6 +66,8 @@ class FavoriteController(Controller):
                 pass
 
         query = ArticleFavorite.query
+        if article_id is not None:
+            query = query.filter(ArticleFavorite.article_id == article_id)
         if user_id is not None:
             query = query.filter(ArticleFavorite.user_id == user_id)
         if favorited_user_id is not None:

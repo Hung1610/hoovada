@@ -6,6 +6,7 @@ from datetime import datetime
 
 # third-party modules
 from flask_restx import marshal
+from flask import request
 
 # own modules
 from app import db
@@ -13,6 +14,7 @@ from app.modules.common.controller import Controller
 from app.modules.article.article import Article
 from app.modules.article.comment.comment import ArticleComment
 from app.modules.article.comment.comment_dto import CommentDto
+from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
@@ -40,10 +42,10 @@ class CommentController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if user_id is None:
-            send_error(message='Provide params to search.')
 
         query = ArticleComment.query
+        if article_id is not None:
+            query = query.filter(ArticleComment.article_id == article_id)
         if user_id is not None:
             query = query.filter(ArticleComment.user_id == user_id)
             
@@ -65,8 +67,11 @@ class CommentController(Controller):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:
             return send_error(message="The comment body must be included")
-        if not 'user_id' in data:
-            return send_error(message="The user_id must be included")
+
+        current_user, _ = AuthController.get_logged_user(request)
+        data['user_id'] = current_user.id
+        data['article_id'] = article_id
+
         try:
             comment = self._parse_comment(data=data, comment=None)
             is_sensitive = check_sensitive(comment.comment)
@@ -144,7 +149,7 @@ class CommentController(Controller):
 
     def delete(self, object_id):
         try:
-            comment = ArticleComment.query.filter_by(id=object_id)
+            comment = ArticleComment.query.filter_by(id=object_id).first()
             if comment is None:
                 return send_error(message='ArticleComment with the ID {} not found.'.format(object_id))
             else:
