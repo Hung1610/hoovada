@@ -36,9 +36,7 @@ class CommentList(Resource):
 
         :user_id: Search comments by user_id
 
-        :question_id: Search all comments by question ID.
-
-        :answer_id: Search comments by answer ID.
+        :article_id: Search all comments by article ID.
 
         :return: List of comments.
         """

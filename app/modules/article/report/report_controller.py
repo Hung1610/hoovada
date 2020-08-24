@@ -28,7 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ReportController(Controller):
     def get(self, article_id, args):
-        user_id, article_id, from_date, to_date = None, None, None, None
+        user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
