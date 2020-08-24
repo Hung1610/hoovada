@@ -243,10 +243,16 @@ class AuthController:
         if not 'password' in data or str(data['password']).strip().__eq__(''):
             # Pleases provide a password.')
             return send_error(message='Vui lòng cung cấp mật khẩu')
+        
+        if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp mật khẩu xác nhận!')  # Pleases provide password confirmation.
 
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
             # Pleases provide a username.')
             return send_error(message='Vui lòng cung cấp username')
+        
+        if data['password_confirm'] != data['password']:
+            return send_error(message='Mật khẩu xác nhận không đúng. Vui lòng nhập lại!')
         
         if len(check_password(data['password'])) > 0:
             return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt.')
@@ -445,6 +451,9 @@ class AuthController:
         if not 'password' in data or str(data['password']).strip().__eq__(''):
             return send_error(message='Vui lòng cung cấp mật khẩu!')  # Pleases provide a password.')
         
+        if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+            return send_error(message='Vui lòng cung cấp mật khẩu xác nhận!')  # Pleases provide password confirmation.
+        
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
             return send_error(message='Vui lòng cung cấp tên người dùng!') # Pleases provide a username.')
 
@@ -452,6 +461,9 @@ class AuthController:
         if is_valid_email(data['email']) is False:
             return send_error(message='Địa chỉ Email không hợp lệ!')
         
+        if data['password_confirm'] != data['password']:
+            return send_error(message='Mật khẩu xác nhận không đúng. Vui lòng nhập lại!')
+
         if len(check_password(data['password'])) > 0:
             return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt')
         
