@@ -21,6 +21,7 @@ class AuthDto(Dto):
         'phone_number': fields.String(required=True, description='The phone number used for registration'),
         'password': fields.String(required=True, description='The password - at least 8 characters, 1 number, 1 special symbol'),
         'password_confirm': fields.String(required=True, description='The confirm password'),
+        'is_policy_accepted': fields.Boolean(default=False, default=False, description='The policy acceptance status'),
     })
     
     model_confirm_sms = api.model('confirm_sms', {
@@ -51,6 +52,7 @@ class AuthDto(Dto):
         'email': fields.String(required=True, description='The user email used for registration'),
         'password': fields.String(required=True, description='The password - at least 8 characters, 1 number, 1 special symbol'),
         'password_confirm': fields.String(required=True, description='The confirm password'),
+        'is_policy_accepted': fields.Boolean(required=True, default=False, description='The policy acceptance status'),
     })
 
     model_login = api.model('login', {
