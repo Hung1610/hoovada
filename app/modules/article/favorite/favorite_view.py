@@ -34,7 +34,6 @@ class FavoriteUser(Resource):
         return controller.get(article_id=article_id, args=args)
 
     @token_required
-    @api.expect(_favorite_request)
     @api.response(code=200, model=_favorite_response, description='The model for favorite.')
     def post(self, article_id):
         """

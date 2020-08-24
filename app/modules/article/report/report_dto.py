@@ -19,7 +19,6 @@ class ReportDto(Dto):
 
     model_request = api.model('article_report_request', {
         'user_id': fields.Integer(description=''),
-        'article_id': fields.Integer(description=''),
         'inappropriate': fields.Boolean(description=''),
         'description': fields.String(description='')
     })
