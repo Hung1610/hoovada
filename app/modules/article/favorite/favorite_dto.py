@@ -29,15 +29,10 @@ class FavoriteDto(Dto):
         'topics': fields.List(fields.Nested(model_topic_article_favorite), description='The list of topics')
     })
 
-    model_request = api.model('favorite_request', {
-        'user_id': fields.Integer(required=True, description='The user ID who favorited'),
-        'favorited_user_id': fields.Integer(required=False, description='The user ID who has been favorited'),
-        'question_id': fields.Integer(required=False, description='The question ID which has been favorited'),
-        'answer_id': fields.Integer(required=False, description='The answer ID which has been favorited'),
-        'comment_id': fields.Integer(required=False, description='The comment ID which has been favorited')
+    model_request = api.model('favorite_article_request', {
     })
 
-    model_response = api.model('favorite_response', {
+    model_response = api.model('favorite_article_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
         'user_id': fields.Integer(required=True, description='The user ID who favorited'),
         'article_id': fields.Integer(required=False, description='The user ID who has been favorited'),
