@@ -39,7 +39,7 @@ class FavoriteController(Controller):
         Returns:
         '''
         
-        user_id, favorited_user_id, from_date, to_date = None, None, None, None, None, None, None
+        user_id, favorited_user_id, from_date, to_date = None, None, None, None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
