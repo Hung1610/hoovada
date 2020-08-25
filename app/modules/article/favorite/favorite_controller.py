@@ -82,9 +82,8 @@ class FavoriteController(Controller):
         else:
             return send_result(message=constants.msg_article_favorite_not_found)
 
-    def create(self, article_id, data):
-        if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+    def create(self, article_id):
+        data = {}
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
         data['article_id'] = article_id

@@ -41,8 +41,7 @@ class FavoriteUser(Resource):
         """
 
         controller = FavoriteController()
-        data = api.payload
-        return controller.create(article_id=article_id, data=data)
+        return controller.create(article_id=article_id)
 
     @token_required
     def delete(self, article_id):
