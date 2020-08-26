@@ -25,7 +25,7 @@ mail = Mail()
 
 
 def init_app(config_name):
-    app = Flask(__name__)
+    app = Flask(__name__,static_folder='static')
     CORS(app)
     # app.config['RESTFUL_JSON'] = {
     #     'ensure_ascii': False,

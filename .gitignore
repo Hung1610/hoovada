@@ -907,4 +907,6 @@ fabric.properties
 .vscode/*.*
 
 venv/
-migrations/verions/*
+migrations/versions
+migrations/versions/*
+app/static
