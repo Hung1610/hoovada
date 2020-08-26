@@ -2,26 +2,30 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+import os
 import json
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, url_for
+from flask import current_app as app
 from flask_restx import marshal
 from sqlalchemy import desc
+from werkzeug.utils import secure_filename
 
 # own modules
 from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
-from app.modules.q_a.answer.answer import Answer
+from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question import Question
 from app.modules.q_a.voting.vote import Vote
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from app.utils.file_handler import append_id
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -78,7 +82,7 @@ class AnswerController(Controller):
 
         if user_id is None and question_id is None and from_date is None and to_date is None:
             send_error(message='Provide params to search.')
-        query = db.session.query(Answer)
+        query = Answer.query
         is_filter = False
         if user_id is not None:
             query = query.filter(Answer.user_id == user_id)
@@ -104,7 +108,7 @@ class AnswerController(Controller):
                 # get user information for each answer.
                 results = list()
                 for answer in answers:
-                    result = answer.__dict__
+                    result = answer._asdict()
                     user = User.query.filter_by(id=answer.user_id).first()
                     result['user'] = user
                     # lay thong tin up_vote down_vote cho current user
@@ -142,7 +146,7 @@ class AnswerController(Controller):
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
-            result = answer.__dict__
+            result = answer._asdict()
             # update answer_count cho user
             try:
                 user = User.query.filter_by(id=answer.user_id).first()
@@ -170,6 +174,48 @@ class AnswerController(Controller):
             print(e.__str__())
             return send_error(message='Could not create answer.')
 
+    def create_with_file(self, object_id):
+        if object_id is None:
+            return send_error("Answer ID is null")
+        if 'file' not in request.files:
+            return send_error(message='No file part in the request')
+
+        file_type = request.form.get('file_type', None)
+        upload_file = request.files.get('file', None)
+        answer = Answer.query.filter_by(id=object_id).first()
+        if answer is None:
+            return send_error(message='Could not find answer with the ID {}.'.format(object_id))
+
+        if not upload_file:
+            return send_error(message='Please provide the file to upload.')
+        if not file_type:
+            return send_error(message='Please specify the file type.')
+        try:
+            filepath = secure_filename(append_id(upload_file.filename))
+            relative_static_filepath = os.path.join(app.config['MEDIA_FOLDER_NAME'], 'answers', str(answer.id), filepath)
+            answer_media_dir = os.path.join(app.config['MEDIA_FOLDER'], 'answers', str(answer.id))
+            if not os.path.isdir(answer_media_dir):
+                os.makedirs(answer_media_dir)
+            filepath = os.path.join(answer_media_dir, filepath)
+            upload_file.save(filepath)
+            answer.file_path = filepath
+            answer.file_url = url_for('static', filename=relative_static_filepath)
+            answer.file_type = FileTypeEnum(int(file_type)).name
+            answer.updated_date = datetime.utcnow()
+            answer.last_activity = datetime.utcnow()
+            db.session.commit()
+            result = answer._asdict()
+            user = User.query.filter_by(id=answer.user_id).first()
+            # update user information for answer
+            result['user'] = user
+            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
+            result['up_vote'] = False
+            result['down_vote'] = False
+            return send_result(message='Answer media created successfully', data=marshal(result, AnswerDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not create media for answer.')
+
     def get(self):
         """
         [DEPRECATED]
@@ -191,7 +237,7 @@ class AnswerController(Controller):
             return send_error(message='Could not find answer with the ID {}.'.format(object_id))
         else:
             # get user information for each answer.
-            result = answer.__dict__
+            result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
@@ -233,7 +279,7 @@ class AnswerController(Controller):
                 answer.last_activity = datetime.utcnow()
                 db.session.commit()
                 # get user information for each answer.
-                result = answer.__dict__
+                result = answer._asdict()
                 user = User.query.filter_by(id=answer.user_id).first()
                 result['user'] = user
                 # lay thong tin up_vote down_vote cho current user

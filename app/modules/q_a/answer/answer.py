@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+import enum
 from datetime import datetime
 
 # own modules
@@ -12,6 +13,11 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+class FileTypeEnum(enum.Enum):
+    AUDIO = 1
+    VIDEO = 2
 
 class Answer(Model):
     __tablename__ = 'answer'
@@ -33,3 +39,6 @@ class Answer(Model):
     user_hidden = db.Column(db.Boolean, default=False)
     comment_count = db.Column(db.Integer, default=0)
     share_count = db.Column(db.Integer, default=0)
+    file_path = db.Column(db.String(255))
+    file_url = db.Column(db.String(255))
+    file_type = db.Column(db.Enum(FileTypeEnum, validate_strings=True), nullable=True)

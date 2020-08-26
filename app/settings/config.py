@@ -47,7 +47,11 @@ class BaseConfig:
     # Locations
     APP_DIR = path.abspath(path.dirname(path.dirname(__file__)))  # This directory
     PROJECT_ROOT = path.abspath(path.join(APP_DIR, pardir))
-    IMAGE_FOLDER = '/images'
+    STATIC_FOLDER_NAME = 'static'
+    STATIC_ROOT = path.join(APP_DIR, STATIC_FOLDER_NAME)
+    MEDIA_FOLDER_NAME = 'media'
+    MEDIA_FOLDER = path.join(STATIC_ROOT, 'media')
+    IMAGE_FOLDER = path.join(STATIC_ROOT, 'images')
     AVATAR_FOLDER = path.join(IMAGE_FOLDER, 'avatars')
 
     # other configurations
