@@ -4,6 +4,8 @@
 # built-in modules
 import os
 import shutil
+import uuid
+
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -87,6 +89,14 @@ def get_file_content(filename):
     with open(filename, mode='r') as file:
         content = file.read()
     return content
+
+
+def generate_id():
+    return uuid.uuid4().hex
+
+
+def append_id(filename):
+  return "{0}_{2}{1}".format(*os.path.splitext(filename) + (generate_id(),))
 
 # filename = os.path.dirname(os.path.dirname(__file__))+"/data/zipfiles/Digi4-20180801.zip"
 # infor = file_info_gathering(filename=filename)

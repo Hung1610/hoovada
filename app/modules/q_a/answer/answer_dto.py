@@ -3,9 +3,10 @@
 
 # built-in modules
 from datetime import datetime
+from werkzeug.datastructures import FileStorage
 
 # third-party modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from app.modules.common.dto import Dto
@@ -56,5 +57,15 @@ class AnswerDto(Dto):
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
-        'down_vote': fields.Boolean(default=False, description='The value of downvote of current user')
+        'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
+        'file_path': fields.String(description='The file path'),
+        'file_url': fields.String(description='The file url'),
+        'file_type': fields.String(description='The file type', attribute='file_type.name'),
     })
+
+    upload_parser = api.parser()
+    upload_parser.add_argument('file', location='files',
+                        type=FileStorage, required=True)
+    upload_parser.add_argument('file_type', location='form', 
+                        choices=(1, 2), help='1 - Audio, 2 - Video',
+                        type=str, required=True)

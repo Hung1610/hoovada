@@ -17,8 +17,22 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = AnswerDto.api
+answer_upload_parser = AnswerDto.upload_parser
 answer_request = AnswerDto.model_request
 answer_response = AnswerDto.model_response
+
+@api.route('/<int:id>/file')
+@api.doc(params={'id': 'The answer ID'})
+class AnswerFile(Resource):
+    @token_required
+    @api.expect(answer_upload_parser)
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
+    def post(self, id):
+        """
+        Create new answer with files (video/audio).
+        """
+        controller = AnswerController()
+        return controller.create_with_file(object_id=id)
 
 @api.route('')
 class AnswerList(Resource):
