@@ -39,6 +39,9 @@ class Question(Model):
     share_count = db.Column(db.Integer, default=0)
     favorite_count = db.Column(db.Integer, default=0)
     slug = db.Column(db.UnicodeText)
+    allow_video_answer = db.Column(db.Boolean, server_default=True)
+    allow_audio_answer = db.Column(db.Boolean, server_default=True)
+    is_private = db.Column(db.Boolean, default=False)
 
 
 class QuestionTopicView(Model):

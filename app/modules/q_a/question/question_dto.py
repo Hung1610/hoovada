@@ -117,7 +117,9 @@ class QuestionDto(Dto):
         'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
         'user_hidden': fields.Boolean(default=False,
                                       description='The question wss created by user but the user want to be hidden'),
-        'topic_ids': fields.List(fields.Integer, description='The list of topics')
+        'topic_ids': fields.List(fields.Integer, description='The list of topics'),
+        'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
+        'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
         # the list of IDs of topics that question belongs to.
     })
 
@@ -148,6 +150,8 @@ class QuestionDto(Dto):
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
-        'slug': fields.String(description='The slug of the question')
+        'slug': fields.String(description='The slug of the question'),
+        'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
+        'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
         # 'image_ids':fields.String()
     })

@@ -39,6 +39,7 @@ class Answer(Model):
     user_hidden = db.Column(db.Boolean, default=False)
     comment_count = db.Column(db.Integer, default=0)
     share_count = db.Column(db.Integer, default=0)
-    file_path = db.Column(db.String(255))
+    allow_comments = db.Column(db.Boolean, server_default=True)
+    allow_improvement = db.Column(db.Boolean, server_default=True)
     file_url = db.Column(db.String(255))
     file_type = db.Column(db.Enum(FileTypeEnum, validate_strings=True), nullable=True)

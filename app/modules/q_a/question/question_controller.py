@@ -17,12 +17,14 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionTopicView
 from app.modules.q_a.question.question_dto import QuestionDto
+from app.modules.auth.auth_controller import AuthController
 from app.modules.q_a.voting.vote import Vote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from app.utils.checker import check_spelling
 from slugify import slugify
 
 __author__ = "hoovada.com team"
@@ -132,7 +134,7 @@ class QuestionController(Controller):
                 results = list()
                 for question in questions:
                     # kiem tra den topic
-                    result = question.__dict__
+                    result = question._asdict()
                     # get user info
                     user = User.query.filter_by(id=question.user_id).first()
                     result['user'] = user
@@ -164,12 +166,10 @@ class QuestionController(Controller):
             return send_error(message="Data is not correct or not in dictionary form")
         if not 'title' in data:
             return send_error(message='Question must contain at least the title.')
-        if not 'user_id' in data:
-            return send_error(message='Question must contain user_id (included anonymous)')
-        if not 'fixed_topic_id' in data:
-            return send_error(message='The fixed_topic_id must be included.')
-        if not 'topic_ids' in data:
-            return send_error(message='The list of topic_ids must be included.')
+
+        current_user, _ = AuthController.get_logged_user(request)
+        data['user_id'] = current_user.id
+
         try:
             title = data['title']
             user_id = data['user_id']
@@ -179,6 +179,13 @@ class QuestionController(Controller):
             question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
+                if len(topic_ids) > 5:
+                    return send_error(message='Question cannot have more than 5 topics.')
+                if not question.title.strip().endswith('?'):
+                    return send_error(message='Please end question title with questio mark ("?")')
+                spelling_errors = check_spelling(question.title)
+                if len(spelling_errors) > 0:
+                    return send_error(message='Please check question title for spelling errors', data=spelling_errors)
                 is_sensitive = check_sensitive(question.question)
                 if is_sensitive:
                     return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
@@ -206,7 +213,7 @@ class QuestionController(Controller):
                     pass
                 # Add topics and get back list of topic for question
                 try:
-                    result = question.__dict__
+                    result = question._asdict()
                     # get user info
                     user = User.query.filter_by(id=question.user_id).first()
                     result['user'] = user
@@ -265,7 +272,7 @@ class QuestionController(Controller):
             # db.session.commit()
             results = list()
             for question in questions:
-                result = question.__dict__
+                result = question._asdict()
                 # get user info
                 user = User.query.filter_by(id=question.user_id).first()
                 result['user'] = user
@@ -299,7 +306,7 @@ class QuestionController(Controller):
         if question is None:
             return send_error(message='Could not find question with the ID {}'.format(object_id))
         else:
-            result = question.__dict__
+            result = question._asdict()
             # get user info
             user = User.query.filter_by(id=question.user_id).first()
             result['user'] = user
@@ -356,7 +363,7 @@ class QuestionController(Controller):
                 question.last_activity = datetime.utcnow()
                 question.slug = slugify(question.title)
                 db.session.commit()
-                result = question.__dict__
+                result = question._asdict()
                 # get user info
                 user = User.query.filter_by(id=question.user_id).first()
                 result['user'] = user
@@ -483,6 +490,20 @@ class QuestionController(Controller):
                 question.user_hidden = False
                 print(e.__str__())
                 pass
+        if 'allow_video_answer' in data:
+            try:
+                question.allow_video_answer = bool(data['allow_video_answer'])
+            except Exception as e:
+                question.allow_video_answer = True
+                print(e.__str__())
+                pass
+        if 'allow_audio_answer' in data:
+            try:
+                question.allow_audio_answer = bool(data['allow_audio_answer'])
+            except Exception as e:
+                question.allow_audio_answer = True
+                print(e.__str__())
+                pass
         # if 'image_ids' in data:
         #     try:
         #         question.image_ids = json.loads(data['image_ids'])
@@ -516,7 +537,7 @@ class QuestionController(Controller):
     #         results = list()
     #         for question in questions:
     #             # kiem tra den topic
-    #             result = question.__dict__
+    #             result = question._asdict()
     #             # get user info
     #             user = User.query.filter_by(id=question.user_id).first()
     #             result['user'] = user
@@ -541,7 +562,7 @@ class QuestionController(Controller):
         if question is None:
             return send_error(message='Could not find question with the slug {}'.format(slug))
         else:
-            result = question.__dict__
+            result = question._asdict()
             # get user info
             user = User.query.filter_by(id=question.user_id).first()
             result['user'] = user
