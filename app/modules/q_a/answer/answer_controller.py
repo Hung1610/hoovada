@@ -23,9 +23,12 @@ from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question import Question
 from app.modules.q_a.voting.vote import Vote
 from app.modules.user.user import User
+from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
-from app.utils.file_handler import append_id
+from app.utils.file_handler import append_id, get_file_name_extension
+from app.utils.util import encode_file_name
+from app.utils.wasabi import upload_file
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -131,8 +134,10 @@ class AnswerController(Controller):
             return send_error(message="Please fill the question ID")
         if not 'answer' in data:
             return send_error(message='Please fill the answer body before sending.')
-        if not 'user_id' in data:
-            return send_error(message='Please fill the user ID')
+
+        current_user, _ = AuthController.get_logged_user(request)
+        data['user_id'] = current_user.id
+
         try:
             # add new answer
             answer = self._parse_answer(data=data, answer=None)
@@ -181,25 +186,35 @@ class AnswerController(Controller):
             return send_error(message='No file part in the request')
 
         file_type = request.form.get('file_type', None)
-        upload_file = request.files.get('file', None)
+        media_file = request.files.get('file', None)
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
             return send_error(message='Could not find answer with the ID {}.'.format(object_id))
+        question = Question.query.filter_by(id=answer.question_id).first()
+        if question is None:
+            return send_error(message='Could not find question with the ID {}.'.format(answer.question_id))
 
         if not upload_file:
             return send_error(message='Please provide the file to upload.')
         if not file_type:
             return send_error(message='Please specify the file type.')
+        if FileTypeEnum(int(file_type)).name == FileTypeEnum.AUDIO.name and not question.allow_audio_answer:
+            return send_error(message='Question does not allow answer by audio.')
+        if FileTypeEnum(int(file_type)).name == FileTypeEnum.VIDEO.name and not question.allow_video_answer:
+            return send_error(message='Question does not allow answer by video.')
         try:
-            filepath = secure_filename(append_id(upload_file.filename))
-            relative_static_filepath = os.path.join(app.config['MEDIA_FOLDER_NAME'], 'answers', str(answer.id), filepath)
-            answer_media_dir = os.path.join(app.config['MEDIA_FOLDER'], 'answers', str(answer.id))
-            if not os.path.isdir(answer_media_dir):
-                os.makedirs(answer_media_dir)
-            filepath = os.path.join(answer_media_dir, filepath)
-            upload_file.save(filepath)
-            answer.file_path = filepath
-            answer.file_url = url_for('static', filename=relative_static_filepath)
+            filename = media_file.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name(file_name) + ext
+            bucket = 'hoovada'
+            sub_folder = 'answer' + '/' + encode_file_name(str(answer.id))
+            try:
+                url = upload_file(file=media_file, file_name=file_name, bucket=bucket, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your media file.')
+
+            answer.file_url = url
             answer.file_type = FileTypeEnum(int(file_type)).name
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
@@ -264,32 +279,32 @@ class AnswerController(Controller):
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
                 return send_error(message="Answer with the ID {} not found.".format(object_id))
-            else:
-                answer = self._parse_answer(data=data, answer=answer)
-                if answer.answer.__str__().strip().__eq__(''):
-                    return send_error(message='The answer must include content.')
-                is_sensitive = check_sensitive(answer.answer)
-                if is_sensitive:
-                    return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
-                if answer.question_id is None:
-                    return send_error(message='The question_id must be included.')
-                if answer.user_id is None:
-                    return send_error(message='The user_id must be included.')
-                answer.updated_date = datetime.utcnow()
-                answer.last_activity = datetime.utcnow()
-                db.session.commit()
-                # get user information for each answer.
-                result = answer._asdict()
-                user = User.query.filter_by(id=answer.user_id).first()
-                result['user'] = user
-                # lay thong tin up_vote down_vote cho current user
-                current_user, _ = AuthController.get_logged_user(request)
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
-                if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
-                # return send_result(marshal(result, AnswerDto.model_response), message='Success')
-                return send_result(message='Update successfully', data=marshal(result, AnswerDto.model_response))
+
+            answer = self._parse_answer(data=data, answer=answer)
+            if answer.answer.__str__().strip().__eq__(''):
+                return send_error(message='The answer must include content.')
+            is_sensitive = check_sensitive(answer.answer)
+            if is_sensitive:
+                return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
+            if answer.question_id is None:
+                return send_error(message='The question_id must be included.')
+            if answer.user_id is None:
+                return send_error(message='The user_id must be included.')
+            answer.updated_date = datetime.utcnow()
+            answer.last_activity = datetime.utcnow()
+            db.session.commit()
+            # get user information for each answer.
+            result = answer._asdict()
+            user = User.query.filter_by(id=answer.user_id).first()
+            result['user'] = user
+            # lay thong tin up_vote down_vote cho current user
+            current_user, _ = AuthController.get_logged_user(request)
+            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+            if vote is not None:
+                result['up_vote'] = vote.up_vote
+                result['down_vote'] = vote.down_vote
+            # return send_result(marshal(result, AnswerDto.model_response), message='Success')
+            return send_result(message='Update successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not update answer.")

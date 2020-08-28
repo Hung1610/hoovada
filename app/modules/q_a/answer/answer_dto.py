@@ -32,7 +32,9 @@ class AnswerDto(Dto):
         'answer': fields.String(description='The content of the answer'),
         'user_id': fields.Integer(default=0, description='The user ID'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode')
+        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
+        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
     })
 
     model_response = api.model('answer_response', {
@@ -58,7 +60,8 @@ class AnswerDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
-        'file_path': fields.String(description='The file path'),
+        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
     })

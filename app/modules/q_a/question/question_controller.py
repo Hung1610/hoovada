@@ -15,14 +15,16 @@ from sqlalchemy import desc
 from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
-from app.modules.q_a.question.question import Question, QuestionTopicView
+from app.modules.q_a.question.question import Question, Question
 from app.modules.q_a.question.question_dto import QuestionDto
+from app.modules.auth.auth_controller import AuthController
 from app.modules.q_a.voting.vote import Vote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from app.utils.checker import check_spelling
 from slugify import slugify
 
 __author__ = "hoovada.com team"
@@ -42,7 +44,8 @@ class QuestionController(Controller):
         Returns:
         
         """
-        # searches = QuestionTopicView.query.all()
+        query = Question.query # query search from view
+        current_user, _ = AuthController.get_logged_user(request)
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
@@ -52,6 +55,9 @@ class QuestionController(Controller):
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
+                if current_user:
+                    if user_id == current_user.id:
+                        query = query.filter_by(is_private=False) 
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -99,58 +105,57 @@ class QuestionController(Controller):
                 pass
         if title is None and user_id is None and fixed_topic_id is None and created_date is None and updated_date is None and anonymous is None and topic_id is None:
             send_error(message='Provide params to search.')
-        query = db.session.query(QuestionTopicView)  # query search from view
         is_filter = False
         if title is not None and not str(title).strip().__eq__(''):
             title = '%' + title.strip() + '%'
-            query = query.filter(QuestionTopicView.title.like(title))
+            query = query.filter(Question.title.like(title))
             is_filter = True
         if user_id is not None:
-            query = query.filter(QuestionTopicView.user_id == user_id)
+            query = query.filter(Question.user_id == user_id)
             is_filter = True
         if fixed_topic_id is not None:
-            query = query.filter(QuestionTopicView.fixed_topic_id == fixed_topic_id)
+            query = query.filter(Question.fixed_topic_id == fixed_topic_id)
             is_filter = True
         if created_date is not None:
-            query = query.filter(QuestionTopicView.created_date == created_date)
+            query = query.filter(Question.created_date == created_date)
             is_filter = True
         if updated_date is not None:
-            query = query.filter(QuestionTopicView.updated_date == updated_date)
+            query = query.filter(Question.updated_date == updated_date)
             is_filter = True
         if from_date is not None:
-            query = query.filter(QuestionTopicView.created_date >= from_date)
+            query = query.filter(Question.created_date >= from_date)
             is_filter = True
         if to_date is not None:
-            query = query.filter(QuestionTopicView.created_date <= to_date)
+            query = query.filter(Question.created_date <= to_date)
             is_filter = True
         if topic_id is not None:
-            query = query.filter(QuestionTopicView.topic_id == topic_id,QuestionTopicView.fixed_topic_id != 1)
+            query = query.filter(Question.topic_id == topic_id,Question.fixed_topic_id != 1)
             is_filter = True
         if is_filter:
-            questions = query.order_by(desc(QuestionTopicView.upvote_count)).all()
+            questions = query.order_by(desc(Question.upvote_count)).all()
             if questions is not None and len(questions) > 0:
                 results = list()
                 for question in questions:
                     # kiem tra den topic
-                    result = question.__dict__
+                    result = question._asdict()
                     # get user info
                     user = User.query.filter_by(id=question.user_id).first()
                     result['user'] = user
                     # get all topics that question belongs to
-                    question_id = question.id
-                    question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                    topics = list()
-                    for question_topic in question_topics:
-                        topic_id = question_topic.topic_id
-                        topic = Topic.query.filter_by(id=topic_id).first()
-                        topics.append(topic)
-                    result['topics'] = topics
+                    # question_id = question.id
+                    # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                    # topics = list()
+                    # for question_topic in question_topics:
+                    #     topic_id = question_topic.topic_id
+                    #     topic = Topic.query.filter_by(id=topic_id).first()
+                    #     topics.append(topic)
+                    result['topics'] = question.topics
                     # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                    current_user, _ = AuthController.get_logged_user(request)
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
-                    if vote is not None:
-                        result['up_vote'] = vote.up_vote
-                        result['down_vote'] = vote.down_vote
+                    if current_user:
+                        vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                        if vote is not None:
+                            result['up_vote'] = vote.up_vote
+                            result['down_vote'] = vote.down_vote
                     results.append(result)
                 return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
             else:
@@ -164,12 +169,10 @@ class QuestionController(Controller):
             return send_error(message="Data is not correct or not in dictionary form")
         if not 'title' in data:
             return send_error(message='Question must contain at least the title.')
-        if not 'user_id' in data:
-            return send_error(message='Question must contain user_id (included anonymous)')
-        if not 'fixed_topic_id' in data:
-            return send_error(message='The fixed_topic_id must be included.')
-        if not 'topic_ids' in data:
-            return send_error(message='The list of topic_ids must be included.')
+
+        current_user, _ = AuthController.get_logged_user(request)
+        data['user_id'] = current_user.id
+
         try:
             title = data['title']
             user_id = data['user_id']
@@ -179,50 +182,68 @@ class QuestionController(Controller):
             question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
-                is_sensitive = check_sensitive(question.question)
-                if is_sensitive:
-                    return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
+                if len(topic_ids) > 5:
+                    return send_error(message='Question cannot have more than 5 topics.')
+                if not question.title.strip().endswith('?'):
+                    return send_error(message='Please end question title with questio mark ("?")')
+                spelling_errors = check_spelling(question.title)
+                if len(spelling_errors) > 0:
+                    return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+                if question.question:
+                    is_sensitive = check_sensitive(question.question)
+                    if is_sensitive:
+                        return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
+                topics = []
+                for topic_id in topic_ids:
+                    try:
+                        topic = Topic.query.filter_by(id=topic_id).first()
+                        topics.append(topic)
+                    except Exception as e:
+                        print(e)
+                        pass
+
+                question.topics = topics
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
                 question.slug = slugify(question.title)
                 db.session.add(question)
                 db.session.commit()
-                # update question_count for fixed topic
-                try:
-                    fixed_topic_id = question.fixed_topic_id
-                    fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
-                    fixed_topic.question_count += 1
-                    db.session.commit()
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-                # update question_count for user
-                try:
-                    user = User.query.filter_by(id=user_id).first()
-                    user.question_count += 1
-                    db.session.commit()
-                except Exception as e:
-                    print(e.__str__())
-                    pass
+                # # update question_count for fixed topic
+                # try:
+                #     fixed_topic_id = question.fixed_topic_id
+                #     fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
+                #     fixed_topic.question_count += 1
+                #     db.session.commit()
+                # except Exception as e:
+                #     print(e.__str__())
+                #     pass
+                # # update question_count for user
+                # try:
+                #     user = User.query.filter_by(id=user_id).first()
+                #     user.question_count += 1
+                #     db.session.commit()
+                # except Exception as e:
+                #     print(e.__str__())
+                #     pass
                 # Add topics and get back list of topic for question
                 try:
-                    result = question.__dict__
+                    result = question._asdict()
                     # get user info
-                    user = User.query.filter_by(id=question.user_id).first()
-                    result['user'] = user
+                    # user = User.query.filter_by(id=question.user_id).first()
+                    result['user'] = question.question_by_user
                     # add question_topics
-                    question_id = question.id
-                    topics = list()
-                    for topic_id in topic_ids:
-                        question_topic = QuestionTopic(question_id=question_id, topic_id=topic_id)
-                        db.session.add(question_topic)
-                        db.session.commit()
-                        topic = Topic.query.filter_by(id=topic_id).first()
-                        # update question_count for current topic.
-                        topic.question_count += 1
-                        db.session.commit()
-                        topics.append(topic)
-                    result['topics'] = topics
+                    # question_id = question.id
+                    # topics = list()
+                    # for topic_id in topic_ids:
+                    #     question_topic = QuestionTopic(question_id=question_id, topic_id=topic_id)
+                    #     db.session.add(question_topic)
+                    #     db.session.commit()
+                    #     topic = Topic.query.filter_by(id=topic_id).first()
+                    #     # update question_count for current topic.
+                    #     topic.question_count += 1
+                    #     db.session.commit()
+                    #     topics.append(topic)
+                    result['topics'] = question.topics
                     # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     result['up_vote'] = False
                     result['down_vote'] = False
@@ -242,7 +263,9 @@ class QuestionController(Controller):
 
     def get(self):
         try:
-            questions = Question.query.order_by(desc(Question.upvote_count),desc(Question.created_date)).limit(50).all()
+            current_user, _ = AuthController.get_logged_user(request)
+            query = Question.query.filter_by(is_private=False)  # query search from view
+            questions = query.order_by(desc(Question.upvote_count), desc(Question.created_date)).limit(50).all()
             # for question in questions:
             #     # # chay cau lenh de cap nhat la fixed_topic_name
             #     # fixed_topic_id = question.fixed_topic_id
@@ -265,26 +288,26 @@ class QuestionController(Controller):
             # db.session.commit()
             results = list()
             for question in questions:
-                result = question.__dict__
+                result = question._asdict()
                 # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
+                # user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = question.question_by_user
 
                 # get all topics that question belongs to
-                question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
+                # question_id = question.id
+                # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                # topics = list()
+                # for question_topic in question_topics:
+                #     topic_id = question_topic.topic_id
+                #     topic = Topic.query.filter_by(id=topic_id).first()
+                #     topics.append(topic)
+                result['topics'] = question.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                current_user, _ = AuthController.get_logged_user(request)
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
-                if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                if current_user:
+                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = vote.up_vote
+                        result['down_vote'] = vote.down_vote
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
         except Exception as e:
@@ -295,30 +318,77 @@ class QuestionController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")
-        question = Question.query.filter_by(id=object_id).first()
+        if object_id.isdigit():
+            question = Question.query.filter_by(id=object_id).first()
+        else:
+            question = Question.query.filter_by(slug=object_id).first()
         if question is None:
             return send_error(message='Could not find question with the ID {}'.format(object_id))
-        else:
-            result = question.__dict__
-            # get user info
-            user = User.query.filter_by(id=question.user_id).first()
-            result['user'] = user
-            # get all topics that question belongs to
-            question_id = question.id
-            question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-            topics = list()
-            for question_topic in question_topics:
-                topic_id = question_topic.topic_id
-                topic = Topic.query.filter_by(id=topic_id).first()
-                topics.append(topic)
-            result['topics'] = topics
-            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-            current_user, _ = AuthController.get_logged_user(request)
-            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+        current_user, _ = AuthController.get_logged_user(request)
+        if question.is_private:
+            if not current_user == question.question_by_user:
+                if not self.is_invited(question, current_user):
+                    return send_error(message='Question is invitations only.')
+        result = question._asdict()
+        # get user info
+        user = User.query.filter_by(id=question.user_id).first()
+        result['user'] = user
+        # get all topics that question belongs to
+        # question_id = question.id
+        # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+        # topics = list()
+        # for question_topic in question_topics:
+        #     topic_id = question_topic.topic_id
+        #     topic = Topic.query.filter_by(id=topic_id).first()
+        #     topics.append(topic)
+        result['topics'] = question.topics
+        # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+        if current_user:
+            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
             if vote is not None:
                 result['up_vote'] = vote.up_vote
                 result['down_vote'] = vote.down_vote
+        return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+
+
+    def invite(self, object_id, data):
+        try:
+            if not 'emails_or_usernames' in data:
+                return send_error(message='Question must contain at least the title.')
+            if object_id is None:
+                return send_error("Question ID is null")
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
+            if question is None:
+                return send_error(message='Could not find question with the ID {}'.format(object_id))
+            current_user, _ = AuthController.get_logged_user(request)
+            emails_or_usernames = data['emails_or_usernames']
+            for email_or_username in emails_or_usernames:
+                try:
+                    user = User.query.filter_by(display_name=email_or_username).first()
+                    if not user:
+                        user = User.query.filter_by(email=email_or_username).first()
+                    if not user:
+                        question.invited_users.append(user)
+                except Exception as e:
+                    print(e)
+                    pass
+            db.session.commit()
+            result = question._asdict()
+            result['user'] = question.question_by_user
+            result['topics'] = question.topics
+            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+            if current_user:
+                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                if vote is not None:
+                    result['up_vote'] = vote.up_vote
+                    result['down_vote'] = vote.down_vote
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Invite failed. Error: " + e.__str__())
 
 
     def update(self, object_id, data):
@@ -336,47 +406,69 @@ class QuestionController(Controller):
             return send_error(message="Question ID is null")
         if not isinstance(data, dict):
             return send_error(message="Data is not in dictionary form.")
-        if 'topic_ids' in data:
-            del data['topic_ids']
-        try:
+        if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
-            if question is None:
-                return send_error(message="Question with the ID {} not found".format(object_id))
-            else:
-                question, _ = self._parse_question(data=data, question=question)
-                # check sensitive after updating
-                is_sensitive = check_sensitive(question.title)
-                if is_sensitive:
-                    return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
+        else:
+            question = Question.query.filter_by(slug=object_id).first()
+        if question is None:
+            return send_error(message="Question with the ID {} not found".format(object_id))
+        question, _ = self._parse_question(data=data, question=question)
+        if 'topic_ids' in data:
+            topic_ids = data['topic_ids']
+            # update article topics
+            topics = []
+            for topic_id in topic_ids:
+                try:
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                except Exception as e:
+                    print(e)
+                    pass
+            question.topics = topics
+        try:
+            # check sensitive after updating
+            is_sensitive = check_sensitive(question.title)
+            if is_sensitive:
+                return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
+            if question.question:
                 is_sensitive = check_sensitive(question.question)
                 if is_sensitive:
                     return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
-                # update topics to question_topic table
-                question.updated_date = datetime.utcnow()
-                question.last_activity = datetime.utcnow()
-                question.slug = slugify(question.title)
-                db.session.commit()
-                result = question.__dict__
-                # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
-                # get all topics that question belongs to
-                question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
+            # update topics to question_topic table
+            topics = []
+            for topic_id in topic_ids:
+                try:
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
-                result['topics'] = topics
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                current_user, _ = AuthController.get_logged_user(request)
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
+                except Exception as e:
+                    print(e)
+                    pass
+            question.topics = topics
+            question.updated_date = datetime.utcnow()
+            question.last_activity = datetime.utcnow()
+            question.slug = slugify(question.title)
+            db.session.commit()
+            result = question._asdict()
+            # get user info
+            result['user'] = question.question_by_user
+            # get all topics that question belongs to
+            # question_id = question.id
+            # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+            # topics = list()
+            # for question_topic in question_topics:
+            #     topic_id = question_topic.topic_id
+            #     topic = Topic.query.filter_by(id=topic_id).first()
+            #     topics.append(topic)
+            result['topics'] = question.topics
+            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+            current_user, _ = AuthController.get_logged_user(request)
+            if current_user:
+                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
                 if vote is not None:
                     result['up_vote'] = vote.up_vote
                     result['down_vote'] = vote.down_vote
-                return send_result(message="Update successfully",
-                                   data=marshal(result, QuestionDto.model_question_response))
+            return send_result(message="Update successfully",
+                                data=marshal(result, QuestionDto.model_question_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update question.')
@@ -387,7 +479,10 @@ class QuestionController(Controller):
 
         """
         try:
-            question = Question.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
             if question is None:
                 return send_error(message="Question with ID {} not found".format(object_id))
             else:
@@ -483,6 +578,20 @@ class QuestionController(Controller):
                 question.user_hidden = False
                 print(e.__str__())
                 pass
+        if 'allow_video_answer' in data:
+            try:
+                question.allow_video_answer = bool(data['allow_video_answer'])
+            except Exception as e:
+                question.allow_video_answer = True
+                print(e.__str__())
+                pass
+        if 'allow_audio_answer' in data:
+            try:
+                question.allow_audio_answer = bool(data['allow_audio_answer'])
+            except Exception as e:
+                question.allow_audio_answer = True
+                print(e.__str__())
+                pass
         # if 'image_ids' in data:
         #     try:
         #         question.image_ids = json.loads(data['image_ids'])
@@ -510,13 +619,13 @@ class QuestionController(Controller):
     #     if topic_id is None:
     #         return send_error("Topic ID Không được để trống")
 
-    #     questions = db.session.query(QuestionTopicView).filter(QuestionTopicView.topic_id == topic_id).order_by(desc(QuestionTopicView.upvote_count)).all()
+    #     questions = db.session.query(Question).filter(Question.topic_id == topic_id).order_by(desc(Question.upvote_count)).all()
 
     #     if questions is not None and len(questions) > 0:
     #         results = list()
     #         for question in questions:
     #             # kiem tra den topic
-    #             result = question.__dict__
+    #             result = question._asdict()
     #             # get user info
     #             user = User.query.filter_by(id=question.user_id).first()
     #             result['user'] = user
@@ -540,27 +649,30 @@ class QuestionController(Controller):
         question = Question.query.filter_by(slug=slug).first()
         if question is None:
             return send_error(message='Could not find question with the slug {}'.format(slug))
-        else:
-            result = question.__dict__
-            # get user info
-            user = User.query.filter_by(id=question.user_id).first()
-            result['user'] = user
-            # get all topics that question belongs to
-            question_id = question.id
-            question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-            topics = list()
-            for question_topic in question_topics:
-                topic_id = question_topic.topic_id
-                topic = Topic.query.filter_by(id=topic_id).first()
-                topics.append(topic)
-            result['topics'] = topics
-            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-            current_user, _ = AuthController.get_logged_user(request)
-            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question_id).first()
-            if vote is not None:
-                result['up_vote'] = vote.up_vote
-                result['down_vote'] = vote.down_vote
-            return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        current_user, _ = AuthController.get_logged_user(request)
+        if question.is_private:
+            if not current_user == question.question_by_user:
+                if not self.is_invited(question, current_user):
+                    return send_error(message='Question is invitations only.')
+        result = question._asdict()
+        # get user info
+        user = User.query.filter_by(id=question.user_id).first()
+        result['user'] = question.question_by_user
+        # get all topics that question belongs to
+        # question_id = question.id
+        # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+        # topics = list()
+        # for question_topic in question_topics:
+        #     topic_id = question_topic.topic_id
+        #     topic = Topic.query.filter_by(id=topic_id).first()
+        #     topics.append(topic)
+        result['topics'] = question.topics
+        # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+        vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+        if vote is not None:
+            result['up_vote'] = vote.up_vote
+            result['down_vote'] = vote.down_vote
+        return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def update_slug(self):
         questions = Question.query.all()
@@ -571,3 +683,8 @@ class QuestionController(Controller):
         except Exception as e:
             print(e.__str__())
             pass
+    
+    def is_invited(self, question, user):
+        if not question.invited_users.contains(user):
+            return False
+        return True

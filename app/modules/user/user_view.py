@@ -17,22 +17,24 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = UserDto.api
+user_get_parser = UserDto.model_get_parser
 user_request = UserDto.model_request
 user_response = UserDto.model_response
 
 
 @api.route('')
 class UserList(Resource):
-    @admin_token_required
-    # @api.marshal_list_with(_user)
+    @token_required
+    @api.expect(user_get_parser)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
         """ 
         Returns all users in the system.
         """
         
+        args = user_get_parser.parse_args()
         controller = UserController()
-        return controller.get()
+        return controller.get(args=args)
 
     @admin_token_required
     @api.expect(user_request)

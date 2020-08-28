@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from slugify import slugify
 from datetime import datetime
 
 # third-party modules
 from sqlalchemy_utils import aggregated
+from sqlalchemy import event
 
 # own modules
 from app import db
@@ -30,6 +32,7 @@ class Article(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
+    slug = db.Column(db.String(140))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     article_by_user = db.relationship('User', backref='articles', lazy=True) # one-to-many relationship with table Article
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
@@ -38,11 +41,6 @@ class Article(Model):
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
     views_count = db.Column(db.Integer, default=0)
-    # TODO: convert these to custom property 
-    # upvote_count = db.Column(db.Integer, default=0) 
-    # downvote_count = db.Column(db.Integer, default=0)  
-    # share_count = db.Column(db.Integer, default=0)
-    # favorite_count = db.Column(db.Integer, default=0)
 
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
@@ -56,9 +54,16 @@ class Article(Model):
     @aggregated('article_favorites', db.Column(db.Integer))
     def favorite_count(self):
         return db.func.count('1')
-    #
+
     topics = db.relationship('Topic', secondary=article_topics, lazy='subquery', backref=db.backref('articles', lazy=True))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     is_deleted = db.Column(db.Boolean, default=False)
+
+    @staticmethod
+    def generate_slug(target, value, oldvalue, initiator):
+        if value and (not target.slug or value != oldvalue):
+            target.slug = slugify(value)
+
+event.listen(Article.title, 'set', Article.generate_slug, retval=False)

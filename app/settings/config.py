@@ -99,8 +99,6 @@ class DevelopmentConfig(BaseConfig):
     SWAGGER_UI_DOC_EXPANSION = 'none'
     SWAGGER_UI_OPERATION_ID = True
     SWAGGER_UI_REQUEST_DURATION = True
-    SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "post"]
-
 
     # if you want to use mysql 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(

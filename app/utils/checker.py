@@ -4,10 +4,19 @@
 # built-in modules
 from dateutil.parser import parse
 
+# third-party modules
+import enchant
+from enchant.checker import SpellChecker
+from enchant.tokenize import get_tokenizer, HTMLChunker, EmailFilter, URLFilter
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+en_dict = enchant.Dict("en_US")
+vi_dict = enchant.Dict("vi_VN")
 
 
 class Checker:
@@ -41,3 +50,13 @@ class Checker:
             (boolean) True if the string is numeric format, and vise versa
         """
         return str(number_str).isnumeric()
+
+def check_spelling(text):
+    tknzr = get_tokenizer("en_US", filters=[EmailFilter, URLFilter], chunkers=(HTMLChunker,))              # Using en_US, it's the most general tokenizer
+    # Check for errors in tokenized text
+    errors = []
+    for word in tknzr(text):
+        if (not vi_dict.check(word[0])) and (not en_dict.check(word[0])):
+            errors.append({"error": word[0], "suggestion": vi_dict.suggest(word[0])[:5] + en_dict.suggest(word[0])[:5]})
+
+    return errors
