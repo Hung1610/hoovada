@@ -4,6 +4,9 @@
 # built-in modules
 from datetime import datetime
 
+# third-party modules
+from sqlalchemy_utils import aggregated
+
 # own modules
 from app import db
 from app.modules.common.model import Model
@@ -21,7 +24,10 @@ class Topic(Model):
     name = db.Column(db.String(255))
     count = db.Column(db.Integer, default=0) # chua ro truong nay su dung lam gi
     user_id = db.Column(db.Integer)  # who created this topic
-    question_count = db.Column(db.Integer, default=0)  # amount of question related to this topic
+    # question_count = db.Column(db.Integer, default=0)  # amount of question related to this topic
+    @aggregated('questions', db.Column(db.Integer))
+    def question_count(self):
+        return db.func.count('1')
     user_count = db.Column(db.Integer, default=0)  # Number of users who interest this topic
     answer_count = db.Column(db.Integer, default=0)  # how many answers related to this topic
     parent_id = db.Column(db.Integer)  # the ID of parent topic

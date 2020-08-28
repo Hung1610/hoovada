@@ -20,6 +20,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionDto.api
+question_invite_request = QuestionDto.question_invite_request
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 
@@ -51,41 +52,54 @@ class QuestionList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:id>')
+@api.route('/<string:id_or_slug>')
 class Question(Resource):
     @token_required
     # @api.marshal_with(question)
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self, id):
+    def get(self, id_or_slug):
         """ 
         Get specific question by its ID.
         """
 
         controller = QuestionController()
-        return controller.get_by_id(object_id=id)
+        return controller.get_by_id(object_id=id_or_slug)
 
     @token_required
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def put(self, id):
+    def put(self, id_or_slug):
         """ 
         Update existing question by its ID.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
         """
 
         data = api.payload
         controller = QuestionController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(object_id=id_or_slug, data=data)
 
     @token_required
-    def delete(self, id):
+    def delete(self, id_or_slug):
         """ 
         Delete the question by its ID.
         """
 
         controller = QuestionController()
-        return controller.delete(object_id=id)
+        return controller.delete(object_id=id_or_slug)
+
+@api.route('/<string:id_or_slug>/invite')
+class QuestionInvite(Resource):
+    @token_required
+    @api.expect(question_invite_request)
+    def post(self, id_or_slug):
+        """ 
+        Delete the question by its ID.
+        """
+
+        data = api.payload
+        controller = QuestionController()
+        return controller.invite(object_id=id_or_slug, data=data)
 
 parser = reqparse.RequestParser()
 parser.add_argument('title', type=str, required=False, help='Search question by its title')

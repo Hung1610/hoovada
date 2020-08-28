@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own module
 from app.modules.common.dto import Dto
@@ -187,3 +187,7 @@ class UserDto(Dto):
         'user_report_count': fields.Integer(required=False),
         'user_reported_count': fields.Integer(required=False)
     })
+
+    model_get_parser = reqparse.RequestParser()
+    model_get_parser.add_argument('display_name', type=str, required=False, help='Search user by display name')
+    model_get_parser.add_argument('email', type=str, required=False, help='Search user by email')

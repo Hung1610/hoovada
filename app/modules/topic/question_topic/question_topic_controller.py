@@ -36,6 +36,10 @@ class QuestionTopicController(Controller):
                 return send_error(message='The question_id must include value.')
             if topic_id is None:
                 return send_error(message='The topic_id must include value.')
+            question_topics_count = QuestionTopic.query.with_entities(QuestionTopic.id, QuestionTopic.question_id).filter(QuestionTopic.question_id == question_id).count()
+            if question_topics_count > 5:
+                return send_error(message='Question cannot have more than 5 topics.')
+
             question_topic = QuestionTopic.query.filter(QuestionTopic.question_id == question_id,
                                                         QuestionTopic.topic_id == topic_id).first()
             if question_topic is not None:
