@@ -20,6 +20,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionDto.api
+question_invite_request = QuestionDto.question_invite_request
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 
@@ -86,6 +87,19 @@ class Question(Resource):
 
         controller = QuestionController()
         return controller.delete(object_id=id_or_slug)
+
+@api.route('/<string:id_or_slug>/invite')
+class QuestionInvite(Resource):
+    @token_required
+    @api.expect(question_invite_request)
+    def post(self, id_or_slug):
+        """ 
+        Delete the question by its ID.
+        """
+
+        data = api.payload
+        controller = QuestionController()
+        return controller.invite(object_id=id_or_slug, data=data)
 
 parser = reqparse.RequestParser()
 parser.add_argument('title', type=str, required=False, help='Search question by its title')

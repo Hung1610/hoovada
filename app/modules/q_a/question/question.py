@@ -37,9 +37,9 @@ class Question(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question_by_user = db.relationship('User', backref='questions', lazy=True) # one-to-many relationship with table User
-    fixed_topic_id = db.Column(db.Integer)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     fixed_topic = db.relationship('Topic', backref='fixed_topic_questions', lazy=True) # one-to-many relationship with table Article
     fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)

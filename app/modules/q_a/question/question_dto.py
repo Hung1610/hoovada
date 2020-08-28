@@ -109,9 +109,7 @@ class QuestionDto(Dto):
 
     model_question_request = api.model('question_request', {
         'title': fields.String(description='The title of the question'),
-        'user_id': fields.Integer(description='The user ID'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
         'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
         'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
@@ -154,4 +152,9 @@ class QuestionDto(Dto):
         'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
         # 'image_ids':fields.String()
+    })
+
+    question_invite_request = api.model('question_invite_request', {
+        'emails_or_usernames': fields.List(fields.Integer, description='The list of emails/usernames to invite by'),
+        # the list of IDs of topics that question belongs to.
     })

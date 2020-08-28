@@ -18,6 +18,6 @@ class QuestionTopic(Model):
     __tablename__ = 'question_topic'
 
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer)
-    topic_id = db.Column(db.Integer)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)

@@ -49,9 +49,29 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not create user. Check again')
 
-    def get(self):
+    def get(self, args):
         try:
-            users = User.query.all()
+            query = User.query
+            display_name, email = None, None
+            if 'display_name' in args:
+                try:
+                    display_name = args['display_name']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'email' in args:
+                try:
+                    email = args['email']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+            if display_name:
+                query = query.filter(User.display_name == display_name)
+            if email:
+                query = query.filter(User.email == email)
+
+            users = query.all()
             return send_result(data=marshal(users, UserDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())

@@ -40,6 +40,7 @@ class ArticleDto(Dto):
     model_article_response = api.model('article_response', {
         'id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the article'),
+        'slug': fields.String(description='The slug of the article'),
         'user': fields.Nested(model_article_user, description='The user information'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),

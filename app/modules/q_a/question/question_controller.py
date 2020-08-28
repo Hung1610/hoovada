@@ -189,9 +189,10 @@ class QuestionController(Controller):
                 spelling_errors = check_spelling(question.title)
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
-                is_sensitive = check_sensitive(question.question)
-                if is_sensitive:
-                    return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
+                if question.question:
+                    is_sensitive = check_sensitive(question.question)
+                    if is_sensitive:
+                        return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
                 topics = []
                 for topic_id in topic_ids:
                     try:
@@ -262,7 +263,8 @@ class QuestionController(Controller):
 
     def get(self):
         try:
-            query = Question.query.filter_by(is_private = False)  # query search from view
+            current_user, _ = AuthController.get_logged_user(request)
+            query = Question.query.filter_by(is_private=False)  # query search from view
             questions = query.order_by(desc(Question.upvote_count), desc(Question.created_date)).limit(50).all()
             # for question in questions:
             #     # # chay cau lenh de cap nhat la fixed_topic_name
@@ -428,9 +430,10 @@ class QuestionController(Controller):
             is_sensitive = check_sensitive(question.title)
             if is_sensitive:
                 return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
-            is_sensitive = check_sensitive(question.question)
-            if is_sensitive:
-                return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
+            if question.question:
+                is_sensitive = check_sensitive(question.question)
+                if is_sensitive:
+                    return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
             # update topics to question_topic table
             topics = []
             for topic_id in topic_ids:

@@ -51,12 +51,12 @@ class Checker:
         """
         return str(number_str).isnumeric()
 
-def check_spelling(text, lang=["en_US", "vi_VN"]):
-    tknzr = get_tokenizer("en_US")              # Using en_US, it's the most general tokenizer
+def check_spelling(text):
+    tknzr = get_tokenizer("en_US", filters=[EmailFilter, URLFilter], chunkers=(HTMLChunker,))              # Using en_US, it's the most general tokenizer
     # Check for errors in tokenized text
     errors = []
-    for word in tknzr(text, [EmailFilter, URLFilter], chunkers=(HTMLChunker,)):
-        if not (vi_dict.check(word) and en_dict.check(word)):
-            errors.append({"error": word, "suggestion": vi_dict.suggest(word)[:5] + en_dict.suggest(word)[:5]})
+    for word in tknzr(text):
+        if (not vi_dict.check(word[0])) and (not en_dict.check(word[0])):
+            errors.append({"error": word[0], "suggestion": vi_dict.suggest(word[0])[:5] + en_dict.suggest(word[0])[:5]})
 
     return errors
