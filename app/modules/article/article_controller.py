@@ -252,7 +252,9 @@ class ArticleController(Controller):
         if article is None:
             return send_error(message=constants.msg_not_found_with_id.format(object_id))
         if is_put:
-            article.title, article.fixed_topic_id, article.html, article.user_hidden = None, None, None, None
+            db.session.delete(article)
+            return self.create(data)
+        article, _ = self._parse_article(data=data, article=article)
 
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
@@ -267,7 +269,6 @@ class ArticleController(Controller):
                     pass
             article.topics = topics
         try:
-            article, _ = self._parse_article(data=data, article=article)
             # check sensitive before updating
             is_sensitive = check_sensitive(article.title)
             if is_sensitive:
