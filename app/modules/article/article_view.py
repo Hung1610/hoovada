@@ -50,47 +50,59 @@ class ArticleList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:id>')
+@api.route('/<string:id_or_slug>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     @api.doc(params={'title': 'The name of the topics to search'})
-    def get(self, id):
+    def get(self, id_or_slug):
         """
         Get specific article by its ID.
         """
 
         controller = ArticleController()
-        return controller.get_by_id(object_id=id)
+        return controller.get_by_id(object_id=id_or_slug)
 
     @token_required
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    def put(self, id):
+    def put(self, id_or_slug):
         """
         Update existing article by its ID.
         """
 
         data = api.payload
         controller = ArticleController()
-        return controller.update(object_id=id, data=data, is_put=True)
+        return controller.update(object_id=id_or_slug, data=data, is_put=True)
 
     @token_required
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    def patch(self, id):
+    def patch(self, id_or_slug):
         """
         Update existing article by its ID.
         """
 
         data = api.payload
         controller = ArticleController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(object_id=id_or_slug, data=data)
 
     @admin_token_required
-    def delete(self, id):
+    def delete(self, id_or_slug):
         """
         Delete the article by its ID.
         """
 
         controller = ArticleController()
-        return controller.delete(object_id=id)
+        return controller.delete(object_id=id_or_slug)
+
+@api.route('/update_slug')
+class UpdateArticleSlug(Resource):
+    # @admin_token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def post(self):
+        """ 
+        Update Slug for questions in DB
+        """
+
+        controller = ArticleController()
+        return controller.update_slug()

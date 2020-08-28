@@ -9,6 +9,7 @@ from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy_utils import aggregated
 
 # own modules
 from app.modules.common.model import Model
@@ -145,7 +146,10 @@ class User(Model):
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     # count values used for statistics
-    question_count = db.Column(db.Integer, server_default='0')  # number of questions user created
+    # question_count = db.Column(db.Integer, server_default='0')  # number of questions user created
+    @aggregated('questions', db.Column(db.Integer))
+    def question_count(self):
+        return db.func.count('1')
     question_favorite_count = db.Column(db.Integer, server_default='0')
     question_favorited_count = db.Column(db.Integer, server_default='0')
     question_share_count = db.Column(db.Integer, server_default='0')

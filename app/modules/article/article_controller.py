@@ -3,6 +3,7 @@
 
 # built-in modules
 import json
+from slugify import slugify
 from datetime import datetime
 
 # third-party modules
@@ -208,7 +209,10 @@ class ArticleController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=constants.msg_lacking_id)
-        article = Article.query.filter_by(id=object_id).first()
+        if object_id.isdigit():
+            article = Article.query.filter_by(id=object_id).first()
+        else:
+            article = Article.query.filter_by(slug=object_id).first()
         if article is None:
             return send_error(message=constants.msg_not_found_with_id.format(object_id))
         else:
@@ -241,7 +245,10 @@ class ArticleController(Controller):
         if not isinstance(data, dict):
             return send_error(message=constants.msg_wrong_data_format)
 
-        article = Article.query.filter_by(id=object_id).first()
+        if object_id.isdigit():
+            article = Article.query.filter_by(id=object_id).first()
+        else:
+            article = Article.query.filter_by(slug=object_id).first()
         if article is None:
             return send_error(message=constants.msg_not_found_with_id.format(object_id))
         if is_put:
@@ -300,7 +307,10 @@ class ArticleController(Controller):
 
     def delete(self, object_id):
         try:
-            article = Article.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                article = Article.query.filter_by(id=object_id).first()
+            else:
+                article = Article.query.filter_by(slug=object_id).first()
             if article is None:
                 return send_error(message=constants.msg_not_found_with_id.format(object_id))
             else:
@@ -310,6 +320,17 @@ class ArticleController(Controller):
         except Exception as e:
             print(e)
             return send_error(message=constants.msg_delete_failed_with_id.format(object_id))
+
+    def update_slug(self):
+        articles = Article.query.all()
+        try:
+            for article in articles:
+                article.slug = slugify(article.title)
+                db.session.commit()
+            return send_result(marshal(articles, ArticleDto.model_article_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=e)
 
     def _parse_article(self, data, article=None):
         if article is None:
