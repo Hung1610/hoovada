@@ -22,6 +22,7 @@ from app.modules.q_a.voting.vote import Vote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
+from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
 from app.utils.checker import check_spelling
@@ -389,6 +390,37 @@ class QuestionController(Controller):
         except Exception as e:
             print(e)
             return send_error(message="Invite failed. Error: " + e.__str__())
+
+    
+    def get_recommended_users(self, object_id, args):
+        try:
+            if object_id is None:
+                return send_error("Question ID is null")
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
+            if question is None:
+                return send_error(message='Could not find question with the ID {}'.format(object_id))
+            if 'limit' in args:
+                limit = int(args['limit'])
+            else:
+                return send_error(message='Please provide limit')
+
+            top_users_reputation = db.session.query(
+                    User,
+                    db.func.sum(Reputation.score).label('total_score'),
+                )\
+                .filter(Reputation.topic_id.in_(topic.id for topic in question.topics))\
+                .group_by(User,)\
+                .order_by(desc('total_score'))\
+                .limit(limit).all()
+            results = [{'user': user, 'total_score': total_score} for user, total_score in top_users_reputation]
+            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get recommended users failed. Error: " + e.__str__())
+
 
 
     def update(self, object_id, data):
