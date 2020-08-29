@@ -90,7 +90,6 @@ class Question(Resource):
         controller = QuestionController()
         return controller.delete(object_id=id_or_slug)
 
-
 @api.route('/<string:id_or_slug>/invite')
 class QuestionInvite(Resource):
     @token_required

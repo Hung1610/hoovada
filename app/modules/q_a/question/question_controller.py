@@ -422,7 +422,6 @@ class QuestionController(Controller):
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
 
-
     def update(self, object_id, data):
         """ Thuc hien update nhu sau:
             Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
