@@ -28,7 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ShareController(Controller):
     def get(self, article_id, args):
-        user_id, from_date, to_date, facebook, twitter, zalo, anonymous = None, None, None, None, None, None, None
+        user_id, from_date, to_date, facebook, twitter, zalo = None, None, None, None, None, None
 
         if 'user_id' in args:
             try:
@@ -62,11 +62,6 @@ class ShareController(Controller):
                 zalo = bool(args['zalo'])
             except Exception as e:
                 pass
-        if 'anonymous' in args:
-            try:
-                anonymous = bool(args['anonymous'])
-            except Exception as e:
-                pass
 
         query = ArticleShare.query
         if user_id is not None:
@@ -83,8 +78,6 @@ class ShareController(Controller):
             query = query.filter(ArticleShare.twitter == twitter)
         if zalo is not None:
             query = query.filter(ArticleShare.zalo == zalo)
-        if anonymous is not None:
-            query = query.filter(ArticleShare.anonymous == anonymous)
         shares = query.all()
         if len(shares) > 0:
             return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
@@ -172,11 +165,6 @@ class ShareController(Controller):
         if 'vkontakte' in data:
             try:
                 share.vkontakte = bool(data['vkontakte'])
-            except Exception as e:
-                pass
-        if 'anonymous' in data:
-            try:
-                share.anonymous = bool(data['anonymous'])
             except Exception as e:
                 pass
         if 'mail' in data:
