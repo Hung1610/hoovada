@@ -4,6 +4,8 @@ WORKDIR /opt
 
 COPY ./app/requirements.txt /opt/
 
+RUN apt-get update -y && apt-get install -y enchant && apt-get install -y libenchant-dev
+
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 RUN addgroup gunicorn
