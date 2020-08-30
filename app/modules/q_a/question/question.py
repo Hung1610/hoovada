@@ -75,7 +75,7 @@ class Question(Model):
     slug = db.Column(db.UnicodeText)
     allow_video_answer = db.Column(db.Boolean, server_default=expression.true())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.true())
-    is_private = db.Column(db.Boolean, default=False)
+    is_private = db.Column(db.Boolean, server_default=expression.false())
     topics = db.relationship('Topic', secondary='question_topic', lazy='subquery', backref=db.backref('questions', lazy=True))
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery', backref=db.backref('invited_to_questions', lazy=True))
 
