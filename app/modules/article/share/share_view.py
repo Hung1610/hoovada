@@ -26,7 +26,6 @@ parser.add_argument('to_date', type=str, required=False, help='Search all shares
 parser.add_argument('facebook', type=str, required=False, help='Search all shares to Facebook.')
 parser.add_argument('twitter', type=str, required=False, help='Search all shares to Twitter.')
 parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')
-parser.add_argument('anonymous', type=str, required=False, help='Search all shares by anonymous.')
 
 @api.route('/<int:article_id>/share')
 class ShareList(Resource):

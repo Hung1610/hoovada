@@ -8,13 +8,11 @@ class ShareDto(Dto):
     api = Namespace(name, description="Article sharing operations")
 
     model_request = api.model('article_share_request', {
-        'user_id': fields.Integer(description=''),
         'facebook': fields.Boolean(description=''),
         'twitter': fields.Boolean(description=''),
         'linkedin': fields.Boolean(description=''),
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
-        'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Integer(description='')
     })
@@ -29,7 +27,6 @@ class ShareDto(Dto):
         'linkedin': fields.Boolean(description=''),
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
-        'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Boolean(description='')
     })
