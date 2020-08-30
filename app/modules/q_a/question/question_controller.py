@@ -392,26 +392,50 @@ class QuestionController(Controller):
             return send_error(message="Invite failed. Error: " + e.__str__())
 
     
-    def get_recommended_users(self, object_id, args):
+    def get_similar(self, args):
+        if not 'title' in args:
+            return send_error(message='Please provide at least the title.')
+        title = args['title']
+        
         try:
-            if object_id is None:
-                return send_error("Question ID is null")
-            if object_id.isdigit():
-                question = Question.query.filter_by(id=object_id).first()
-            else:
-                question = Question.query.filter_by(slug=object_id).first()
-            if question is None:
-                return send_error(message='Could not find question with the ID {}'.format(object_id))
+            current_user, _ = AuthController.get_logged_user(request)
+            query = Question.query.filter_by(is_private=False)  # query search from view
+            questions = query.filter(db.func.SIMILARITY_STRING(title, Question.title) > 50).all()
+            results = list()
+            for question in questions:
+                result = question._asdict()
+                # get user info
+                result['user'] = question.question_by_user
+                result['topics'] = question.topics
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = vote.up_vote
+                        result['down_vote'] = vote.down_vote
+                results.append(result)
+            return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+
+    
+    def get_recommended_users(self, args):
+        try:
             if 'limit' in args:
                 limit = int(args['limit'])
             else:
                 return send_error(message='Please provide limit')
+            if 'topic' in args:
+                topics = args['topic']
+            else:
+                return send_error(message='Please provide topics')
 
             top_users_reputation = db.session.query(
                     User,
                     db.func.sum(Reputation.score).label('total_score'),
                 )\
-                .filter(Reputation.topic_id.in_(topic.id for topic in question.topics))\
+                .filter(Reputation.topic_id.in_(topics))\
                 .group_by(User,)\
                 .order_by(desc('total_score'))\
                 .limit(limit).all()

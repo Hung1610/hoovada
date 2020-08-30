@@ -20,6 +20,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionDto.api
+get_similar_questions_parser = QuestionDto.get_similar_questions_parser
 question_invite_request = QuestionDto.question_invite_request
 top_user_reputation_args_parser = QuestionDto.top_user_reputation_args_parser
 top_user_reputation_response = QuestionDto.top_user_reputation_response
@@ -52,6 +53,32 @@ class QuestionList(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.create(data=data)
+
+
+@api.route('/recommended-users')
+class QuestionRecommendedUsers(Resource):
+    @api.expect(top_user_reputation_args_parser)
+    @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
+    def get(self):
+        """ 
+        Delete the question by its ID.
+        """
+        args = top_user_reputation_args_parser.parse_args()
+        controller = QuestionController()
+        return controller.get_recommended_users(args=args)
+
+
+@api.route('/similar')
+class QuestionSimilar(Resource):
+    @api.expect(get_similar_questions_parser)
+    @api.response(code=200, model=model_response, description='Model for top users response.')
+    def get(self):
+        """ 
+        Delete the question by its ID.
+        """
+        args = get_similar_questions_parser.parse_args()
+        controller = QuestionController()
+        return controller.get_similar(args=args)
 
 
 @api.route('/<string:id_or_slug>')
@@ -102,20 +129,6 @@ class QuestionInvite(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.invite(object_id=id_or_slug, data=data)
-
-
-@api.route('/<string:id_or_slug>/recommended-users')
-class QuestionRecommendedUsers(Resource):
-    @token_required
-    @api.expect(top_user_reputation_args_parser)
-    @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
-    def get(self, id_or_slug):
-        """ 
-        Delete the question by its ID.
-        """
-        args = top_user_reputation_args_parser.parse_args()
-        controller = QuestionController()
-        return controller.get_recommended_users(object_id=id_or_slug, args=args)
 
 
 parser = reqparse.RequestParser()

@@ -155,7 +155,8 @@ class QuestionDto(Dto):
     })
 
     top_user_reputation_args_parser = reqparse.RequestParser()
-    top_user_reputation_args_parser.add_argument('limit', type=int, default=0, required=False, help='Limit amount to return, default is 10')
+    top_user_reputation_args_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
+    top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=True, help='Relevant topics IDs')
 
     top_user_reputation_response = api.model('top_user_reputation_response', {
         'user': fields.Nested(model_question_user, description='The user information'),
@@ -165,3 +166,6 @@ class QuestionDto(Dto):
     question_invite_request = api.model('question_invite_request', {
         'emails_or_usernames': fields.List(fields.Integer, description='The list of emails/usernames to invite by'),
     })
+
+    get_similar_questions_parser = reqparse.RequestParser()
+    get_similar_questions_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
