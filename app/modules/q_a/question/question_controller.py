@@ -22,6 +22,7 @@ from app.modules.q_a.voting.vote import Vote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
+from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
 from app.utils.checker import check_spelling
@@ -389,6 +390,60 @@ class QuestionController(Controller):
         except Exception as e:
             print(e)
             return send_error(message="Invite failed. Error: " + e.__str__())
+
+    
+    def get_similar(self, args):
+        if not 'title' in args:
+            return send_error(message='Please provide at least the title.')
+        title = args['title']
+        
+        try:
+            current_user, _ = AuthController.get_logged_user(request)
+            query = Question.query.filter_by(is_private=False)  # query search from view
+            questions = query.filter(db.func.SIMILARITY_STRING(title, Question.title) > 50).all()
+            results = list()
+            for question in questions:
+                result = question._asdict()
+                # get user info
+                result['user'] = question.question_by_user
+                result['topics'] = question.topics
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = vote.up_vote
+                        result['down_vote'] = vote.down_vote
+                results.append(result)
+            return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+
+    
+    def get_recommended_users(self, args):
+        try:
+            if 'limit' in args:
+                limit = int(args['limit'])
+            else:
+                return send_error(message='Please provide limit')
+            if 'topic' in args:
+                topics = args['topic']
+            else:
+                return send_error(message='Please provide topics')
+
+            top_users_reputation = db.session.query(
+                    User,
+                    db.func.sum(Reputation.score).label('total_score'),
+                )\
+                .filter(Reputation.topic_id.in_(topics))\
+                .group_by(User,)\
+                .order_by(desc('total_score'))\
+                .limit(limit).all()
+            results = [{'user': user, 'total_score': total_score} for user, total_score in top_users_reputation]
+            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
 
     def update(self, object_id, data):

@@ -16,6 +16,5 @@ class ArticleShare(Model):
     linkedin = db.Column(db.Boolean)
     zalo = db.Column(db.Boolean)
     vkontakte = db.Column(db.Boolean)
-    anonymous = db.Column(db.Boolean)
     mail = db.Column(db.Boolean)
     link_copied = db.Column(db.Boolean)
