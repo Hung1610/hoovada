@@ -130,7 +130,7 @@ class QuestionController(Controller):
             query = query.filter(Question.created_date <= to_date)
             is_filter = True
         if topic_id is not None:
-            query = query.filter(Question.topic_id == topic_id,Question.fixed_topic_id != 1)
+            query = query.filter(Question.topics.any(id=topic_id))
             is_filter = True
         if is_filter:
             questions = query.order_by(desc(Question.upvote_count)).all()
