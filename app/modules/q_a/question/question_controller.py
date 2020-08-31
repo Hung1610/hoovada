@@ -647,6 +647,13 @@ class QuestionController(Controller):
                 question.allow_audio_answer = True
                 print(e.__str__())
                 pass
+        if 'is_private' in data:
+            try:
+                question.is_private = bool(data['is_private'])
+            except Exception as e:
+                question.is_private = False
+                print(e.__str__())
+                pass
         # if 'image_ids' in data:
         #     try:
         #         question.image_ids = json.loads(data['image_ids'])
