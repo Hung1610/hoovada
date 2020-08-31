@@ -13,22 +13,22 @@ IMG_PROD    	:= ${REGISTRY}:${VERSION}
 
 
 build-test:
-	@docker build  -t ${IMG_TEST} --build-arg GIT_COMMIT=${GIT_COMMIT} -f ./docker/app/Dockerfile .
+	@docker build -t ${IMG_TEST} -f ./docker/app/Dockerfile .
 
 push-test:
 	@docker push ${IMG_TEST}
 
 deploy-test:
-	@kubectl set image deployment/backend backend=${IMG_TEST} -n hoovada-staging
+	@kubectl set image deployment/backend-${GIT_BRANCH} backend-${GIT_BRANCH}=${IMG_TEST} -n hoovada-staging
 
 build-prod:
-	@docker build -t ${IMG_PROD} --build-arg GIT_COMMIT=${GIT_COMMIT} -f ./docker/app/Dockerfile .
+	@docker build -t ${IMG_PROD} -f ./docker/app/Dockerfile .
 
 push-prod:
 	@docker push ${IMG_PROD}
 
 deploy-prod:
-	@kubectl set image deployment/hoovada-services hoovada-services=${IMG_PROD}
+	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD}
 
 login:
 	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
