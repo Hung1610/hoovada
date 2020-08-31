@@ -29,7 +29,6 @@ model_response = QuestionDto.model_question_response
 
 @api.route('')
 class QuestionList(Resource):
-    @token_required
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
@@ -83,7 +82,6 @@ class QuestionSimilar(Resource):
 
 @api.route('/<string:id_or_slug>')
 class Question(Resource):
-    @token_required
     # @api.marshal_with(question)
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -144,7 +142,6 @@ parser.add_argument('anonymous', type=str, required=False, help='Search question
 @api.route('/search')
 @api.expect(parser)
 class QuesstionSearch(Resource):
-    @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         """ 
@@ -158,7 +155,6 @@ class QuesstionSearch(Resource):
 
 @api.route('/get_by_slug/<string:slug>')
 class GetQuestionBySlug(Resource):
-    @token_required
     # @api.marshal_with(question)
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
