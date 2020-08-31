@@ -5,7 +5,7 @@ REGISTRY   		:= tranlyvu/hoovada.com
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
 GIT_BRANCH 		:= $$(git rev-parse --abbrev-ref HEAD)
-TAG_TEST 		:= ${REPO_NAME}-${GIT_BRANCH}-${GIT_COMMIT}
+TAG_TEST 		:= ${REPO_NAME}-${GIT_BRANCH}
 IMG_TEST    	:= ${REGISTRY}:${TAG_TEST}
 
 VERSION 		:= v1.0.0
