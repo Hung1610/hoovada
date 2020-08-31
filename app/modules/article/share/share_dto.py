@@ -14,7 +14,7 @@ class ShareDto(Dto):
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
-        'link_copied': fields.Integer(description='')
+        'link_copied': fields.Boolean(description='')
     })
 
     model_response = api.model('article_share_response', {

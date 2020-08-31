@@ -118,6 +118,7 @@ class QuestionDto(Dto):
         'topic_ids': fields.List(fields.Integer, description='The list of topics'),
         'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
+        'is_private': fields.Boolean(default=True, description='The question is private or not'),
         # the list of IDs of topics that question belongs to.
     })
 
@@ -151,6 +152,7 @@ class QuestionDto(Dto):
         'slug': fields.String(description='The slug of the question'),
         'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
+        'is_private': fields.Boolean(default=True, description='The question is private or not'),
         # 'image_ids':fields.String()
     })
 
