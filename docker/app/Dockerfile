@@ -16,6 +16,8 @@ COPY --chown=gunicorn:gunicorn . /opt/
 
 USER gunicorn
 
+RUN chmod +x /opt/docker/app/entrypoint.sh
+
 EXPOSE 5000
 
 ENTRYPOINT ["/opt/docker/app/entrypoint.sh"]

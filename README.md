@@ -12,6 +12,8 @@ Project Overview
 
 - Conf file is at app/settings/config.py, we use environment variables to manage conf in production. You can use the default values in config.py for your development.
 
+- We use [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) but the library could not detect every changes, i.e. change of data type. If migration does not work, please put the required sql command into sql/
+
 
 ### Built with
 
@@ -83,38 +85,21 @@ $ git push -u origin <your branch name>
 
 - For testing, if you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py.
 
-#### Full set-up with docker
 
-- You can run both app and DB with docker
+#### Quick testing with docker
 
 ```bash
-// You need to build every time you update code
-$ cd <path to project>
-$ docker-compose build
-
-// Docker-compose up will run 3 dockers: API, DB and adminer for DB UI, REMEMBER to re-build before re-rerunning this 
-$ docker-compose up
-
-// Some other useful commands
-$ docker-compose ps
-$ docker-compose logs <name of container>
-
-// to completely wipe out the set-up
-$ docker-compose stop
-$ docker-compose rm
+$ docker build -f ./docker/app/Dockerfile .
+$ docker run <name of image>
 ```
 
-- Swagger:  http://localhost:5000/api/v1/doc 
-- adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
-
-
-#### Running API services only with no DB
+#### Running API services on Linux
 
 - To run API services on your desktop
 
 ```bash
-// For Linux distribution, you might need to install dependencies (not sure if this is still needed)
-$ $ sudo apt install unixodbc-dev
+// For Linux distribution, you might need to install dependencies
+$ apt-get update -y && apt-get install -y enchant && apt-get install -y libenchant-dev && apt-get install -y hunspell-vi
 
 //  We use pypy3.6 running on production, you can follow these step to set up pypy3.6 on conda environment for Linux
 $ cd /tmp
@@ -139,6 +124,31 @@ $ pip3 install -r <path to project>/requirements.txt
 
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
 ```
+
+
+#### Full set-up with docker-compose
+
+- You can run both app and DB with docker-compose
+
+```bash
+// You need to build every time you update code
+$ cd <path to project>
+$ docker-compose build
+
+// Docker-compose up will run 3 dockers: API, DB and adminer for DB UI, REMEMBER to re-build before re-rerunning this 
+$ docker-compose up
+
+// Some other useful commands
+$ docker-compose ps
+$ docker-compose logs <name of container>
+
+// to completely wipe out the set-up
+$ docker-compose stop
+$ docker-compose rm
+```
+
+- Swagger:  http://localhost:5000/api/v1/doc 
+- adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
 
 
 ### Pylint
