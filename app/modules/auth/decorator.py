@@ -25,7 +25,7 @@ def token_required(f):
     def decorated(*args, **kwargs):
         user, message = AuthController.get_logged_user(request)
         if user is None:
-            return send_error(message=message)
+            return send_error(message=message, code=401)
         return f(*args, **kwargs)
 
     return decorated
@@ -38,9 +38,9 @@ def admin_token_required(f):
     def decorated(*args, **kwargs):
         user, message = AuthController.get_logged_user(request)
         if user is None:
-            return send_error(message=message)
+            return send_error(message=message, code=401)
         if not user.admin:
-            return send_error(message='You are not admin. You need admin right to perform this action.')
+            return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
         return f(*args, **kwargs)
 
     return decorated
