@@ -58,7 +58,9 @@ class Article(Model):
     topics = db.relationship('Topic', secondary=article_topics, lazy='subquery', backref=db.backref('articles', lazy=True))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    is_draft = db.Column(db.Boolean, default=False)
     is_deleted = db.Column(db.Boolean, default=False)
 
     @staticmethod

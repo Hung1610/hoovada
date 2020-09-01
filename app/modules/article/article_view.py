@@ -22,6 +22,7 @@ api = ArticleDto.api
 _article_dto_request = ArticleDto.model_article_request
 _article_dto_response = ArticleDto.model_article_response
 _article_get_params = ArticleDto.model_get_parser
+_article_get_similar_params = ArticleDto.get_similar_articles_parser
 
 @api.route('')
 class ArticleList(Resource):
@@ -94,6 +95,20 @@ class Article(Resource):
 
         controller = ArticleController()
         return controller.delete(object_id=id_or_slug)
+
+        
+@api.route('/similar')
+class ArticleSimilar(Resource):
+    @api.expect(_article_get_similar_params)
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    def get(self):
+        """ 
+        Get similar articles.
+        """
+        args = _article_get_similar_params.parse_args()
+        controller = ArticleController()
+        return controller.get_similar(args=args)
+
 
 @api.route('/update_slug')
 class UpdateArticleSlug(Resource):

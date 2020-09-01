@@ -60,7 +60,7 @@ class QuestionRecommendedUsers(Resource):
     @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
     def get(self):
         """ 
-        Delete the question by its ID.
+        Get recommended users for question specifications.
         """
         args = top_user_reputation_args_parser.parse_args()
         controller = QuestionController()
@@ -70,10 +70,10 @@ class QuestionRecommendedUsers(Resource):
 @api.route('/similar')
 class QuestionSimilar(Resource):
     @api.expect(get_similar_questions_parser)
-    @api.response(code=200, model=model_response, description='Model for top users response.')
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         """ 
-        Delete the question by its ID.
+        Get similar questions.
         """
         args = get_similar_questions_parser.parse_args()
         controller = QuestionController()

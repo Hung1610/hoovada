@@ -100,7 +100,7 @@ class QuestionController(Controller):
                 pass
         if 'topic_id' in args:
             try:
-                topic_id = int(args['topic_id'])
+                topic_ids = args['topic_id']
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -129,8 +129,8 @@ class QuestionController(Controller):
         if to_date is not None:
             query = query.filter(Question.created_date <= to_date)
             is_filter = True
-        if topic_id is not None:
-            query = query.filter(Question.topics.any(id=topic_id))
+        if topic_ids is not None:
+            query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
             is_filter = True
         if is_filter:
             questions = query.order_by(desc(Question.upvote_count)).all()
