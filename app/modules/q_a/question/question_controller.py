@@ -396,13 +396,23 @@ class QuestionController(Controller):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
         title = args['title']
+        if 'limit' in args:
+            limit = int(args['limit'])
+        else:
+            return send_error(message='Please provide limit')
         
         try:
             current_user, _ = AuthController.get_logged_user(request)
             query = Question.query.filter_by(is_private=False)  # query search from view
-            questions = query.filter(db.func.SIMILARITY_STRING(title, Question.title) > 50).all()
+            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            questions = query.with_entities(Question, title_similarity)\
+                .filter(title_similarity > 50)\
+                .order_by(desc(title_similarity))\
+                .limit(limit)\
+                .all()
             results = list()
             for question in questions:
+                question = question[0]
                 result = question._asdict()
                 # get user info
                 result['user'] = question.question_by_user
