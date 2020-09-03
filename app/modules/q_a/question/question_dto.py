@@ -157,6 +157,45 @@ class QuestionDto(Dto):
         # 'image_ids':fields.String()
     })
 
+    model_question_proposal_response = api.model('question_proposal_response', {
+        'id': fields.Integer(readonly=True, description=''),
+        'question_id': fields.Integer(readonly=True, description=''),
+        'title': fields.String(description='The title of the question'),
+        # 'user_id': fields.Integer(description='The user ID'),
+        'user': fields.Nested(model_question_user, description='The user information'),
+        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
+        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
+        'question': fields.String(description='The content of the question'),
+        # 'markdown': fields.String(description=''),
+        # 'html': fields.String(description=''),
+        'created_date': fields.DateTime(description='The created date'),
+        'updated_date': fields.DateTime(description='The updated date'),
+        'views_count': fields.Integer(default=0, description='The amount of question views'),
+        'last_activity': fields.DateTime(description='The last time this question was updated.'),
+        'answers_count': fields.Integer(default=0, description='The amount of answers on this question'),
+        'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
+        'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
+        'user_hidden': fields.Boolean(default=False,
+                                      description='The question wss created by user but the user want to be hidden'),
+        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+        # the list of IDs of topics that question belongs to.
+        'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
+        'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
+        'share_count': fields.Integer(default=0, description='The amount of sharing'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
+        'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
+        'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
+        'slug': fields.String(description='The slug of the question'),
+        'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
+        'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
+        'is_private': fields.Boolean(default=True, description='The question is private or not'),
+        'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
+        'is_approved': fields.Boolean(default=True, description='The question proposal is approved or not'),
+        'proposal_created_date': fields.DateTime(description='The proposal created date'),
+        'proposal_updated_date': fields.DateTime(description='The proposal updated date'),
+        # 'image_ids':fields.String()
+    })
+
     top_user_reputation_args_parser = reqparse.RequestParser()
     top_user_reputation_args_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
     top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=True, help='Relevant topics IDs')

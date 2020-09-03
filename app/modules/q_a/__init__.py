@@ -10,6 +10,8 @@ from app.modules.q_a.favorite import api as ns_favorite
 from app.modules.q_a.share import api as ns_share
 from app.modules.q_a.report import api as ns_report
 from app.modules.q_a.timeline import api as ns_timeline
+from app.modules.q_a.bookmark import api as ns_question_bookmark
+from app.modules.q_a.answer.bookmark import api as ns_answer_bookmark
 
 
 __author__ = "hoovada.com team"

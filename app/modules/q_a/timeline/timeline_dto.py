@@ -35,6 +35,8 @@ class TimelineDto(Dto):
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'answer_id': fields.Integer(default=0, description='The ID of the answer'),
         'comment_id': fields.Integer(default=0, description='The ID of the comment'),
+        'article_id': fields.Integer(default=0, description='The ID of the article'),
+        'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
         'activity': fields.Integer(enum=[x.value for x in TimelineActivity], attribute='activity.value', default=False)
     })
     
@@ -44,6 +46,8 @@ class TimelineDto(Dto):
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'answer_id': fields.Integer(default=0, description='The ID of the answer'),
         'comment_id': fields.Integer(default=0, description='The ID of the comment'),
+        'article_id': fields.Integer(default=0, description='The ID of the article'),
+        'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
         'activity': fields.Integer(enum=[x.value for x in TimelineActivity], attribute='activity.value', default=False),
         'activity_date': fields.DateTime(description='The activity datetime'),
     })

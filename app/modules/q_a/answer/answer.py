@@ -46,3 +46,4 @@ class Answer(Model):
     allow_improvement = db.Column(db.Boolean, server_default=expression.true())
     file_url = db.Column(db.String(255))
     file_type = db.Column(db.Enum(FileTypeEnum, validate_strings=True), nullable=True)
+    is_deleted = db.Column(db.Boolean, default=False)

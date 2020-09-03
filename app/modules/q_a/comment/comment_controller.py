@@ -96,7 +96,13 @@ class CommentController(Controller):
             return send_error(message="The user_id must be included")
         if not 'answer_id' in data:
             return send_error(message='The answer_id must be included.')
+        answer = Answer.query.filter(id == data['answer_id']).first()
+        if not answer:
+            return send_error(message='The answer does not exist.')
+        if not answer.allow_comments: 
+            return send_error(message='This answer does not allow commenting.')
         try:
+
             comment = self._parse_comment(data=data, comment=None)
             is_sensitive = check_sensitive(comment.comment)
             if is_sensitive:

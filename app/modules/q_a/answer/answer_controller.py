@@ -85,7 +85,7 @@ class AnswerController(Controller):
 
         if user_id is None and question_id is None and from_date is None and to_date is None:
             send_error(message='Provide params to search.')
-        query = Answer.query
+        query = Answer.query.filter(Answer.is_deleted != True)
         is_filter = False
         if user_id is not None:
             query = query.filter(Answer.user_id == user_id)
@@ -139,6 +139,9 @@ class AnswerController(Controller):
         data['user_id'] = current_user.id
 
         try:
+            answer = Answer.query.filter(question_id = data['question_id'], user_id = data['user_id']).first()
+            if answer:
+                return send_error(message='This user already answered for this question.')
             # add new answer
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
@@ -401,6 +404,13 @@ class AnswerController(Controller):
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
+            
+        if 'is_deleted' in data:
+            try:
+                answer.is_deleted = bool(data['is_deleted'])
+            except Exception as e:
+                print(e)
+                pass
         if 'user_hidden' in data:
             try:
                 answer.user_hidden = bool(data['user_hidden'])

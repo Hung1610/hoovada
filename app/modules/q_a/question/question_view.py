@@ -26,6 +26,7 @@ top_user_reputation_args_parser = QuestionDto.top_user_reputation_args_parser
 top_user_reputation_response = QuestionDto.top_user_reputation_response
 model_topic = QuestionDto.model_topic
 get_relevant_topics_parser = QuestionDto.get_relevant_topics_parser
+model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 
@@ -108,7 +109,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.get_by_id(object_id=id_or_slug)
 
-    @token_required
+    @admin_token_required
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -142,6 +143,43 @@ class QuestionInvite(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.invite(object_id=id_or_slug, data=data)
+
+proposal_get_parser = reqparse.RequestParser()
+proposal_get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+proposal_get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+@api.route('/<string:id_or_slug>/proposal')
+class QuestionProposal(Resource):
+    @api.expect(proposal_get_parser)
+    @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
+    def get(self, id_or_slug):
+        """ 
+        Get list of questions from database.
+        """
+        args = proposal_get_parser.parse_args()
+        controller = QuestionController()
+        return controller.get_proposals(object_id=id_or_slug, args=data)
+
+    @token_required
+    @api.expect(model_request)
+    def post(self, id_or_slug):
+        """ 
+        Create question change proposal by its ID.
+        """
+
+        data = api.payload
+        controller = QuestionController()
+        return controller.create_proposal(object_id=id_or_slug, data=data)
+
+@api.route('/all/proposal/<int:id>/approve')
+class QuestionApprove(Resource):
+    @admin_token_required
+    @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
+    def put(self, id):
+        """ 
+        Approve question change proposal
+        """
+        controller = QuestionController()
+        return controller.approve_proposal(object_id=id)
 
 
 parser = reqparse.RequestParser()

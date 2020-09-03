@@ -37,6 +37,7 @@ class Question(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
+    slug = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question_by_user = db.relationship('User', backref='questions', lazy=True) # one-to-many relationship with table User
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
@@ -72,13 +73,61 @@ class Question(Model):
     # def favorite_count(self):
     #     return db.func.count('1')
 
-    slug = db.Column(db.UnicodeText)
     allow_video_answer = db.Column(db.Boolean, server_default=expression.true())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.true())
     is_private = db.Column(db.Boolean, server_default=expression.false())
     topics = db.relationship('Topic', secondary='question_topic', lazy='subquery', backref=db.backref('questions', lazy=True))
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery', backref=db.backref('invited_to_questions', lazy=True))
 
+class QuestionProposal(Model):
+    __tablename__ = 'question_proposals'
+
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    question = db.relationship('Question', backref='proposals', lazy=True) # one-to-many relationship with table User
+    title = db.Column(db.UnicodeText)
+    slug = db.Column(db.UnicodeText)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    fixed_topic_name = db.Column(db.String(255))
+    question = db.Column(db.UnicodeText)
+    markdown = db.Column(db.UnicodeText)
+    html = db.Column(db.UnicodeText)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    views_count = db.Column(db.Integer, default=0)
+    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    answers_count = db.Column(db.Integer, default=0)
+    accepted_answer_id = db.Column(db.Integer)
+    anonymous = db.Column(db.Boolean, default=False)
+    user_hidden = db.Column(db.Boolean, default=False)
+    image_ids = db.Column(db.JSON)
+    upvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly upvote
+    downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
+    share_count = db.Column(db.Integer, default=0)
+    favorite_count = db.Column(db.Integer, default=0)
+    
+    # @aggregated('votes', db.Column(db.Integer))
+    # def upvote_count(self):
+    #     return db.func.sum(db.func.if_(ArticleVote.vote_status == 'UPVOTED', 1, 0))
+    # @aggregated('votes', db.Column(db.Integer))
+    # def downvote_count(self):
+    #     return db.func.sum(db.func.if_(ArticleVote.vote_status == 'DOWNVOTED', 1, 0))
+    # @aggregated('shares', db.Column(db.Integer))
+    # def share_count(self):
+    #     return db.func.count('1')
+    # @aggregated('article_favorites', db.Column(db.Integer))
+    # def favorite_count(self):
+    #     return db.func.count('1')
+
+    allow_video_answer = db.Column(db.Boolean, server_default=expression.true())
+    allow_audio_answer = db.Column(db.Boolean, server_default=expression.true())
+    is_private = db.Column(db.Boolean, server_default=expression.false())
+    topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery', backref=db.backref('questions_proposals', lazy=True))
+    invited_users = db.relationship('User', secondary='question_proposal_user_invite', lazy='subquery', backref=db.backref('invited_to_questions_proposals', lazy=True))
+    is_approved = db.Column(db.Boolean, server_default=expression.false())
+    proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class QuestionTopicView(Model):
     __tablename__ = 'topic_question'

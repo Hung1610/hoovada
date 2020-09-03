@@ -32,5 +32,7 @@ class Timeline(Model):
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'))
     activity = db.Column(db.Enum(TimelineActivity, validate_strings=True))
     activity_date = db.Column(db.DateTime, default=datetime.utcnow)

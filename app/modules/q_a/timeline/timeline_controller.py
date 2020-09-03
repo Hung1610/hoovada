@@ -53,7 +53,7 @@ class TimelineController(Controller):
         if timeline is None:
             return send_error(message='Could not find timeline with the ID {}'.format(object_id))
 
-        return send_result(data=marshal(timeline, TimelineDto.model_timeline_response), message='Success')
+        return send_result(data=marshal(timeline, TimelineDto.timeline_model_response), message='Success')
 
     def get(self, args):
         """ Search timeline.
@@ -63,7 +63,7 @@ class TimelineController(Controller):
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
-        user_id, question_id, answer_id, comment_id, from_date, to_date = None, None, None, None, None, None
+        user_id, question_id, answer_id, comment_id, article_id, article_comment_id, from_date, to_date = None, None, None, None, None, None, None, None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
@@ -88,6 +88,18 @@ class TimelineController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        if 'article_id' in args:
+            try:
+                article_id = int(args['article_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'article_comment_id' in args:
+            try:
+                article_comment_id = int(args['article_comment_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'from_date' in args:
             try:
                 from_date = dateutil.parser.isoparse(args['from_date'])
@@ -101,15 +113,19 @@ class TimelineController(Controller):
                 print(e.__str__())
                 pass
 
+        query = query.filter(Timeline.answer_id == answer_id)
+        query = query.filter(Timeline.question_id == question_id)
+        query = query.filter(Timeline.article_id == article_id)
+        if comment_id is not None:
+            query = query.filter(Timeline.comment_id == comment_id)
+        if article_comment_id is not None:
+            query = query.filter(Timeline.article_comment_id == article_comment_id)
         if user_id is not None:
             query = query.filter(Timeline.user_id == user_id)
         if from_date is not None:
             query = query.filter(Timeline.activity_date >= from_date)
         if to_date is not None:
             query = query.filter(Timeline.activity_date <= to_date)
-        query = query.filter(Timeline.answer_id == answer_id)
-        query = query.filter(Timeline.question_id == question_id)
-        query = query.filter(Timeline.comment_id == comment_id)
 
         timelines = query.order_by(desc(Timeline.activity_date)).all()
         if timelines is not None and len(timelines) > 0:
@@ -118,7 +134,7 @@ class TimelineController(Controller):
                 result = timeline._asdict()
                 result['user'] = timeline.user
                 results.append(result)
-            return send_result(marshal(results, TimelineDto.model_timeline_response), message='Success')
+            return send_result(marshal(results, TimelineDto.timeline_model_response), message='Success')
         else:
             return send_error(message='Could not find timelines. Please check your parameters again.')
 
@@ -178,6 +194,18 @@ class TimelineController(Controller):
         if 'comment_id' in data:
              try:
                 timeline.comment_id = int(data['comment_id'])
+             except Exception as e:
+                print(e.__str__())
+                pass
+        if 'article_id' in data:
+             try:
+                timeline.article_id = int(data['article_id'])
+             except Exception as e:
+                print(e.__str__())
+                pass
+        if 'article_comment_id' in data:
+             try:
+                timeline.article_comment_id = int(data['article_comment_id'])
              except Exception as e:
                 print(e.__str__())
                 pass

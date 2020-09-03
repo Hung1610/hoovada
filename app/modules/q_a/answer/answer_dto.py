@@ -34,6 +34,7 @@ class AnswerDto(Dto):
         'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_response = api.model('answer_response', {
@@ -63,6 +64,7 @@ class AnswerDto(Dto):
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     upload_parser = api.parser()

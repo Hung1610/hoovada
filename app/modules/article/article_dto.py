@@ -60,7 +60,8 @@ class ArticleDto(Dto):
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
-        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user')
+        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_get_parser = reqparse.RequestParser()

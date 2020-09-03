@@ -108,7 +108,7 @@ class ArticleController(Controller):
         :return:
         """
         # Get search parameters
-        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids = None, None, None, None, None, None, None,  None
+        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft = None, None, None, None, None, None, None, None, None
         if 'title' in args:
             title = args['title']
         if 'user_id' in args:
@@ -160,7 +160,8 @@ class ArticleController(Controller):
                 print(e)
                 pass
 
-        query = Article.query.filter(db._or(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date)) 
+        query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))\
+                            .filter(Article.is_deleted != True)
         if title and not str(title).strip().__eq__(''):
             title = '%' + title.strip() + '%'
             query = query.filter(Article.title.like(title))
@@ -176,7 +177,7 @@ class ArticleController(Controller):
             query = query.filter(Article.created_date >= from_date)
         if to_date:
             query = query.filter(Article.created_date <= to_date)
-        if topic_id:
+        if topic_ids:
             query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
         if draft is not None:
             if draft:
