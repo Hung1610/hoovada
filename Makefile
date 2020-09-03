@@ -1,6 +1,4 @@
-DOCKER_USER     := 
-DOCKER_PASS     := 
-REGISTRY   		:= registry.gitlab.com/hoovada
+REGISTRY   		:= registry.gitlab.com/hoovada/hoovada-services
 
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
@@ -31,4 +29,4 @@ deploy-prod:
 	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD}
 
 login:
-	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+	@docker login registry.gitlab.com
