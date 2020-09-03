@@ -153,6 +153,7 @@ class QuestionDto(Dto):
         'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=True, description='The question is private or not'),
+        'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
         # 'image_ids':fields.String()
     })
 
@@ -172,3 +173,7 @@ class QuestionDto(Dto):
     get_similar_questions_parser = reqparse.RequestParser()
     get_similar_questions_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
     get_similar_questions_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
+
+    get_relevant_topics_parser = reqparse.RequestParser()
+    get_relevant_topics_parser.add_argument('title', type=str, required=False, help='Title by which to get relevant topics')
+    get_relevant_topics_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')

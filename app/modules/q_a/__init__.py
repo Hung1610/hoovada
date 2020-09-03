@@ -9,6 +9,7 @@ from app.modules.q_a.voting import api as ns_vote
 from app.modules.q_a.favorite import api as ns_favorite
 from app.modules.q_a.share import api as ns_share
 from app.modules.q_a.report import api as ns_report
+from app.modules.q_a.timeline import api as ns_timeline
 
 
 __author__ = "hoovada.com team"

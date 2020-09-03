@@ -30,7 +30,6 @@ class AnswerDto(Dto):
         'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
-        'user_id': fields.Integer(default=0, description='The user ID'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),

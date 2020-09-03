@@ -35,7 +35,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class QuestionController(Controller):
-
     def search(self, args):
         """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
@@ -140,8 +139,7 @@ class QuestionController(Controller):
                     # kiem tra den topic
                     result = question._asdict()
                     # get user info
-                    user = User.query.filter_by(id=question.user_id).first()
-                    result['user'] = user
+                    result['user'] = question.question_by_user
                     # get all topics that question belongs to
                     # question_id = question.id
                     # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
@@ -163,7 +161,6 @@ class QuestionController(Controller):
                 return send_result(message='Could not find any questions')
         else:
             return send_error(message='Could not find questions. Please check your parameters again.')
-
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -261,7 +258,6 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could not create question. Contact administrator for solution.')
 
-
     def get(self):
         try:
             current_user, _ = AuthController.get_logged_user(request)
@@ -315,7 +311,6 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not load questions. Contact your administrator for solution.")
 
-
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")
@@ -332,8 +327,7 @@ class QuestionController(Controller):
                     return send_error(message='Question is invitations only.')
         result = question._asdict()
         # get user info
-        user = User.query.filter_by(id=question.user_id).first()
-        result['user'] = user
+        result['user'] = question.question_by_user
         # get all topics that question belongs to
         # question_id = question.id
         # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
@@ -350,7 +344,6 @@ class QuestionController(Controller):
                 result['up_vote'] = vote.up_vote
                 result['down_vote'] = vote.down_vote
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
-
 
     def invite(self, object_id, data):
         try:
@@ -391,7 +384,6 @@ class QuestionController(Controller):
             print(e)
             return send_error(message="Invite failed. Error: " + e.__str__())
 
-    
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
@@ -429,7 +421,6 @@ class QuestionController(Controller):
             print(e)
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
-    
     def get_recommended_users(self, args):
         try:
             if 'limit' in args:
@@ -455,6 +446,29 @@ class QuestionController(Controller):
             print(e)
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
+    def get_recommended_topics(self, args):
+        if not 'title' in args:
+            return send_error(message='Please provide at least the title.')
+        title = args['title']
+        if not 'limit' in args:
+            return send_error(message='Please provide limit')
+        limit = int(args['limit'])
+        
+        try:
+            current_user, _ = AuthController.get_logged_user(request)
+            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            query = Topic.query.distinct()\
+                .join(Question)\
+                .with_entities(Topic, title_similarity)\
+                .filter(Question.is_private == False)\
+                .filter(title_similarity > 50)\
+                .order_by(desc(title_similarity))\
+                .limit(limit)
+            topics = [topic[0] for topic in query.all()]
+            return send_result(data=marshal(topics, QuestionDto.model_topic), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
     def update(self, object_id, data):
         """ Thuc hien update nhu sau:
