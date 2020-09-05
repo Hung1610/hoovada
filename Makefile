@@ -1,5 +1,4 @@
 REGISTRY   		:= registry.gitlab.com/hoovada/hoovada-services
-
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
 GIT_BRANCH 		:= $$(git rev-parse --abbrev-ref HEAD)
