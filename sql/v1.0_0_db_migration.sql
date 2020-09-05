@@ -91,3 +91,5 @@ DELETE FROM question WHERE user_id NOT IN (SELECT user.id FROM user);
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM question_topic WHERE question_id NOT IN (SELECT question .id FROM question);
 UPDATE question SET is_private = False;
+ALTER TABLE `answer` CHANGE `id` `id` INT(10) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `comment` CHANGE `id` `id` INT(10) NOT NULL AUTO_INCREMENT;
