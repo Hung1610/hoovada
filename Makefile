@@ -26,7 +26,7 @@ push-prod:
 	@docker push ${IMG_PROD}
 
 deploy-prod:
-	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD}
+	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD} -n hoovada-prod
 
 login:
-	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+	@docker login registry.gitlab.com
