@@ -48,7 +48,7 @@ class Article(Model):
     @aggregated('votes', db.Column(db.Integer))
     def downvote_count(self):
         return db.func.sum(db.func.if_(ArticleVote.vote_status == 'DOWNVOTED', 1, 0))
-    @aggregated('shares', db.Column(db.Integer))
+    @aggregated('article_shares', db.Column(db.Integer))
     def share_count(self):
         return db.func.count('1')
     @aggregated('article_favorites', db.Column(db.Integer))

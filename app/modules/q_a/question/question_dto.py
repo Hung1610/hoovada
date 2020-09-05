@@ -26,85 +26,17 @@ class QuestionDto(Dto):
     model_question_user = api.model('question_user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
-        # 'title': fields.String(required=False),
-
-        # 'first_name': fields.String(required=False),
-        # 'middle_name': fields.String(required=False),
-        # 'last_name': fields.String(required=False),
-        # 'gender': fields.String(required=False),
-        # 'age': fields.String(required=False),
-        # 'email': fields.String(required=False),
-        # 'password': fields.String(required=False),
-
-        # 'last_seen': fields.DateTime(required=False),
-        # 'joined_date': fields.DateTime(required=False),
-        # 'confirmed': fields.Boolean(required=False),
-        # 'email_confirmed_at': fields.DateTime(required=False),
-
         'profile_pic_url': fields.String(required=False)
-        # 'profile_pic_data_url': fields.String(required=False),
-        # 'admin': fields.Boolean(required=False),
-        # 'active': fields.Boolean(required=False),
+    })
 
-        # 'reputation': fields.Integer(required=False),
-        # 'profile_views': fields.Integer(required=False, readonly=True),
-        # 'city': fields.String(required=False),
-        # 'country': fields.String(required=False),
-        # 'website_url': fields.String(required=False),
-        #
-        # 'about_me': fields.String(required=False),
-        # 'about_me_markdown': fields.String(required=False),
-        # 'about_me_html': fields.String(required=False),
-        #
-        # 'people_reached': fields.Integer(required=False),
-        # 'job_role': fields.String(required=False),
-        # 'company': fields.String(required=False),
-
-        # 'show_email_publicly_setting': fields.Boolean(required=False),
-        # 'hoovada_digests_setting': fields.Boolean(required=False),
-        # 'hoovada_digests_frequency_setting': fields.String(required=False),
-        #
-        # 'questions_you_asked_or_followed_setting': fields.Boolean(required=False),
-        # 'questions_you_asked_or_followed_frequency_setting': fields.String(required=False),
-        # 'people_you_follow_setting': fields.Boolean(required=False),
-        # 'people_you_follow_frequency_setting': fields.String(required=False),
-        #
-        # 'email_stories_topics_setting': fields.Boolean(required=False),
-        # 'email_stories_topics_frequency_setting': fields.String(required=False),
-        # 'last_message_read_time': fields.DateTime(required=False),
-        #
-        # # count region
-        # 'question_count': fields.Integer(required=False),
-        # 'question_favorite_count': fields.Integer(required=False),
-        # 'question_favorited_count': fields.Integer(required=False),
-        # 'question_share_count': fields.Integer(required=False),
-        # 'question_shared_count': fields.Integer(required=False),
-
-        # 'answer_count': fields.Integer(required=False),
-        # 'answer_share_count': fields.Integer(required=False),
-        # 'answer_shared_count': fields.Integer(required=False),
-        # 'answer_favorite_count': fields.Integer(required=False),
-        # 'answer_favorited_count': fields.Integer(required=False),
-        # 'answer_upvote_count': fields.Integer(required=False),
-        # 'answer_upvoted_count': fields.Integer(required=False),
-        # 'answer_downvote_count': fields.Integer(required=False),
-        # 'answer_downvoted_count': fields.Integer(required=False),
-        #
-        # 'topic_follow_count': fields.Integer(required=False),
-        # 'topic_followed_count': fields.Integer(required=False),
-        # 'topic_created_count': fields.Integer(required=False),
-        #
-        # 'user_follow_count': fields.Integer(required=False),
-        # 'user_followed_count': fields.Integer(required=False),
-        #
-        # 'comment_count': fields.Integer(required=False),
-        # 'comment_upvote_count': fields.Integer(required=False),
-        # 'comment_upvoted_count': fields.Integer(required=False),
-        # 'comment_downvote_count': fields.Integer(required=False),
-        # 'comment_downvoted_count': fields.Integer(required=False),
-        # 'comment_report_count': fields.Integer(required=False),
-        # 'comment_reported_count': fields.Integer(required=False)
-
+    model_answer_request = api.model('answer_question_request', {
+        'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
+        'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
+        'answer': fields.String(description='The content of the answer'),
+        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
+        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_question_request = api.model('question_request', {
@@ -115,7 +47,7 @@ class QuestionDto(Dto):
         'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
         'user_hidden': fields.Boolean(default=False,
                                       description='The question wss created by user but the user want to be hidden'),
-        'topic_ids': fields.List(fields.Integer, description='The list of topics'),
+        'topics': fields.List(fields.Integer, description='The list of topics'),
         'allow_video_answer': fields.Boolean(default=True, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=True, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=True, description='The question is private or not'),

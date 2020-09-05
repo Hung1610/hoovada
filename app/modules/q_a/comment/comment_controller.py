@@ -5,6 +5,7 @@
 from datetime import datetime
 
 # third-party modules
+from flask import request, url_for
 from flask_restx import marshal
 import dateutil.parser
 
@@ -15,6 +16,7 @@ from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.comment.comment import Comment
 from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.q_a.question.question import Question
+from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
@@ -92,8 +94,6 @@ class CommentController(Controller):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:
             return send_error(message="The comment body must be included")
-        if not 'user_id' in data:
-            return send_error(message="The user_id must be included")
         if not 'answer_id' in data:
             return send_error(message='The answer_id must be included.')
         answer = Answer.query.filter(id == data['answer_id']).first()
@@ -101,6 +101,11 @@ class CommentController(Controller):
             return send_error(message='The answer does not exist.')
         if not answer.allow_comments: 
             return send_error(message='This answer does not allow commenting.')
+            
+        current_user, _ = AuthController.get_logged_user(request)
+        if current_user:
+            data['user_id'] = current_user.id
+
         try:
 
             comment = self._parse_comment(data=data, comment=None)

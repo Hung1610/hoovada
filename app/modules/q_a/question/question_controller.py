@@ -18,8 +18,10 @@ from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.auth.auth_controller import AuthController
-from app.modules.q_a.voting.vote import Vote
+from app.modules.q_a.question.voting.vote import QuestionVote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
+from app.modules.q_a.answer.answer import Answer
+from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
@@ -97,9 +99,9 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'topic_id' in args:
+        if 'topics' in args:
             try:
-                topic_ids = args['topic_id']
+                topic_ids = args['topics']
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -153,7 +155,7 @@ class QuestionController(Controller):
                     result['topics'] = question.topics
                     # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     if current_user:
-                        vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                        vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                         if vote is not None:
                             result['up_vote'] = vote.up_vote
                             result['down_vote'] = vote.down_vote
@@ -171,7 +173,8 @@ class QuestionController(Controller):
             return send_error(message='Question must contain at least the title.')
 
         current_user, _ = AuthController.get_logged_user(request)
-        data['user_id'] = current_user.id
+        if current_user:
+            data['user_id'] = current_user.id
 
         try:
             title = data['title']
@@ -182,7 +185,7 @@ class QuestionController(Controller):
             question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
-                if len(topic_ids) > 5:
+                if question.topics.count('1') > 5:
                     return send_error(message='Question cannot have more than 5 topics.')
                 if not question.title.strip().endswith('?'):
                     return send_error(message='Please end question title with questio mark ("?")')
@@ -293,7 +296,7 @@ class QuestionController(Controller):
                 result['topics'] = question.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
                         result['up_vote'] = vote.up_vote
                         result['down_vote'] = vote.down_vote
@@ -331,7 +334,7 @@ class QuestionController(Controller):
         result['topics'] = question.topics
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
-            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
                 result['up_vote'] = vote.up_vote
                 result['down_vote'] = vote.down_vote
@@ -367,7 +370,7 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
             if current_user:
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
                     result['up_vote'] = vote.up_vote
                     result['down_vote'] = vote.down_vote
@@ -403,7 +406,7 @@ class QuestionController(Controller):
                 result['topics'] = question.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
                         result['up_vote'] = vote.up_vote
                         result['down_vote'] = vote.down_vote
@@ -512,10 +515,14 @@ class QuestionController(Controller):
             if question is None:
                 return send_error(message="Question with the ID {} not found".format(object_id))
 
-            question, _ = self._parse_question(data=data, question=question)
-            proposal, topic_ids = self._parse_proposal(data=question._asdict(), proposal=None)
+            data['question_id'] = question.id
+            proposal_data = question._asdict()
+            proposal_data['question_id'] = question.id
+            proposal_data['topics'] = [topic.id for topic in question.topics]
+            proposal, _ = self._parse_proposal(data=proposal_data, proposal=None)
+            proposal, _ = self._parse_proposal(data=data, proposal=proposal)
 
-            if len(topic_ids) > 5:
+            if proposal.topics.count('1') > 5:
                 return send_error(message='Question cannot have more than 5 topics.')
             if not proposal.title.strip().endswith('?'):
                 return send_error(message='Please end question title with questio mark ("?")')
@@ -528,7 +535,7 @@ class QuestionController(Controller):
                     return send_error(message='Question body not allowed.')
             proposal.last_activity = datetime.utcnow()
             proposal.slug = slugify(question.title)
-            db.session.add(question)
+            db.session.add(proposal)
             db.session.commit()
             return send_result(message='Question update proposal was created successfully.',
                                 data=marshal(proposal, QuestionDto.model_question_proposal_response))
@@ -541,15 +548,14 @@ class QuestionController(Controller):
         try:
             if object_id is None:
                 return send_error(message="Proposal ID is null")
-            if not isinstance(data, dict):
-                return send_error(message="Data is not in dictionary form.")
             proposal = QuestionProposal.query.filter_by(id=object_id).first()
             if proposal is None:
                 return send_error(message="Proposal with the ID {} not found".format(object_id))
             if proposal.is_approved:
                 return send_result(message="Proposal with the ID {} is already approved".format(object_id))
 
-            question, _ = self._parse_question(data=proposal._asdict(), question=proposal.question)
+            question_data = proposal._asdict()
+            question, _ = self._parse_question(data=question_data, question=proposal.related_question)
             question.last_activity = datetime.utcnow()
             proposal.is_approved = True
             db.session.commit()
@@ -583,6 +589,8 @@ class QuestionController(Controller):
             return send_error(message="Question with the ID {} not found".format(object_id))
         question, _ = self._parse_question(data=data, question=question)
         try:
+            if question.topics.count('1') > 5:
+                return send_error(message='Question cannot have more than 5 topics.')
             # check sensitive after updating
             is_sensitive = check_sensitive(question.title)
             if is_sensitive:
@@ -610,7 +618,7 @@ class QuestionController(Controller):
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
             current_user, _ = AuthController.get_logged_user(request)
             if current_user:
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
                     result['up_vote'] = vote.up_vote
                     result['down_vote'] = vote.down_vote
@@ -652,10 +660,140 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not delete question with ID {}".format(object_id))
 
+    def create_answer(self, object_id, data):
+        if object_id.isdigit():
+            question = Question.query.filter_by(id=object_id).first()
+        else:
+            question = Question.query.filter_by(slug=object_id).first()
+        if question is None:
+            return send_error(message="Question with ID {} not found".format(object_id))
+        
+        data['question_id'] = question.id
+        if not isinstance(data, dict):
+            return send_error(message="Data is not correct or not in dictionary form.")
+        if not 'answer' in data:
+            return send_error(message='Please fill the answer body before sending.')
+
+        current_user, _ = AuthController.get_logged_user(request)
+        if current_user:
+            data['user_id'] = current_user.id
+
+        try:
+            answer = Answer.query.filter(question_id = data['question_id'], user_id = data['user_id']).first()
+            if answer:
+                return send_error(message='This user already answered for this question.')
+            # add new answer
+            answer = self._parse_answer(data=data, answer=None)
+            if answer.answer.__str__().strip().__eq__(''):
+                return send_error(message='The answer must include content.')
+            is_sensitive = check_sensitive(answer.answer)
+            if is_sensitive:
+                return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
+            answer.created_date = datetime.utcnow()
+            answer.updated_date = datetime.utcnow()
+            answer.last_activity = datetime.utcnow()
+            db.session.add(answer)
+            db.session.commit()
+            result = answer._asdict()
+            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
+            result['up_vote'] = False
+            result['down_vote'] = False
+            return send_result(message='Answer created successfully', data=marshal(result, AnswerDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not create answer.')
+
+    def _parse_answer(self, data, answer=None):
+        if answer is None:
+            answer = Answer()
+        # if 'created_date' in data:
+        #     try:
+        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'updated_date' in data:
+        #     try:
+        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'last_activity' in data:
+        #     try:
+        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'upvote_count' in data:
+        #     try:
+        #         answer.upvote_count = int(data['upvote_count'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'downvote_count' in data:
+        #     try:
+        #         answer.downvote_count = int(data['downvote_count'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        if 'anonymous' in data:
+            try:
+                answer.anonymous = bool(data['anonymous'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'accepted' in data:
+            try:
+                answer.accepted = bool(data['accepted'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'answer' in data:
+            answer.answer = data['answer']
+        # if 'markdown' in data:
+        #     answer.markdown = data['markdown']
+        # if 'html' in data:
+        #     answer.html = data['html']
+        if 'user_id' in data:
+            try:
+                answer.user_id = int(data['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'question_id' in data:
+            try:
+                answer.question_id = int(data['question_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        # if 'image_ids' in data:
+        #     try:
+        #         answer.image_ids = json.loads(data['image_ids'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+            
+        if 'is_deleted' in data:
+            try:
+                answer.is_deleted = bool(data['is_deleted'])
+            except Exception as e:
+                print(e)
+                pass
+        if 'user_hidden' in data:
+            try:
+                answer.user_hidden = bool(data['user_hidden'])
+            except Exception as e:
+                answer.user_hidden = False
+                print(e.__str__())
+                pass
+        return answer
+
     def _parse_question(self, data, question=None):
         if question is None:
             question = Question()
-        question.title = data['title']
+        if 'title' in data:
+            question.title = data['title']
         if 'user_id' in data:
             try:
                 question.user_id = data['user_id']
@@ -719,8 +857,8 @@ class QuestionController(Controller):
         #         print(e.__str__())
         #         pass
         topic_ids = None
-        if 'topic_ids' in data:
-            topic_ids = data['topic_ids']
+        if 'topics' in data:
+            topic_ids = data['topics']
             # update question topics
             topics = []
             for topic_id in topic_ids:
@@ -738,7 +876,8 @@ class QuestionController(Controller):
         if proposal is None:
             proposal = QuestionProposal()
         proposal.question_id = data['question_id']
-        proposal.title = data['title']
+        if 'title' in data:
+            proposal.title = data['title']
         if 'user_id' in data:
             try:
                 proposal.user_id = data['user_id']
@@ -753,8 +892,8 @@ class QuestionController(Controller):
                 pass
         if 'fixed_topic_name' in data:
             proposal.fixed_topic_name = data['fixed_topic_name']
-        if 'proposal' in data:
-            proposal.proposal = data['proposal']
+        if 'question' in data:
+            proposal.question = data['question']
         if 'accepted_answer_id' in data:
             try:
                 proposal.accepted_answer_id = int(data['accepted_answer_id'])
@@ -802,8 +941,8 @@ class QuestionController(Controller):
         #         print(e.__str__())
         #         pass
         topic_ids = None
-        if 'topic_ids' in data:
-            topic_ids = data['topic_ids']
+        if 'topics' in data:
+            topic_ids = data['topics']
             # update proposal topics
             topics = []
             for topic_id in topic_ids:
@@ -878,7 +1017,7 @@ class QuestionController(Controller):
         #     topics.append(topic)
         result['topics'] = question.topics
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-        vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+        vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         if vote is not None:
             result['up_vote'] = vote.up_vote
             result['down_vote'] = vote.down_vote

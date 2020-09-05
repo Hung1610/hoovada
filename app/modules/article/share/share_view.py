@@ -29,6 +29,7 @@ parser.add_argument('zalo', type=str, required=False, help='Search all shares to
 
 @api.route('/<int:article_id>/share')
 class ShareList(Resource):
+    @api.expect(parser)
     def get(self, article_id):
         """
         Search all shares that satisfy conditions.

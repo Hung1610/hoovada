@@ -21,7 +21,9 @@ from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question import Question
-from app.modules.q_a.voting.vote import Vote
+from app.modules.q_a.answer.voting.vote import AnswerVote
+from app.modules.q_a.comment.comment import Comment
+from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.user.user import User
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
@@ -116,7 +118,7 @@ class AnswerController(Controller):
                     result['user'] = user
                     # lay thong tin up_vote down_vote cho current user
                     current_user, _ = AuthController.get_logged_user(request)
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+                    vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                     if vote is not None:
                         result['up_vote'] = vote.up_vote
                         result['down_vote'] = vote.down_vote
@@ -136,7 +138,8 @@ class AnswerController(Controller):
             return send_error(message='Please fill the answer body before sending.')
 
         current_user, _ = AuthController.get_logged_user(request)
-        data['user_id'] = current_user.id
+        if current_user:
+            data['user_id'] = current_user.id
 
         try:
             answer = Answer.query.filter(question_id = data['question_id'], user_id = data['user_id']).first()
@@ -155,25 +158,6 @@ class AnswerController(Controller):
             db.session.add(answer)
             db.session.commit()
             result = answer._asdict()
-            # update answer_count cho user
-            try:
-                user = User.query.filter_by(id=answer.user_id).first()
-                # update user information for answer
-                result['user'] = user
-                user.answer_count += 1
-                db.session.commit()
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-            # update answer count cho question
-            try:
-                question = Question.query.filter_by(id=answer.question_id).first()
-                question.answers_count += 1
-                db.session.commit()
-            except Exception as e:
-                print(e.__str__())
-                pass
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
@@ -234,6 +218,72 @@ class AnswerController(Controller):
             print(e.__str__())
             return send_error(message='Could not create media for answer.')
 
+    def create_comment(self, object_id, data):
+        if object_id is None:
+            return send_error("Answer ID is null")
+        answer = Answer.query.filter_by(id=object_id).first()
+        if answer is None:
+            return send_error(message='Could not find answer with the ID {}.'.format(object_id))
+        if not answer:
+            return send_error(message='The answer does not exist.')
+        if not isinstance(data, dict):
+            return send_error(message="Data is not correct or not in dictionary form.")
+        if not 'comment' in data:
+            return send_error(message="The comment body must be included")
+        if not 'answer_id' in data:
+            return send_error(message='The answer_id must be included.')
+        answer = Answer.query.filter(id == data['answer_id']).first()
+        if not answer:
+            return send_error(message='The answer does not exist.')
+        if not answer.allow_comments: 
+            return send_error(message='This answer does not allow commenting.')
+            
+        data['answer_id'] = answer.id
+        current_user, _ = AuthController.get_logged_user(request)
+        if current_user:
+            data['user_id'] = current_user.id
+
+        try:
+
+            comment = self._parse_comment(data=data, comment=None)
+            is_sensitive = check_sensitive(comment.comment)
+            if is_sensitive:
+                return send_error(message='Nội dung câu bình luận của bạn không hợp lệ.')
+            comment.created_date = datetime.utcnow()
+            comment.updated_date = datetime.utcnow()
+            db.session.add(comment)
+            db.session.commit()
+            # update comment count for user
+            try:
+                user = User.query.filter_by(id=comment.user_id).first()
+                user.comment_count += 1
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+            # update comment count cho answer.
+            try:
+                answer = Answer.query.filter_by(id=comment.answer_id).first()
+                answer.comment_count += 1
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                pass
+            try:
+                result = comment.__dict__
+                # get thong tin user
+                user = User.query.filter_by(id=comment.user_id).first()
+                result['user'] = user
+                return send_result(message='Comment was created successfully',
+                                   data=marshal(result, CommentDto.model_response))
+            except Exception as e:
+                print(e.__str__())
+                return send_result(data=marshal(comment, CommentDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not create comment')
+
     def get(self):
         """
         [DEPRECATED]
@@ -260,7 +310,7 @@ class AnswerController(Controller):
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
             current_user, _ = AuthController.get_logged_user(request)
-            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+            vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
             if vote is not None:
                 result['up_vote'] = vote.up_vote
                 result['down_vote'] = vote.down_vote
@@ -302,7 +352,7 @@ class AnswerController(Controller):
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
             current_user, _ = AuthController.get_logged_user(request)
-            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.answer_id == answer.id).first()
+            vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
             if vote is not None:
                 result['up_vote'] = vote.up_vote
                 result['down_vote'] = vote.down_vote
@@ -419,3 +469,23 @@ class AnswerController(Controller):
                 print(e.__str__())
                 pass
         return answer
+
+
+    def _parse_comment(self, data, comment=None):
+        if comment is None:
+            comment = Comment()
+        if 'comment' in data:
+            comment.comment = data['comment']
+        if 'answer_id' in data:
+            try:
+                comment.answer_id = int(data['answer_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'user_id' in data:
+            try:
+                comment.user_id = int(data['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        return comment

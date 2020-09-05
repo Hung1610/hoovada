@@ -7,9 +7,11 @@ from flask import url_for
 
 # own modules
 from app.modules import ns_auth, ns_user, ns_user_topic, ns_topic, ns_question_topic, ns_question, ns_answer, \
-    ns_comment, ns_vote, ns_favorite, ns_share, ns_report, ns_upload, ns_search, ns_user_employment, ns_reputation,\
+    ns_comment, ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report, ns_upload, ns_search, ns_user_employment, ns_reputation,\
     ns_article, ns_article_vote, ns_article_favorite, ns_article_report, ns_article_share, ns_article_comment,\
-    ns_timeline, ns_question_bookmark, ns_answer_bookmark, ns_topic_bookmark
+    ns_qa_timeline, ns_question_bookmark, ns_topic_bookmark,\
+    ns_comment_report, ns_comment_vote,\
+    ns_answer_bookmark, ns_answer_favorite, ns_answer_report, ns_answer_share, ns_answer_vote
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -50,25 +52,31 @@ def init_api(mode):
     api.add_namespace(ns_reputation, '/reputation')
     api.add_namespace(ns_topic, '/topic')
     api.add_namespace(ns_topic_bookmark, '/topic')
+    api.add_namespace(ns_user_topic, '/user_topic')
     api.add_namespace(ns_article, '/article')
     api.add_namespace(ns_article_vote, '/article')
     api.add_namespace(ns_article_favorite, '/article')
     api.add_namespace(ns_article_report, '/article')
     api.add_namespace(ns_article_share, '/article')
     api.add_namespace(ns_article_comment, '/article')
-    api.add_namespace(ns_user_topic, '/user_topic')
     api.add_namespace(ns_question, '/question')
+    api.add_namespace(ns_question_favorite, '/question')
+    api.add_namespace(ns_question_share, '/question')
+    api.add_namespace(ns_question_vote, '/question')
     api.add_namespace(ns_question_bookmark, '/question')
+    api.add_namespace(ns_question_report, '/question')
     api.add_namespace(ns_question_topic, '/question_topic')
     api.add_namespace(ns_answer, '/answer')
     api.add_namespace(ns_answer_bookmark, '/answer')
+    api.add_namespace(ns_answer_favorite, '/answer')
+    api.add_namespace(ns_answer_report, '/answer')
+    api.add_namespace(ns_answer_share, '/answer')
+    api.add_namespace(ns_answer_vote, '/answer')
     api.add_namespace(ns_comment, '/comment')
-    api.add_namespace(ns_vote, '/vote')
-    api.add_namespace(ns_favorite, '/favorite')
-    api.add_namespace(ns_share, '/share')
-    api.add_namespace(ns_report, '/report')
+    api.add_namespace(ns_comment_report, '/comment')
+    api.add_namespace(ns_comment_vote, '/comment')
     api.add_namespace(ns_upload, '/file_upload')
     api.add_namespace(ns_search, '/search')
-    api.add_namespace(ns_timeline, '/timeline')
+    api.add_namespace(ns_qa_timeline, '/timeline')
 
     return api

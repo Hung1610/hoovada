@@ -26,6 +26,7 @@ top_user_reputation_args_parser = QuestionDto.top_user_reputation_args_parser
 top_user_reputation_response = QuestionDto.top_user_reputation_response
 model_topic = QuestionDto.model_topic
 get_relevant_topics_parser = QuestionDto.get_relevant_topics_parser
+model_answer_request = QuestionDto.model_answer_request
 model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
@@ -131,6 +132,19 @@ class Question(Resource):
         controller = QuestionController()
         return controller.delete(object_id=id_or_slug)
 
+@api.route('/<string:id_or_slug>/answer')
+class QuestionAnswer(Resource):
+    @token_required
+    @api.expect(model_answer_request)
+    def post(self, id_or_slug):
+        """ 
+        Create answer for question by its ID.
+        """
+
+        data = api.payload
+        controller = QuestionController()
+        return controller.create_answer(object_id=id_or_slug, data=data)
+
 @api.route('/<string:id_or_slug>/invite')
 class QuestionInvite(Resource):
     @token_required
@@ -157,7 +171,7 @@ class QuestionProposal(Resource):
         """
         args = proposal_get_parser.parse_args()
         controller = QuestionController()
-        return controller.get_proposals(object_id=id_or_slug, args=data)
+        return controller.get_proposals(object_id=id_or_slug, args=args)
 
     @token_required
     @api.expect(model_request)

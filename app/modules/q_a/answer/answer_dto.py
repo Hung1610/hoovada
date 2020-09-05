@@ -26,6 +26,11 @@ class AnswerDto(Dto):
         'profile_pic_url': fields.String(required=True, description='The avatar address of the user')
     })
 
+    model_comment_request = api.model('comment_answer_request', {
+        'comment': fields.String(required=True, description='The content of the comment'),
+        # 'question_id': fields.Integer(required=False),
+    })
+
     model_request = api.model('answer_request', {
         'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
