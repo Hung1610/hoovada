@@ -1,13 +1,9 @@
-DOCKER_USER     := 
-DOCKER_PASS     := 
-REGISTRY   		:= tranlyvu/hoovada.com
-
+REGISTRY   		:= registry.gitlab.com/hoovada/hoovada-services
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
 GIT_BRANCH 		:= $$(git rev-parse --abbrev-ref HEAD)
 TAG_TEST 		:= ${REPO_NAME}-${GIT_BRANCH}-${GIT_COMMIT}
 IMG_TEST    	:= ${REGISTRY}:${TAG_TEST}
-
 VERSION 		:= v1.0.0
 IMG_PROD    	:= ${REGISTRY}:${VERSION}
 
@@ -31,4 +27,4 @@ deploy-prod:
 	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD}
 
 login:
-	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+	@docker login registry.gitlab.com
