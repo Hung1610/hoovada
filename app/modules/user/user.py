@@ -161,7 +161,10 @@ class User(Model):
     question_downvote_count = db.Column(db.Integer, server_default='0')
     question_downvoted_count = db.Column(db.Integer, server_default='0')
 
-    answer_count = db.Column(db.Integer, server_default='0')  # number answers user created
+    # answer_count = db.Column(db.Integer, server_default='0')  # number answers user created
+    @aggregated('answers', db.Column(db.Integer))
+    def answer_count(self):
+        return db.func.count('1')
     answer_share_count = db.Column(db.Integer, server_default='0')
     answer_shared_count = db.Column(db.Integer, server_default='0')
     answer_favorite_count = db.Column(db.Integer, server_default='0')

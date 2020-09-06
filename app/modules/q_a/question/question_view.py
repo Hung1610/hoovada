@@ -24,6 +24,10 @@ get_similar_questions_parser = QuestionDto.get_similar_questions_parser
 question_invite_request = QuestionDto.question_invite_request
 top_user_reputation_args_parser = QuestionDto.top_user_reputation_args_parser
 top_user_reputation_response = QuestionDto.top_user_reputation_response
+model_topic = QuestionDto.model_topic
+get_relevant_topics_parser = QuestionDto.get_relevant_topics_parser
+model_answer_request = QuestionDto.model_answer_request
+model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 
@@ -60,20 +64,33 @@ class QuestionRecommendedUsers(Resource):
     @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
     def get(self):
         """ 
-        Delete the question by its ID.
+        Get recommended users for question specifications.
         """
         args = top_user_reputation_args_parser.parse_args()
         controller = QuestionController()
         return controller.get_recommended_users(args=args)
 
 
+@api.route('/recommended-topics')
+class QuestionRecommendedTopics(Resource):
+    @api.expect(get_relevant_topics_parser)
+    @api.response(code=200, model=model_topic, description='Model for topic response.')
+    def get(self):
+        """ 
+        Get recommended topics based on title.
+        """
+        args = get_relevant_topics_parser.parse_args()
+        controller = QuestionController()
+        return controller.get_recommended_topics(args=args)
+
+
 @api.route('/similar')
 class QuestionSimilar(Resource):
     @api.expect(get_similar_questions_parser)
-    @api.response(code=200, model=model_response, description='Model for top users response.')
+    @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         """ 
-        Delete the question by its ID.
+        Get similar questions.
         """
         args = get_similar_questions_parser.parse_args()
         controller = QuestionController()
@@ -93,7 +110,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.get_by_id(object_id=id_or_slug)
 
-    @token_required
+    @admin_token_required
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -115,6 +132,19 @@ class Question(Resource):
         controller = QuestionController()
         return controller.delete(object_id=id_or_slug)
 
+@api.route('/<string:id_or_slug>/answer')
+class QuestionAnswer(Resource):
+    @token_required
+    @api.expect(model_answer_request)
+    def post(self, id_or_slug):
+        """ 
+        Create answer for question by its ID.
+        """
+
+        data = api.payload
+        controller = QuestionController()
+        return controller.create_answer(object_id=id_or_slug, data=data)
+
 @api.route('/<string:id_or_slug>/invite')
 class QuestionInvite(Resource):
     @token_required
@@ -127,6 +157,43 @@ class QuestionInvite(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.invite(object_id=id_or_slug, data=data)
+
+proposal_get_parser = reqparse.RequestParser()
+proposal_get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+proposal_get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+@api.route('/<string:id_or_slug>/proposal')
+class QuestionProposal(Resource):
+    @api.expect(proposal_get_parser)
+    @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
+    def get(self, id_or_slug):
+        """ 
+        Get list of questions from database.
+        """
+        args = proposal_get_parser.parse_args()
+        controller = QuestionController()
+        return controller.get_proposals(object_id=id_or_slug, args=args)
+
+    @token_required
+    @api.expect(model_request)
+    def post(self, id_or_slug):
+        """ 
+        Create question change proposal by its ID.
+        """
+
+        data = api.payload
+        controller = QuestionController()
+        return controller.create_proposal(object_id=id_or_slug, data=data)
+
+@api.route('/all/proposal/<int:id>/approve')
+class QuestionApprove(Resource):
+    @admin_token_required
+    @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
+    def put(self, id):
+        """ 
+        Approve question change proposal
+        """
+        controller = QuestionController()
+        return controller.approve_proposal(object_id=id)
 
 
 parser = reqparse.RequestParser()

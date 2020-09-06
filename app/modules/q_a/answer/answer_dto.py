@@ -26,15 +26,20 @@ class AnswerDto(Dto):
         'profile_pic_url': fields.String(required=True, description='The avatar address of the user')
     })
 
+    model_comment_request = api.model('comment_answer_request', {
+        'comment': fields.String(required=True, description='The content of the comment'),
+        # 'question_id': fields.Integer(required=False),
+    })
+
     model_request = api.model('answer_request', {
         'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
-        'user_id': fields.Integer(default=0, description='The user ID'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_response = api.model('answer_response', {
@@ -64,6 +69,7 @@ class AnswerDto(Dto):
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     upload_parser = api.parser()

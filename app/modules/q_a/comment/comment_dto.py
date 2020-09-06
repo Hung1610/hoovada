@@ -26,7 +26,6 @@ class CommentDto(Dto):
         'comment': fields.String(required=True, description='The content of the comment'),
         # 'question_id': fields.Integer(required=False),
         'answer_id': fields.Integer(required=True, description='The ID of the answer'),
-        'user_id': fields.Integer(required=True, description='The user ID')
     })
 
     model_response = api.model('comment_response', {

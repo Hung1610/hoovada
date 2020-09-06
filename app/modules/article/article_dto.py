@@ -34,7 +34,10 @@ class ArticleDto(Dto):
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'html': fields.String(description='The content of the article'),
         'user_hidden': fields.Boolean(default=False, description='The article was created by user but the user want to be hidden'),
-        'topic_ids': fields.List(fields.Integer, description='The list of topics')
+        'topic_ids': fields.List(fields.Integer, description='The list of topics'),
+        'scheduled_date': fields.DateTime(description='The scheduled date'),
+        'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_article_response = api.model('article_response', {
@@ -57,13 +60,19 @@ class ArticleDto(Dto):
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
-        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user')
+        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_get_parser = reqparse.RequestParser()
     model_get_parser.add_argument('title', type=str, required=False, help='Search article by its title')
-    model_get_parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all articles related to fixed-topic.')
-    model_get_parser.add_argument('topic_name', type=str, required=False, help='Search all articles related to topic.')
+    model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search all articles related to fixed-topic.')
+    model_get_parser.add_argument('topic_id', type=int, required=False, action='append', help='Search all articles related to topic.')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
-    model_get_parser.add_argument('anonymous', type=str, required=False, help='Search articles created by anonymous.')
+
+    get_similar_articles_parser = reqparse.RequestParser()
+    get_similar_articles_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
+    get_similar_articles_parser.add_argument('fixed_topic_id', type=int, required=False, help='fixed_topic_id by which to get similar questions')
+    get_similar_articles_parser.add_argument('topic_id', type=int, required=False, action='append', help='topic_id by which to get similar questions')
+    get_similar_articles_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')

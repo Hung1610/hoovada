@@ -108,7 +108,7 @@ class ArticleController(Controller):
         :return:
         """
         # Get search parameters
-        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_id = None, None, None, None, None, None, None, None, None
+        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft = None, None, None, None, None, None, None, None, None
         if 'title' in args:
             title = args['title']
         if 'user_id' in args:
@@ -147,20 +147,21 @@ class ArticleController(Controller):
             except Exception as e:
                 print(e)
                 pass
-        if 'anonymous' in args:
+        if 'topic_id' in args:
             try:
-                anonymous = int(args['anonymous'])
+                topic_ids = args['topic_id']
             except Exception as e:
                 print(e)
                 pass
-        if 'topic_id' in args:
+        if 'draft' in args:
             try:
-                topic_id = int(args['topic_id'])
+                draft = bool(args['draft'])
             except Exception as e:
                 print(e)
                 pass
 
-        query = Article.query  # query search from view
+        query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))\
+                            .filter(Article.is_deleted != True)
         if title and not str(title).strip().__eq__(''):
             title = '%' + title.strip() + '%'
             query = query.filter(Article.title.like(title))
@@ -176,10 +177,15 @@ class ArticleController(Controller):
             query = query.filter(Article.created_date >= from_date)
         if to_date:
             query = query.filter(Article.created_date <= to_date)
-        if topic_id:
-            query = query.filter(Article.topics.any(id=topic_id))
+        if topic_ids:
+            query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
+        if draft is not None:
+            if draft:
+                query = query.filter(Article.is_draft == True)
+            else:
+                query = query.filter(Article.is_draft != True)
 
-        articles = query.all()
+        articles = query.order_by(Article.updated_date).all()
         if articles and len(articles) > 0:
             results = []
             for article in articles:
@@ -238,6 +244,55 @@ class ArticleController(Controller):
                 print(e)
                 pass
             return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
+    
+    def get_similar(self, args):
+        if not 'title' in args:
+            return send_error(message='Please provide at least the title.')
+        title = args['title']
+        if not 'fixed_topic_id' in args:
+            return send_error(message='Please provide the fixed_topic_id.')
+        fixed_topic_id = args['fixed_topic_id']
+        if not 'topic_id' in args:
+            return send_error(message='Please provide the topic_id.')
+        topic_ids = args['topic_id']
+        if 'limit' in args:
+            limit = int(args['limit'])
+        else:
+            return send_error(message='Please provide limit')
+        
+        try:
+            current_user, _ = AuthController.get_logged_user(request)
+            query = Article.query
+            title_similarity = db.func.SIMILARITY_STRING(title, Article.title).label('title_similarity')
+            query = query.with_entities(Article, title_similarity)\
+                .filter(title_similarity > 50)\
+                .filter(Article.fixed_topic_id == fixed_topic_id)\
+                .filter(Article.topics.any(Topic.id.in_(topic_ids)))
+            articles = query\
+                .order_by(desc(title_similarity))\
+                .limit(limit)\
+                .all()
+            results = list()
+            for article in articles:
+                article = article[0]
+                result = article._asdict()
+                # get user info
+                result['user'] = article.article_by_user
+                result['topics'] = article.topics
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                    ArticleFavorite.article_id == article.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                results.append(result)
+            return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get similar articles failed. Error: "+ e.__str__())
 
     def update(self, object_id, data, is_put=False):
         if object_id is None:
@@ -363,10 +418,24 @@ class ArticleController(Controller):
                 article.user_hidden = False
                 print(e)
                 pass
+
+        if 'scheduled_date' in data:
+            try:
+                article.scheduled_date = data['scheduled_date']
+            except Exception as e:
+                print(e)
+                pass
+            
+        if 'is_draft' in data:
+            try:
+                article.is_draft = bool(data['is_draft'])
+            except Exception as e:
+                print(e)
+                pass
             
         if 'is_deleted' in data:
             try:
-                article.is_deleted = int(data['is_deleted'])
+                article.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 print(e)
                 pass

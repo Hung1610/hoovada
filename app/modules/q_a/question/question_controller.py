@@ -15,11 +15,13 @@ from sqlalchemy import desc
 from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
-from app.modules.q_a.question.question import Question, Question
+from app.modules.q_a.question.question import Question, QuestionProposal
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.auth.auth_controller import AuthController
-from app.modules.q_a.voting.vote import Vote
+from app.modules.q_a.question.voting.vote import QuestionVote
 from app.modules.topic.question_topic.question_topic import QuestionTopic
+from app.modules.q_a.answer.answer import Answer
+from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
@@ -35,7 +37,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class QuestionController(Controller):
-
     def search(self, args):
         """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
@@ -98,9 +99,9 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'topic_id' in args:
+        if 'topics' in args:
             try:
-                topic_id = int(args['topic_id'])
+                topic_ids = args['topics']
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -108,8 +109,10 @@ class QuestionController(Controller):
             send_error(message='Provide params to search.')
         is_filter = False
         if title is not None and not str(title).strip().__eq__(''):
-            title = '%' + title.strip() + '%'
-            query = query.filter(Question.title.like(title))
+            # title = '%' + title.strip() + '%'
+            # query = query.filter(Question.title.like(title))
+            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            query = query.filter(title_similarity > 50)
             is_filter = True
         if user_id is not None:
             query = query.filter(Question.user_id == user_id)
@@ -129,8 +132,8 @@ class QuestionController(Controller):
         if to_date is not None:
             query = query.filter(Question.created_date <= to_date)
             is_filter = True
-        if topic_id is not None:
-            query = query.filter(Question.topics.any(id=topic_id))
+        if topic_ids is not None:
+            query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
             is_filter = True
         if is_filter:
             questions = query.order_by(desc(Question.upvote_count)).all()
@@ -140,8 +143,7 @@ class QuestionController(Controller):
                     # kiem tra den topic
                     result = question._asdict()
                     # get user info
-                    user = User.query.filter_by(id=question.user_id).first()
-                    result['user'] = user
+                    result['user'] = question.question_by_user
                     # get all topics that question belongs to
                     # question_id = question.id
                     # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
@@ -153,7 +155,7 @@ class QuestionController(Controller):
                     result['topics'] = question.topics
                     # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     if current_user:
-                        vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                        vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                         if vote is not None:
                             result['up_vote'] = vote.up_vote
                             result['down_vote'] = vote.down_vote
@@ -164,7 +166,6 @@ class QuestionController(Controller):
         else:
             return send_error(message='Could not find questions. Please check your parameters again.')
 
-
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form")
@@ -172,7 +173,8 @@ class QuestionController(Controller):
             return send_error(message='Question must contain at least the title.')
 
         current_user, _ = AuthController.get_logged_user(request)
-        data['user_id'] = current_user.id
+        if current_user:
+            data['user_id'] = current_user.id
 
         try:
             title = data['title']
@@ -183,7 +185,7 @@ class QuestionController(Controller):
             question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
-                if len(topic_ids) > 5:
+                if question.topics.count('1') > 5:
                     return send_error(message='Question cannot have more than 5 topics.')
                 if not question.title.strip().endswith('?'):
                     return send_error(message='Please end question title with questio mark ("?")')
@@ -194,16 +196,6 @@ class QuestionController(Controller):
                     is_sensitive = check_sensitive(question.question)
                     if is_sensitive:
                         return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
-                topics = []
-                for topic_id in topic_ids:
-                    try:
-                        topic = Topic.query.filter_by(id=topic_id).first()
-                        topics.append(topic)
-                    except Exception as e:
-                        print(e)
-                        pass
-
-                question.topics = topics
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
                 question.slug = slugify(question.title)
@@ -261,7 +253,6 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could not create question. Contact administrator for solution.')
 
-
     def get(self):
         try:
             current_user, _ = AuthController.get_logged_user(request)
@@ -305,7 +296,7 @@ class QuestionController(Controller):
                 result['topics'] = question.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
                         result['up_vote'] = vote.up_vote
                         result['down_vote'] = vote.down_vote
@@ -314,7 +305,6 @@ class QuestionController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not load questions. Contact your administrator for solution.")
-
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -332,8 +322,7 @@ class QuestionController(Controller):
                     return send_error(message='Question is invitations only.')
         result = question._asdict()
         # get user info
-        user = User.query.filter_by(id=question.user_id).first()
-        result['user'] = user
+        result['user'] = question.question_by_user
         # get all topics that question belongs to
         # question_id = question.id
         # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
@@ -345,12 +334,11 @@ class QuestionController(Controller):
         result['topics'] = question.topics
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
-            vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
                 result['up_vote'] = vote.up_vote
                 result['down_vote'] = vote.down_vote
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
-
 
     def invite(self, object_id, data):
         try:
@@ -382,7 +370,7 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
             if current_user:
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
                     result['up_vote'] = vote.up_vote
                     result['down_vote'] = vote.down_vote
@@ -391,25 +379,34 @@ class QuestionController(Controller):
             print(e)
             return send_error(message="Invite failed. Error: " + e.__str__())
 
-    
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
         title = args['title']
+        if 'limit' in args:
+            limit = int(args['limit'])
+        else:
+            return send_error(message='Please provide limit')
         
         try:
             current_user, _ = AuthController.get_logged_user(request)
             query = Question.query.filter_by(is_private=False)  # query search from view
-            questions = query.filter(db.func.SIMILARITY_STRING(title, Question.title) > 50).all()
+            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            questions = query.with_entities(Question, title_similarity)\
+                .filter(title_similarity > 50)\
+                .order_by(desc(title_similarity))\
+                .limit(limit)\
+                .all()
             results = list()
             for question in questions:
+                question = question[0]
                 result = question._asdict()
                 # get user info
                 result['user'] = question.question_by_user
                 result['topics'] = question.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
-                    vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
                         result['up_vote'] = vote.up_vote
                         result['down_vote'] = vote.down_vote
@@ -419,7 +416,6 @@ class QuestionController(Controller):
             print(e)
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
-    
     def get_recommended_users(self, args):
         try:
             if 'limit' in args:
@@ -445,6 +441,130 @@ class QuestionController(Controller):
             print(e)
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
+    def get_recommended_topics(self, args):
+        if not 'title' in args:
+            return send_error(message='Please provide at least the title.')
+        title = args['title']
+        if not 'limit' in args:
+            return send_error(message='Please provide limit')
+        limit = int(args['limit'])
+        
+        try:
+            current_user, _ = AuthController.get_logged_user(request)
+            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            query = Topic.query.distinct()\
+                .join(Question)\
+                .with_entities(Topic, title_similarity)\
+                .filter(Question.is_private == False)\
+                .filter(title_similarity > 50)\
+                .order_by(desc(title_similarity))\
+                .limit(limit)
+            topics = [topic[0] for topic in query.all()]
+            return send_result(data=marshal(topics, QuestionDto.model_topic), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+
+    def get_proposals(self, object_id, args):
+        try:
+            if object_id is None:
+                return send_error(message="Question ID is null")
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
+            if question is None:
+                return send_error(message="Question with the ID {} not found".format(object_id))
+
+            if 'from_date' in args:
+                try:
+                    from_date = dateutil.parser.isoparse(args['from_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'to_date' in args:
+                try:
+                    to_date = dateutil.parser.isoparse(args['to_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            query = QuestionProposal.query.filter(QuestionProposal.question_id == question.id)
+            if from_date is not None:
+                query = query.filter(QuestionProposal.proposal_created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(QuestionProposal.proposal_created_date <= to_date)
+
+            proposals = query.all()
+            
+            return send_result(message='Question update proposal was created successfully.',
+                                data=marshal(proposals, QuestionDto.model_question_proposal_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not get proposals. Error: ' + e.__str__())
+    
+    def create_proposal(self, object_id, data):
+        try:
+            if object_id is None:
+                return send_error(message="Question ID is null")
+            if not isinstance(data, dict):
+                return send_error(message="Data is not in dictionary form.")
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
+            if question is None:
+                return send_error(message="Question with the ID {} not found".format(object_id))
+
+            data['question_id'] = question.id
+            proposal_data = question._asdict()
+            proposal_data['question_id'] = question.id
+            proposal_data['topics'] = [topic.id for topic in question.topics]
+            proposal, _ = self._parse_proposal(data=proposal_data, proposal=None)
+            proposal, _ = self._parse_proposal(data=data, proposal=proposal)
+
+            if proposal.topics.count('1') > 5:
+                return send_error(message='Question cannot have more than 5 topics.')
+            if not proposal.title.strip().endswith('?'):
+                return send_error(message='Please end question title with questio mark ("?")')
+            spelling_errors = check_spelling(proposal.title)
+            if len(spelling_errors) > 0:
+                return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+            if proposal.question:
+                is_sensitive = check_sensitive(proposal.question)
+                if is_sensitive:
+                    return send_error(message='Question body not allowed.')
+            proposal.last_activity = datetime.utcnow()
+            proposal.slug = slugify(question.title)
+            db.session.add(proposal)
+            db.session.commit()
+            return send_result(message='Question update proposal was created successfully.',
+                                data=marshal(proposal, QuestionDto.model_question_proposal_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message='Could not create question. Contact administrator for solution.')
+    
+    def approve_proposal(self, object_id):
+        try:
+            if object_id is None:
+                return send_error(message="Proposal ID is null")
+            proposal = QuestionProposal.query.filter_by(id=object_id).first()
+            if proposal is None:
+                return send_error(message="Proposal with the ID {} not found".format(object_id))
+            if proposal.is_approved:
+                return send_result(message="Proposal with the ID {} is already approved".format(object_id))
+
+            question_data = proposal._asdict()
+            question, _ = self._parse_question(data=question_data, question=proposal.related_question)
+            question.last_activity = datetime.utcnow()
+            proposal.is_approved = True
+            db.session.commit()
+            return send_result(message='Question update proposal was approved successfully.',
+                                data=marshal(question, QuestionDto.model_question_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message='Could approve question proposal. Contact administrator for solution.')
 
     def update(self, object_id, data):
         """ Thuc hien update nhu sau:
@@ -468,19 +588,9 @@ class QuestionController(Controller):
         if question is None:
             return send_error(message="Question with the ID {} not found".format(object_id))
         question, _ = self._parse_question(data=data, question=question)
-        if 'topic_ids' in data:
-            topic_ids = data['topic_ids']
-            # update article topics
-            topics = []
-            for topic_id in topic_ids:
-                try:
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                except Exception as e:
-                    print(e)
-                    pass
-            question.topics = topics
         try:
+            if question.topics.count('1') > 5:
+                return send_error(message='Question cannot have more than 5 topics.')
             # check sensitive after updating
             is_sensitive = check_sensitive(question.title)
             if is_sensitive:
@@ -489,16 +599,6 @@ class QuestionController(Controller):
                 is_sensitive = check_sensitive(question.question)
                 if is_sensitive:
                     return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
-            # update topics to question_topic table
-            topics = []
-            for topic_id in topic_ids:
-                try:
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                except Exception as e:
-                    print(e)
-                    pass
-            question.topics = topics
             question.updated_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
@@ -518,7 +618,7 @@ class QuestionController(Controller):
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
             current_user, _ = AuthController.get_logged_user(request)
             if current_user:
-                vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
                     result['up_vote'] = vote.up_vote
                     result['down_vote'] = vote.down_vote
@@ -560,10 +660,140 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not delete question with ID {}".format(object_id))
 
+    def create_answer(self, object_id, data):
+        if object_id.isdigit():
+            question = Question.query.filter_by(id=object_id).first()
+        else:
+            question = Question.query.filter_by(slug=object_id).first()
+        if question is None:
+            return send_error(message="Question with ID {} not found".format(object_id))
+        
+        data['question_id'] = question.id
+        if not isinstance(data, dict):
+            return send_error(message="Data is not correct or not in dictionary form.")
+        if not 'answer' in data:
+            return send_error(message='Please fill the answer body before sending.')
+
+        current_user, _ = AuthController.get_logged_user(request)
+        if current_user:
+            data['user_id'] = current_user.id
+
+        try:
+            answer = Answer.query.filter(question_id = data['question_id'], user_id = data['user_id']).first()
+            if answer:
+                return send_error(message='This user already answered for this question.')
+            # add new answer
+            answer = self._parse_answer(data=data, answer=None)
+            if answer.answer.__str__().strip().__eq__(''):
+                return send_error(message='The answer must include content.')
+            is_sensitive = check_sensitive(answer.answer)
+            if is_sensitive:
+                return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
+            answer.created_date = datetime.utcnow()
+            answer.updated_date = datetime.utcnow()
+            answer.last_activity = datetime.utcnow()
+            db.session.add(answer)
+            db.session.commit()
+            result = answer._asdict()
+            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
+            result['up_vote'] = False
+            result['down_vote'] = False
+            return send_result(message='Answer created successfully', data=marshal(result, AnswerDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not create answer.')
+
+    def _parse_answer(self, data, answer=None):
+        if answer is None:
+            answer = Answer()
+        # if 'created_date' in data:
+        #     try:
+        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'updated_date' in data:
+        #     try:
+        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'last_activity' in data:
+        #     try:
+        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'upvote_count' in data:
+        #     try:
+        #         answer.upvote_count = int(data['upvote_count'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        # if 'downvote_count' in data:
+        #     try:
+        #         answer.downvote_count = int(data['downvote_count'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        if 'anonymous' in data:
+            try:
+                answer.anonymous = bool(data['anonymous'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'accepted' in data:
+            try:
+                answer.accepted = bool(data['accepted'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'answer' in data:
+            answer.answer = data['answer']
+        # if 'markdown' in data:
+        #     answer.markdown = data['markdown']
+        # if 'html' in data:
+        #     answer.html = data['html']
+        if 'user_id' in data:
+            try:
+                answer.user_id = int(data['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'question_id' in data:
+            try:
+                answer.question_id = int(data['question_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        # if 'image_ids' in data:
+        #     try:
+        #         answer.image_ids = json.loads(data['image_ids'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+            
+        if 'is_deleted' in data:
+            try:
+                answer.is_deleted = bool(data['is_deleted'])
+            except Exception as e:
+                print(e)
+                pass
+        if 'user_hidden' in data:
+            try:
+                answer.user_hidden = bool(data['user_hidden'])
+            except Exception as e:
+                answer.user_hidden = False
+                print(e.__str__())
+                pass
+        return answer
+
     def _parse_question(self, data, question=None):
         if question is None:
             question = Question()
-        question.title = data['title']
+        if 'title' in data:
+            question.title = data['title']
         if 'user_id' in data:
             try:
                 question.user_id = data['user_id']
@@ -580,40 +810,6 @@ class QuestionController(Controller):
             question.fixed_topic_name = data['fixed_topic_name']
         if 'question' in data:
             question.question = data['question']
-        # if 'markdown' in data:
-        #     question.markdown = data['markdown']
-        # if 'html' in data:
-        #     question.html = data['html']
-
-        # if 'created_date' in data:
-        #     try:
-        #         question.created_date = dateutil.parser.isoparse(data['created_date'])
-        #     except Exception as e:
-        #         pass
-        #
-        # if 'updated_date' in data:
-        #     try:
-        #         question.updated_date = dateutil.parser.isoparse(data['updated_date'])
-        #     except Exception as e:
-        #         pass
-
-        # if 'views' in data:
-        #     try:
-        #         question.views = int(data['views'])
-        #     except Exception as e:
-        #         pass
-        # if 'last_activity' in data:
-        #     try:
-        #         question.last_activity = dateutil.parser.isoparse(data['last_activity'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'answers_count' in data:
-        #     try:
-        #         question.answers_count = int(data['answers_count'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
         if 'accepted_answer_id' in data:
             try:
                 question.accepted_answer_id = int(data['accepted_answer_id'])
@@ -661,13 +857,104 @@ class QuestionController(Controller):
         #         print(e.__str__())
         #         pass
         topic_ids = None
-        if 'topic_ids' in data:
+        if 'topics' in data:
+            topic_ids = data['topics']
+            # update question topics
+            topics = []
+            for topic_id in topic_ids:
+                try:
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                except Exception as e:
+                    print(e)
+                    pass
+            question.topics = topics
+
+        return question, topic_ids
+
+    def _parse_proposal(self, data, proposal=None):
+        if proposal is None:
+            proposal = QuestionProposal()
+        proposal.question_id = data['question_id']
+        if 'title' in data:
+            proposal.title = data['title']
+        if 'user_id' in data:
             try:
-                topic_ids = data['topic_ids']
+                proposal.user_id = data['user_id']
             except Exception as e:
                 print(e.__str__())
                 pass
-        return question, topic_ids
+        if 'fixed_topic_id' in data:
+            try:
+                proposal.fixed_topic_id = int(data['fixed_topic_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'fixed_topic_name' in data:
+            proposal.fixed_topic_name = data['fixed_topic_name']
+        if 'question' in data:
+            proposal.question = data['question']
+        if 'accepted_answer_id' in data:
+            try:
+                proposal.accepted_answer_id = int(data['accepted_answer_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'anonymous' in data:
+            try:
+                proposal.anonymous = bool(data['anonymous'])
+            except Exception as e:
+                print(e.__str__())
+                proposal.anonymous = False
+        if 'user_hidden' in data:
+            try:
+                proposal.user_hidden = bool(data['user_hidden'])
+            except Exception as e:
+                proposal.user_hidden = False
+                print(e.__str__())
+                pass
+        if 'allow_video_answer' in data:
+            try:
+                proposal.allow_video_answer = bool(data['allow_video_answer'])
+            except Exception as e:
+                proposal.allow_video_answer = True
+                print(e.__str__())
+                pass
+        if 'allow_audio_answer' in data:
+            try:
+                proposal.allow_audio_answer = bool(data['allow_audio_answer'])
+            except Exception as e:
+                proposal.allow_audio_answer = True
+                print(e.__str__())
+                pass
+        if 'is_private' in data:
+            try:
+                proposal.is_private = bool(data['is_private'])
+            except Exception as e:
+                proposal.is_private = False
+                print(e.__str__())
+                pass
+        # if 'image_ids' in data:
+        #     try:
+        #         proposal.image_ids = json.loads(data['image_ids'])
+        #     except Exception as e:
+        #         print(e.__str__())
+        #         pass
+        topic_ids = None
+        if 'topics' in data:
+            topic_ids = data['topics']
+            # update proposal topics
+            topics = []
+            for topic_id in topic_ids:
+                try:
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                except Exception as e:
+                    print(e)
+                    pass
+            proposal.topics = topics
+
+        return proposal, topic_ids
 
 
     # def get_by_topic_id(self,topic_id):
@@ -730,7 +1017,7 @@ class QuestionController(Controller):
         #     topics.append(topic)
         result['topics'] = question.topics
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-        vote = Vote.query.filter(Vote.user_id == current_user.id, Vote.question_id == question.id).first()
+        vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         if vote is not None:
             result['up_vote'] = vote.up_vote
             result['down_vote'] = vote.down_vote
