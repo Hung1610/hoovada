@@ -20,6 +20,7 @@ api = AnswerDto.api
 answer_upload_parser = AnswerDto.upload_parser
 answer_request = AnswerDto.model_request
 answer_response = AnswerDto.model_response
+model_comment_request = AnswerDto.model_comment_request
 
 @api.route('/<int:id>/file')
 @api.doc(params={'id': 'The answer ID'})
@@ -88,7 +89,7 @@ class Answer(Resource):
         controller = AnswerController()
         return controller.update(object_id=id, data=data)
 
-    @token_required
+    @admin_token_required
     def delete(self, id):
         """
         Delete existing answer by its ID.
@@ -96,6 +97,19 @@ class Answer(Resource):
 
         controller = AnswerController()
         return controller.delete(object_id=id)
+
+@api.route('/<string:id>/comment')
+class AnswerComment(Resource):
+    @token_required
+    @api.expect(model_comment_request)
+    def post(self, id):
+        """ 
+        Create answer for question by its ID.
+        """
+
+        data = api.payload
+        controller = AnswerController()
+        return controller.create_comment(object_id=id, data=data)
 
 parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')

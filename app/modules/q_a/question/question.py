@@ -11,6 +11,7 @@ from sqlalchemy_utils import aggregated
 # own modules
 from app import db
 from app.modules.common.model import Model
+from app.modules.q_a.question.voting.vote import QuestionVote
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -29,6 +30,19 @@ question_user_invite = db.Table('question_user_invite',
     db.Column('question_id', db.Integer, db.ForeignKey('question.id'), primary_key=True),
 )
 
+question_proposal_topics = db.Table('question_proposal_topic',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
+    db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id')),
+    db.Column('created_date', db.DateTime, default=datetime.utcnow),
+)
+
+question_proposal_user_invite = db.Table('question_proposal_user_invite',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id')),
+)
+
 class Question(Model):
     __tablename__ = 'question'
     __table_args__ = (
@@ -37,10 +51,61 @@ class Question(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    slug = db.Column(db.UnicodeText)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     question_by_user = db.relationship('User', backref='questions', lazy=True) # one-to-many relationship with table User
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     fixed_topic = db.relationship('Topic', backref='fixed_topic_questions', lazy=True) # one-to-many relationship with table Article
+    fixed_topic_name = db.Column(db.String(255))
+    question = db.Column(db.UnicodeText)
+    markdown = db.Column(db.UnicodeText)
+    html = db.Column(db.UnicodeText)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    views_count = db.Column(db.Integer, default=0)
+    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    accepted_answer_id = db.Column(db.Integer)
+    anonymous = db.Column(db.Boolean, default=False)
+    user_hidden = db.Column(db.Boolean, default=False)
+    image_ids = db.Column(db.JSON)
+    # upvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly upvote
+    # downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
+    # share_count = db.Column(db.Integer, default=0)
+    # answers_count = db.Column(db.Integer, default=0)
+    # favorite_count = db.Column(db.Integer, default=0)
+    
+    @aggregated('answers', db.Column(db.Integer))
+    def answers_count(self):
+        return db.func.count('1')
+    @aggregated('votes', db.Column(db.Integer))
+    def upvote_count(self):
+        return db.func.sum(db.func.if_(QuestionVote.vote_status == 'UPVOTED', 1, 0))
+    @aggregated('votes', db.Column(db.Integer))
+    def downvote_count(self):
+        return db.func.sum(db.func.if_(QuestionVote.vote_status == 'DOWNVOTED', 1, 0))
+    @aggregated('question_shares', db.Column(db.Integer))
+    def share_count(self):
+        return db.func.count('1')
+    @aggregated('question_favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')
+
+    allow_video_answer = db.Column(db.Boolean, server_default=expression.true())
+    allow_audio_answer = db.Column(db.Boolean, server_default=expression.true())
+    is_private = db.Column(db.Boolean, server_default=expression.false())
+    topics = db.relationship('Topic', secondary='question_topic', lazy='subquery', backref=db.backref('questions', lazy=True))
+    invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery', backref=db.backref('invited_to_questions', lazy=True))
+
+class QuestionProposal(Model):
+    __tablename__ = 'question_proposal'
+
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    related_question = db.relationship('Question', backref='proposals', lazy=True) # one-to-many relationship with table User
+    title = db.Column(db.UnicodeText)
+    slug = db.Column(db.UnicodeText)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
@@ -54,31 +119,19 @@ class Question(Model):
     anonymous = db.Column(db.Boolean, default=False)
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
-    upvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly upvote
-    downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
-    share_count = db.Column(db.Integer, default=0)
-    favorite_count = db.Column(db.Integer, default=0)
-    
-    # @aggregated('votes', db.Column(db.Integer))
-    # def upvote_count(self):
-    #     return db.func.sum(db.func.if_(ArticleVote.vote_status == 'UPVOTED', 1, 0))
-    # @aggregated('votes', db.Column(db.Integer))
-    # def downvote_count(self):
-    #     return db.func.sum(db.func.if_(ArticleVote.vote_status == 'DOWNVOTED', 1, 0))
-    # @aggregated('shares', db.Column(db.Integer))
-    # def share_count(self):
-    #     return db.func.count('1')
-    # @aggregated('article_favorites', db.Column(db.Integer))
-    # def favorite_count(self):
-    #     return db.func.count('1')
+    # upvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly upvote
+    # downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
+    # share_count = db.Column(db.Integer, default=0)
+    # favorite_count = db.Column(db.Integer, default=0)
 
-    slug = db.Column(db.UnicodeText)
     allow_video_answer = db.Column(db.Boolean, server_default=expression.true())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.true())
     is_private = db.Column(db.Boolean, server_default=expression.false())
-    topics = db.relationship('Topic', secondary='question_topic', lazy='subquery', backref=db.backref('questions', lazy=True))
-    invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery', backref=db.backref('invited_to_questions', lazy=True))
-
+    topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery', backref=db.backref('questions_proposals', lazy=True))
+    invited_users = db.relationship('User', secondary='question_proposal_user_invite', lazy='subquery', backref=db.backref('invited_to_questions_proposals', lazy=True))
+    is_approved = db.Column(db.Boolean, server_default=expression.false())
+    proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class QuestionTopicView(Model):
     __tablename__ = 'topic_question'

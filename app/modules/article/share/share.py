@@ -7,9 +7,9 @@ class ArticleShare(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    shared_by_user = db.relationship('User', backref='shares', lazy=True) # one-to-many relationship with table Article
+    shared_by_user = db.relationship('User', backref='article_shares', lazy=True) # one-to-many relationship with table Article
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
-    shared_article = db.relationship('Article', backref='shares', lazy=True) # one-to-many relationship with table Article
+    shared_article = db.relationship('Article', backref='article_shares', lazy=True) # one-to-many relationship with table Article
     created_date = db.Column(db.Date)
     facebook = db.Column(db.Boolean)
     twitter = db.Column(db.Boolean)
