@@ -138,7 +138,7 @@ class QuestionDto(Dto):
     })
 
     question_invite_request = api.model('question_invite_request', {
-        'emails_or_usernames': fields.List(fields.Integer, description='The list of emails/usernames to invite by'),
+        'emails_or_usernames': fields.List(fields.String, description='The list of emails/usernames to invite by'),
     })
 
     get_similar_questions_parser = reqparse.RequestParser()
