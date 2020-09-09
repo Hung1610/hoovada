@@ -24,7 +24,7 @@ class AnswerVote(Model):
     __tablename__ = 'answer_vote'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
     answer =  db.relationship('Answer', backref='votes', lazy=True) # one-to-many relationship with table Answer
     comment_id = db.Column(db.Integer)
