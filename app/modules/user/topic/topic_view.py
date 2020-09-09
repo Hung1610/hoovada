@@ -1,0 +1,141 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# third-party modules
+from flask_restx import Resource, reqparse
+from flask import request
+
+# own modules
+# from app.modules.common.decorator import token_required
+from app.modules.auth.auth_controller import AuthController
+from app.modules.user.topic.topic_dto import TopicDto
+from app.modules.user.topic.topic_controller import TopicController
+from app.modules.auth.decorator import admin_token_required, token_required
+from app.utils.response import send_error
+
+api = TopicDto.api
+topic_response = TopicDto.model_response
+topic_request = TopicDto.model_request
+get_parser = TopicDto.model_get_parser
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+@api.route('/<int:user_id>/topic')
+class TopicList(Resource):
+    @admin_token_required
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def get(self, user_id):
+        """
+        Search all topics that satisfy conditions.
+        """
+        args = get_parser.parse_args()
+        controller = TopicController()
+        return controller.get(user_id=user_id, args=args)
+
+    @admin_token_required
+    @api.expect(topic_request)
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def post(self, user_id):
+        """
+        Create new topic.
+
+        :return: The new topic if it was created successfully and null vice versa.
+        """
+        data = api.payload
+        controller = TopicController()
+        return controller.create(data=data, user_id=user_id)
+
+
+@api.route('/me/topic')
+class TopicMeList(Resource):
+    @token_required
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def get(self):
+        """
+        Search all topics that satisfy conditions.
+        """
+        args = get_parser.parse_args()
+        controller = TopicController()
+
+        current_user, _ = AuthController.get_logged_user(request)
+        user_id = current_user.id
+
+        return controller.get(user_id=user_id, args=args)
+
+    @token_required
+    @api.expect(topic_request)
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def post(self):
+        """
+        Create new topic.
+
+        :return: The new topic if it was created successfully and null vice versa.
+        """
+        data = api.payload
+        controller = TopicController()
+
+        current_user, _ = AuthController.get_logged_user(request)
+        user_id = current_user.id
+
+        return controller.create(data=data, user_id=user_id)
+
+
+@api.route('/all/topic')
+class TopicAllList(Resource):
+    @token_required
+    @api.expect(get_parser)
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def get(self):
+        """
+        Get all topic.
+        """
+        args = get_parser.parse_args()
+        controller = TopicController()
+        return controller.get(args=args)
+
+
+@api.route('/all/topic/<int:id>')
+class TopicAll(Resource):
+    @token_required
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def get(self, id):
+        """
+        Get topic by its ID.
+
+        :param id: The ID of the topic.
+
+        :return: The topic with the specific ID.
+        """
+        controller = TopicController()
+        return controller.get_by_id(object_id=id)
+
+    @token_required
+    @api.expect(topic_request)
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def put(self, id):
+        """
+        Update existing topic by its ID.
+
+        :param id: The ID of the topic which need to be updated.
+
+        :return: The updated topic if success and null vice versa.
+        """
+        data = api.payload
+        controller = TopicController()
+        return controller.update(object_id=id, data=data)
+
+    @token_required
+    def delete(self, id):
+        """
+        Delete topic by its ID.
+
+        :param id: The ID of the topic.
+
+        :return:
+        """
+        controller = TopicController()
+        return controller.delete(object_id=id)

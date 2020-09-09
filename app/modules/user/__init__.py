@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.user.user_view import api
+from app.modules.user.user_view import api as ns_user
+from app.modules.user.education import api as ns_user_education
+from app.modules.user.location import api as ns_user_location
+from app.modules.user.topic import api as ns_user_topic
+from app.modules.user.language import api as ns_user_language
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
