@@ -22,6 +22,8 @@ class TimelineDto(Dto):
     model_get_parser.add_argument('question_id', type=int, required=False, help='Search all timelines related to question id.')
     model_get_parser.add_argument('answer_id', type=int, required=False, help='Search all timelines related to answer id.')
     model_get_parser.add_argument('comment_id', type=int, required=False, help='Search all timelines related to comment id.')
+    model_get_parser.add_argument('article_id', type=int, required=False, help='Search all timelines related to article id.')
+    model_get_parser.add_argument('article_comment_id', type=int, required=False, help='Search all timelines related to article comment id.')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search timelines created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search timelines created before this data.')
     
