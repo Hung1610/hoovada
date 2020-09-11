@@ -51,7 +51,7 @@ class QuestionController(Controller):
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
-        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_id = None, None, None, None, None, None, None, None, None
+        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids = None, None, None, None, None, None, None, None, None
         if 'title' in args:
             title = args['title']
         if 'user_id' in args:
@@ -99,13 +99,13 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'topics' in args:
+        if 'topic_id' in args:
             try:
-                topic_ids = args['topics']
+                topic_ids = args['topic_id']
             except Exception as e:
                 print(e.__str__())
                 pass
-        if title is None and user_id is None and fixed_topic_id is None and created_date is None and updated_date is None and anonymous is None and topic_id is None:
+        if title is None and user_id is None and fixed_topic_id is None and created_date is None and updated_date is None and anonymous is None and topic_ids is None:
             send_error(message='Provide params to search.')
         is_filter = False
         if title is not None and not str(title).strip().__eq__(''):
