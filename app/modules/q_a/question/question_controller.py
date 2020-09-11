@@ -99,7 +99,7 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'topics' in args:
+        if 'topic_id' in args:
             try:
                 topic_ids = args['topic_id']
             except Exception as e:
