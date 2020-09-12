@@ -70,6 +70,7 @@ class ArticleDto(Dto):
     model_get_parser.add_argument('topic_id', type=int, required=False, action='append', help='Search all articles related to topic.')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
+    model_get_parser.add_argument('draft', type=bool, required=False, help='Search articles created before this data.')
 
     get_similar_articles_parser = reqparse.RequestParser()
     get_similar_articles_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
