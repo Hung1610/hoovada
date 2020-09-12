@@ -679,7 +679,7 @@ class QuestionController(Controller):
             data['user_id'] = current_user.id
 
         try:
-            answer = Answer.query.filter(question_id = data['question_id'], user_id = data['user_id']).first()
+            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
             if answer:
                 return send_error(message='This user already answered for this question.')
             # add new answer
