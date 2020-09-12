@@ -109,51 +109,51 @@ class ArticleController(Controller):
         """
         # Get search parameters
         title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft = None, None, None, None, None, None, None, None, None
-        if 'title' in args:
+        if args.get('title'):
             title = args['title']
-        if 'user_id' in args:
+        if args.get('user_id'):
             try:
                 user_id = int(args['user_id'])
             except Exception as e:
                 print(e)
                 pass
-        if 'fixed_topic_id' in args:
+        if args.get('fixed_topic_id'):
             try:
                 fixed_topic_id = int(args['fixed_topic_id'])
             except Exception as e:
                 print(e)
                 pass
-        if 'created_date' in args:
+        if args.get('created_date'):
             try:
                 created_date = dateutil.parser.isoparse(args['created_date'])
             except Exception as e:
                 print(e)
                 pass
-        if 'updated_date' in args:
+        if args.get('updated_date'):
             try:
                 updated_date = dateutil.parser.isoparse(args['updated_date'])
             except Exception as e:
                 print(e)
                 pass
-        if 'from_date' in args:
+        if args.get('from_date'):
             try:
                 from_date = dateutil.parser.isoparse(args['from_date'])
             except Exception as e:
                 print(e)
                 pass
-        if 'to_date' in args:
+        if args.get('to_date'):
             try:
                 to_date = dateutil.parser.isoparse(args['to_date'])
             except Exception as e:
                 print(e)
                 pass
-        if 'topic_id' in args:
+        if args.get('topic_id'):
             try:
                 topic_ids = args['topic_id']
             except Exception as e:
                 print(e)
                 pass
-        if 'draft' in args:
+        if args.get('draft'):
             try:
                 draft = bool(args['draft'])
             except Exception as e:
