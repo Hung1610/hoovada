@@ -52,9 +52,9 @@ class QuestionController(Controller):
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
         title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids = None, None, None, None, None, None, None, None, None
-        if 'title' in args:
+        if args.get('title'):
             title = args['title']
-        if 'user_id' in args:
+        if args.get('user_id'):
             try:
                 user_id = int(args['user_id'])
                 if current_user:
@@ -63,43 +63,43 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'fixed_topic_id' in args:
+        if args.get('fixed_topic_id'):
             try:
                 fixed_topic_id = int(args['fixed_topic_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'created_date' in args:
+        if args.get('created_date'):
             try:
                 created_date = dateutil.parser.isoparse(args['created_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'updated_date' in args:
+        if args.get('updated_date'):
             try:
                 updated_date = dateutil.parser.isoparse(args['updated_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'from_date' in args:
+        if args.get('from_date'):
             try:
                 from_date = dateutil.parser.isoparse(args['from_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'to_date' in args:
+        if args.get('to_date'):
             try:
                 to_date = dateutil.parser.isoparse(args['to_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'anonymous' in args:
+        if args.get('anonymous'):
             try:
                 anonymous = int(args['anonymous'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'topic_id' in args:
+        if args.get('topic_id'):
             try:
                 topic_ids = args['topic_id']
             except Exception as e:
@@ -383,7 +383,7 @@ class QuestionController(Controller):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
         title = args['title']
-        if 'limit' in args:
+        if args.get('limit'):
             limit = int(args['limit'])
         else:
             return send_error(message='Please provide limit')
@@ -418,11 +418,11 @@ class QuestionController(Controller):
 
     def get_recommended_users(self, args):
         try:
-            if 'limit' in args:
+            if args.get('limit'):
                 limit = int(args['limit'])
             else:
                 return send_error(message='Please provide limit')
-            if 'topic' in args:
+            if args.get('topic'):
                 topics = args['topic']
             else:
                 return send_error(message='Please provide topics')
@@ -476,13 +476,13 @@ class QuestionController(Controller):
             if question is None:
                 return send_error(message="Question with the ID {} not found".format(object_id))
 
-            if 'from_date' in args:
+            if args.get('from_date'):
                 try:
                     from_date = dateutil.parser.isoparse(args['from_date'])
                 except Exception as e:
                     print(e.__str__())
                     pass
-            if 'to_date' in args:
+            if args.get('to_date'):
                 try:
                     to_date = dateutil.parser.isoparse(args['to_date'])
                 except Exception as e:
