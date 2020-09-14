@@ -19,6 +19,7 @@ class SearchDto(Dto):
 
     model_search_question_res = api.model('search_question_res', {
         'id': fields.Integer(readonly=True, description=''),
+        'slug': fields.String(description='The slug of the question'),
         'title': fields.String(description='The title of the question'),
     })
 
@@ -35,6 +36,7 @@ class SearchDto(Dto):
 
     model_search_article_res = api.model('search_article_res', {
         'id': fields.Integer(readonly=True, description=''),
+        'slug': fields.String(description='The slug of the article'),
         'title': fields.String(description='The title of the article'),
     })
 
