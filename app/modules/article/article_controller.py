@@ -267,7 +267,7 @@ class ArticleController(Controller):
             query = query.with_entities(Article, title_similarity)\
                 .filter(title_similarity > 50)
             if fixed_topic_id:
-                query = query.filter(Article.fixed_topic_id == fixed_topic_id)\
+                query = query.filter(Article.fixed_topic_id == fixed_topic_id)
             if topic_ids:
                 query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
             articles = query\
