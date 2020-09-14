@@ -251,10 +251,10 @@ class ArticleController(Controller):
         title = args['title']
         if not 'fixed_topic_id' in args:
             return send_error(message='Please provide the fixed_topic_id.')
-        fixed_topic_id = args['fixed_topic_id']
+        fixed_topic_id = args.get('fixed_topic_id')
         if not 'topic_id' in args:
             return send_error(message='Please provide the topic_id.')
-        topic_ids = args['topic_id']
+        topic_ids = args.get('topic_id')
         if 'limit' in args:
             limit = int(args['limit'])
         else:
@@ -265,9 +265,11 @@ class ArticleController(Controller):
             query = Article.query
             title_similarity = db.func.SIMILARITY_STRING(title, Article.title).label('title_similarity')
             query = query.with_entities(Article, title_similarity)\
-                .filter(title_similarity > 50)\
-                .filter(Article.fixed_topic_id == fixed_topic_id)\
-                .filter(Article.topics.any(Topic.id.in_(topic_ids)))
+                .filter(title_similarity > 50)
+            if fixed_topic_id:
+                query = query.filter(Article.fixed_topic_id == fixed_topic_id)\
+            if topic_ids:
+                query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
             articles = query\
                 .order_by(desc(title_similarity))\
                 .limit(limit)\
