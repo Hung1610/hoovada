@@ -54,6 +54,9 @@ class Article(Model):
     @aggregated('article_favorites', db.Column(db.Integer))
     def favorite_count(self):
         return db.func.count('1')
+    @aggregated('article_comments', db.Column(db.Integer))
+    def comment_count(self):
+        return db.func.count('1')
 
     topics = db.relationship('Topic', secondary=article_topics, lazy='subquery', backref=db.backref('articles', lazy=True))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
