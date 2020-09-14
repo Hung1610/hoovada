@@ -18,7 +18,7 @@ from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.auth.auth_controller import AuthController
-from app.modules.q_a.question.voting.vote import QuestionVote
+from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
@@ -157,8 +157,12 @@ class QuestionController(Controller):
                     if current_user:
                         vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                         if vote is not None:
-                            result['up_vote'] = vote.up_vote
-                            result['down_vote'] = vote.down_vote
+                            result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                            result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                        # if vote is not None:
+                        #     result['up_vote'] = vote.up_vote
+                        #     result['down_vote'] = vote.down_vote
                     results.append(result)
                 return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
             else:
@@ -298,8 +302,12 @@ class QuestionController(Controller):
                 if current_user:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
-                        result['up_vote'] = vote.up_vote
-                        result['down_vote'] = vote.down_vote
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    # if vote is not None:
+                    #     result['up_vote'] = vote.up_vote
+                    #     result['down_vote'] = vote.down_vote
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
         except Exception as e:
@@ -336,8 +344,12 @@ class QuestionController(Controller):
         if current_user:
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
-                result['up_vote'] = vote.up_vote
-                result['down_vote'] = vote.down_vote
+                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+            # if vote is not None:
+            #     result['up_vote'] = vote.up_vote
+            #     result['down_vote'] = vote.down_vote
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def invite(self, object_id, data):
@@ -372,8 +384,12 @@ class QuestionController(Controller):
             if current_user:
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                # if vote is not None:
+                #     result['up_vote'] = vote.up_vote
+                #     result['down_vote'] = vote.down_vote
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
         except Exception as e:
             print(e)
@@ -408,8 +424,12 @@ class QuestionController(Controller):
                 if current_user:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
-                        result['up_vote'] = vote.up_vote
-                        result['down_vote'] = vote.down_vote
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    # if vote is not None:
+                    #     result['up_vote'] = vote.up_vote
+                    #     result['down_vote'] = vote.down_vote
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
         except Exception as e:
@@ -620,8 +640,12 @@ class QuestionController(Controller):
             if current_user:
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                # if vote is not None:
+                #     result['up_vote'] = vote.up_vote
+                #     result['down_vote'] = vote.down_vote
             return send_result(message="Update successfully",
                                 data=marshal(result, QuestionDto.model_question_response))
         except Exception as e:
@@ -1019,8 +1043,12 @@ class QuestionController(Controller):
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         if vote is not None:
-            result['up_vote'] = vote.up_vote
-            result['down_vote'] = vote.down_vote
+            result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+            result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+        # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+        # if vote is not None:
+        #     result['up_vote'] = vote.up_vote
+        #     result['down_vote'] = vote.down_vote
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def update_slug(self):
