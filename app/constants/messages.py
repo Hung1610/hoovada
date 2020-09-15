@@ -8,27 +8,27 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 # # Create Messages
-msg_create_success = '{} created successful.'
-msg_create_success_with_issue = '{} created partially successful, but {}.'
-msg_already_exists = '{} already exists.'
-msg_create_failed = 'Failed to create {}. Issue: {}'
+MSG_CREATE_SUCCESS = '{} created successful.'
+MSG_CREATE_SUCCESS_WITH_ISSUE = '{} created partially successful, but {}.'
+MSG_ALREADY_EXISTS = '{} already exists.'
+MSG_CREATE_FAILED = 'Failed to create {}. Issue: {}'
 
 # # Get Messages
-msg_get_success_success = '{} get successful.'
-msg_get_failed = 'Failed to get {}.'
-msg_lacking_get_params = 'Please provide {}.'
+MSG_GET_SUCCESS_SUCCESS = '{} get successful.'
+MSG_GET_FAILED = 'Failed to get {}.'
+MSG_LACKING_GET_PARAMS = 'Please provide {}.'
 
 # # Get Single/Update Messages
-msg_update_success = '{} updated successful.'
-msg_update_failed = 'Failed to update {}. Issue: {}'
+MSG_UPDATE_SUCCESS = '{} updated successful.'
+MSG_UPDATE_FAILED = 'Failed to update {}. Issue: {}'
 
 # # Delete Messages
-msg_delete_success = '{} deleted successful.'
-msg_delete_failed = 'Failed to delete {}.'
+MSG_DELETE_SUCCESS = '{} deleted successful.'
+MSG_DELETE_FAILED = 'Failed to delete {}.'
 
 # # General Errors
-msg_wrong_data_format = 'Wrong data format. Please check again!'
-msg_lacking_query_params = 'Query parameters not provided.'
-msg_not_found = '{} not found'
-msg_not_found_with_id = 'Entry not found with ID: {}'
-msg_issue = 'Issue: {}.'
+MSG_WRONG_DATA_FORMAT = 'Wrong data format. Please check again!'
+MSG_LACKING_QUERY_PARAMS = 'Query parameters not provided.'
+MSG_NOT_FOUND = '{} not found'
+MSG_NOT_FOUND_WITH_ID = 'Entry not found with ID: {}'
+MSG_ISSUE = 'Issue: {}.'
