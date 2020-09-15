@@ -25,8 +25,8 @@ class QuestionVote(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
-    question =  db.relationship('Question', backref='votes', lazy=True) # one-to-many relationship with table Question
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'))
+    question =  db.relationship('Question', cascade='all, delete', lazy=True) # one-to-many relationship with table Question
     comment_id = db.Column(db.Integer)
     vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), nullable=False, server_default="NEUTRAL")
     created_date = db.Column(db.DateTime)
