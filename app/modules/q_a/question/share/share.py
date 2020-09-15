@@ -21,8 +21,8 @@ class QuestionShare(Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='question_shares', lazy=True) # one-to-many relationship with table Article
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
-    question = db.relationship('Question', backref='question_shares', lazy=True) # one-to-many relationship with table Article
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'))
+    question = db.relationship('Question', cascade='all, delete', lazy=True) # one-to-many relationship with table Article
     created_date = db.Column(db.Date)
     facebook = db.Column(db.Boolean)
     twitter = db.Column(db.Boolean)

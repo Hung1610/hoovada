@@ -184,6 +184,18 @@ class QuestionProposal(Resource):
         controller = QuestionController()
         return controller.create_proposal(object_id=id_or_slug, data=data)
 
+@api.route('/<string:id_or_slug>/delete-proposal')
+class QuestionDeleteProposal(Resource):
+    @token_required
+    def post(self, id_or_slug):
+        """ 
+        Create question delete proposal by its ID.
+        """
+
+        controller = QuestionController()
+        return controller.create_delete_proposal(object_id=id_or_slug)
+
+
 @api.route('/all/proposal/<int:id>/approve')
 class QuestionApprove(Resource):
     @admin_token_required
