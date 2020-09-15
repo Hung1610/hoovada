@@ -790,7 +790,7 @@ class AuthController:
                 user.last_seen = datetime.now()
                 db.session.commit()
             # save token to backlist.
-            save_token(token=auth_token)
+            # save_token(token=auth_token)
             return send_result(message='You are logged out.')
             # return redirect('') # to logout page
         else:

@@ -54,7 +54,6 @@ class ArticleList(Resource):
 @api.route('/<string:id_or_slug>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    @api.doc(params={'title': 'The name of the topics to search'})
     def get(self, id_or_slug):
         """
         Get specific article by its ID.

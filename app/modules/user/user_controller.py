@@ -18,7 +18,9 @@ from app.modules.user.user_dto import UserDto
 from app.utils.response import send_result, send_error
 from app.modules.common.controller import Controller
 from app.settings.config import BaseConfig as Config
+from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
+from app.utils.wasabi import upload_file
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -26,8 +28,8 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-AVATAR_FOLDER = Config.AVATAR_FOLDER
-IMAGE_FOLDER = Config.IMAGE_FOLDER
+# AVATAR_FOLDER = Config.AVATAR_FOLDER
+# IMAGE_FOLDER = Config.IMAGE_FOLDER
 
 
 class UserController(Controller):
@@ -169,15 +171,19 @@ class UserController(Controller):
 
         photo = args['avatar']
         if photo:
-            file_name = 'user_' + str(user.id) + '_avatar'
-            file_name = encode_file_name(file_name) + ".png"
+            filename = photo.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name('user_' + str(user.id) + '_avatar') + ext
+            bucket = 'hoovada'
+            sub_folder = 'user' + '/' + encode_file_name(str(user.id))
             try:
-                if not os.path.exists(IMAGE_FOLDER):
-                    os.mkdir(IMAGE_FOLDER)
-                if not os.path.exists(AVATAR_FOLDER):
-                    os.mkdir(AVATAR_FOLDER)
-                photo.save(os.path.join(AVATAR_FOLDER, file_name))
-                user.profile_pic_url = url_for('user_avatar', filename=file_name)
+                url = upload_file(file=photo, file_name=file_name, bucket=bucket, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your media file.')
+
+            try:
+                user.profile_pic_url = url
                 db.session.commit()
                 return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
             except Exception as e:
@@ -189,17 +195,17 @@ class UserController(Controller):
 
     def get_avatar(self):
         # upload here
-        filename = request.args.get('filename')
-        filename = os.path.join(AVATAR_FOLDER, filename)
-        if os.path.exists(filename):
-            return send_file(filename)
-        else:
-            return send_error(message='Avatar does not exist. Upload it first.')
-        # user, message = AuthController.get_logged_user(request)
-        # # user = User.query.filter_by(id=id).first()
-        # if user is None:
-        #     return send_error(message)
-        # return user.avatar
+        # filename = request.args.get('filename')
+        # filename = os.path.join(AVATAR_FOLDER, filename)
+        # if os.path.exists(filename):
+        #     return send_file(filename)
+        # else:
+        #     return send_error(message='Avatar does not exist. Upload it first.')
+        user, message = AuthController.get_logged_user(request)
+        # user = User.query.filter_by(id=id).first()
+        if user is None:
+            return send_error(message)
+        return user.profile_pic_url
 
 
     def _parse_user(self, data, user=None):

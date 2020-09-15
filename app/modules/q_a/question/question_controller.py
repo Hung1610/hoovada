@@ -182,7 +182,7 @@ class QuestionController(Controller):
 
         try:
             title = data['title']
-            user_id = data['user_id']
+            user_id = data.get('user_id')
             is_sensitive = check_sensitive(title)
             if is_sensitive:
                 return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
@@ -703,7 +703,7 @@ class QuestionController(Controller):
             data['user_id'] = current_user.id
 
         try:
-            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
+            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data.get('user_id')).first()
             if answer:
                 return send_error(message='This user already answered for this question.')
             # add new answer
