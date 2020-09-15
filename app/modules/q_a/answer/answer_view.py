@@ -25,7 +25,6 @@ model_comment_request = AnswerDto.model_comment_request
 @api.route('/<int:id>/file')
 @api.doc(params={'id': 'The answer ID'})
 class AnswerFile(Resource):
-    @token_required
     @api.expect(answer_upload_parser)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def post(self, id):
@@ -49,7 +48,7 @@ class AnswerList(Resource):
     #     controller = AnswerController()
     #     return controller.get()
 
-    @token_required
+    # @token_required
     @api.expect(answer_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
