@@ -522,6 +522,30 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could not get proposals. Error: ' + e.__str__())
     
+    def create_delete_proposal(self, object_id):
+        try:
+            if object_id is None:
+                return send_error(message="Question ID is null")
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
+            if question is None:
+                return send_error(message="Question with the ID {} not found".format(object_id))
+
+            data = {}
+            data['question_id'] = question.id
+            data['is_parma_delete'] = True
+            proposal, _ = self._parse_proposal(data=data, proposal=None)
+            db.session.add(proposal)
+            db.session.commit()
+            return send_result(message='Question update proposal was created successfully.',
+                                data=marshal(proposal, QuestionDto.model_question_proposal_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message='Could not create question. Contact administrator for solution.')
+    
     def create_proposal(self, object_id, data):
         try:
             if object_id is None:
@@ -575,7 +599,13 @@ class QuestionController(Controller):
                 return send_result(message="Proposal with the ID {} is already approved".format(object_id))
 
             question_data = proposal._asdict()
-            question, _ = self._parse_question(data=question_data, question=proposal.related_question)
+            if proposal.is_parma_delete:
+                proposal.is_approved = True
+                return self.delete(str(proposal.question_id))
+            related_question = Question.query.filter_by(id=proposal.question_id).first()
+            if related_question is None:
+                return send_error(message="Question with the ID {} not found".format(proposal.question_id))
+            question, _ = self._parse_question(data=question_data, question=related_question)
             question.last_activity = datetime.utcnow()
             proposal.is_approved = True
             db.session.commit()
@@ -956,6 +986,20 @@ class QuestionController(Controller):
                 proposal.is_private = bool(data['is_private'])
             except Exception as e:
                 proposal.is_private = False
+                print(e.__str__())
+                pass
+        if 'is_deleted' in data:
+            try:
+                proposal.is_deleted = bool(data['is_deleted'])
+            except Exception as e:
+                proposal.is_deleted = False
+                print(e.__str__())
+                pass
+        if 'is_parma_delete' in data:
+            try:
+                proposal.is_parma_delete = bool(data['is_parma_delete'])
+            except Exception as e:
+                proposal.is_parma_delete = False
                 print(e.__str__())
                 pass
         # if 'image_ids' in data:
