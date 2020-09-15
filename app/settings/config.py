@@ -49,10 +49,10 @@ class BaseConfig:
     PROJECT_ROOT = path.abspath(path.join(APP_DIR, pardir))
     STATIC_FOLDER_NAME = 'static'
     STATIC_ROOT = path.join(APP_DIR, STATIC_FOLDER_NAME)
-    MEDIA_FOLDER_NAME = 'media'
-    MEDIA_FOLDER = path.join(STATIC_ROOT, 'media')
-    IMAGE_FOLDER = path.join(STATIC_ROOT, 'images')
-    AVATAR_FOLDER = path.join(IMAGE_FOLDER, 'avatars')
+    # MEDIA_FOLDER_NAME = 'media'
+    # MEDIA_FOLDER = path.join(STATIC_ROOT, 'media')
+    # IMAGE_FOLDER = path.join(STATIC_ROOT, 'images')
+    # AVATAR_FOLDER = path.join(IMAGE_FOLDER, 'avatars')
 
     # other configurations
     BCRYPT_LOG_ROUNDS = 13 # Number of times a password is hashed
