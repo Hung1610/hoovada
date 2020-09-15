@@ -44,7 +44,7 @@ class QuestionList(Resource):
         return controller.get()
 
 
-    @token_required
+    # @token_required
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -134,7 +134,7 @@ class Question(Resource):
 
 @api.route('/<string:id_or_slug>/answer')
 class QuestionAnswer(Resource):
-    @token_required
+    # @token_required
     @api.expect(model_answer_request)
     def post(self, id_or_slug):
         """ 

@@ -181,7 +181,7 @@ class AnswerController(Controller):
         if question is None:
             return send_error(message='Could not find question with the ID {}.'.format(answer.question_id))
 
-        if not upload_file:
+        if not media_file:
             return send_error(message='Please provide the file to upload.')
         if not file_type:
             return send_error(message='Please specify the file type.')
