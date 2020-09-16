@@ -21,8 +21,8 @@ from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
 from app.modules.topic.question_topic.question_topic import QuestionTopic
-from app.modules.q_a.question.question import Answer
-from app.modules.q_a.question.question_dto import AnswerDto
+from app.modules.q_a.answer.answer import Answer
+from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
@@ -273,7 +273,7 @@ class QuestionController(Controller):
             #     # if fixed_topic:
             #     #     question.fixed_topic_name = fixed_topic.name
             #     # question.views_count = 0
-            #     # question.questions_count = 0
+            #     # question.answers_count = 0
             #     # question.upvote_count = 0
             #     # question.downvote_count = 0
             #     # question.favorite_count = 0
@@ -720,7 +720,7 @@ class QuestionController(Controller):
 
                 # delete from share
 
-                # delete from question
+                # delete from answer
 
                 # delete from timline
 
@@ -733,7 +733,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not delete question with ID {}".format(object_id))
 
-    def create_question(self, object_id, data):
+    def create_answer(self, object_id, data):
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
         else:
@@ -744,30 +744,30 @@ class QuestionController(Controller):
         data['question_id'] = question.id
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
-        if not 'question' in data:
-            return send_error(message='Please fill the question body before sending.')
+        if not 'answer' in data:
+            return send_error(message='Please fill the answer body before sending.')
 
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
 
         try:
-            question = Answer.query.filter_by(question_id=data['question_id'], user_id=data.get('user_id')).first()
-            if question:
-                return send_error(message='This user already questioned for this question.')
-            # add new question
-            question = self._parse_question(data=data, question=None)
-            if question.question.__str__().strip().__eq__(''):
-                return send_error(message='The question must include content.')
-            is_sensitive = check_sensitive(question.question)
+            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data.get('user_id')).first()
+            if answer:
+                return send_error(message='This user already answered for this question.')
+            # add new answer
+            answer = self._parse_answer(data=data, answer=None)
+            if answer.answer.__str__().strip().__eq__(''):
+                return send_error(message='The answer must include content.')
+            is_sensitive = check_sensitive(answer.answer)
             if is_sensitive:
                 return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
-            question.created_date = datetime.utcnow()
-            question.updated_date = datetime.utcnow()
-            question.last_activity = datetime.utcnow()
-            db.session.add(question)
+            answer.created_date = datetime.utcnow()
+            answer.updated_date = datetime.utcnow()
+            answer.last_activity = datetime.utcnow()
+            db.session.add(answer)
             db.session.commit()
-            result = question._asdict()
+            result = answer._asdict()
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
@@ -776,91 +776,91 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could not create question.')
 
-    def _parse_question(self, data, question=None):
-        if question is None:
-            question = Answer()
+    def _parse_answer(self, data, answer=None):
+        if answer is None:
+            answer = Answer()
         # if 'created_date' in data:
         #     try:
-        #         question.created_date = dateutil.parser.isoparse(data['created_date'])
-        #         # question.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'updated_date' in data:
         #     try:
-        #         question.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
+        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'last_activity' in data:
         #     try:
-        #         question.last_activity = dateutil.parser.isoparse(data['last_activity'])
+        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'upvote_count' in data:
         #     try:
-        #         question.upvote_count = int(data['upvote_count'])
+        #         answer.upvote_count = int(data['upvote_count'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'downvote_count' in data:
         #     try:
-        #         question.downvote_count = int(data['downvote_count'])
+        #         answer.downvote_count = int(data['downvote_count'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         if 'anonymous' in data:
             try:
-                question.anonymous = bool(data['anonymous'])
+                answer.anonymous = bool(data['anonymous'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'accepted' in data:
             try:
-                question.accepted = bool(data['accepted'])
+                answer.accepted = bool(data['accepted'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'question' in data:
-            question.question = data['question']
+        if 'answer' in data:
+            answer.answer = data['answer']
         # if 'markdown' in data:
-        #     question.markdown = data['markdown']
+        #     answer.markdown = data['markdown']
         # if 'html' in data:
-        #     question.html = data['html']
+        #     answer.html = data['html']
         if 'user_id' in data:
             try:
-                question.user_id = int(data['user_id'])
+                answer.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'question_id' in data:
             try:
-                question.question_id = int(data['question_id'])
+                answer.question_id = int(data['question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
         # if 'image_ids' in data:
         #     try:
-        #         question.image_ids = json.loads(data['image_ids'])
+        #         answer.image_ids = json.loads(data['image_ids'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
             
         if 'is_deleted' in data:
             try:
-                question.is_deleted = bool(data['is_deleted'])
+                answer.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 print(e)
                 pass
         if 'user_hidden' in data:
             try:
-                question.user_hidden = bool(data['user_hidden'])
+                answer.user_hidden = bool(data['user_hidden'])
             except Exception as e:
-                question.user_hidden = False
+                answer.user_hidden = False
                 print(e.__str__())
                 pass
-        return question
+        return answer
 
     def _parse_question(self, data, question=None):
         if question is None:
