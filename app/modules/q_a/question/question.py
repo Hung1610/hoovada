@@ -77,7 +77,7 @@ class Question(Model):
     
     @aggregated('answers', db.Column(db.Integer))
     def answers_count(self):
-        return db.func.sum(db.func.if_(Answer.is_deleted != False, 1, 0))
+        return db.func.sum(db.func.if_(Answer.is_deleted != True, 1, 0))
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
         return db.func.sum(db.func.if_(QuestionVote.vote_status == 'UPVOTED', 1, 0))
