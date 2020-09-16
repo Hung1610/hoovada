@@ -16,12 +16,13 @@ from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
+from app.modules.q_a.question.favorite.favorite import QuestionFavorite
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
 from app.modules.topic.question_topic.question_topic import QuestionTopic
-from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.answer.answer_dto import AnswerDto
+from app.modules.q_a.question.question import Answer
+from app.modules.q_a.question.question_dto import AnswerDto
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
@@ -159,6 +160,9 @@ class QuestionController(Controller):
                         if vote is not None:
                             result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                             result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                        QuestionFavorite.question_id == question.id).first()
+                        result['is_favorited_by_me'] = True if favorite else False
                         # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                         # if vote is not None:
                         #     result['up_vote'] = vote.up_vote
@@ -269,7 +273,7 @@ class QuestionController(Controller):
             #     # if fixed_topic:
             #     #     question.fixed_topic_name = fixed_topic.name
             #     # question.views_count = 0
-            #     # question.answers_count = 0
+            #     # question.questions_count = 0
             #     # question.upvote_count = 0
             #     # question.downvote_count = 0
             #     # question.favorite_count = 0
@@ -304,6 +308,9 @@ class QuestionController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                     # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     # if vote is not None:
                     #     result['up_vote'] = vote.up_vote
@@ -346,6 +353,9 @@ class QuestionController(Controller):
             if vote is not None:
                 result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                 result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                            QuestionFavorite.question_id == question.id).first()
+            result['is_favorited_by_me'] = True if favorite else False
             # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             # if vote is not None:
             #     result['up_vote'] = vote.up_vote
@@ -386,6 +396,9 @@ class QuestionController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                QuestionFavorite.question_id == question.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
                 # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 # if vote is not None:
                 #     result['up_vote'] = vote.up_vote
@@ -426,6 +439,9 @@ class QuestionController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                     # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     # if vote is not None:
                     #     result['up_vote'] = vote.up_vote
@@ -672,6 +688,9 @@ class QuestionController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                QuestionFavorite.question_id == question.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
                 # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 # if vote is not None:
                 #     result['up_vote'] = vote.up_vote
@@ -701,7 +720,7 @@ class QuestionController(Controller):
 
                 # delete from share
 
-                # delete from answer
+                # delete from question
 
                 # delete from timline
 
@@ -714,7 +733,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Could not delete question with ID {}".format(object_id))
 
-    def create_answer(self, object_id, data):
+    def create_question(self, object_id, data):
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
         else:
@@ -725,123 +744,123 @@ class QuestionController(Controller):
         data['question_id'] = question.id
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
-        if not 'answer' in data:
-            return send_error(message='Please fill the answer body before sending.')
+        if not 'question' in data:
+            return send_error(message='Please fill the question body before sending.')
 
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
 
         try:
-            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data.get('user_id')).first()
-            if answer:
-                return send_error(message='This user already answered for this question.')
-            # add new answer
-            answer = self._parse_answer(data=data, answer=None)
-            if answer.answer.__str__().strip().__eq__(''):
-                return send_error(message='The answer must include content.')
-            is_sensitive = check_sensitive(answer.answer)
+            question = Answer.query.filter_by(question_id=data['question_id'], user_id=data.get('user_id')).first()
+            if question:
+                return send_error(message='This user already questioned for this question.')
+            # add new question
+            question = self._parse_question(data=data, question=None)
+            if question.question.__str__().strip().__eq__(''):
+                return send_error(message='The question must include content.')
+            is_sensitive = check_sensitive(question.question)
             if is_sensitive:
                 return send_error(message='Nội dung câu trả lời của bạn không hợp lệ.')
-            answer.created_date = datetime.utcnow()
-            answer.updated_date = datetime.utcnow()
-            answer.last_activity = datetime.utcnow()
-            db.session.add(answer)
+            question.created_date = datetime.utcnow()
+            question.updated_date = datetime.utcnow()
+            question.last_activity = datetime.utcnow()
+            db.session.add(question)
             db.session.commit()
-            result = answer._asdict()
+            result = question._asdict()
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
             return send_result(message='Answer created successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not create answer.')
+            return send_error(message='Could not create question.')
 
-    def _parse_answer(self, data, answer=None):
-        if answer is None:
-            answer = Answer()
+    def _parse_question(self, data, question=None):
+        if question is None:
+            question = Answer()
         # if 'created_date' in data:
         #     try:
-        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
-        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         question.created_date = dateutil.parser.isoparse(data['created_date'])
+        #         # question.created_date = dateutil.parser.isoparse(data['created_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'updated_date' in data:
         #     try:
-        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
+        #         question.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'last_activity' in data:
         #     try:
-        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
+        #         question.last_activity = dateutil.parser.isoparse(data['last_activity'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'upvote_count' in data:
         #     try:
-        #         answer.upvote_count = int(data['upvote_count'])
+        #         question.upvote_count = int(data['upvote_count'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         # if 'downvote_count' in data:
         #     try:
-        #         answer.downvote_count = int(data['downvote_count'])
+        #         question.downvote_count = int(data['downvote_count'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
         if 'anonymous' in data:
             try:
-                answer.anonymous = bool(data['anonymous'])
+                question.anonymous = bool(data['anonymous'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'accepted' in data:
             try:
-                answer.accepted = bool(data['accepted'])
+                question.accepted = bool(data['accepted'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'answer' in data:
-            answer.answer = data['answer']
+        if 'question' in data:
+            question.question = data['question']
         # if 'markdown' in data:
-        #     answer.markdown = data['markdown']
+        #     question.markdown = data['markdown']
         # if 'html' in data:
-        #     answer.html = data['html']
+        #     question.html = data['html']
         if 'user_id' in data:
             try:
-                answer.user_id = int(data['user_id'])
+                question.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
         if 'question_id' in data:
             try:
-                answer.question_id = int(data['question_id'])
+                question.question_id = int(data['question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
         # if 'image_ids' in data:
         #     try:
-        #         answer.image_ids = json.loads(data['image_ids'])
+        #         question.image_ids = json.loads(data['image_ids'])
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
             
         if 'is_deleted' in data:
             try:
-                answer.is_deleted = bool(data['is_deleted'])
+                question.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 print(e)
                 pass
         if 'user_hidden' in data:
             try:
-                answer.user_hidden = bool(data['user_hidden'])
+                question.user_hidden = bool(data['user_hidden'])
             except Exception as e:
-                answer.user_hidden = False
+                question.user_hidden = False
                 print(e.__str__())
                 pass
-        return answer
+        return question
 
     def _parse_question(self, data, question=None):
         if question is None:
@@ -864,9 +883,9 @@ class QuestionController(Controller):
             question.fixed_topic_name = data['fixed_topic_name']
         if 'question' in data:
             question.question = data['question']
-        if 'accepted_answer_id' in data:
+        if 'accepted_question_id' in data:
             try:
-                question.accepted_answer_id = int(data['accepted_answer_id'])
+                question.accepted_question_id = int(data['accepted_question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -883,18 +902,18 @@ class QuestionController(Controller):
                 question.user_hidden = False
                 print(e.__str__())
                 pass
-        if 'allow_video_answer' in data:
+        if 'allow_video_question' in data:
             try:
-                question.allow_video_answer = bool(data['allow_video_answer'])
+                question.allow_video_question = bool(data['allow_video_question'])
             except Exception as e:
-                question.allow_video_answer = True
+                question.allow_video_question = True
                 print(e.__str__())
                 pass
-        if 'allow_audio_answer' in data:
+        if 'allow_audio_question' in data:
             try:
-                question.allow_audio_answer = bool(data['allow_audio_answer'])
+                question.allow_audio_question = bool(data['allow_audio_question'])
             except Exception as e:
-                question.allow_audio_answer = True
+                question.allow_audio_question = True
                 print(e.__str__())
                 pass
         if 'is_private' in data:
@@ -948,9 +967,9 @@ class QuestionController(Controller):
             proposal.fixed_topic_name = data['fixed_topic_name']
         if 'question' in data:
             proposal.question = data['question']
-        if 'accepted_answer_id' in data:
+        if 'accepted_question_id' in data:
             try:
-                proposal.accepted_answer_id = int(data['accepted_answer_id'])
+                proposal.accepted_question_id = int(data['accepted_question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -967,18 +986,18 @@ class QuestionController(Controller):
                 proposal.user_hidden = False
                 print(e.__str__())
                 pass
-        if 'allow_video_answer' in data:
+        if 'allow_video_question' in data:
             try:
-                proposal.allow_video_answer = bool(data['allow_video_answer'])
+                proposal.allow_video_question = bool(data['allow_video_question'])
             except Exception as e:
-                proposal.allow_video_answer = True
+                proposal.allow_video_question = True
                 print(e.__str__())
                 pass
-        if 'allow_audio_answer' in data:
+        if 'allow_audio_question' in data:
             try:
-                proposal.allow_audio_answer = bool(data['allow_audio_answer'])
+                proposal.allow_audio_question = bool(data['allow_audio_question'])
             except Exception as e:
-                proposal.allow_audio_answer = True
+                proposal.allow_audio_question = True
                 print(e.__str__())
                 pass
         if 'is_private' in data:
@@ -1085,10 +1104,14 @@ class QuestionController(Controller):
         #     topics.append(topic)
         result['topics'] = question.topics
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-        vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-        if vote is not None:
-            result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-            result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+        if current_user:
+            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+            if vote is not None:
+                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                            QuestionFavorite.question_id == question.id).first()
+            result['is_favorited_by_me'] = True if favorite else False
         # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         # if vote is not None:
         #     result['up_vote'] = vote.up_vote

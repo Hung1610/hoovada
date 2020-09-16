@@ -65,6 +65,7 @@ class AnswerDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
+        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
