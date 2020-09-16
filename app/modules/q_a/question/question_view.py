@@ -44,7 +44,7 @@ class QuestionList(Resource):
         return controller.get()
 
 
-    @token_required
+    # @token_required
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -134,7 +134,7 @@ class Question(Resource):
 
 @api.route('/<string:id_or_slug>/answer')
 class QuestionAnswer(Resource):
-    @token_required
+    # @token_required
     @api.expect(model_answer_request)
     def post(self, id_or_slug):
         """ 
@@ -183,6 +183,18 @@ class QuestionProposal(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.create_proposal(object_id=id_or_slug, data=data)
+
+@api.route('/<string:id_or_slug>/delete-proposal')
+class QuestionDeleteProposal(Resource):
+    @token_required
+    def post(self, id_or_slug):
+        """ 
+        Create question delete proposal by its ID.
+        """
+
+        controller = QuestionController()
+        return controller.create_delete_proposal(object_id=id_or_slug)
+
 
 @api.route('/all/proposal/<int:id>/approve')
 class QuestionApprove(Resource):

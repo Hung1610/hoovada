@@ -20,6 +20,7 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
+from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.question.question import Question
 from app.modules.q_a.answer.voting.vote import AnswerVote
 from app.modules.q_a.comment.comment import Comment
@@ -118,10 +119,14 @@ class AnswerController(Controller):
                     result['user'] = user
                     # lay thong tin up_vote down_vote cho current user
                     current_user, _ = AuthController.get_logged_user(request)
-                    vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-                    if vote is not None:
-                        result['up_vote'] = vote.up_vote
-                        result['down_vote'] = vote.down_vote
+                    if current_user:
+                        vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
+                        if vote is not None:
+                            result['up_vote'] = vote.up_vote
+                            result['down_vote'] = vote.down_vote
+                        favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
+                                                        AnswerFavorite.answer_id == answer.id).first()
+                        result['is_favorited_by_me'] = True if favorite else False
                     results.append(result)
                 return send_result(marshal(results, AnswerDto.model_response), message='Success')
             else:
@@ -181,7 +186,7 @@ class AnswerController(Controller):
         if question is None:
             return send_error(message='Could not find question with the ID {}.'.format(answer.question_id))
 
-        if not upload_file:
+        if not media_file:
             return send_error(message='Please provide the file to upload.')
         if not file_type:
             return send_error(message='Please specify the file type.')
@@ -310,10 +315,14 @@ class AnswerController(Controller):
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
             current_user, _ = AuthController.get_logged_user(request)
-            vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-            if vote is not None:
-                result['up_vote'] = vote.up_vote
-                result['down_vote'] = vote.down_vote
+            if current_user:
+                vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
+                if vote is not None:
+                    result['up_vote'] = vote.up_vote
+                    result['down_vote'] = vote.down_vote
+                favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
+                                                AnswerFavorite.answer_id == answer.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(data=marshal(result, AnswerDto.model_response), message='Success')
 
@@ -352,10 +361,14 @@ class AnswerController(Controller):
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
             current_user, _ = AuthController.get_logged_user(request)
-            vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-            if vote is not None:
-                result['up_vote'] = vote.up_vote
-                result['down_vote'] = vote.down_vote
+            if current_user:
+                vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
+                if vote is not None:
+                    result['up_vote'] = vote.up_vote
+                    result['down_vote'] = vote.down_vote
+                favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
+                                                AnswerFavorite.answer_id == answer.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(message='Update successfully', data=marshal(result, AnswerDto.model_response))
         except Exception as e:

@@ -21,13 +21,13 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 # topic_questions = db.Table('question_topic',
 #     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'), primary_key=True),
-#     db.Column('question_id', db.Integer, db.ForeignKey('question.id'), primary_key=True),
+#     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True),
 #     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 # )
 
 question_user_invite = db.Table('question_user_invite',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('question_id', db.Integer, db.ForeignKey('question.id'), primary_key=True),
+    db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True),
 )
 
 question_proposal_topics = db.Table('question_proposal_topic',
@@ -95,17 +95,23 @@ class Question(Model):
     is_private = db.Column(db.Boolean, server_default=expression.false())
     topics = db.relationship('Topic', secondary='question_topic', lazy='subquery', backref=db.backref('questions', lazy=True))
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery', backref=db.backref('invited_to_questions', lazy=True))
+    answers = db.relationship("Answer", cascade='all,delete-orphan')
+    votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
+    question_shares = db.relationship("QuestionShare", cascade='all,delete-orphan')
+    question_reports = db.relationship("QuestionReport", cascade='all,delete-orphan')
+    question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')
+    question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
+    is_deleted = db.Column(db.Boolean, server_default=expression.false())
 
 class QuestionProposal(Model):
     __tablename__ = 'question_proposal'
 
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    related_question = db.relationship('Question', backref='proposals', lazy=True) # one-to-many relationship with table User
+    question_id = db.Column(db.Integer, nullable=False)
     title = db.Column(db.UnicodeText)
     slug = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
     fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
@@ -129,9 +135,11 @@ class QuestionProposal(Model):
     is_private = db.Column(db.Boolean, server_default=expression.false())
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery', backref=db.backref('questions_proposals', lazy=True))
     invited_users = db.relationship('User', secondary='question_proposal_user_invite', lazy='subquery', backref=db.backref('invited_to_questions_proposals', lazy=True))
-    is_approved = db.Column(db.Boolean, server_default=expression.false())
     proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
     proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_deleted = db.Column(db.Boolean, server_default=expression.false())
+    is_parma_delete = db.Column(db.Boolean, server_default=expression.false())
+    is_approved = db.Column(db.Boolean, server_default=expression.false())
 
 class QuestionTopicView(Model):
     __tablename__ = 'topic_question'

@@ -58,55 +58,55 @@ class TimelineController(Controller):
     def get(self, args):
         """ Search timeline.
         """
-        query = Timeline.query 
+        query = Timeline.query
         current_user, _ = AuthController.get_logged_user(request)
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
         user_id, question_id, answer_id, comment_id, article_id, article_comment_id, from_date, to_date = None, None, None, None, None, None, None, None
-        if 'user_id' in args:
+        if args.get('user_id'):
             try:
                 user_id = int(args['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'question_id' in args:
+        if args.get('question_id'):
             try:
                 question_id = int(args['question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'answer_id' in args:
+        if args.get('answer_id'):
             try:
                 answer_id = int(args['answer_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'comment_id' in args:
+        if args.get('comment_id'):
             try:
                 comment_id = int(args['comment_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'article_id' in args:
+        if args.get('article_id'):
             try:
                 article_id = int(args['article_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'article_comment_id' in args:
+        if args.get('article_comment_id'):
             try:
                 article_comment_id = int(args['article_comment_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'from_date' in args:
+        if args.get('from_date'):
             try:
                 from_date = dateutil.parser.isoparse(args['from_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'to_date' in args:
+        if args.get('to_date'):
             try:
                 to_date = dateutil.parser.isoparse(args['to_date'])
             except Exception as e:

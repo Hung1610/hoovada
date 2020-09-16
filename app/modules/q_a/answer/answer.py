@@ -38,8 +38,8 @@ class Answer(Model):
     html = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship('User', backref='answers', lazy=True) # one-to-many relationship with table User
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    question = db.relationship('Question', backref='answers', lazy=True) # one-to-many relationship with table Question
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False)
+    question = db.relationship('Question', cascade='all, delete', lazy=True) # one-to-many relationship with table Question
     image_ids = db.Column(db.JSON)
     user_hidden = db.Column(db.Boolean, default=False)
     comment_count = db.Column(db.Integer, default=0)
