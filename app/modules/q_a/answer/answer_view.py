@@ -122,7 +122,6 @@ parser.add_argument('to_date', type=str, required=False, help='Search answers cr
 @api.route('/search')
 @api.expect(parser)
 class AnswerSearch(Resource):
-    @token_required
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self):
         """
