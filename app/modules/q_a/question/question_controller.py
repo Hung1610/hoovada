@@ -834,9 +834,9 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'answer_id' in data:
+        if 'question_id' in data:
             try:
-                answer.answer_id = int(data['answer_id'])
+                answer.question_id = int(data['question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
