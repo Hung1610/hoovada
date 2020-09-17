@@ -22,7 +22,7 @@ from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.question.question import Question
-from app.modules.q_a.answer.voting.vote import AnswerVote
+from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
 from app.modules.q_a.comment.comment import Comment
 from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.user.user import User
@@ -123,8 +123,8 @@ class AnswerController(Controller):
                     if current_user:
                         vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                         if vote is not None:
-                            result['up_vote'] = vote.up_vote
-                            result['down_vote'] = vote.down_vote
+                            result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                            result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                         favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
                                                         AnswerFavorite.answer_id == answer.id).first()
                         result['is_favorited_by_me'] = True if favorite else False
@@ -317,8 +317,8 @@ class AnswerController(Controller):
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                 favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
                                                 AnswerFavorite.answer_id == answer.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
@@ -363,8 +363,8 @@ class AnswerController(Controller):
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
-                    result['up_vote'] = vote.up_vote
-                    result['down_vote'] = vote.down_vote
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                 favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
                                                 AnswerFavorite.answer_id == answer.id).first()
                 result['is_favorited_by_me'] = True if favorite else False

@@ -12,6 +12,7 @@ from sqlalchemy_utils import aggregated
 from app import db
 from app.modules.common.model import Model
 from app.modules.q_a.question.voting.vote import QuestionVote
+from app.modules.q_a.answer.answer import Answer
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -76,7 +77,7 @@ class Question(Model):
     
     @aggregated('answers', db.Column(db.Integer))
     def answers_count(self):
-        return db.func.count('1')
+        return db.func.sum(db.func.if_(Answer.is_deleted != True, 1, 0))
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
         return db.func.sum(db.func.if_(QuestionVote.vote_status == 'UPVOTED', 1, 0))
@@ -120,7 +121,6 @@ class QuestionProposal(Model):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     views_count = db.Column(db.Integer, default=0)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    answers_count = db.Column(db.Integer, default=0)
     accepted_answer_id = db.Column(db.Integer)
     anonymous = db.Column(db.Boolean, default=False)
     user_hidden = db.Column(db.Boolean, default=False)
