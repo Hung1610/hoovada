@@ -34,3 +34,8 @@ class Topic(Model):
     is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.String(255))
+    fixed_topic_articles = db.relationship("Article", cascade='all,delete-orphan')
+    articles = db.relationship("Article", secondary='topic_article')
+    fixed_topic_questions = db.relationship("Question", cascade='all,delete-orphan')
+    questions = db.relationship("Question", secondary='question_topic')
+    topic_bookmarks = db.relationship("TopicBookmark", cascade='all,delete-orphan')

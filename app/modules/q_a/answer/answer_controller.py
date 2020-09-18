@@ -21,10 +21,7 @@ from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
-from app.modules.q_a.question.question import Question
 from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
-from app.modules.q_a.comment.comment import Comment
-from app.modules.q_a.comment.comment_dto import CommentDto
 from app.modules.user.user import User
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
@@ -183,9 +180,7 @@ class AnswerController(Controller):
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
             return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('answer', object_id))
-        question = Question.query.filter_by(id=answer.question_id).first()
-        if question is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('answer', answer.question_id))
+        question = answer.question
 
         if not media_file:
             return send_error(message=messages.MSG_NO_FILE)
@@ -223,70 +218,6 @@ class AnswerController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.MSG_CREATE_FAILED.format('Answer media', e))
-
-    def create_comment(self, object_id, data):
-        if object_id is None:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format("Answer ID"))
-        if not isinstance(data, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
-        answer = Answer.query.filter_by(id=object_id).first()
-        if not answer:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
-        if not 'comment' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format("comment body"))
-        if not 'answer_id' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('answer_id'))
-        answer = Answer.query.filter(id == data['answer_id']).first()
-        if not answer:
-            return send_error(message=messages.MSG_NOT_FOUND.format('answer'))
-        if not answer.allow_comments:
-            return send_error(message=messages.MSG_ISSUE.format('answer'))
-            
-        data['answer_id'] = answer.id
-        current_user, _ = AuthController.get_logged_user(request)
-        if current_user:
-            data['user_id'] = current_user.id
-
-        try:
-
-            comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
-            if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Comment content not allowed'))
-            comment.created_date = datetime.utcnow()
-            comment.updated_date = datetime.utcnow()
-            db.session.add(comment)
-            db.session.commit()
-            # update comment count for user
-            try:
-                user = User.query.filter_by(id=comment.user_id).first()
-                user.comment_count += 1
-                db.session.commit()
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-            # update comment count cho answer.
-            try:
-                answer = Answer.query.filter_by(id=comment.answer_id).first()
-                answer.comment_count += 1
-                db.session.commit()
-            except Exception as e:
-                print(e.__str__())
-                pass
-            try:
-                result = comment.__dict__
-                # get thong tin user
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
-                return send_result(message=messages.MSG_CREATE_SUCCESS.format('Comment'),
-                                   data=marshal(result, CommentDto.model_response))
-            except Exception as e:
-                print(e.__str__())
-                return send_result(data=marshal(comment, CommentDto.model_response))
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Comment', e))
 
     def get(self):
         """
@@ -481,23 +412,4 @@ class AnswerController(Controller):
                 print(e.__str__())
                 pass
         return answer
-
-
-    def _parse_comment(self, data, comment=None):
-        if comment is None:
-            comment = Comment()
-        if 'comment' in data:
-            comment.comment = data['comment']
-        if 'answer_id' in data:
-            try:
-                comment.answer_id = int(data['answer_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'user_id' in data:
-            try:
-                comment.user_id = int(data['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        return comment
+        

@@ -35,8 +35,9 @@ class TimelineDto(Dto):
 
     timeline_model_request = api.model(name + '_' + 'model_request', {
         'question_id': fields.Integer(default=0, description='The ID of the question'),
+        'question_comment_id': fields.Integer(default=0, description='The ID of the question comment'),
         'answer_id': fields.Integer(default=0, description='The ID of the answer'),
-        'comment_id': fields.Integer(default=0, description='The ID of the comment'),
+        'answer_comment_id': fields.Integer(default=0, description='The ID of the answer comment'),
         'article_id': fields.Integer(default=0, description='The ID of the article'),
         'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
         'activity': fields.Integer(enum=[x.value for x in TimelineActivity], attribute='activity.value', default=False)
@@ -46,8 +47,9 @@ class TimelineDto(Dto):
         'id': fields.Integer(readonly=True, description=''),
         'user': fields.Nested(model_timeline_user, description='The user information'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
+        'question_comment_id': fields.Integer(default=0, description='The ID of the question comment'),
         'answer_id': fields.Integer(default=0, description='The ID of the answer'),
-        'comment_id': fields.Integer(default=0, description='The ID of the comment'),
+        'answer_comment_id': fields.Integer(default=0, description='The ID of the answer comment'),
         'article_id': fields.Integer(default=0, description='The ID of the article'),
         'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
         'activity': fields.Integer(enum=[x.value for x in TimelineActivity], attribute='activity.value', default=False),

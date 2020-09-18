@@ -196,7 +196,19 @@ class User(Model):
 
     article_share_count = db.Column(db.Integer, server_default='0')
     article_shared_count = db.Column(db.Integer, server_default='0')
+    
+    articles = db.relationship("Article", cascade='all,delete-orphan')
 
+    answers = db.relationship("Answer", cascade='all,delete-orphan')
+    
+    questions = db.relationship("Question", cascade='all,delete-orphan')
+    
+    timelines = db.relationship("Timeline", cascade='all,delete-orphan')
+    
+    user_educations = db.relationship("UserEducation", cascade='all,delete-orphan')
+    user_locations = db.relationship("UserLocation", cascade='all,delete-orphan')
+    
+    languages = db.relationship("Language", secondary='user_language')
     # @hybrid_property
     # def about_me(self):
     #     """Return the value of _about_me but the html version."""

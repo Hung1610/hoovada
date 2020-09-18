@@ -34,9 +34,9 @@ class Article(Model):
     title = db.Column(db.UnicodeText)
     slug = db.Column(db.String(140))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    article_by_user = db.relationship('User', backref='articles', lazy=True) # one-to-many relationship with table Article
+    article_by_user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
-    fixed_topic = db.relationship('Topic', backref='fixed_topic_articles', lazy=True) # one-to-many relationship with table Article
+    fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
@@ -58,13 +58,17 @@ class Article(Model):
     def comment_count(self):
         return db.func.count('1')
 
-    topics = db.relationship('Topic', secondary=article_topics, lazy='subquery', backref=db.backref('articles', lazy=True))
+    topics = db.relationship('Topic', secondary=article_topics, lazy='subquery')
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     is_draft = db.Column(db.Boolean, default=False)
     is_deleted = db.Column(db.Boolean, default=False)
+    votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
+    article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
+    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan')
+    article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):
