@@ -22,7 +22,7 @@ class AnswerShare(Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='answer_shares', lazy=True) # one-to-many relationship with table Article
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
-    answer = db.relationship('Answer', backref='answer_shares', lazy=True) # one-to-many relationship with table Article
+    answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Article
     created_date = db.Column(db.Date)
     facebook = db.Column(db.Boolean)
     twitter = db.Column(db.Boolean)

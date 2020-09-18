@@ -18,7 +18,7 @@ class AnswerReport(Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='answer_reports', lazy=True) # one-to-many relationship with table User
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
-    answer = db.relationship('Answer', backref='answer_reports', lazy=True) # one-to-many relationship with table Answer
+    answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
     inappropriate = db.Column(db.Boolean)
     description = db.Column(db.String(255))
     created_date = db.Column(db.DateTime)
