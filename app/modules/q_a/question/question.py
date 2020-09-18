@@ -54,9 +54,9 @@ class Question(Model):
     title = db.Column(db.UnicodeText)
     slug = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    question_by_user = db.relationship('User', backref='questions', lazy=True) # one-to-many relationship with table User
+    question_by_user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
-    fixed_topic = db.relationship('Topic', backref='fixed_topic_questions', lazy=True) # one-to-many relationship with table Article
+    fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     fixed_topic_name = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     markdown = db.Column(db.UnicodeText)
@@ -94,8 +94,8 @@ class Question(Model):
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
-    topics = db.relationship('Topic', secondary='question_topic', lazy='subquery', backref=db.backref('questions', lazy=True))
-    invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery', backref=db.backref('invited_to_questions', lazy=True))
+    topics = db.relationship('Topic', secondary='question_topic', lazy='subquery')
+    invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
     question_shares = db.relationship("QuestionShare", cascade='all,delete-orphan')
@@ -133,8 +133,8 @@ class QuestionProposal(Model):
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
-    topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery', backref=db.backref('questions_proposals', lazy=True))
-    invited_users = db.relationship('User', secondary='question_proposal_user_invite', lazy='subquery', backref=db.backref('invited_to_questions_proposals', lazy=True))
+    topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
+    invited_users = db.relationship('User', secondary='question_proposal_user_invite', lazy='subquery')
     proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
     proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_deleted = db.Column(db.Boolean, server_default=expression.false())
