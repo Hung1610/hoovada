@@ -19,6 +19,6 @@ class AnswerBookmark(Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship('User', backref='answer_bookmarks', lazy=True) # one-to-many relationship with table User
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
-    answer = db.relationship('Answer', backref='answer_bookmarks', lazy=True) # one-to-many relationship with table Answer
+    answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)

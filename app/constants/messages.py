@@ -26,9 +26,13 @@ MSG_UPDATE_FAILED = 'Failed to update {}. Issue: {}'
 MSG_DELETE_SUCCESS = '{} deleted successful.'
 MSG_DELETE_FAILED = 'Failed to delete {}.'
 
+# # File Messages
+MSG_NO_FILE = 'No file found in the request.'
+
 # # General Errors
 MSG_WRONG_DATA_FORMAT = 'Wrong data format. Please check again!'
 MSG_LACKING_QUERY_PARAMS = 'Query parameters not provided.'
+MSG_PLEASE_PROVIDE = 'Please provide {}.'
 MSG_NOT_FOUND = '{} not found'
 MSG_NOT_FOUND_WITH_ID = 'Entry not found with ID: {}'
 MSG_ISSUE = 'Issue: {}.'

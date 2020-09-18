@@ -26,7 +26,7 @@ class AnswerVote(Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
-    answer =  db.relationship('Answer', backref='votes', lazy=True) # one-to-many relationship with table Answer
+    answer =  db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
     comment_id = db.Column(db.Integer)
     vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), nullable=False, server_default="NEUTRAL")
     created_date = db.Column(db.DateTime)
