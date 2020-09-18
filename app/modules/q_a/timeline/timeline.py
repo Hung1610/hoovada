@@ -28,10 +28,11 @@ class Timeline(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref='timelines', lazy=True) # one-to-many relationship with table User
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'))
+    question_comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'))
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
-    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
+    answer_comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id'))
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
     article_comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'))
     activity = db.Column(db.Enum(TimelineActivity, validate_strings=True))

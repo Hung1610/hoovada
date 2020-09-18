@@ -17,8 +17,8 @@ class ArticleFavorite(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship('User', backref='article_favorites', lazy=True) # one-to-many relationship with table User
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=False)
-    article = db.relationship('Article', backref='article_favorites', lazy=True) # one-to-many relationship with table Article
+    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)

@@ -17,8 +17,8 @@ class TopicBookmark(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship('User', backref='topic_bookmarks', lazy=True) # one-to-many relationship with table User
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
-    topic = db.relationship('Topic', backref='topic_bookmarks', lazy=True) # one-to-many relationship with table Topic
+    topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)

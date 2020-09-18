@@ -23,7 +23,7 @@ class Comment(Model):
     question_id = db.Column(db.Integer)
     answer_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship('User', backref='comments', lazy=True) # one-to-many relationship with table User
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     upvote_count = db.Column(db.Integer, default=0)
     downvote_count = db.Column(db.Integer, default=0)

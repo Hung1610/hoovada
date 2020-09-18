@@ -14,7 +14,6 @@ from sqlalchemy import and_
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.comment.comment import Comment
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.answer.favorite.favorite_dto import AnswerFavoriteDto
 from app.modules.user.user import User

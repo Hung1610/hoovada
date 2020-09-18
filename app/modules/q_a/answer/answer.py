@@ -37,7 +37,7 @@ class Answer(Model):
     markdown = db.Column(db.UnicodeText)
     html = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship('User', backref='answers', lazy=True) # one-to-many relationship with table User
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
     image_ids = db.Column(db.JSON)
@@ -53,4 +53,5 @@ class Answer(Model):
     answer_reports = db.relationship("AnswerReport", cascade='all,delete-orphan')
     answer_favorites = db.relationship("AnswerFavorite", cascade='all,delete-orphan')
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
+    answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan')
     is_deleted = db.Column(db.Boolean, default=False)

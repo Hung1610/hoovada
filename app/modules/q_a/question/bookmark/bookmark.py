@@ -17,7 +17,7 @@ class QuestionBookmark(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship('User', backref='question_bookmarks', lazy=True) # one-to-many relationship with table User
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
     created_date = db.Column(db.DateTime)

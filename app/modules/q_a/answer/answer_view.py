@@ -97,19 +97,6 @@ class Answer(Resource):
         controller = AnswerController()
         return controller.delete(object_id=id)
 
-@api.route('/<string:id>/comment')
-class AnswerComment(Resource):
-    @token_required
-    @api.expect(model_comment_request)
-    def post(self, id):
-        """ 
-        Create answer for question by its ID.
-        """
-
-        data = api.payload
-        controller = AnswerController()
-        return controller.create_comment(object_id=id, data=data)
-
 parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
 parser.add_argument('question_id', type=str, required=False, help='Search all answers by question_id.')

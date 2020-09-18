@@ -23,7 +23,7 @@ class UserLocation(Model):
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user = db.relationship('User', backref='user_locations', lazy=True) # one-to-many relationship with table Article
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
