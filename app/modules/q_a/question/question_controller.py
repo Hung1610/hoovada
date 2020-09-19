@@ -750,11 +750,11 @@ class QuestionController(Controller):
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
+            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
+            if answer:
+                return send_error(message=messages.MSG_ISSUE.format('This user already answered for this question'))
 
         try:
-            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data.get('user_id')).first()
-            if answer:
-                return send_error(message='This user already answered for this question.')
             # add new answer
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
