@@ -82,3 +82,25 @@ class Share(Resource):
         
         controller = ShareController()
         return controller.delete(object_id=id)
+
+parser = reqparse.RequestParser()
+parser.add_argument('user_id', type=str, required=False, help='Search shares by user_id')
+
+@api.route('/share/get_by_user')
+@api.expect(parser)
+class ShareSearch(Resource):
+    # @token_required
+    # @api.marshal_list_with(share)
+    #@token_required
+    @api.response(code=200, model=share_response, description='Model for share response.')
+    def get(self):
+        """
+        Search all shares article that satisfy conditions.
+        ---------------------
+        :param `user_id`: Search shares by user_id
+
+        :return: List of shares article satisfy search condition.
+        """
+        args = parser.parse_args()
+        controller = ShareController()
+        return controller.get_share_by_user_id(args=args)

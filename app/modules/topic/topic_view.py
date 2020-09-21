@@ -166,3 +166,14 @@ class TopicSearch(Resource):
         args = parser.parse_args()
         controller = TopicController()
         return controller.search(args=args)
+
+@api.route('/topic_hot/<int:page>')
+class TopicHot(Resource):
+    #@token_required
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
+    def get(self,page):
+        """ get questions hot 
+        """
+
+        controller = TopicController()
+        return controller.get_topic_hot(page)
