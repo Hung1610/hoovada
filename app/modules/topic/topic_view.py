@@ -19,6 +19,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = TopicDto.api
 topic_request = TopicDto.model_topic_request
 topic_response = TopicDto.model_topic_response
+endorsed_user_dto = TopicDto.model_endorsed_user
+get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
+topic_endorse_user_request = TopicDto.topic_endorse_user_request
 
 
 @api.route('')
@@ -104,6 +107,32 @@ class SubTopic(Resource):
 
         controller = TopicController()
         return controller.get_sub_topics(fixed_topic_id=topic_id)
+
+
+@api.route('/<int:topic_id>/endorsed_users')
+class EndorseUserTopic(Resource):
+    @api.expect(get_endorsed_users_parser)
+    @api.response(code=200, model=endorsed_user_dto, description='Endorsed users')
+    def get(self, topic_id):
+        """ 
+        Get endorsed users for topic.
+        """
+
+        args = get_endorsed_users_parser.parse_args()
+        controller = TopicController()
+        return controller.get_endorsed_users(object_id=topic_id, args=args)
+
+    @token_required
+    @api.expect(topic_endorse_user_request)
+    @api.response(code=200, model=endorsed_user_dto, description='Endorsed users')
+    def post(self, topic_id):
+        """ 
+        Create endorsed users for topic.
+        """
+
+        data = api.payload
+        controller = TopicController()
+        return controller.create_endorsed_users(object_id=topic_id, data=data)
 
 
 @api.route('/create_topics')
