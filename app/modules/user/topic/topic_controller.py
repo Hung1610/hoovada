@@ -11,13 +11,15 @@ from flask import request
 # own modules
 from app import db
 from app.modules.common.controller import Controller
+from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.user.user import User
 from app.modules.user.topic.topic import UserTopic
 from app.modules.user.topic.topic_dto import TopicDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
+from app.utils.response import send_error, send_result, send_paginated_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -121,6 +123,33 @@ class TopicController(Controller):
             print(e.__str__())
             db.session.rollback()
             return send_error(message='Could not delete topic with the ID {}.'.format(object_id))
+
+    def get_endorsed_topics(self, user_id, args):
+        if not 'page' in args:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('page'))
+        if not 'per_page' in args:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
+        page, per_page = args.get('page', 0), args.get('per_page', 10)
+        try:
+            user = User.query.filter_by(id=user_id).first()
+            if not user:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('User', user_id))
+            user_endorsed_topics = TopicUserEndorse.query.distinct()\
+                .filter_by(endorsed_id=user.id)\
+                .join(Topic)\
+                .with_entities(
+                    Topic,
+                    db.func.count(TopicUserEndorse.user_id).label('endorse_score'),
+                )\
+                .group_by(Topic,)\
+                .order_by(db.desc('endorse_score'))
+            result = user_endorsed_topics.paginate(page, per_page, error_out=True)
+            res, code = paginated_result(result)
+            res['data'] = marshal([{'topic': topic, 'endorse_score': endorse_score} for topic, endorse_score in res.get('data')], TopicDto.model_endorsed_topic)
+            return res, code
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.MSG_GET_FAILED.format('endorsed topics', e.__str__))
 
     def _parse_topic(self, data, topic=None):
         if topic is None:

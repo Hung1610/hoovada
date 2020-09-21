@@ -295,10 +295,10 @@ class TopicController(Controller):
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
             result = topic.endorsed_users.paginate(page, per_page, error_out=True)
-            return send_paginated_result(message=messages.MSG_UPDATE_SUCCESS.format('Topic'), query=result, dto=TopicDto.model_endorsed_user)
+            return send_paginated_result(query=result, dto=TopicDto.model_endorsed_user)
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_UPDATE_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))
 
     def _parse_topic(self, data, topic=None):
         if topic is None:
