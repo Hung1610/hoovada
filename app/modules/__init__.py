@@ -8,7 +8,7 @@ from app.modules.user import ns_user,\
 from app.modules.auth import api as ns_auth
 from app.modules.q_a import ns_question, ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report, ns_question_bookmark,\
                             ns_answer, ns_answer_bookmark, ns_answer_favorite, ns_answer_report, ns_answer_share, ns_answer_vote,\
-                            ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote,\
+                            ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote, ns_answer_comment_favorite,\
                             ns_question_comment, ns_question_comment_report, ns_question_comment_vote,\
                             ns_qa_timeline,\
                             ns_comment, ns_comment_report, ns_comment_vote

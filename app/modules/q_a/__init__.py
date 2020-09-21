@@ -20,6 +20,7 @@ from app.modules.q_a.answer.report import api as ns_answer_report
 from app.modules.q_a.answer.comment import api as ns_answer_comment
 from app.modules.q_a.answer.comment.report import api as ns_answer_comment_report
 from app.modules.q_a.answer.comment.voting import api as ns_answer_comment_vote
+from app.modules.q_a.answer.comment.favorite import api as ns_answer_comment_favorite
 from app.modules.q_a.timeline import api as ns_qa_timeline
 # DELETE THESE LATER
 from app.modules.q_a.comment import api as ns_comment
