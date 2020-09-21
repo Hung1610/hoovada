@@ -63,6 +63,7 @@ class AnswerDto(Dto):
         'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
