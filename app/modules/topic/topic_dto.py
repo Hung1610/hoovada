@@ -57,7 +57,7 @@ class TopicDto(Dto):
     })
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {
-        'user_ids': fields.List(fields.String, description='The list of user ids to endorse'),
+        'user_id': fields.Integer(required=True, description='User id to endorse'),
     })
 
     @classmethod

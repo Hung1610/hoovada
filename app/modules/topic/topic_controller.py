@@ -14,7 +14,7 @@ from sqlalchemy import or_, and_, func, desc
 # own modules
 from app.modules.common.controller import Controller
 from app.modules.auth.auth_controller import AuthController
-from app.modules.topic.topic import Topic
+from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.topic.topic_dto import TopicDto
 from app import db
 from app.utils.response import send_error, send_result, send_paginated_result
@@ -262,21 +262,22 @@ class TopicController(Controller):
 
     def create_endorsed_users(self, object_id, data):
         try:
-            if not 'user_ids' in data:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('user_ids'))
+            if not 'user_id' in data:
+                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('user_id'))
             topic = Topic.query.filter_by(id=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = AuthController.get_logged_user(request)
-            user_ids = data['user_ids']
-            for user_id in user_ids:
-                try:
-                    user = User.query.filter_by(id=user_id).first()
-                    if user:
-                        topic.endorsed_users.append(user)
-                except Exception as e:
-                    print(e)
-                    pass
+            user_id = data['user_id']
+            user = User.query.get(id=user_id)
+            if not user:
+                return send_error(message=messages.MSG_NOT_FOUND.format('User'))
+
+            endorse = TopicUserEndorse()
+            endorse.user_id = current_user.id
+            endorse.endorsed_id = user.id
+            endorse.topic_id = topic.id
+            db.session.merge(endorse)
             db.session.commit()
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Topic'))
         except Exception as e:
