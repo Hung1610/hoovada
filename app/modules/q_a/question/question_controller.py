@@ -9,7 +9,7 @@ from datetime import datetime
 import dateutil.parser
 from flask import request
 from flask_restx import marshal
-from sqlalchemy import desc
+from sqlalchemy import desc, text, func
 
 # own modules
 from app import db
@@ -29,6 +29,7 @@ from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
 from app.utils.checker import check_spelling
+from app.modules.topic.bookmark.bookmark import TopicBookmark
 from slugify import slugify
 
 __author__ = "hoovada.com team"
@@ -38,7 +39,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class QuestionController(Controller):
-    def search(self, args):
+    def search(self,page, args):
         """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
 
@@ -137,7 +138,11 @@ class QuestionController(Controller):
             query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
             is_filter = True
         if is_filter:
-            questions = query.order_by(desc(Question.upvote_count)).all()
+            page_size = 20
+            questions = None;
+            if page > 0 :
+                page = page - 1
+            questions = query.order_by(desc(Question.upvote_count)).offset(page * page_size).limit(page_size).all()
             if questions is not None and len(questions) > 0:
                 results = list()
                 for question in questions:
@@ -1130,3 +1135,130 @@ class QuestionController(Controller):
         if not question.invited_users.contains(user):
             return False
         return True
+
+    def get_question_hot(self,page=1):
+        page_size = 20
+        questions = None;
+        if page > 0 :
+            page = page - 1
+            
+            # get current user voting status for this article
+            current_user, _ = AuthController.get_logged_user(request)
+            if current_user:
+               query = db.session.query(Question).outerjoin(TopicBookmark,TopicBookmark.id==Question.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
+            else:
+                query = db.session.query(Question).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
+            
+            questions = query.offset(page * page_size).limit(page_size).all()
+
+        if questions is not None and len(questions) > 0:
+            results = list()
+            for question in questions:
+                # kiem tra den topic
+                result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+                # get all topics that question belongs to
+                question_id = question.id
+                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                topics = list()
+                for question_topic in question_topics:
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                result['topics'] = topics
+                results.append(result)
+            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+        else:
+            return send_result(message='Could not find any questions')
+
+    def get_question_new(self,page=1):
+        page_size = 20
+        questions = None;
+        if page > 0 :
+            page = page - 1
+            query = db.session.query(Question).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
+            questions = query.offset(page * page_size).limit(page_size).all()
+
+        if questions is not None and len(questions) > 0:
+            results = list()
+            for question in questions:
+                # kiem tra den topic
+                result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+                # get all topics that question belongs to
+                question_id = question.id
+                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                topics = list()
+                for question_topic in question_topics:
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                result['topics'] = topics
+                results.append(result)
+            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+        else:
+            return send_result(message='Could not find any questions')
+
+    def get_question_highlight(self,page=1):
+        page_size = 20
+        questions = None;
+        if page > 0 :
+            page = page - 1
+            query = db.session.query(Question).order_by(desc(Question.upvote_count),desc(Question.created_date))
+            questions = query.offset(page * page_size).limit(page_size).all()
+
+        if questions is not None and len(questions) > 0:
+            results = list()
+            for question in questions:
+                # kiem tra den topic
+                result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+                # get all topics that question belongs to
+                question_id = question.id
+                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                topics = list()
+                for question_topic in question_topics:
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                result['topics'] = topics
+                results.append(result)
+            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+        else:
+            return send_result(message='Could not find any questions')
+
+    def get_question_many_answers(self,page=1):
+        page_size = 20
+        questions = None;
+        if page > 0 :
+            page = page - 1
+            query = db.session.query(Question).order_by(desc(Question.answers_count),desc(Question.created_date))
+            questions = query.offset(page * page_size).limit(page_size).all()
+
+        if questions is not None and len(questions) > 0:
+            results = list()
+            for question in questions:
+                # kiem tra den topic
+                result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+                # get all topics that question belongs to
+                question_id = question.id
+                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                topics = list()
+                for question_topic in question_topics:
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                result['topics'] = topics
+                results.append(result)
+            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+        else:
+            return send_result(message='Could not find any questions')

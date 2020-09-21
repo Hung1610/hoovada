@@ -9,7 +9,7 @@ from datetime import datetime
 from flask_restx import marshal
 from flask import request
 import dateutil.parser
-from sqlalchemy import or_, and_, func, desc
+from sqlalchemy import or_, and_, func, desc, text
 
 # own modules
 from app.modules.common.controller import Controller
@@ -361,3 +361,18 @@ class TopicController(Controller):
             topic.description = data['description']
 
         return topic
+
+    def get_topic_hot(self,page=1):
+        page_size = 20
+        topics = None;
+        if page > 0 :
+            page = page - 1
+            query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))
+            query.filter(Topic.is_fixed!=1)
+            topics = query.offset(page * page_size).limit(page_size).all()
+
+        if topics is not None and len(topics) > 0:
+            return send_result(data=marshal(topics, TopicDto.model_topic_response),
+                    message='Success') 
+        else:
+            return send_result(message='Could not find any topics')

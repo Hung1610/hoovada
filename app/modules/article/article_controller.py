@@ -10,7 +10,7 @@ from datetime import datetime
 import dateutil.parser
 from flask import request
 from flask_restx import marshal
-from sqlalchemy import desc
+from sqlalchemy import desc, text, func
 from bs4 import BeautifulSoup
 
 # own modules
@@ -26,6 +26,7 @@ from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from app.modules.topic.bookmark.bookmark import TopicBookmark
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -450,3 +451,24 @@ class ArticleController(Controller):
                 print(e)
                 pass
         return article, topic_ids
+
+    def get_user_hot(self,page=1):
+        page_size = 20
+        articles = None;
+        if page > 0 :
+            page = page - 1
+            query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+            # get current user voting status for this article
+            current_user, _ = AuthController.get_logged_user(request)
+            if current_user:
+               query = db.session.query(Article).outerjoin(TopicBookmark,TopicBookmark.id==Article.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+            else:
+                query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+
+            articles = query.offset(page * page_size).limit(page_size).all()
+
+        if articles is not None and len(articles) > 0:
+            return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
+        else:
+            return send_result(message='Could not find any articles')
+

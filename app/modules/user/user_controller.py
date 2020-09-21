@@ -9,6 +9,7 @@ import dateutil.parser
 # third-party modules
 from flask import url_for, request, send_file
 from flask_restx import marshal
+from sqlalchemy import desc, text
 
 # own modules
 from app import db
@@ -351,3 +352,16 @@ class UserController(Controller):
                 print(e.__str__())
                 pass
         return user
+
+    def get_user_hot(self,page=1):
+        page_size = 20
+        users = None;
+        if page > 0 :
+            page = page - 1
+            query = db.session.query(User).order_by(desc(text("(SELECT SUM(score) AS score FROM reputation WHERE reputation.user_id = user.id)")))
+            users = query.offset(page * page_size).limit(page_size).all()
+
+        if users is not None and len(users) > 0:
+            return send_result(data=marshal(users, UserDto.model_response), message='Success')
+        else:
+            return send_result(message='Could not find any users')

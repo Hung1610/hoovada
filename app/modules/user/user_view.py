@@ -116,3 +116,14 @@ class Avatar(Resource):
         args = avatar_upload.parse_args()
         controller = UserController()
         return controller.upload_avatar(args=args)
+
+@api.route('/user_hot/<int:page>')
+class UserHot(Resource):
+    @token_required
+    @api.response(code=200, model=user_response, description='Model for user response.')
+    def get(self,page):
+        """ get users hot 
+        """
+
+        controller = UserController()
+        return controller.get_user_hot(page)

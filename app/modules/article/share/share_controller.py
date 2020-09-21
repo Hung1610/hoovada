@@ -8,6 +8,7 @@ from datetime import datetime
 import dateutil.parser
 from flask_restx import marshal
 from flask import request
+from sqlalchemy import desc
 
 # own modules
 from app import db
@@ -178,3 +179,49 @@ class ShareController(Controller):
             except Exception as e:
                 pass
         return share
+
+    def get_share_by_user_id(self,args):
+        """ Search share.
+
+        Args:
+            `user_id` (int): Search shares by user_id
+
+        Returns:
+             List of shares article satisfy search condition.
+        """
+
+        query = ArticleShare.query
+        if not isinstance(args, dict):
+            return send_error(message='Could not parse the params.')
+        user_id = None 
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if user_id is None :
+            send_error(message='Provide params to search.')
+
+        is_filter = False
+        if user_id is not None:
+            query = query.filter(ArticleShare.user_id == user_id)
+            is_filter = True
+
+        if is_filter:
+            shares = query.order_by(desc(ArticleShare.created_date)).all()
+            if shares is not None and len(shares) > 0:
+                results = list()
+                for share in shares:
+                    result = ArticleShare.__dict__
+
+                    # get user article
+                    article = Article.query.filter_by(id=ArticleShare.article_id).first()
+                    result['article'] = article
+
+                    results.append(result)
+                return send_result(data=marshal(results, ShareDto.model_response), message='Success')
+            else:
+                return send_result(message='Could not find any share.')
+        else:
+            return send_error(message='Could not find questions. Please check your parameters again.')
