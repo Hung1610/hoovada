@@ -31,6 +31,7 @@ class Topic(Model):
     count = db.Column(db.Integer, default=0) # chua ro truong nay su dung lam gi
     user_id = db.Column(db.Integer)  # who created this topic
     # question_count = db.Column(db.Integer, default=0)  # amount of question related to this topic
+    questions = db.relationship('Question', lazy='dynamic')
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
         return db.func.count('1')
