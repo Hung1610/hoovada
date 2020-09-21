@@ -365,7 +365,7 @@ class QuestionController(Controller):
     def invite(self, object_id, data):
         try:
             if not 'emails_or_usernames' in data:
-                return send_error(message='Question must contain at least the title.')
+                return send_error(message='Please provide emails or usernames.')
             if object_id is None:
                 return send_error("Question ID is null")
             if object_id.isdigit():
@@ -378,10 +378,8 @@ class QuestionController(Controller):
             emails_or_usernames = data['emails_or_usernames']
             for email_or_username in emails_or_usernames:
                 try:
-                    user = User.query.filter_by(display_name=email_or_username).first()
-                    if not user:
-                        user = User.query.filter_by(email=email_or_username).first()
-                    if not user:
+                    user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
+                    if user:
                         question.invited_users.append(user)
                 except Exception as e:
                     print(e)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# third-party modules
+from flask_restx import reqparse
+
 # built-in modules
 from abc import ABC, abstractmethod
 
@@ -25,3 +28,7 @@ class Dto(ABC):
     @abstractmethod
     def model(self):
         raise NotImplementedError()
+
+    paginated_request_parser = reqparse.RequestParser()
+    paginated_request_parser.add_argument('page', type=int, required=True, help='Page no of results.')
+    paginated_request_parser.add_argument('per_page', type=int, required=True, help='Number of result per page.')
