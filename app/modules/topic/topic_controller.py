@@ -269,7 +269,7 @@ class TopicController(Controller):
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = AuthController.get_logged_user(request)
             user_id = data['user_id']
-            user = User.query.get(id=user_id)
+            user = User.query.filter_by(id=user_id).first()
             if not user:
                 return send_error(message=messages.MSG_NOT_FOUND.format('User'))
 
