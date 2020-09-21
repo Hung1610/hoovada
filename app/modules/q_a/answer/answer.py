@@ -7,10 +7,12 @@ from datetime import datetime
 
 #third-party modules
 from sqlalchemy.sql import expression
+from sqlalchemy_utils import aggregated
 
 # own modules
 from app import db
 from app.modules.common.model import Model
+from app.modules.q_a.answer.voting.vote import AnswerVote
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -29,8 +31,6 @@ class Answer(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    upvote_count = db.Column(db.Integer, default=0)
-    downvote_count = db.Column(db.Integer, default=0)
     anonymous = db.Column(db.Boolean, default=False)
     accepted = db.Column(db.Boolean, default=False)
     answer = db.Column(db.UnicodeText)
@@ -42,12 +42,24 @@ class Answer(Model):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
     image_ids = db.Column(db.JSON)
     user_hidden = db.Column(db.Boolean, default=False)
-    comment_count = db.Column(db.Integer, default=0)
-    share_count = db.Column(db.Integer, default=0)
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     allow_improvement = db.Column(db.Boolean, server_default=expression.true())
     file_url = db.Column(db.String(255))
     file_type = db.Column(db.Enum(FileTypeEnum, validate_strings=True), nullable=True)
+
+    @aggregated('votes', db.Column(db.Integer))
+    def upvote_count(self):
+        return db.func.sum(db.func.if_(AnswerVote.vote_status == 'UPVOTED', 1, 0))
+    @aggregated('votes', db.Column(db.Integer))
+    def downvote_count(self):
+        return db.func.sum(db.func.if_(AnswerVote.vote_status == 'DOWNVOTED', 1, 0))
+    @aggregated('answer_shares', db.Column(db.Integer))
+    def share_count(self):
+        return db.func.count('1')
+    @aggregated('answer_favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')
+
     votes = db.relationship("AnswerVote", cascade='all,delete-orphan')
     answer_shares = db.relationship("AnswerShare", cascade='all,delete-orphan')
     answer_reports = db.relationship("AnswerReport", cascade='all,delete-orphan')

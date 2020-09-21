@@ -16,6 +16,12 @@ class TopicDto(Dto):
     name = 'topic'
     api = Namespace(name, description="Topic operations")
 
+    model_endorsed_user = api.model('model_endorsed_user', {
+        'id': fields.Integer(readonly=True),
+        'display_name': fields.String(required=False),
+        'profile_pic_url': fields.String(required=False)
+    })
+
     model_sub_topic = api.model('sub_topic', {
         'id': fields.Integer(readonly=True),
         'name': fields.String(description='The name of the topic'),
@@ -49,3 +55,12 @@ class TopicDto(Dto):
         'description': fields.String(description='Description about topic'),
         'sub_topics': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic')
     })
+
+    topic_endorse_user_request = api.model('topic_endorse_user_request', {
+        'user_ids': fields.List(fields.String, description='The list of user ids to endorse'),
+    })
+
+    @classmethod
+    def get_endorsed_users_parser(cls):
+        get_endorsed_users_parser = cls.paginated_request_parser.copy()
+        return get_endorsed_users_parser

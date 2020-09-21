@@ -7,17 +7,20 @@ from datetime import datetime
 
 # third-party modules
 from flask_restx import marshal
+from flask import request
 import dateutil.parser
 from sqlalchemy import or_, and_, func, desc
 
 # own modules
 from app.modules.common.controller import Controller
+from app.modules.auth.auth_controller import AuthController
 from app.modules.topic.topic import Topic
 from app.modules.topic.topic_dto import TopicDto
 from app import db
-from app.utils.response import send_error, send_result
+from app.utils.response import send_error, send_result, send_paginated_result
 from app.modules.user.user import User
 from app.utils.sensitive_words import check_sensitive
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -256,6 +259,45 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not delete user with ID {}'.format(object_id))
+
+    def create_endorsed_users(self, object_id, data):
+        try:
+            if not 'user_ids' in data:
+                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('user_ids'))
+            topic = Topic.query.filter_by(id=object_id).first()
+            if not topic:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
+            current_user, _ = AuthController.get_logged_user(request)
+            user_ids = data['user_ids']
+            for user_id in user_ids:
+                try:
+                    user = User.query.filter_by(id=user_id).first()
+                    if user:
+                        topic.endorsed_users.append(user)
+                except Exception as e:
+                    print(e)
+                    pass
+            db.session.commit()
+            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Topic'))
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.MSG_UPDATE_FAILED.format('Topic', e.__str__))
+
+    def get_endorsed_users(self, object_id, args):
+        if not 'page' in args:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('page'))
+        if not 'per_page' in args:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
+        page, per_page = args.get('page', 0), args.get('per_page', 10)
+        try:
+            topic = Topic.query.filter_by(id=object_id).first()
+            if not topic:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
+            result = topic.endorsed_users.paginate(page, per_page, error_out=True)
+            return send_paginated_result(message=messages.MSG_UPDATE_SUCCESS.format('Topic'), query=result, dto=TopicDto.model_endorsed_user)
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.MSG_UPDATE_FAILED.format('Topic', e.__str__))
 
     def _parse_topic(self, data, topic=None):
         if topic is None:

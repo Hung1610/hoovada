@@ -17,6 +17,12 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+class TopicUserEndorse(Model):
+    __tablename__ = 'topic_user_endorse'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
+    endorsed_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), primary_key=True)
+
 class Topic(Model):
     __tablename__ = 'topic'
 
@@ -34,6 +40,7 @@ class Topic(Model):
     is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.String(255))
+    endorsed_users = db.relationship('User', secondary='topic_user_endorse', lazy='dynamic')
     fixed_topic_articles = db.relationship("Article", cascade='all,delete-orphan')
     articles = db.relationship("Article", secondary='topic_article')
     fixed_topic_questions = db.relationship("Question", cascade='all,delete-orphan')
