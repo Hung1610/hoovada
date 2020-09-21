@@ -53,6 +53,9 @@ class Answer(Model):
     @aggregated('votes', db.Column(db.Integer))
     def downvote_count(self):
         return db.func.sum(db.func.if_(AnswerVote.vote_status == 'DOWNVOTED', 1, 0))
+    @aggregated('answer_comments', db.Column(db.Integer))
+    def comment_count(self):
+        return db.func.count('1')
     @aggregated('answer_shares', db.Column(db.Integer))
     def share_count(self):
         return db.func.count('1')
