@@ -150,3 +150,19 @@ class QuestionDto(Dto):
     get_relevant_topics_parser = reqparse.RequestParser()
     get_relevant_topics_parser.add_argument('title', type=str, required=False, help='Title by which to get relevant topics')
     get_relevant_topics_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
+
+
+    get_parser = Dto.paginated_request_parser.copy()
+    get_parser.add_argument('title', type=str, required=False, help='Search question by its title')
+    get_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
+    get_parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
+    get_parser.add_argument('topic_id', type=str, required=False, help='Search all questions related to topic.')
+    get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+    get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+    get_parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+                        )
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+                        )
