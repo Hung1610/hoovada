@@ -30,5 +30,5 @@ class Dto(ABC):
         raise NotImplementedError()
 
     paginated_request_parser = reqparse.RequestParser()
-    paginated_request_parser.add_argument('page', type=int, required=True, help='Page no of results.')
-    paginated_request_parser.add_argument('per_page', type=int, required=True, help='Number of result per page.')
+    paginated_request_parser.add_argument('page', type=int, required=False, help='Page no of results.')
+    paginated_request_parser.add_argument('per_page', type=int, required=False, help='Number of result per page.')
