@@ -304,11 +304,7 @@ class TopicController(Controller):
             return send_error(message=messages.MSG_UPDATE_FAILED.format('Topic', e.__str__))
 
     def get_endorsed_users(self, object_id, args):
-        if not 'page' in args:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('page'))
-        if not 'per_page' in args:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
-        page, per_page = args.get('page', 0), args.get('per_page', 10)
+        page, per_page = args.get('page', 1), args.get('per_page', 10)
         try:
             if object_id.isdigit():
                 topic = Topic.query.filter_by(id=object_id).first()

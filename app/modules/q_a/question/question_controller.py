@@ -346,12 +346,7 @@ class QuestionController(Controller):
                 query = query.filter(Question.created_date <= to_date)
             if topic_ids is not None:
                 query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
-
-            if not 'page' in args:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('page'))
-            if not 'per_page' in args:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
-            page, per_page = args.get('page', 0), args.get('per_page', 10)
+            page, per_page = args.get('page', 1), args.get('per_page', 10)
             ordering_fields_desc = args.get('order_by_desc')
             if ordering_fields_desc:
                 for ordering_field in ordering_fields_desc:
