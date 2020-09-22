@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
+from werkzeug.datastructures import FileStorage
+
 # third-party modules
 from flask_restx import Namespace, fields
 
@@ -37,14 +40,16 @@ class TopicDto(Dto):
         'name': fields.String(required=True, description='The name of the topic'),
         'parent_id': fields.Integer(required=True, description='The ID of the parent topic'),
         'user_id': fields.Integer(required=True, description='The user ID'),
-        'description': fields.String(description='Description about topic')
+        'color_code': fields.String(description='The color code for topic'),
+        'description': fields.String(description='Description about topic'),
     })
 
     # define the model for response
     model_topic_response = api.model('topic_response', {
         'id': fields.Integer(requried=False, readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the question'),
         'name': fields.String(description='The name of the topic'),
-        # 'count': fields.Integer(description=''),
+        'color_code': fields.String(description='The color code for topic'),
         'user_id': fields.Integer(description='The user ID'),
         'question_count': fields.Integer(description='The amount of questions belong to this topic'),
         'user_count': fields.Integer(description='The amount of users who interest this topic'),
@@ -60,6 +65,13 @@ class TopicDto(Dto):
     topic_endorse_user_request = api.model('topic_endorse_user_request', {
         'user_id': fields.Integer(required=True, description='User id to endorse'),
     })
+
+    upload_parser = api.parser()
+    upload_parser.add_argument('file', location='files',
+                        type=FileStorage, required=True)
+    upload_parser.add_argument('file_type', location='form', 
+                        choices=(1, 2), help='1 - Audio, 2 - Video',
+                        type=str, required=True)
 
     @classmethod
     def get_endorsed_users_parser(cls):
