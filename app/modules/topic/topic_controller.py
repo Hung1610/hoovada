@@ -3,6 +3,7 @@
 
 # built-in modules
 import ast
+from slugify import slugify
 from datetime import datetime
 
 # third-party modules
@@ -20,6 +21,9 @@ from app import db
 from app.utils.response import send_error, send_result, send_paginated_result
 from app.modules.user.user import User
 from app.utils.sensitive_words import check_sensitive
+from app.utils.file_handler import append_id, get_file_name_extension
+from app.utils.util import encode_file_name
+from app.utils.wasabi import upload_file
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -203,16 +207,22 @@ class TopicController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Topic ID is null")
-        topic = Topic.query.filter_by(id=object_id).first()
+        if object_id.isdigit():
+            topic = Topic.query.filter_by(id=object_id).first()
+        else:
+            topic = Topic.query.filter_by(slug=object_id).first()
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
         else:
             return send_result(data=marshal(topic, TopicDto.model_topic_response), message='Success')
 
-    def get_sub_topics(self, fixed_topic_id):
-        if fixed_topic_id is None:
+    def get_sub_topics(self, object_id):
+        if object_id is None:
             return send_error(message='Please give the topic ID.')
-        topic = Topic.query.filter_by(id=fixed_topic_id).first()
+        if object_id.isdigit():
+            topic = Topic.query.filter_by(id=object_id).first()
+        else:
+            topic = Topic.query.filter_by(slug=object_id).first()
         if topic is None:
             return send_result(message='Could not find any topic.')
         if topic.is_fixed:
@@ -227,7 +237,10 @@ class TopicController(Controller):
 
     def update(self, object_id, data):
         try:
-            topic = Topic.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message='Topic with the ID {} not found.'.format(object_id))
             elif topic.is_fixed:
@@ -249,7 +262,10 @@ class TopicController(Controller):
 
     def delete(self, object_id):
         try:
-            topic = Topic.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message="Topic with ID {} not found".format(object_id))
             else:
@@ -264,7 +280,10 @@ class TopicController(Controller):
         try:
             if not 'user_id' in data:
                 return send_error(message=messages.MSG_PLEASE_PROVIDE.format('user_id'))
-            topic = Topic.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = AuthController.get_logged_user(request)
@@ -291,7 +310,10 @@ class TopicController(Controller):
             return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
         page, per_page = args.get('page', 0), args.get('per_page', 10)
         try:
-            topic = Topic.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
             result = topic.endorsed_users.paginate(page, per_page, error_out=True)
@@ -300,9 +322,63 @@ class TopicController(Controller):
             print(e)
             return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))
 
+    def create_with_file(self, object_id):
+        if object_id is None:
+            return send_error(messages.MSG_PLEASE_PROVIDE.format("Topic ID"))
+        if 'file' not in request.files:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file'))
+
+        if object_id.isdigit():
+            topic = Topic.query.filter_by(id=object_id).first()
+        else:
+            topic = Topic.query.filter_by(slug=object_id).first()
+        if topic is None:
+            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('topic', object_id))
+        media_file = request.files.get('file', None)
+        if not media_file:
+            return send_error(message=messages.MSG_NO_FILE)
+        try:
+            filename = media_file.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name(file_name) + ext
+            bucket = 'hoovada'
+            sub_folder = 'topic' + '/' + encode_file_name(str(topic.id))
+            try:
+                url = upload_file(file=media_file, file_name=file_name, bucket=bucket, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message=messages.MSG_ISSUE.format('Could not save your media file.'))
+
+            topic.file_url = url
+            db.session.commit()
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(topic, TopicDto.model_topic_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.MSG_CREATE_FAILED.format('Topic media', e))
+
+    def update_slug(self):
+        topics = Topic.query.all()
+        try:
+            for topic in topics:
+                if topic.parent:
+                    topic.slug = '{}-{}'.format(slugify(topic.parent.name),slugify(topic.name))
+                else:
+                    topic.slug = '{}'.format(slugify(topic.name))
+                db.session.commit()
+            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=e)
+
     def _parse_topic(self, data, topic=None):
         if topic is None:
             topic = Topic()
+        if 'parent_id' in data:
+            try:
+                topic.parent_id = int(data['parent_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'name' in data:
             topic.name = data['name']
             
@@ -336,12 +412,6 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'parent_id' in data:
-            try:
-                topic.parent_id = int(data['parent_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
         if 'is_fixed' in data:  # we do not parse the value of is_fixed, because the fixed topics already passed
             pass
             # try:
@@ -359,6 +429,9 @@ class TopicController(Controller):
 
         if 'description' in data:
             topic.description = data['description']
+
+        if 'color_code' in data:
+            topic.color_code = data['color_code']
 
         return topic
 

@@ -35,6 +35,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class ArticleController(Controller):
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message=constants.msg_wrong_data_format)
@@ -108,86 +110,100 @@ class ArticleController(Controller):
         :param args:
         :return:
         """
-        # Get search parameters
-        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft = None, None, None, None, None, None, None, None, None
-        if args.get('title'):
-            title = args['title']
-        if args.get('user_id'):
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('fixed_topic_id'):
-            try:
-                fixed_topic_id = int(args['fixed_topic_id'])
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('created_date'):
-            try:
-                created_date = dateutil.parser.isoparse(args['created_date'])
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('updated_date'):
-            try:
-                updated_date = dateutil.parser.isoparse(args['updated_date'])
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('from_date'):
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('to_date'):
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('topic_id'):
-            try:
-                topic_ids = args['topic_id']
-            except Exception as e:
-                print(e)
-                pass
-        if args.get('draft'):
-            try:
-                draft = bool(args['draft'])
-            except Exception as e:
-                print(e)
-                pass
+        try:
+            # Get search parameters
+            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft = None, None, None, None, None, None, None, None, None
+            if args.get('title'):
+                title = args['title']
+            if args.get('user_id'):
+                try:
+                    user_id = int(args['user_id'])
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('fixed_topic_id'):
+                try:
+                    fixed_topic_id = int(args['fixed_topic_id'])
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('created_date'):
+                try:
+                    created_date = dateutil.parser.isoparse(args['created_date'])
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('updated_date'):
+                try:
+                    updated_date = dateutil.parser.isoparse(args['updated_date'])
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('from_date'):
+                try:
+                    from_date = dateutil.parser.isoparse(args['from_date'])
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('to_date'):
+                try:
+                    to_date = dateutil.parser.isoparse(args['to_date'])
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('topic_id'):
+                try:
+                    topic_ids = args['topic_id']
+                except Exception as e:
+                    print(e)
+                    pass
+            if args.get('draft'):
+                try:
+                    draft = bool(args['draft'])
+                except Exception as e:
+                    print(e)
+                    pass
 
-        query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))\
-                            .filter(Article.is_deleted != True)
-        if title and not str(title).strip().__eq__(''):
-            title = '%' + title.strip() + '%'
-            query = query.filter(Article.title.like(title))
-        if user_id:
-            query = query.filter(Article.user_id == user_id)
-        if fixed_topic_id:
-            query = query.filter(Article.fixed_topic_id == fixed_topic_id)
-        if created_date:
-            query = query.filter(Article.created_date == created_date)
-        if updated_date:
-            query = query.filter(Article.updated_date == updated_date)
-        if from_date:
-            query = query.filter(Article.created_date >= from_date)
-        if to_date:
-            query = query.filter(Article.created_date <= to_date)
-        if topic_ids:
-            query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
-        if draft is not None:
-            if draft:
-                query = query.filter(Article.is_draft == True)
-            else:
-                query = query.filter(Article.is_draft != True)
+            query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))\
+                                .filter(Article.is_deleted != True)
+            if title and not str(title).strip().__eq__(''):
+                title = '%' + title.strip() + '%'
+                query = query.filter(Article.title.like(title))
+            if user_id:
+                query = query.filter(Article.user_id == user_id)
+            if fixed_topic_id:
+                query = query.filter(Article.fixed_topic_id == fixed_topic_id)
+            if created_date:
+                query = query.filter(Article.created_date == created_date)
+            if updated_date:
+                query = query.filter(Article.updated_date == updated_date)
+            if from_date:
+                query = query.filter(Article.created_date >= from_date)
+            if to_date:
+                query = query.filter(Article.created_date <= to_date)
+            if topic_ids:
+                query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
+            if draft is not None:
+                if draft:
+                    query = query.filter(Article.is_draft == True)
+                else:
+                    query = query.filter(Article.is_draft != True)
 
-        articles = query.order_by(Article.updated_date).all()
-        if articles and len(articles) > 0:
+            ordering_fields_desc = args.get('order_by_desc')
+            if ordering_fields_desc:
+                for ordering_field in ordering_fields_desc:
+                    if ordering_field in self.allowed_ordering_fields:
+                        column_to_sort = getattr(Article, ordering_field)
+                        query = query.order_by(db.desc(column_to_sort))
+
+            ordering_fields_asc = args.get('order_by_asc')
+            if ordering_fields_asc:
+                for ordering_field in ordering_fields_asc:
+                    if ordering_field in self.allowed_ordering_fields:
+                        column_to_sort = getattr(Article, ordering_field)
+                        query = query.order_by(db.asc(column_to_sort))
+                        
+            articles = query.all()
             results = []
             for article in articles:
                 result = article.__dict__
@@ -210,7 +226,7 @@ class ArticleController(Controller):
                     result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, ArticleDto.model_article_response), message='Success')
-        else:
+        except Exception as e:
             return send_error(message=constants.msg_search_failed)
 
     def get_by_id(self, object_id):

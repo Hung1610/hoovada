@@ -48,11 +48,12 @@ class Question(Model):
     __tablename__ = 'question'
     __table_args__ = (
         db.Index("idx_question_title", "title", mysql_length=255),
+        db.Index("idx_question_slug", "slug", mysql_length=255),
     )
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    slug = db.Column(db.UnicodeText)
+    slug = db.Column(db.String(255))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     question_by_user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
