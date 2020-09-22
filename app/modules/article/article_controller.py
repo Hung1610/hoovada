@@ -470,7 +470,7 @@ class ArticleController(Controller):
 
     def get_user_hot(self,page=1):
         page_size = 20
-        articles = None;
+        articles = None
         if page > 0 :
             page = page - 1
             query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))

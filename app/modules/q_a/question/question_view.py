@@ -20,6 +20,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionDto.api
+get_parser = QuestionDto.get_parser
 get_similar_questions_parser = QuestionDto.get_similar_questions_parser
 question_invite_request = QuestionDto.question_invite_request
 top_user_reputation_args_parser = QuestionDto.top_user_reputation_args_parser
@@ -33,15 +34,16 @@ model_response = QuestionDto.model_question_response
 
 @api.route('')
 class QuestionList(Resource):
+    @api.expect(get_parser)
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         """ 
         Get list of questions from database.
         """
-
+        args = get_parser.parse_args()
         controller = QuestionController()
-        return controller.get()
+        return controller.get(args=args)
 
 
     # @token_required
