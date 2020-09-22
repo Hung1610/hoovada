@@ -62,8 +62,8 @@ def upload_file(file_name, file, bucket, sub_folder, acl='public-read', object_n
         object_name = sub_folder + '/' + file_name
     s3 = _connection(region=region)
     try:
-        # if not check_bucket_exist(bucket=bucket, region=region):
-        #     create_bucket(bucket=bucket, region=region)
+        if not check_bucket_exist(bucket=bucket, region=region):
+            create_bucket(bucket=bucket, region=region)
         location = 'https://s3.wasabisys.com/hoovada/'
         s3.upload_fileobj(
             file,
