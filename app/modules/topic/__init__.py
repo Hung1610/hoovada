@@ -6,6 +6,8 @@
 from app.modules.topic.question_topic import api as ns_question_topic
 from app.modules.topic.topic_view import api as ns_topic
 from app.modules.topic.bookmark import api as ns_topic_bookmark
+from app.modules.topic.report import api as ns_topic_report
+from app.modules.topic.share import api as ns_topic_share
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
