@@ -56,6 +56,7 @@ class CommentController(Controller):
             results = list()
             for comment in comments:
                 result = comment.__dict__
+                result['user'] = comment.user
                 if current_user:
                     favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id,
                                                     QuestionCommentFavorite.question_comment_id == comment.id).first()
@@ -96,6 +97,7 @@ class CommentController(Controller):
 
             try:
                 result = comment.__dict__
+                result['user'] = comment.user
                 return send_result(message='QuestionComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:
@@ -117,6 +119,7 @@ class CommentController(Controller):
         else:
             try:
                 result = comment.__dict__
+                result['user'] = comment.user
                 if current_user:
                     favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id,
                                                     QuestionCommentFavorite.question_comment_id == comment.id).first()
@@ -146,6 +149,7 @@ class CommentController(Controller):
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__
+                result['user'] = comment.user
                 if current_user:
                     favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id,
                                                     QuestionCommentFavorite.question_comment_id == comment.id).first()
