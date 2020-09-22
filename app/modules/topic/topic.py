@@ -35,6 +35,7 @@ class Topic(Model):
     count = db.Column(db.Integer, default=0) # chua ro truong nay su dung lam gi
     user_id = db.Column(db.Integer)  # who created this topic
     color_code = db.Column(db.String(100))
+    file_url = db.Column(db.String(255))
     # question_count = db.Column(db.Integer, default=0)  # amount of question related to this topic
     questions = db.relationship('Question', lazy='dynamic')
     @aggregated('questions', db.Column(db.Integer))

@@ -50,6 +50,7 @@ class TopicDto(Dto):
         'slug': fields.String(description='The slug of the question'),
         'name': fields.String(description='The name of the topic'),
         'color_code': fields.String(description='The color code for topic'),
+        'file_url': fields.String(description='The file url for topic'),
         'user_id': fields.Integer(description='The user ID'),
         'question_count': fields.Integer(description='The amount of questions belong to this topic'),
         'user_count': fields.Integer(description='The amount of users who interest this topic'),
@@ -59,7 +60,6 @@ class TopicDto(Dto):
         'created_date': fields.DateTime(description='The date topic was created'),
         'description': fields.String(description='Description about topic'),
         'sub_topics': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
-        'avatar':fields.String(description='The avatar of the topic')
     })
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {
@@ -69,9 +69,6 @@ class TopicDto(Dto):
     upload_parser = api.parser()
     upload_parser.add_argument('file', location='files',
                         type=FileStorage, required=True)
-    upload_parser.add_argument('file_type', location='form', 
-                        choices=(1, 2), help='1 - Audio, 2 - Video',
-                        type=str, required=True)
 
     @classmethod
     def get_endorsed_users_parser(cls):
