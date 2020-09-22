@@ -143,7 +143,7 @@ class TopicController(Controller):
             topic = Topic.query.filter(or_(
                 and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
                 and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
-                and_(Topic.name == data['name'],Topic.name == data['name'], int(data['parent_id'])>0))
+                and_(Topic.name == data['name'], Topic.name == data['name'], int(data['parent_id'])>0))
                 ).first()
 
             if not topic:  # the topic does not exist

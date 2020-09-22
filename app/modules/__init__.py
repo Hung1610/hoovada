@@ -13,7 +13,7 @@ from app.modules.q_a import ns_question, ns_question_vote, ns_question_favorite,
                             ns_qa_timeline,\
                             ns_comment, ns_comment_report, ns_comment_vote
 from app.modules.article import ns_article, ns_article_vote, ns_article_favorite, ns_article_report, ns_article_share, ns_article_comment
-from app.modules.topic import ns_topic, ns_question_topic, ns_topic_bookmark
+from app.modules.topic import ns_topic, ns_question_topic, ns_topic_bookmark, ns_topic_report, ns_topic_share
 from app.modules.file_upload import api as ns_upload
 from app.modules.search import ns_search
 from app.modules.user.user_view import api
