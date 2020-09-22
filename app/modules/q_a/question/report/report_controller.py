@@ -13,7 +13,7 @@ from flask_restx import marshal
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question
-from app.modules.q_a.question.report.report import QuestionReport
+from app.modules.q_a.question.report.report import QuestionReport, ReportTypeEnum
 from app.modules.q_a.question.report.report_dto import QuestionReportDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
@@ -116,12 +116,19 @@ class ReportController(Controller):
                 report.question_id = int(data['question_id'])
             except Exception as e:
                 pass
-        if 'inappropriate' in data:
-            try:
-                report.inappropriate = bool(data['inappropriate'])
-            except Exception as e:
-                pass
+        # if 'inappropriate' in data:
+        #     try:
+        #         report.inappropriate = bool(data['inappropriate'])
+        #     except Exception as e:
+        #         pass
         if 'description' in data:
             report.description = data['description']
+        if 'report_type' in data:
+            try:
+                report_type = int(data['report_type'])
+                report.report_type = ReportTypeEnum(report_type).name
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         return report
