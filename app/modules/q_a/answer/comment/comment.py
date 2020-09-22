@@ -4,6 +4,10 @@
 # built-in modules
 from datetime import datetime
 
+# third-party modules
+from sqlalchemy.sql import expression
+from sqlalchemy_utils import aggregated
+
 # own modules
 from app import db
 from app.modules.common.model import Model
@@ -26,4 +30,8 @@ class AnswerComment(Model):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     votes = db.relationship("AnswerCommentVote", cascade='all,delete-orphan')
+    favorites = db.relationship("AnswerCommentFavorite", cascade='all,delete-orphan')
+    @aggregated('favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')
 
