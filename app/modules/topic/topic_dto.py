@@ -53,7 +53,8 @@ class TopicDto(Dto):
         'is_fixed': fields.Boolean(default=False, description='This topic is fixed or not'),
         'created_date': fields.DateTime(description='The date topic was created'),
         'description': fields.String(description='Description about topic'),
-        'sub_topics': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic')
+        'sub_topics': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
+        'avatar':fields.String(description='The avatar of the topic')
     })
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {

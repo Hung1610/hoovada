@@ -218,18 +218,18 @@ parser.add_argument('to_date', type=str, required=False, help='Search questions 
 parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
 
 
-@api.route('/search')
+@api.route('/search/<int:page>')
 @api.expect(parser)
 class QuesstionSearch(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self):
+    def get(self,page):
         """ 
         Search all questions that satisfy conditions.
         """
 
         args = parser.parse_args()
         controller = QuestionController()
-        return controller.search(args=args)
+        return controller.search(page,args=args)
 
 
 @api.route('/get_by_slug/<string:slug>')
@@ -247,7 +247,7 @@ class GetQuestionBySlug(Resource):
 
 @api.route('/update_slug')
 class UpdateSlug(Resource):
-    # @admin_token_required
+    @admin_token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
         """ 
@@ -256,6 +256,51 @@ class UpdateSlug(Resource):
 
         controller = QuestionController()
         return controller.update_slug()
+
+@api.route('/question_hot/<int:page>')
+class QuestionHot(Resource):
+    @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def get(self,page):
+        """ Lay danh sach question hot 
+        """
+
+        controller = QuestionController()
+        return controller.get_question_hot(page)
+
+@api.route('/question_new/<int:page>')
+class QuestionNew(Resource):
+    @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def get(self,page):
+        """ Lay danh sach question new 
+        """
+
+        controller = QuestionController()
+        return controller.get_question_new(page)
+
+@api.route('/question_highlight/<int:page>')
+class QuestionhHghlight(Resource):
+    @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def get(self,page):
+        """ Lay danh sach question new 
+        """
+
+        controller = QuestionController()
+        return controller.get_question_highlight(page)
+
+@api.route('/question_many_answers/<int:page>')
+class QuestionhManyAnswers(Resource):
+    @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def get(self,page):
+        """ Lay danh sach question new 
+        """
+
+        controller = QuestionController()
+        return controller.get_question_many_answers(page)
+
 
 # @api.route('/get_by_topic/<int:topic_id>')
 # class GetQuestionByTopic(Resource):
