@@ -26,7 +26,7 @@ from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
-from app.utils.response import send_error, send_result
+from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
 from app.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
@@ -39,7 +39,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class QuestionController(Controller):
-    def search(self,page, args):
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
+
+    def search(self, page, args):
         """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
 
@@ -139,7 +141,7 @@ class QuestionController(Controller):
             is_filter = True
         if is_filter:
             page_size = 20
-            questions = None;
+            questions = None
             if page > 0 :
                 page = page - 1
             questions = query.order_by(desc(Question.upvote_count)).offset(page * page_size).limit(page_size).all()
@@ -266,48 +268,111 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could not create question. Contact administrator for solution.')
 
-    def get(self):
+    def get(self, args):
         try:
+            query = Question.query # query search from view
             current_user, _ = AuthController.get_logged_user(request)
-            query = Question.query.filter_by(is_private=False)  # query search from view
-            questions = query.order_by(desc(Question.upvote_count), desc(Question.created_date)).limit(50).all()
-            # for question in questions:
-            #     # # chay cau lenh de cap nhat la fixed_topic_name
-            #     # fixed_topic_id = question.fixed_topic_id
-            #     # fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
-            #     # if fixed_topic:
-            #     #     question.fixed_topic_name = fixed_topic.name
-            #     # question.views_count = 0
-            #     # question.answers_count = 0
-            #     # question.upvote_count = 0
-            #     # question.downvote_count = 0
-            #     # question.favorite_count = 0
-            #     # question.share_count = 0
-            #
-            #     # update anonymous va user_hidden
-            #     if question.user_id == 6:
-            #         question.anonymous = 1
-            #     else:
-            #         question.anonymous = 0
-            #     question.user_hidden = 0
-            # db.session.commit()
+            if not isinstance(args, dict):
+                return send_error(message='Could not parse the params.')
+            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids = None, None, None, None, None, None, None, None, None
+            if args.get('title'):
+                title = args['title']
+            if args.get('user_id'):
+                try:
+                    user_id = int(args['user_id'])
+                    if current_user:
+                        if user_id == current_user.id:
+                            query = query.filter_by(is_private=False) 
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('fixed_topic_id'):
+                try:
+                    fixed_topic_id = int(args['fixed_topic_id'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('created_date'):
+                try:
+                    created_date = dateutil.parser.isoparse(args['created_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('updated_date'):
+                try:
+                    updated_date = dateutil.parser.isoparse(args['updated_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('from_date'):
+                try:
+                    from_date = dateutil.parser.isoparse(args['from_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('to_date'):
+                try:
+                    to_date = dateutil.parser.isoparse(args['to_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('anonymous'):
+                try:
+                    anonymous = int(args['anonymous'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if args.get('topic_id'):
+                try:
+                    topic_ids = args['topic_id']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+            if title is not None and not str(title).strip().__eq__(''):
+                title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+                query = query.filter(title_similarity > 50)
+            if user_id is not None:
+                query = query.filter(Question.user_id == user_id)
+            if fixed_topic_id is not None:
+                query = query.filter(Question.fixed_topic_id == fixed_topic_id)
+            if created_date is not None:
+                query = query.filter(Question.created_date == created_date)
+            if updated_date is not None:
+                query = query.filter(Question.updated_date == updated_date)
+            if from_date is not None:
+                query = query.filter(Question.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(Question.created_date <= to_date)
+            if topic_ids is not None:
+                query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
+
+            if not 'page' in args:
+                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('page'))
+            if not 'per_page' in args:
+                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
+            page, per_page = args.get('page', 0), args.get('per_page', 10)
+            ordering_fields_desc = args.get('order_by_desc')
+            if ordering_fields_desc:
+                for ordering_field in ordering_fields_desc:
+                    if ordering_field in self.allowed_ordering_fields:
+                        column_to_sort = getattr(Question, ordering_field)
+                        query = query.order_by(db.desc(column_to_sort))
+            ordering_fields_asc = args.get('order_by_asc')
+            if ordering_fields_asc:
+                for ordering_field in ordering_fields_asc:
+                    if ordering_field in self.allowed_ordering_fields:
+                        column_to_sort = getattr(Question, ordering_field)
+                        query = query.order_by(db.asc(column_to_sort))
+                        
+            query = query.paginate(page, per_page, error_out=True)
+            res, code = paginated_result(query)
             results = list()
-            for question in questions:
+            for question in res.get('data'):
                 result = question._asdict()
                 # get user info
-                # user = User.query.filter_by(id=question.user_id).first()
                 result['user'] = question.question_by_user
-
-                # get all topics that question belongs to
-                # question_id = question.id
-                # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                # topics = list()
-                # for question_topic in question_topics:
-                #     topic_id = question_topic.topic_id
-                #     topic = Topic.query.filter_by(id=topic_id).first()
-                #     topics.append(topic)
                 result['topics'] = question.topics
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
@@ -316,12 +381,9 @@ class QuestionController(Controller):
                     favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                                     QuestionFavorite.question_id == question.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
-                    # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    # if vote is not None:
-                    #     result['up_vote'] = vote.up_vote
-                    #     result['down_vote'] = vote.down_vote
                 results.append(result)
-            return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
+            res['data'] = marshal(results, QuestionDto.model_question_response)
+            return res, code
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not load questions. Contact your administrator for solution.")
