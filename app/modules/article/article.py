@@ -32,7 +32,7 @@ class Article(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    slug = db.Column(db.String(140))
+    slug = db.Column(db.String(255), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     article_by_user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
