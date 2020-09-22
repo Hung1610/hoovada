@@ -12,6 +12,7 @@ from flask import request
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
+from app.modules.q_a.answer.comment.favorite.favorite import AnswerCommentFavorite
 from app.modules.q_a.answer.comment.comment import AnswerComment
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
 from app.modules.auth.auth_controller import AuthController
@@ -35,6 +36,8 @@ class CommentController(Controller):
         :return:
         """
         # user_id, question_id, answer_id = None, None, None
+
+        current_user, _ = AuthController.get_logged_user(request)
         user_id = None 
         if 'user_id' in args:
             try:
@@ -54,9 +57,10 @@ class CommentController(Controller):
             results = list()
             for comment in comments:
                 result = comment.__dict__
-                # get thong tin user
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
+                if current_user:
+                    favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == current_user.id,
+                                                    AnswerCommentFavorite.answer_comment_id == comment.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, CommentDto.model_response), message='Success')
         else:
@@ -69,7 +73,8 @@ class CommentController(Controller):
             return send_error(message="The comment body must be included")
 
         current_user, _ = AuthController.get_logged_user(request)
-        data['user_id'] = current_user.id
+        if current_user:
+            data['user_id'] = current_user.id
         data['answer_id'] = answer_id
 
         try:
@@ -110,22 +115,25 @@ class CommentController(Controller):
         comment = AnswerComment.query.filter_by(id=object_id).first()
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
-        else:
-            try:
-                result = comment.__dict__
-                # get thong tin user
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
-                return send_result(data=marshal(result, CommentDto.model_response), message='Success')
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message='Could not get comment with the ID {}'.format(object_id))
+
+        current_user, _ = AuthController.get_logged_user(request)
+        try:
+            result = comment.__dict__
+            if current_user:
+                favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == current_user.id,
+                                                AnswerCommentFavorite.answer_comment_id == comment.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
+            return send_result(data=marshal(result, CommentDto.model_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not get comment with the ID {}'.format(object_id))
 
     def update(self, object_id, data):
         if object_id is None:
             return send_error(message='AnswerComment ID is null')
         if data is None or not isinstance(data, dict):
             return send_error('Data is null or not in dictionary form. Check again.')
+        current_user, _ = AuthController.get_logged_user(request)
         try:
             comment = AnswerComment.query.filter_by(id=object_id).first()
             if comment is None:
@@ -138,9 +146,10 @@ class CommentController(Controller):
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__
-                # get thong tin user
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
+                if current_user:
+                    favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == current_user.id,
+                                                    AnswerCommentFavorite.answer_comment_id == comment.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                 return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
         except Exception as e:
             print(e.__str__())

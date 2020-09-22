@@ -90,6 +90,9 @@ class Question(Model):
     @aggregated('question_favorites', db.Column(db.Integer))
     def favorite_count(self):
         return db.func.count('1')
+    @aggregated('question_comments', db.Column(db.Integer))
+    def comment_count(self):
+        return db.func.count('1')
 
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
@@ -98,6 +101,7 @@ class Question(Model):
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
+    question_comments = db.relationship("QuestionComment", cascade='all,delete-orphan')
     question_shares = db.relationship("QuestionShare", cascade='all,delete-orphan')
     question_reports = db.relationship("QuestionReport", cascade='all,delete-orphan')
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')

@@ -32,6 +32,8 @@ class CommentDto(Dto):
         'comment': fields.String(required=True, description='The content of the comment'),
         'question_id': fields.Integer(required=True, description='The ID of the question'),
         'user': fields.Nested(comment_user, description='The information of the user'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
+        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         # 'user_id': fields.Integer(required=True, description='The user ID'),
         'updated_date': fields.DateTime(description='The date comment was updated'),
         'created_date': fields.DateTime(required=True, description='The date comment was created')

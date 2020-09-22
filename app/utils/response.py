@@ -41,6 +41,16 @@ def send_result(data=None, message='OK', code=200, status=True):
     }
     return res, code
 
+def paginated_result(query=None, message='OK', code=200, status=True):
+    res = {
+        'status': status,
+        'code': code,
+        'message': message,
+        'page': query.page,
+        'page_count': query.pages,
+        'data': query.items,
+    }
+    return res, code
 
 def send_paginated_result(query=None, dto=None, message='OK', code=200, status=True):
     """ Send result if no error
@@ -62,14 +72,8 @@ def send_paginated_result(query=None, dto=None, message='OK', code=200, status=T
         }
     `
     """
-    res = {
-        'status': status,
-        'code': code,
-        'message': message,
-        'page': query.page,
-        'page_count': query.pages,
-        'data': marshal(query.items, dto),
-    }
+    res, code = paginated_result(query, message, code, status)
+    res['data'] = marshal(res.get('data'), dto)
     return res, code
 
 

@@ -48,7 +48,16 @@ class TopicDto(Dto):
         'created_date': fields.DateTime(required=True, description='The date topic was created')
     })
 
+    model_endorsed_topic = api.model('user_endorsed_topic', {
+        'topic': fields.Nested(model_topic, description='The information of the user'),
+        'endorse_score': fields.Integer(description='The name of the topic'),
+    })
+
     model_get_parser = reqparse.RequestParser()
     model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search topic by fixed_topic_id')
     model_get_parser.add_argument('topic_id', type=int, required=False, help='Search topic by topic_id')
 
+    @classmethod
+    def get_endorsed_topics_parser(cls):
+        get_endorsed_topics_parser = cls.paginated_request_parser.copy()
+        return get_endorsed_topics_parser

@@ -27,7 +27,6 @@ parser.add_argument('answer_id', type=str, required=False, help='Search all comm
 
 @api.route('/<int:answer_id>/comment')
 class CommentList(Resource):
-    @token_required
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, answer_id):
         """
@@ -44,7 +43,6 @@ class CommentList(Resource):
         controller = CommentController()
         return controller.get(answer_id=answer_id, args=args)
 
-    @token_required
     @api.expect(comment_request)
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
@@ -61,7 +59,6 @@ class CommentList(Resource):
 
 @api.route('/all/comment/<int:id>')
 class Comment(Resource):
-    @token_required
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, id):

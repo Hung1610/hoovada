@@ -22,6 +22,7 @@ class TopicUserEndorse(Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     endorsed_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), primary_key=True)
+    topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
 
 class Topic(Model):
     __tablename__ = 'topic'
