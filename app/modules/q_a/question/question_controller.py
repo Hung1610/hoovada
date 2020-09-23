@@ -346,7 +346,7 @@ class QuestionController(Controller):
                 query = query.filter(Question.created_date <= to_date)
             if topic_ids is not None:
                 query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
-            page, per_page = args.get('page', 1), args.get('per_page', 10)
+                
             ordering_fields_desc = args.get('order_by_desc')
             if ordering_fields_desc:
                 for ordering_field in ordering_fields_desc:
@@ -360,8 +360,10 @@ class QuestionController(Controller):
                         column_to_sort = getattr(Question, ordering_field)
                         query = query.order_by(db.asc(column_to_sort))
                         
+            page, per_page = args.get('page', 1), args.get('per_page', 10)
             query = query.paginate(page, per_page, error_out=True)
             res, code = paginated_result(query)
+
             results = list()
             for question in res.get('data'):
                 result = question._asdict()

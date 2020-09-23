@@ -80,3 +80,16 @@ class AnswerDto(Dto):
     upload_parser.add_argument('file_type', location='form', 
                         choices=(1, 2), help='1 - Audio, 2 - Video',
                         type=str, required=True)
+
+    get_parser = Dto.paginated_request_parser.copy()
+    get_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
+    get_parser.add_argument('question_id', type=str, required=False, help='Search all answers by question_id.')
+    get_parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
+    get_parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+                        )
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+                        )
+                        
