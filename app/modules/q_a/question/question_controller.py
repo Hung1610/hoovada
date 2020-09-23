@@ -28,7 +28,7 @@ from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
-from app.utils.checker import check_spelling
+#from app.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from slugify import slugify
 
@@ -41,7 +41,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class QuestionController(Controller):
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
 
-    def search(self, page, args):
+    def search(self, args):
         """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
 
