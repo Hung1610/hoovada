@@ -93,3 +93,12 @@ class AuthDto(Dto):
     message_response = api.model('response', {
         'message': fields.String(required=True, description='')
     })
+
+    model_send_OTP_phone = api.model('send_OTP_phone', {
+        'phone_number': fields.String(required=True, description='The phone number for OTP'),
+    })
+
+    model_change_phone_number = api.model('change_phone_number', {
+        'phone_number': fields.String(required=True, description='The phone number for change'),
+        'code': fields.String(required=True, description='The OTP code sent through SMS'),
+    })

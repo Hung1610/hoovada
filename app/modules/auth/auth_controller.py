@@ -25,6 +25,7 @@ from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
     get_response_message, convert_vietnamese_diacritics, validate_phone_number, is_valid_username, send_verification_sms, \
     check_verification, check_password, is_valid_email, generate_confirmation_token, send_password_reset_email
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -512,7 +513,6 @@ class AuthController:
                 db.session.rollback()
                 return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')  # Could not send a confirmation email to your mailbox.')
 
-
     def reset_password_by_sms(self, data):
         """Reset password request by SMS OTP
         """        
@@ -641,6 +641,55 @@ class AuthController:
         else:
             message = 'Mật khẩu cũ không đúng!'
             return send_error(message=message)  # 'Invalid confirmation token.'
+
+    def send_OTP(self, data):
+        """Reset password request by SMS OTP
+        """        
+        if not isinstance(data, dict):
+            return send_error(message='Dữ liệu không đúng định dạng, vui lòng kiểm tra lại!')  # Data is not correct or not in dictionary form. Try again.')
+        
+        phone_number = data.get('phone_number')
+        if not phone_number:
+            return send_error(message='Please provide phone number!')  # Pleases provide a phone number.
+
+        if not validate_phone_number(phone_number):
+            return send_error(message='Số điện thoại không đúng định dạng!')
+
+        try:
+            code = send_verification_sms(phone_number)
+            return send_result(message='Đã gửi OTP đến số điện thoại đăng ký.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Không thể gửi thư reset password vào email của bạn. Vui lòng thử lại!')
+
+    def change_phone_number_confirm(self, data):
+        """Change phone number for current user
+        """        
+        try:
+            if not isinstance(data, dict):
+                return send_error(message='Dữ liệu không đúng định dạng hoặc thiếu, vui lòng kiểm tra lại')
+            
+            phone_number = data.get('phone_number')
+            if not phone_number:
+                return send_error(message='Please provide phone number!')  # Pleases provide a phone number.
+            
+            code = data.get('code')
+            if not code:
+                return send_error(message='Please provide OTP!')  # Pleases provide the OTP.
+            if not validate_phone_number(phone_number):
+                return send_error(message='Số điện thoại không đúng định dạng!')
+                
+            current_user, _ = get_logged_user(request)
+            
+            if current_user:
+                if not check_verification(phone_number, code):
+                    return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
+                current_user.phone_number = phone_number
+                db.session.commit()
+                return send_result(message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.MSG_ISSUE.format(e))
 
     def change_password_by_token(self, data):
         """Change password using token received in email
