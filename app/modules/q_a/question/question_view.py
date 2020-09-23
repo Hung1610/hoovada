@@ -218,6 +218,7 @@ parser.add_argument('topic_id', type=str, required=False, help='Search all quest
 parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
 parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
 parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
 
 
 @api.route('/search/<int:page>')

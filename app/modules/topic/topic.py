@@ -51,6 +51,7 @@ class Topic(Model):
     description = db.Column(db.String(255))
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.user_id, TopicUserEndorse.topic_id], lazy='dynamic')
     fixed_topic_articles = db.relationship("Article", cascade='all,delete-orphan')
+    avatar = db.Column(db.String(255))
 
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):
