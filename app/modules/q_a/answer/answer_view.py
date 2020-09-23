@@ -21,6 +21,7 @@ answer_upload_parser = AnswerDto.upload_parser
 answer_request = AnswerDto.model_request
 answer_response = AnswerDto.model_response
 model_comment_request = AnswerDto.model_comment_request
+get_parser = AnswerDto.get_parser
 
 @api.route('/<int:id>/file')
 @api.doc(params={'id': 'The answer ID'})
@@ -37,17 +38,17 @@ class AnswerFile(Resource):
 
 @api.route('')
 class AnswerList(Resource):
-    # @admin_token_required
-    # # @api.marshal_list_with(answer)
-    # @api.response(code=200, model=answer_response, description='Model for answer response.')
-    # def get(self):
-    #     """
-    #     Get the list of answers from database.
-    #
-    #     :return: List of answers.
-    #     """
-    #     controller = AnswerController()
-    #     return controller.get()
+    @api.expect(get_parser)
+    @api.response(code=200, model=answer_response, description='Model for answer response.')
+    def get(self):
+        """
+        Get the list of answers from database.
+    
+        :return: List of answers.
+        """
+        args = get_parser.parse_args()
+        controller = AnswerController()
+        return controller.get(args=args)
 
     # @token_required
     @api.expect(answer_request)
