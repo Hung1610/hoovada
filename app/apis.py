@@ -57,7 +57,7 @@ def init_api(mode):
     api.add_namespace(ns_user_location, '/user')
     api.add_namespace(ns_user_topic, '/user')
     api.add_namespace(ns_user_language, '/user')
-    api.add_namespace(ns_user_employment, '/user_employment')
+    api.add_namespace(ns_user_employment, '/user')
     api.add_namespace(ns_reputation, '/reputation')
     api.add_namespace(ns_topic, '/topic')
     api.add_namespace(ns_topic_bookmark, '/topic')

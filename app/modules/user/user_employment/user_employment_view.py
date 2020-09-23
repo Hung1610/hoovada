@@ -19,7 +19,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-@api.route('')
+@api.route('/me/employment')
 class UserEmploymentList(Resource):
     @token_required
     @api.expect(user_employment_request)
@@ -38,7 +38,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=int, required=True, help='Search employment by user_id')
 parser.add_argument('is_default', type=int, required=False, help='Search default display')
 
-@api.route('/search')
+@api.route('/all/employment')
 @api.expect(parser)
 class UserEmploymentSearch(Resource):
     @token_required
