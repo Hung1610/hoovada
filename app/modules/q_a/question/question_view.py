@@ -218,20 +218,21 @@ parser.add_argument('topic_id', type=str, required=False, help='Search all quest
 parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
 parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
 parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
 
 
-@api.route('/search/<int:page>')
+@api.route('/search')
 @api.expect(parser)
 class QuesstionSearch(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self,page):
+    def get(self):
         """ 
         Search all questions that satisfy conditions.
         """
 
         args = parser.parse_args()
         controller = QuestionController()
-        return controller.search(page,args=args)
+        return controller.search(args=args)
 
 
 @api.route('/get_by_slug/<string:slug>')
