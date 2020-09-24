@@ -33,6 +33,8 @@ _auth_reset_password_phone = AuthDto.model_reset_password_phone
 _auth_reset_password_phone_confirm = AuthDto.model_reset_password_phone_confirm
 _auth_change_password_token = AuthDto.model_change_password_token
 _auth_change_password = AuthDto.model_change_password
+_auth_send_OTP_phone = AuthDto.model_send_OTP_phone
+_auth_change_phone_number = AuthDto.model_change_phone_number
 
 
 
@@ -197,6 +199,32 @@ class PasswordResetPhone(Resource):
         post_data = request.json
         controller = AuthController()
         return controller.reset_password_by_sms(data=post_data)
+
+
+@api.route('/send-OTP')
+class SendOTPPhone(Resource):
+
+    @api.expect(_auth_send_OTP_phone)
+    def post(self):
+        """ 
+        Send OTP to phone number
+        """
+        post_data = request.json
+        controller = AuthController()
+        return controller.send_OTP(data=post_data)
+
+
+@api.route('/change-phone-number')
+class ChangePhoneNumber(Resource):
+
+    @api.expect(_auth_change_phone_number)
+    def post(self):
+        """ 
+        Change phone number for logged-in user
+        """
+        post_data = request.json
+        controller = AuthController()
+        return controller.change_phone_number_confirm(data=post_data)
 
 
 @api.route('/password-reset-phone-confirm')
