@@ -69,7 +69,8 @@ class CommentController(Controller):
             return send_error(message="The comment body must be included")
 
         current_user, _ = AuthController.get_logged_user(request)
-        data['user_id'] = current_user.id
+        if current_user:
+            data['user_id'] = current_user.id
         data['article_id'] = article_id
 
         try:

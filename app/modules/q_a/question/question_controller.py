@@ -28,7 +28,7 @@ from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
-#from app.utils.checker import check_spelling
+from app.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from slugify import slugify
 
@@ -976,6 +976,13 @@ class QuestionController(Controller):
                 question.user_hidden = bool(data['user_hidden'])
             except Exception as e:
                 question.user_hidden = False
+                print(e.__str__())
+                pass
+        if 'allow_comments' in data:
+            try:
+                question.allow_comments = bool(data['allow_comments'])
+            except Exception as e:
+                question.allow_comments = True
                 print(e.__str__())
                 pass
         if 'allow_video_question' in data:
