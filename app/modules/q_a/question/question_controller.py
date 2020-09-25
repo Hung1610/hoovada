@@ -41,7 +41,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class QuestionController(Controller):
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
 
-    def search(self, page, args):
+    def search(self, args):
         """ Search questions.
         NOTE: HIEN GIO SEARCH THEO FIXED_TOPIC_ID, SAU SE SUA LAI DE SEARCH THEO CA FIXED_TOPIC_ID VA TOPIC_ID, SU DUNG VIEW.
 
@@ -55,7 +55,7 @@ class QuestionController(Controller):
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')
-        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids = None, None, None, None, None, None, None, None, None
+        title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids, page = None, None, None, None, None, None, None, None, None, None
         if args.get('title'):
             title = args['title']
         if args.get('user_id'):
@@ -109,6 +109,12 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        if args.get('page'):
+            try:
+                page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
         if title is None and user_id is None and fixed_topic_id is None and created_date is None and updated_date is None and anonymous is None and topic_ids is None:
             send_error(message='Provide params to search.')
         is_filter = False
@@ -139,12 +145,20 @@ class QuestionController(Controller):
         if topic_ids is not None:
             query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
             is_filter = True
+        if page is not None:
+            is_filter = True
+
         if is_filter:
-            page_size = 20
-            questions = None
-            if page > 0 :
-                page = page - 1
-            questions = query.order_by(desc(Question.upvote_count)).offset(page * page_size).limit(page_size).all()
+            questions = None;
+            query = query.order_by(desc(Question.upvote_count))
+            # phan trang
+            if page is not None:
+                page_size = 20
+                if page > 0 :
+                    page = page - 1
+                query = query.offset(page * page_size).limit(page_size)
+
+            questions = query.all()
             if questions is not None and len(questions) > 0:
                 results = list()
                 for question in questions:
@@ -967,6 +981,13 @@ class QuestionController(Controller):
                 question.user_hidden = bool(data['user_hidden'])
             except Exception as e:
                 question.user_hidden = False
+                print(e.__str__())
+                pass
+        if 'allow_comments' in data:
+            try:
+                question.allow_comments = bool(data['allow_comments'])
+            except Exception as e:
+                question.allow_comments = True
                 print(e.__str__())
                 pass
         if 'allow_video_question' in data:
