@@ -95,6 +95,7 @@ class Question(Model):
     def comment_count(self):
         return db.func.count('1')
 
+    allow_comments = db.Column(db.Boolean, server_default=expression.true())
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())

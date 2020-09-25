@@ -31,17 +31,13 @@ class Answer(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    anonymous = db.Column(db.Boolean, default=False)
     accepted = db.Column(db.Boolean, default=False)
     answer = db.Column(db.UnicodeText)
-    markdown = db.Column(db.UnicodeText)
-    html = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
     image_ids = db.Column(db.JSON)
-    user_hidden = db.Column(db.Boolean, default=False)
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     allow_improvement = db.Column(db.Boolean, server_default=expression.true())
     file_url = db.Column(db.String(255))
