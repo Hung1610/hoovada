@@ -32,11 +32,9 @@ class AnswerDto(Dto):
     })
 
     model_request = api.model('answer_request', {
-        'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
@@ -50,17 +48,12 @@ class AnswerDto(Dto):
 
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
-
-        'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
-        # 'markdown': fields.String(),
-        # 'html': fields.String(),
         # 'user_id': fields.Integer(default=0, description='The user ID'),
         'user':fields.Nested(answer_user, description='The information of the user'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         # 'image_ids': fields.String(),
-        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),

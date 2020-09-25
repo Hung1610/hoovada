@@ -11,6 +11,7 @@ from flask import request
 # own modules
 from app import db
 from app.modules.common.controller import Controller
+from app.modules.q_a.question.question import Question
 from app.modules.q_a.question.comment.favorite.favorite import QuestionCommentFavorite
 from app.modules.q_a.question.comment.comment import QuestionComment
 from app.modules.q_a.question.comment.comment_dto import CommentDto
@@ -75,6 +76,11 @@ class CommentController(Controller):
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
+        question = Question.query.filter(Question.id == question_id).first()
+        if not question:
+            return send_error(message='The question does not exist.')
+        if not question.allow_comments: 
+            return send_error(message='This question does not allow commenting.')
         data['question_id'] = question_id
 
         try:

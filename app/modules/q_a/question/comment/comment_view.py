@@ -8,7 +8,7 @@ from flask_restx import Resource, reqparse
 # from app.modules.common.decorator import token_required
 from app.modules.q_a.question.comment.comment_dto import CommentDto
 from app.modules.q_a.question.comment.comment_controller import CommentController
-from app.modules.auth.decorator import admin_token_required, token_required
+from app.modules.auth.decorator import admin_token_required, token_required, is_not_owner
 
 api = CommentDto.api
 comment_response = CommentDto.model_response
@@ -45,6 +45,7 @@ class CommentList(Resource):
 
     @api.expect(comment_request)
     # @api.marshal_with(comment)
+    @is_not_owner(table_name='question', object_id_arg_name='question_id', creator_field_name='question_by_user')
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self, question_id):
         """

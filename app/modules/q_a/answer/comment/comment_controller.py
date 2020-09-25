@@ -76,6 +76,13 @@ class CommentController(Controller):
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
+        answer = Answer.query.filter(Answer.id == answer_id).first()
+        if not answer:
+            return send_error(message='The answer does not exist.')
+        if not answer.question.allow_comments: 
+            return send_error(message='This question does not allow commenting.')
+        if not answer.allow_comments: 
+            return send_error(message='This answer does not allow commenting.')
         data['answer_id'] = answer_id
 
         try:
