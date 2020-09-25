@@ -275,17 +275,22 @@ class QuestionController(Controller):
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
             title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids = None, None, None, None, None, None, None, None, None
-            if args.get('title'):
-                title = args['title']
+           
+            get_my_own = False
             if args.get('user_id'):
                 try:
                     user_id = int(args['user_id'])
                     if current_user:
                         if user_id == current_user.id:
-                            query = query.filter_by(is_private=False) 
+                            get_my_own = True
                 except Exception as e:
                     print(e.__str__())
                     pass
+            if not get_my_own:
+                query = query.filter(Question.is_private != True)
+                
+            if args.get('title'):
+                title = args['title']
             if args.get('fixed_topic_id'):
                 try:
                     fixed_topic_id = int(args['fixed_topic_id'])

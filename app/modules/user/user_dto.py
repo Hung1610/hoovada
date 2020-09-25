@@ -97,7 +97,8 @@ class UserDto(Dto):
         'people_you_follow_frequency_setting': fields.String(required=False, default=''),
 
         'email_stories_topics_setting': fields.Boolean(required=False, default=False),
-        'email_stories_topics_frequency_setting': fields.String(required=False, default='')
+        'email_stories_topics_frequency_setting': fields.String(required=False, default=''),
+        'is_private': fields.Boolean(default=False, description='The user is private or not'),
         # 'last_message_read_time': fields.DateTime(required=False)
     })
 
@@ -185,7 +186,8 @@ class UserDto(Dto):
         'comment_reported_count': fields.Integer(required=False),
 
         'user_report_count': fields.Integer(required=False),
-        'user_reported_count': fields.Integer(required=False)
+        'user_reported_count': fields.Integer(required=False),
+        'is_private': fields.Boolean(default=False, description='The user is private or not'),
     })
 
     model_get_parser = reqparse.RequestParser()

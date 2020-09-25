@@ -42,6 +42,7 @@ class TopicDto(Dto):
         'user_id': fields.Integer(required=True, description='The user ID'),
         'color_code': fields.String(description='The color code for topic'),
         'description': fields.String(description='Description about topic'),
+        'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
     })
 
     # define the model for response
@@ -59,7 +60,8 @@ class TopicDto(Dto):
         'is_fixed': fields.Boolean(default=False, description='This topic is fixed or not'),
         'created_date': fields.DateTime(description='The date topic was created'),
         'description': fields.String(description='Description about topic'),
-        'sub_topics': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
+        'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
+        'children': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
     })
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {

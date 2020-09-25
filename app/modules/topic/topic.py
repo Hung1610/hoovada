@@ -49,6 +49,7 @@ class Topic(Model):
     is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.String(255))
+    is_nsfw = db.Column(db.Boolean, default=False)  # is this topic fixed?
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.user_id, TopicUserEndorse.topic_id], lazy='dynamic')
     fixed_topic_articles = db.relationship("Article", cascade='all,delete-orphan')
 

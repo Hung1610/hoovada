@@ -54,7 +54,8 @@ class UserController(Controller):
 
     def get(self, args):
         try:
-            query = User.query
+            query = User.query.filter
+            query = query.filter(User.is_private != True)
             display_name, email = None, None
             if 'display_name' in args:
                 try:
@@ -114,7 +115,7 @@ class UserController(Controller):
             return send_error(message='Could not get user by ID {}.'.format(user_name))
 
 
-    def update(self, object_id, data):
+    def update(self, user_name, data):
         """
         Doest now allow to update `id`, `email`, `password`, `profile_views`.
 
@@ -349,6 +350,13 @@ class UserController(Controller):
             try:
                 user.last_message_read_time = dateutil.parser.isoparse(data['last_message_read_time'])
             except Exception as e:
+                print(e.__str__())
+                pass
+        if 'is_private' in data:
+            try:
+                user.is_private = bool(data['is_private'])
+            except Exception as e:
+                user.is_private = False
                 print(e.__str__())
                 pass
         return user

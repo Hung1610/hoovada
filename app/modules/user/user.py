@@ -9,6 +9,7 @@ from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
@@ -196,6 +197,8 @@ class User(Model):
 
     article_share_count = db.Column(db.Integer, server_default='0')
     article_shared_count = db.Column(db.Integer, server_default='0')
+
+    is_private = db.Column(db.Boolean, server_default=expression.false())
     
     articles = db.relationship("Article", cascade='all,delete-orphan')
 
