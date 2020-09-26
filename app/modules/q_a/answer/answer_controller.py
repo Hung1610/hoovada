@@ -209,7 +209,7 @@ class AnswerController(Controller):
         try:
             if not isinstance(args, dict):
                 return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
-            user_id, question_id, from_date, to_date = None, None, None, None  # , None, None
+            user_id, question_id, from_date, to_date, is_deleted = None, None, None, None, None
             if 'user_id' in args:
                 try:
                     user_id = int(args['user_id'])
@@ -234,10 +234,16 @@ class AnswerController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
+            if args.get('is_deleted'):
+                try:
+                    is_deleted = bool(args['is_deleted'])
+                except Exception as e:
+                    print(e)
+                    pass
+            query = Answer.query
 
-            if user_id is None and question_id is None and from_date is None and to_date is None:
-                send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
-            query = Answer.query.filter(Answer.is_deleted != True)
+            if not is_deleted:
+                query = query.filter(Answer.is_deleted != True)
             if user_id is not None:
                 query = query.filter(Answer.user_id == user_id)
             if question_id is not None:

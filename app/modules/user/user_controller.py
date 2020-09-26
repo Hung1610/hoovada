@@ -359,6 +359,13 @@ class UserController(Controller):
                 user.is_private = False
                 print(e.__str__())
                 pass
+        if 'show_nsfw' in data:
+            try:
+                user.show_nsfw = bool(data['show_nsfw'])
+            except Exception as e:
+                user.show_nsfw = True
+                print(e.__str__())
+                pass
         return user
 
     def get_user_hot(self,page=1):

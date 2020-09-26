@@ -79,6 +79,7 @@ class AnswerDto(Dto):
     get_parser.add_argument('question_id', type=str, required=False, help='Search all answers by question_id.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
+    get_parser.add_argument('is_deleted', type=bool, required=False, help='Search answers that are deleted.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
                         )

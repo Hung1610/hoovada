@@ -199,6 +199,8 @@ class User(Model):
     article_shared_count = db.Column(db.Integer, server_default='0')
 
     is_private = db.Column(db.Boolean, server_default=expression.false())
+
+    show_nsfw = db.Column(db.Boolean, server_default=expression.false())
     
     articles = db.relationship("Article", cascade='all,delete-orphan')
 
