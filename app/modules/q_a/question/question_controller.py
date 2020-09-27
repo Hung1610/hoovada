@@ -286,20 +286,29 @@ class QuestionController(Controller):
         try:
             query = Question.query # query search from view
             current_user, _ = AuthController.get_logged_user(request)
+            if current_user:
+                if not current_user.show_nsfw:
+                    query = query.filter(Question.fixed_topic.is_nsfw != True)\
+                        .filter(Question.topics.any(Topic.is_nsfw != True))
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
-            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids = None, None, None, None, None, None, None, None, None
-            if args.get('title'):
-                title = args['title']
+            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids, is_deleted = None, None, None, None, None, None, None, None, None, None
+           
+            get_my_own = False
             if args.get('user_id'):
                 try:
                     user_id = int(args['user_id'])
                     if current_user:
                         if user_id == current_user.id:
-                            query = query.filter_by(is_private=False) 
+                            get_my_own = True
                 except Exception as e:
                     print(e.__str__())
                     pass
+            if not get_my_own:
+                query = query.filter(Question.is_private != True)
+                
+            if args.get('title'):
+                title = args['title']
             if args.get('fixed_topic_id'):
                 try:
                     fixed_topic_id = int(args['fixed_topic_id'])
@@ -342,6 +351,15 @@ class QuestionController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
+            if args.get('is_deleted'):
+                try:
+                    is_deleted = bool(args['is_deleted'])
+                except Exception as e:
+                    print(e)
+                    pass
+
+            if not is_deleted:
+                query = query.filter(Question.is_deleted != True)
 
             if title is not None and not str(title).strip().__eq__(''):
                 title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')

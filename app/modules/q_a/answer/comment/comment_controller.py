@@ -47,6 +47,7 @@ class CommentController(Controller):
                 pass
 
         query = AnswerComment.query
+        query = query.filter(AnswerComment.user.is_deactivated != True)
         if answer_id is not None:
             query = query.filter(AnswerComment.answer_id == answer_id)
         if user_id is not None:
