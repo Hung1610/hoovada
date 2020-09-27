@@ -18,6 +18,18 @@ class BaseConfig:
     SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
     SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')
 
+    # Cache configuration   # Flask-Caching related configs
+    # Simple cache using Python dictionary
+    CACHE_TYPE = "simple" 
+    # Redis cache using redis database
+    # CACHE_TYPE = 'redis'
+    # CACHE_KEY_PREFIX = 'fcache'
+    # CACHE_REDIS_HOST = 'localhost'
+    # CACHE_REDIS_PORT = '6379'
+    # CACHE_REDIS_URL = 'redis://localhost:6379'
+
+    CACHE_DEFAULT_TIMEOUT = 300
+
     # Email configuration
     MAIL_SERVER = environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(environ.get('MAIL_PORT') or 587)

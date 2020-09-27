@@ -6,7 +6,7 @@ from flask_restx import Api
 from flask import url_for
 
 # own modules
-from app.modules import ns_auth, ns_user, ns_question, ns_answer, \
+from app.modules import ns_auth, ns_question, ns_answer, \
     ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report, ns_question_topic,\
     ns_question_comment, ns_question_comment_report, ns_question_comment_vote, ns_question_comment_favorite,\
     ns_upload, ns_search, ns_user_employment, ns_reputation,\
@@ -15,7 +15,8 @@ from app.modules import ns_auth, ns_user, ns_question, ns_answer, \
     ns_topic, ns_topic_report, ns_topic_share, ns_topic_bookmark,\
     ns_answer_bookmark, ns_answer_favorite, ns_answer_report, ns_answer_share, ns_answer_vote, \
     ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote, ns_answer_comment_favorite,\
-    ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
+    ns_user, ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
+    ns_user_friend, ns_user_follow,\
     ns_language
 
 __author__ = "hoovada.com team"
@@ -58,6 +59,8 @@ def init_api(mode):
     api.add_namespace(ns_user_topic, '/user')
     api.add_namespace(ns_user_language, '/user')
     api.add_namespace(ns_user_employment, '/user')
+    api.add_namespace(ns_user_friend, '/user')
+    api.add_namespace(ns_user_follow, '/user')
     api.add_namespace(ns_reputation, '/reputation')
     api.add_namespace(ns_topic, '/topic')
     api.add_namespace(ns_topic_bookmark, '/topic')

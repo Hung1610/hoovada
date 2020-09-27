@@ -171,6 +171,7 @@ class ArticleController(Controller):
                     pass
 
             query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
+            query = query.filter(Article.article_by_user.is_deactivated != True)
             if not is_deleted:
                 query = query.filter(Article.is_deleted != True)
             if title and not str(title).strip().__eq__(''):

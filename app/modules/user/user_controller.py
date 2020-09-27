@@ -359,6 +359,13 @@ class UserController(Controller):
                 user.is_private = False
                 print(e.__str__())
                 pass
+        if 'is_deactivated' in data:
+            try:
+                user.is_deactivated = bool(data['is_deactivated'])
+            except Exception as e:
+                user.is_deactivated = False
+                print(e.__str__())
+                pass
         if 'show_nsfw' in data:
             try:
                 user.show_nsfw = bool(data['show_nsfw'])

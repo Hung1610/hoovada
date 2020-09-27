@@ -241,6 +241,7 @@ class AnswerController(Controller):
                     print(e)
                     pass
             query = Answer.query
+            query = query.filter(Answer.user.is_deactivated != True)
 
             if not is_deleted:
                 query = query.filter(Answer.is_deleted != True)

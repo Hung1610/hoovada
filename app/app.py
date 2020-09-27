@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_mail import Mail
+from flask_caching import Cache
 
 # own modules
 from app.settings.config import config_by_name
@@ -33,6 +34,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
 def init_app(config_name):
@@ -44,6 +46,7 @@ def init_app(config_name):
     # }
     app.config['JSON_AS_ASCII'] = False
     app.config.from_object(config_by_name[config_name])
+    cache.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     flask_bcrypt.init_app(app)

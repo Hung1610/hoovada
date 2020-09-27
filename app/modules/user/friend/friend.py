@@ -12,14 +12,14 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class UserFollow(Model):
-    __tablename__ = 'user_follow'
+class UserFriend(Model):
+    __tablename__ = 'user_friend'
 
     id = db.Column(db.Integer, primary_key=True)
-    follower_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    follower = db.relationship('User', foreign_keys=[follower_id], lazy=True) # one-to-many relationship with table User
-    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    followed = db.relationship('User', foreign_keys=[followed_id], lazy=True) # one-to-many relationship with table User
+    friend_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    friend = db.relationship('User', foreign_keys=[friend_id], lazy=True) # one-to-many relationship with table User
+    friended_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    friended = db.relationship('User', foreign_keys=[friended_id], lazy=True) # one-to-many relationship with table User
     is_approved = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)
