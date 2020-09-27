@@ -14,8 +14,8 @@ from sqlalchemy import and_
 from app import db
 from app.modules.common.controller import Controller
 from app.modules.user.user import User
-from app.modules.user.follow.follow import UserFollow
-from app.modules.user.follow.follow_dto import UserFollowDto
+from app.modules.user.friend.friend import UserFriend
+from app.modules.user.friend.friend_dto import UserFriendDto
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
 from app.modules.auth.auth_controller import AuthController
@@ -28,10 +28,10 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class UserFollowController(Controller):
+class UserFriendController(Controller):
     def get(self, object_id, args):
         '''
-        Get/Search follows.
+        Get/Search friends.
 
         Args:
              The dictionary-like parameters.
@@ -39,10 +39,10 @@ class UserFollowController(Controller):
         Returns:
         '''
         
-        follower_id, from_date, to_date = None, None, None
-        if 'follower_id' in args:
+        friend_id, from_date, to_date = None, None, None
+        if 'friend_id' in args:
             try:
-                follower_id = int(args['follower_id'])
+                friend_id = int(args['friend_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -59,49 +59,49 @@ class UserFollowController(Controller):
                 print(e.__str__())
                 pass
 
-        query = UserFollow.query
+        query = UserFriend.query
         if object_id is not None:
-            query = query.filter(UserFollow.followed_id == object_id)
-        if follower_id is not None:
-            query = query.filter(UserFollow.follower_id == follower_id)
+            query = query.filter(UserFriend.friended_id == object_id)
+        if friend_id is not None:
+            query = query.filter(UserFriend.friend_id == friend_id)
         if from_date is not None:
-            query = query.filter(UserFollow.created_date >= from_date)
+            query = query.filter(UserFriend.created_date >= from_date)
         if to_date is not None:
-            query = query.filter(UserFollow.created_date <= to_date)
-        follows = query.all()
-        if follows is not None and len(follows) > 0:
-            return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
+            query = query.filter(UserFriend.created_date <= to_date)
+        friends = query.all()
+        if friends is not None and len(friends) > 0:
+            return send_result(data=marshal(friends, UserFriendDto.model_response), message='Success')
         else:
-            return send_result(message=messages.MSG_NOT_FOUND.format('Follow'))
+            return send_result(message=messages.MSG_NOT_FOUND.format('Friend'))
 
     def create(self, object_id):
         data = {}
         current_user, _ = AuthController.get_logged_user(request)
-        data['follow_id'] = current_user.id
-        data['followed_id'] = object_id
+        data['friend_id'] = current_user.id
+        data['friended_id'] = object_id
         try:
-            follow = UserFollow.query.filter(UserFollow.follow_id == data['follow_id'],
-                                             UserFollow.followed_id == data['followed_id']).first()
-            if follow:
-                return send_result(message=messages.MSG_ISSUE.format('Already befollowed'))
+            friend = UserFriend.query.filter(UserFriend.friend_id == data['friend_id'],
+                                             UserFriend.friended_id == data['friended_id']).first()
+            if friend:
+                return send_result(message=messages.MSG_ISSUE.format('Already befriended'))
 
-            follow = self._parse_follow(data=data, follow=None)
-            db.session.add(follow)
+            friend = self._parse_friend(data=data, friend=None)
+            db.session.add(friend)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'),
-                               data=marshal(follow, UserFollowDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Friend'),
+                               data=marshal(friend, UserFriendDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Follow', e))
+            return send_error(message=messages.MSG_CREATE_FAILED.format('Friend', e))
 
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
-        follow = UserFollow.query.filter_by(id=object_id).first()
-        if follow is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Follow', object_id))
+        friend = UserFriend.query.filter_by(id=object_id).first()
+        if friend is None:
+            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
         else:
-            return send_result(data=marshal(follow, UserFollowDto.model_response), message='Success')
+            return send_result(data=marshal(friend, UserFriendDto.model_response), message='Success')
 
     def update(self, object_id, data):
         pass
@@ -110,14 +110,14 @@ class UserFollowController(Controller):
         try:
             if object_id is None:
                 return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
-            follow = UserFollow.query.filter_by(id=object_id).first()
-            if follow is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Follow', object_id))
+            friend = UserFriend.query.filter_by(id=object_id).first()
+            if friend is None:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
-            if follow.is_approved:
-                return send_result(message='Already follow.')
+            if friend.is_approved:
+                return send_result(message='Already friend.')
 
-            follow.is_approved = True
+            friend.is_approved = True
             db.session.commit()
         except Exception as e:
             print(e.__str__())
@@ -127,12 +127,12 @@ class UserFollowController(Controller):
         try:
             if object_id is None:
                 return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
-            follow = UserFollow.query.filter_by(id=object_id).first()
-            if follow is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Follow', object_id))
+            friend = UserFriend.query.filter_by(id=object_id).first()
+            if friend is None:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
-            if follow.is_approved:
-                return send_result(message='Already follow.')
+            if friend.is_approved:
+                return send_result(message='Already friend.')
 
             return self.delete(object_id)
         except Exception as e:
@@ -143,18 +143,18 @@ class UserFollowController(Controller):
         current_user, _ = AuthController.get_logged_user(request)
         user_id = current_user.id
         try:
-            follow = UserFollow.query.filter_by(follow_id=object_id, followed_id=user_id).first()
-            if follow is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Follow', object_id))
+            friend = UserFriend.query.filter_by(friend_id=object_id, friended_id=user_id).first()
+            if friend is None:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
             else:
-                db.session.delete(follow)
+                db.session.delete(friend)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
+                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_DELETE_FAILED.format('Follow', e))
+            return send_error(message=messages.MSG_DELETE_FAILED.format('Friend', e))
 
-    def get_top_users(self, object_id, args):
+    def get_top_users(self, args, object_id):
         try:
             limit, topics = None, None
             if args.get('limit'):
@@ -164,12 +164,12 @@ class UserFollowController(Controller):
             if args.get('topic'):
                 topics = args['topic']
 
-            follower_ids = UserFollow.query.filter(UserFollow.followed_id == object_id).with_entities(UserFollow.follower_id).all()
+            friend_ids = UserFriend.query.filter(UserFriend.friended_id == object_id).with_entities(UserFriend.friend_id).all()
             query = db.session.query(
                     User,
                     db.func.sum(Reputation.score).label('total_score'),
                 )\
-                .filter(User.id.in_(follower_ids))
+                .filter(User.id.in_(friend_ids))
             if topics:
                 query = query.filter(Reputation.topic_id.in_(topics))
             top_users = query\
@@ -178,24 +178,24 @@ class UserFollowController(Controller):
                 .limit(limit)\
                 .all()
             results = [{'user': user, 'total_score': total_score} for user, total_score in top_users]
-            return send_result(data=marshal(results, UserFollowDto.top_user_followee_response), message='Success')
+            return send_result(data=marshal(results, UserFriendDto.top_user_friend_response), message='Success')
         except Exception as e:
             print(e)
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
-    def _parse_follow(self, data, follow=None):
-        if follow is None:
-            follow = UserFollow()
-        if 'follower_id' in data:
+    def _parse_friend(self, data, friend=None):
+        if friend is None:
+            friend = UserFriend()
+        if 'friend_id' in data:
             try:
-                follow.follow_id = int(data['follower_id'])
+                friend.friend_id = int(data['friend_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'followed_id' in data:
+        if 'friended_id' in data:
             try:
-                follow.followed_id = int(data['followed_id'])
+                friend.friended_id = int(data['friended_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        return follow
+        return friend

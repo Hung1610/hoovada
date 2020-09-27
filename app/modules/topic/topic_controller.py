@@ -429,11 +429,19 @@ class TopicController(Controller):
         if 'color_code' in data:
             topic.color_code = data['color_code']
 
+        if 'is_nsfw' in data:  
+            pass
+            try:
+                topic.is_nsfw = bool(data['is_nsfw'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         return topic
 
     def get_topic_hot(self,page=1):
         page_size = 20
-        topics = None;
+        topics = None
         if page > 0 :
             page = page - 1
             query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))

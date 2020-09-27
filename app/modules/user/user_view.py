@@ -79,7 +79,7 @@ class User(Resource):
 
 
     @token_required
-    def delete(self, id):
+    def delete(self, user_name):
         """ 
         Delete the user with the user_name `user_name`
         """

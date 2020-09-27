@@ -72,6 +72,7 @@ class ArticleDto(Dto):
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
     model_get_parser.add_argument('draft', type=bool, required=False, help='Search articles that are drafts.')
+    model_get_parser.add_argument('is_deleted', type=bool, required=False, help='Search articles that are deleted.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
                         )

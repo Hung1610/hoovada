@@ -112,7 +112,7 @@ class ArticleController(Controller):
         """
         try:
             # Get search parameters
-            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft = None, None, None, None, None, None, None, None, None
+            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft, is_deleted = None, None, None, None, None, None, None, None, None, None
             if args.get('title'):
                 title = args['title']
             if args.get('user_id'):
@@ -163,9 +163,17 @@ class ArticleController(Controller):
                 except Exception as e:
                     print(e)
                     pass
+            if args.get('is_deleted'):
+                try:
+                    is_deleted = bool(args['is_deleted'])
+                except Exception as e:
+                    print(e)
+                    pass
 
-            query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))\
-                                .filter(Article.is_deleted != True)
+            query = Article.query.filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
+            query = query.filter(Article.article_by_user.is_deactivated != True)
+            if not is_deleted:
+                query = query.filter(Article.is_deleted != True)
             if title and not str(title).strip().__eq__(''):
                 title = '%' + title.strip() + '%'
                 query = query.filter(Article.title.like(title))
