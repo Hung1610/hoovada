@@ -241,10 +241,12 @@ class AnswerController(Controller):
                     print(e)
                     pass
             query = Answer.query
-            query = query.filter(Answer.user.is_deactivated != True)
+            query = query.join(User).filter(db.or_(Answer.user == None, User.is_deactivated != True))
 
             if not is_deleted:
                 query = query.filter(Answer.is_deleted != True)
+            else:
+                query = query.filter(Answer.is_deleted == True)
             if user_id is not None:
                 query = query.filter(Answer.user_id == user_id)
             if question_id is not None:
