@@ -17,6 +17,7 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
 from app.modules.q_a.question.favorite.favorite import QuestionFavorite
+from app.modules.q_a.question.bookmark.bookmark import QuestionBookmark
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
@@ -184,6 +185,9 @@ class QuestionController(Controller):
                         favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                                         QuestionFavorite.question_id == question.id).first()
                         result['is_favorited_by_me'] = True if favorite else False
+                        bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                        QuestionBookmark.question_id == question.id).first()
+                        result['is_bookmarked_by_me'] = True if bookmark else False
                         # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                         # if vote is not None:
                         #     result['up_vote'] = vote.up_vote
@@ -410,6 +414,9 @@ class QuestionController(Controller):
                     favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                                     QuestionFavorite.question_id == question.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
+                    result['is_bookmarked_by_me'] = True if bookmark else False
                 results.append(result)
             res['data'] = marshal(results, QuestionDto.model_question_response)
             return res, code
@@ -452,6 +459,9 @@ class QuestionController(Controller):
             favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                             QuestionFavorite.question_id == question.id).first()
             result['is_favorited_by_me'] = True if favorite else False
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                            QuestionBookmark.question_id == question.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
             # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             # if vote is not None:
             #     result['up_vote'] = vote.up_vote
@@ -493,6 +503,9 @@ class QuestionController(Controller):
                 favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                                 QuestionFavorite.question_id == question.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                QuestionBookmark.question_id == question.id).first()
+                result['is_bookmarked_by_me'] = True if bookmark else False
                 # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 # if vote is not None:
                 #     result['up_vote'] = vote.up_vote
@@ -536,6 +549,9 @@ class QuestionController(Controller):
                     favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                                     QuestionFavorite.question_id == question.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
+                    result['is_bookmarked_by_me'] = True if bookmark else False
                     # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     # if vote is not None:
                     #     result['up_vote'] = vote.up_vote
@@ -785,6 +801,9 @@ class QuestionController(Controller):
                 favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                                 QuestionFavorite.question_id == question.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                QuestionBookmark.question_id == question.id).first()
+                result['is_bookmarked_by_me'] = True if bookmark else False
                 # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 # if vote is not None:
                 #     result['up_vote'] = vote.up_vote
@@ -1213,6 +1232,9 @@ class QuestionController(Controller):
             favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                             QuestionFavorite.question_id == question.id).first()
             result['is_favorited_by_me'] = True if favorite else False
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                            QuestionBookmark.question_id == question.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
         # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         # if vote is not None:
         #     result['up_vote'] = vote.up_vote
