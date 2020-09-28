@@ -47,7 +47,7 @@ class CommentController(Controller):
         current_user, _ = AuthController.get_logged_user(request)
 
         query = QuestionComment.query
-        query = query.filter(QuestionComment.user.is_deactivated != True)
+        query = query.join(User).filter(db.or_(QuestionComment.user == None, User.is_deactivated != True))
         if question_id is not None:
             query = query.filter(QuestionComment.question_id == question_id)
         if user_id is not None:
