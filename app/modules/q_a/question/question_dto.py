@@ -19,6 +19,7 @@ class QuestionDto(Dto):
 
     model_topic = api.model('topic_for_question', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
         'name': fields.String(description='The name of the topic'),
         'description': fields.String(description='Description about topic')
     })
@@ -85,6 +86,7 @@ class QuestionDto(Dto):
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
