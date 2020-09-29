@@ -119,7 +119,6 @@ class Avatar(Resource):
 
 @api.route('/user_hot/<int:page>')
 class UserHot(Resource):
-    @token_required
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self,page):
         """ get users hot 
