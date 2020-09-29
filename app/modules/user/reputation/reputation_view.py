@@ -27,7 +27,7 @@ parser.add_argument('topic_id', type=int, required=True, help='Search reputation
 @api.route('/search')
 @api.expect(parser)
 class UserReputationSearch(Resource):
-    @token_required
+    # @token_required
     @api.response(code=200, model=user_reputation_response, description='Model for user title response.')
     def get(self):
         """ 
