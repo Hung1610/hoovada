@@ -292,7 +292,7 @@ class QuestionController(Controller):
             current_user, _ = AuthController.get_logged_user(request)
             if current_user:
                 if not current_user.show_nsfw:
-                    query = query.filter(Question.fixed_topic.is_nsfw != True)\
+                    query = query.join(Topic).filter(Topic.is_nsfw != True)\
                         .filter(Question.topics.any(Topic.is_nsfw != True))
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
