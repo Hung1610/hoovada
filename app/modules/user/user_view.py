@@ -121,6 +121,7 @@ class Avatar(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, help='Search user by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/user_hot')
 @api.expect(parser)

@@ -193,6 +193,7 @@ class UpdateTopicSlug(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, help='Search topic by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/topic_hot')
 @api.expect(parser)

@@ -443,9 +443,16 @@ class TopicController(Controller):
         page = 1
         page_size = 20
 
-        if args.get('page') and args['page'] > 0:
+        if args.get('page') and args['page'] > 0 :
             try:
                 page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
             except Exception as e:
                 print(e.__str__())
                 pass

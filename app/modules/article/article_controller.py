@@ -489,6 +489,13 @@ class ArticleController(Controller):
                 print(e.__str__())
                 pass
 
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if page > 0 :
             page = page - 1
 

@@ -1267,6 +1267,13 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if page > 0 :
             page = page - 1
         
@@ -1313,6 +1320,13 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if page > 0 :
             page = page - 1
 
@@ -1348,6 +1362,13 @@ class QuestionController(Controller):
         if args.get('page') and args['page'] > 0:
             try:
                 page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -1388,6 +1409,13 @@ class QuestionController(Controller):
         if args.get('page') and args['page'] > 0:
             try:
                 page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
             except Exception as e:
                 print(e.__str__())
                 pass
