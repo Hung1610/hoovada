@@ -478,20 +478,29 @@ class ArticleController(Controller):
                 pass
         return article, topic_ids
 
-    def get_user_hot(self,page=1):
+    def get_user_hot(self,args):
+        page = 1
         page_size = 20
-        articles = None
+
+        if args.get('page') and args['page'] > 0:
+            try:
+                page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if page > 0 :
             page = page - 1
-            query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
-            # get current user voting status for this article
-            current_user, _ = AuthController.get_logged_user(request)
-            if current_user:
-               query = db.session.query(Article).outerjoin(TopicBookmark,TopicBookmark.id==Article.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
-            else:
-                query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
 
-            articles = query.offset(page * page_size).limit(page_size).all()
+        query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+        # get current user voting status for this article
+        current_user, _ = AuthController.get_logged_user(request)
+        if current_user:
+            query = db.session.query(Article).outerjoin(TopicBookmark,TopicBookmark.id==Article.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+        else:
+            query = db.session.query(Article).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+
+        articles = query.offset(page * page_size).limit(page_size).all()
 
         if articles is not None and len(articles) > 0:
             return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
