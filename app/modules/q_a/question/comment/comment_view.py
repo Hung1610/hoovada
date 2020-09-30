@@ -73,7 +73,7 @@ class Comment(Resource):
         controller = CommentController()
         return controller.get_by_id(object_id=id)
 
-    @token_required
+    # @token_required
     @api.expect(comment_request)
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
