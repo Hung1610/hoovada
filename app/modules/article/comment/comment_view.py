@@ -27,7 +27,7 @@ parser.add_argument('answer_id', type=str, required=False, help='Search all comm
 
 @api.route('/<int:article_id>/comment')
 class CommentList(Resource):
-    @token_required
+    # @token_required
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, article_id):
         """
