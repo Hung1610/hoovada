@@ -262,6 +262,7 @@ class UpdateSlug(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_hot')
 @api.expect(parser)
@@ -279,6 +280,7 @@ class QuestionHot(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_new')
 @api.expect(parser)
@@ -296,6 +298,7 @@ class QuestionNew(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_highlight')
 @api.expect(parser)
@@ -313,6 +316,7 @@ class QuestionhHghlight(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_many_answers')
 @api.expect(parser)
