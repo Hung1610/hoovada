@@ -4,6 +4,7 @@
 #third-party modules
 from flask import request
 from werkzeug.datastructures import FileStorage
+from flask_restx import reqparse
 
 # own modules
 from app.modules.common.view import Resource
@@ -117,12 +118,18 @@ class Avatar(Resource):
         controller = UserController()
         return controller.upload_avatar(args=args)
 
-@api.route('/user_hot/<int:page>')
+
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search user by page.')
+
+@api.route('/user_hot')
+@api.expect(parser)
 class UserHot(Resource):
     @api.response(code=200, model=user_response, description='Model for user response.')
-    def get(self,page):
+    def get(self):
         """ get users hot 
         """
 
+        args = parser.parse_args()
         controller = UserController()
-        return controller.get_user_hot(page)
+        return controller.get_user_hot(args)
