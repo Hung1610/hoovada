@@ -176,6 +176,7 @@ class QuestionController(Controller):
                     #     topic = Topic.query.filter_by(id=topic_id).first()
                     #     topics.append(topic)
                     result['topics'] = question.topics
+                    result['fixed_topic'] = question.fixed_topic
                     # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     if current_user:
                         vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -270,6 +271,7 @@ class QuestionController(Controller):
                     #     db.session.commit()
                     #     topics.append(topic)
                     result['topics'] = question.topics
+                    result['fixed_topic'] = question.fixed_topic
                     # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     result['up_vote'] = False
                     result['down_vote'] = False
@@ -405,6 +407,7 @@ class QuestionController(Controller):
                 result = question._asdict()
                 # get user info
                 result['user'] = question.question_by_user
+                result['fixed_topic'] = question.fixed_topic
                 result['topics'] = question.topics
                 if current_user:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -450,6 +453,7 @@ class QuestionController(Controller):
         #     topic = Topic.query.filter_by(id=topic_id).first()
         #     topics.append(topic)
         result['topics'] = question.topics
+        result['fixed_topic'] = question.fixed_topic
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -494,6 +498,7 @@ class QuestionController(Controller):
             result = question._asdict()
             result['user'] = question.question_by_user
             result['topics'] = question.topics
+            result['fixed_topic'] = question.fixed_topic
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
             if current_user:
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -540,6 +545,7 @@ class QuestionController(Controller):
                 # get user info
                 result['user'] = question.question_by_user
                 result['topics'] = question.topics
+                result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -791,6 +797,7 @@ class QuestionController(Controller):
             #     topic = Topic.query.filter_by(id=topic_id).first()
             #     topics.append(topic)
             result['topics'] = question.topics
+            result['fixed_topic'] = question.fixed_topic
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
             current_user, _ = AuthController.get_logged_user(request)
             if current_user:
@@ -1223,6 +1230,7 @@ class QuestionController(Controller):
         #     topic = Topic.query.filter_by(id=topic_id).first()
         #     topics.append(topic)
         result['topics'] = question.topics
+        result['fixed_topic'] = question.fixed_topic
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -1304,6 +1312,7 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
+                result['fixed_topic'] = question.fixed_topic
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1350,6 +1359,7 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
+                result['fixed_topic'] = question.fixed_topic
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1396,6 +1406,7 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
+                result['fixed_topic'] = question.fixed_topic
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1443,6 +1454,7 @@ class QuestionController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 result['topics'] = topics
+                result['fixed_topic'] = question.fixed_topic
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
