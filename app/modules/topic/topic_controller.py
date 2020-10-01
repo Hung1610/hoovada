@@ -439,14 +439,30 @@ class TopicController(Controller):
 
         return topic
 
-    def get_topic_hot(self,page=1):
+    def get_topic_hot(self,args):
+        page = 1
         page_size = 20
-        topics = None
+
+        if args.get('page') and args['page'] > 0 :
+            try:
+                page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if page > 0 :
             page = page - 1
-            query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))
-            query.filter(Topic.is_fixed!=1)
-            topics = query.offset(page * page_size).limit(page_size).all()
+
+        query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))
+        query.filter(Topic.is_fixed!=1)
+        topics = query.offset(page * page_size).limit(page_size).all()
 
         if topics is not None and len(topics) > 0:
             return send_result(data=marshal(topics, TopicDto.model_topic_response),

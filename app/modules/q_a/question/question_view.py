@@ -260,49 +260,76 @@ class UpdateSlug(Resource):
         controller = QuestionController()
         return controller.update_slug()
 
-@api.route('/question_hot/<int:page>')
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+
+@api.route('/question_hot')
+@api.expect(parser)
 class QuestionHot(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self,page):
+    def get(self):
         """ Lay danh sach question hot 
         """
 
+        args = parser.parse_args()
         controller = QuestionController()
-        return controller.get_question_hot(page)
+        return controller.get_question_hot(args)
 
-@api.route('/question_new/<int:page>')
+
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+
+@api.route('/question_new')
+@api.expect(parser)
 class QuestionNew(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self,page):
+    def get(self):
         """ Lay danh sach question new 
         """
 
+        args = parser.parse_args()
         controller = QuestionController()
-        return controller.get_question_new(page)
+        return controller.get_question_new(args)
 
-@api.route('/question_highlight/<int:page>')
+
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+
+@api.route('/question_highlight')
+@api.expect(parser)
 class QuestionhHghlight(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self,page):
+    def get(self):
         """ Lay danh sach question new 
         """
 
+        args = parser.parse_args()
         controller = QuestionController()
-        return controller.get_question_highlight(page)
+        return controller.get_question_highlight(args)
 
-@api.route('/question_many_answers/<int:page>')
+
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+
+@api.route('/question_many_answers')
+@api.expect(parser)
 class QuestionhManyAnswers(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self,page):
+    def get(self):
         """ Lay danh sach question new 
         """
 
+        args = parser.parse_args()
         controller = QuestionController()
-        return controller.get_question_many_answers(page)
+        return controller.get_question_many_answers(args)
 
 
 # @api.route('/get_by_topic/<int:topic_id>')

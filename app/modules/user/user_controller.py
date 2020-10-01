@@ -375,13 +375,29 @@ class UserController(Controller):
                 pass
         return user
 
-    def get_user_hot(self,page=1):
+    def get_user_hot(self,args):
+        page = 1
         page_size = 20
-        users = None;
+
+        if args.get('page') and args['page'] > 0:
+            try:
+                page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if page > 0 :
             page = page - 1
-            query = db.session.query(User).order_by(desc(text("(SELECT SUM(score) AS score FROM reputation WHERE reputation.user_id = user.id)")))
-            users = query.offset(page * page_size).limit(page_size).all()
+
+        query = db.session.query(User).order_by(desc(text("(SELECT SUM(score) AS score FROM reputation WHERE reputation.user_id = user.id)")))
+        users = query.offset(page * page_size).limit(page_size).all()
 
         if users is not None and len(users) > 0:
             return send_result(data=marshal(users, UserDto.model_response), message='Success')
