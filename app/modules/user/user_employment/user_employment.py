@@ -22,6 +22,5 @@ class UserEmployment(Model):
     company = db.Column(db.String(255))
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
-    is_currently_work = db.Column(db.Integer)
-    is_default = db.Column(db.Integer)
+    is_current = db.Column(db.Integer)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
