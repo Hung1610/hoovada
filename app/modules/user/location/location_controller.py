@@ -74,6 +74,8 @@ class LocationController(Controller):
 
         try:
             location = self._parse_location(data=data, location=None)
+            if location.is_current:
+                UserLocation.query.update({'is_current': False}, synchronize_session=False)
             db.session.add(location)
             db.session.commit()
             return send_result(data=marshal(location, LocationDto.model_response))
@@ -91,6 +93,8 @@ class LocationController(Controller):
             location = UserLocation.query.filter_by(id=object_id).first()
             if location is None:
                 return send_error(message='UserLocation with the ID {} not found.'.format(object_id))
+            if location.is_current:
+                UserLocation.query.update({'is_current': False}, synchronize_session=False)
 
             location = self._parse_location(data=data, location=location)
             location.updated_date = datetime.utcnow()

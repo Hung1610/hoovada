@@ -26,16 +26,16 @@ class UserEmploymentController(Controller):
     def search(self, args):
         if not isinstance(args, dict):
             return send_error(message='Tham số truyền vào không đúng định dạng.')
-        user_id, is_default = None, None
+        user_id, is_current = None, None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'is_default' in args:
+        if 'is_current' in args:
             try:
-                is_default = int(args['is_default'])
+                is_current = int(args['is_current'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -46,8 +46,8 @@ class UserEmploymentController(Controller):
         if user_id is not None:
             query = query.filter(UserEmployment.user_id == user_id)
             is_filter = True
-        if is_default is not None:
-            query = query.filter(UserEmployment.is_default == is_default)
+        if is_current is not None:
+            query = query.filter(UserEmployment.is_current == is_current)
             is_filter = True
         if is_filter:
             user_employments = query.all()
@@ -78,16 +78,14 @@ class UserEmploymentController(Controller):
             user_employment.company = data['company']
             user_employment.start_year = data['start_year']
             user_employment.end_year = data['end_year']
-            user_employment.is_currently_work = data['is_currently_work']
-            user_employment.is_default = data['is_default']
+            user_employment.is_current = data['is_current']
             user_employment.created_date = datetime.utcnow()
             db.session.add(user_employment)
             db.session.commit()
-            db.session.flush()
 
             # if is_default == true cac employment khac cua user cap nhat is_default == false
             UserEmployment.query.filter(UserEmployment.id != user_employment.id,UserEmployment.user_id == data['user_id'])\
-                .update({UserEmployment.is_default: 0})
+                .update({UserEmployment.is_current: 0}, synchronize_session=False)
             db.session.commit()
             return send_result(message='Thông tin nghề nghiệp đã được tạo thành công.',data=marshal(user_employment, UserEmploymentDto.model_response))
         except Exception as e:
