@@ -33,6 +33,7 @@ class TopicDto(Dto):
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'topic_id': fields.Integer(description='The ID of the parent topic'),
         'description': fields.String(required=True, description='The content of the topic'),
+        'is_default': fields.Boolean(default=False, description='The location is default or not'),
     })
 
     model_response = api.model('user_topic_response', {
@@ -44,6 +45,7 @@ class TopicDto(Dto):
         'description': fields.String(required=True, description='The content of the topic'),
         'user_id': fields.Integer(required=True, description='The ID of the user'),
         'user': fields.Nested(topic_user, description='The information of the user'),
+        'is_default': fields.Boolean(default=False, description='The location is default or not'),
         'updated_date': fields.DateTime(description='The date topic was updated'),
         'created_date': fields.DateTime(required=True, description='The date topic was created')
     })

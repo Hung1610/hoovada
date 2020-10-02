@@ -25,6 +25,7 @@ class UserTopic(Model):
     description = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    is_default = db.Column(db.Boolean, default=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
