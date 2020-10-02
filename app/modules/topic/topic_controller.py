@@ -340,7 +340,7 @@ class TopicController(Controller):
             bucket = 'hoovada'
             sub_folder = 'topic' + '/' + encode_file_name(str(topic.id))
             try:
-                url = upload_file(file=media_file, file_name=file_name, bucket=bucket, sub_folder=sub_folder)
+                url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
                 return send_error(message=messages.MSG_ISSUE.format('Could not save your media file.'))
