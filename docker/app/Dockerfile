@@ -8,6 +8,9 @@ RUN apt-get update -y && apt-get install -y enchant && apt-get install -y libenc
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+ENV TZ=Asia/Ho_Chi_Minh
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
 RUN addgroup gunicorn
 
