@@ -9,7 +9,7 @@ import dateutil.parser
 # third-party modules
 from flask import url_for, request, send_file
 from flask_restx import marshal
-from sqlalchemy import desc, text
+from sqlalchemy import desc, text, func
 
 # own modules
 from app import db
@@ -21,8 +21,8 @@ from app.modules.common.controller import Controller
 from app.settings.config import BaseConfig as Config
 from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
-from app.utils.types import UserRole
-from app.utils.wasabi import upload_file, delete_file
+from app.utils.wasabi import upload_file
+from app.modules.user.reputation.reputation import Reputation
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -405,7 +405,7 @@ class UserController(Controller):
         if page > 0 :
             page = page - 1
 
-        query = db.session.query(User).order_by(desc(text("(SELECT SUM(score) AS score FROM reputation WHERE reputation.user_id = user.id)")))
+        query = db.session.query(User).outerjoin(Reputation).group_by(User).order_by(desc(func.sum(Reputation.score1)))
         users = query.offset(page * page_size).limit(page_size).all()
 
         if users is not None and len(users) > 0:

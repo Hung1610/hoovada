@@ -45,6 +45,12 @@ class TopicDto(Dto):
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
     })
 
+    model_parent_topic = api.model('parent_topic', {
+        'id': fields.Integer(readonly=True),
+        'name': fields.String(description='The name of the topic'),
+        'description': fields.String(description='Description about the topic')
+    })
+
     # define the model for response
     model_topic_response = api.model('topic_response', {
         'id': fields.Integer(requried=False, readonly=True, description='The ID of the topic'),
@@ -62,6 +68,8 @@ class TopicDto(Dto):
         'description': fields.String(description='Description about topic'),
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
         'children': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
+        'parent': fields.List(fields.Nested(model_parent_topic), description='The parent (fixed) topic'),
+        'article_count': fields.Integer(description='The amount of article belong to this topic')
     })
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {

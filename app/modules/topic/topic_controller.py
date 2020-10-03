@@ -25,6 +25,8 @@ from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
 from app.utils.wasabi import upload_file
 from app.constants import messages
+from app.modules.topic.question_topic.question_topic import QuestionTopic
+from app.modules.topic.article_topic.article_topic import ArticleTopic
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -484,7 +486,9 @@ class TopicController(Controller):
         if page > 0 :
             page = page - 1
 
-        query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))
+        #query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))
+        query = db.session.query(Topic)
+        query = query.join(QuestionTopic).outerjoin(ArticleTopic).group_by(Topic).order_by(desc(func.count(QuestionTopic.question_id) + func.count(ArticleTopic.article_id)))
         query.filter(Topic.is_fixed!=1)
         topics = query.offset(page * page_size).limit(page_size).all()
 
