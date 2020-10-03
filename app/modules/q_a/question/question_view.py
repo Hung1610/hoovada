@@ -113,7 +113,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.get_by_id(object_id=id_or_slug)
 
-    @admin_token_required
+    @admin_token_required()
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -126,7 +126,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.update(object_id=id_or_slug, data=data)
 
-    @admin_token_required
+    @admin_token_required()
     def delete(self, id_or_slug):
         """ 
         Delete the question by its ID.
@@ -201,7 +201,7 @@ class QuestionDeleteProposal(Resource):
 
 @api.route('/all/proposal/<int:id>/approve')
 class QuestionApprove(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
     def put(self, id):
         """ 
@@ -249,7 +249,7 @@ class GetQuestionBySlug(Resource):
 
 @api.route('/update_slug')
 class UpdateSlug(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
         """ 

@@ -90,7 +90,7 @@ class Answer(Resource):
         controller = AnswerController()
         return controller.update(object_id=id, data=data)
 
-    @admin_token_required
+    @admin_token_required()
     def delete(self, id):
         """
         Delete existing answer by its ID.

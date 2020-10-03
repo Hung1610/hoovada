@@ -27,7 +27,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 @api.route('/<int:user_id>/topic')
 class TopicList(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self, user_id):
         """
@@ -37,7 +37,7 @@ class TopicList(Resource):
         controller = TopicController()
         return controller.get(user_id=user_id, args=args)
 
-    @admin_token_required
+    @admin_token_required()
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def post(self, user_id):

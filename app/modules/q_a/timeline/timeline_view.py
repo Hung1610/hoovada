@@ -84,7 +84,7 @@ class Timeline(Resource):
         controller = TimelineController()
         return controller.update(object_id=id, data=data)
 
-    @admin_token_required
+    @admin_token_required()
     def delete(self, id_or_slug):
         """
         Delete the timeline by its ID.

@@ -6,6 +6,7 @@ from slugify import slugify
 from datetime import datetime
 
 # third-party modules
+from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 from sqlalchemy import event
 
@@ -63,8 +64,8 @@ class Article(Model):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    is_draft = db.Column(db.Boolean, default=False)
-    is_deleted = db.Column(db.Boolean, default=False)
+    is_draft = db.Column(db.Boolean, server_default=expression.false())
+    is_deleted = db.Column(db.Boolean, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
     article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan')

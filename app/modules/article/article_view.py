@@ -86,7 +86,7 @@ class Article(Resource):
         controller = ArticleController()
         return controller.update(object_id=id_or_slug, data=data)
 
-    @admin_token_required
+    @admin_token_required()
     def delete(self, id_or_slug):
         """
         Delete the article by its ID.
@@ -111,7 +111,7 @@ class ArticleSimilar(Resource):
 
 @api.route('/update_slug')
 class UpdateArticleSlug(Resource):
-    # @admin_token_required
+    # @admin_token_required()
     @api.response(code=200, model=_article_dto_response, description='Model for question response.')
     def post(self):
         """ 

@@ -22,7 +22,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 @api.route('')
 class CommentList(Resource):
-    # @admin_token_required
+    # @admin_token_required()
     # # @api.marshal_list_with(comment)
     # def get(self):
     #     """
@@ -60,7 +60,7 @@ class Comment(Resource):
         controller = CommentController()
         return controller.get_by_id(object_id=id)
 
-    @admin_token_required
+    @admin_token_required()
     @api.expect(comment_request)
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
@@ -73,7 +73,7 @@ class Comment(Resource):
         controller = CommentController()
         return controller.update(object_id=id, data=data)
 
-    @admin_token_required
+    @admin_token_required()
     def delete(self, id):
         """
         Delete comment by its ID.

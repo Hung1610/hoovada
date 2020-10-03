@@ -21,13 +21,13 @@ permission_response = PermissionDto.model_response
 
 @api.route('/')
 class Permission(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=permission_response, description='Model for permission response.')
     def get(self):
         controller = PermissionController()
         return controller.get()
 
-    @admin_token_required
+    @admin_token_required()
     @api.expect(permission_request)
     def post(self):
         controller = PermissionController()
@@ -36,7 +36,7 @@ class Permission(Resource):
 
 @api.route('/create_permission')
 class CreateFixedPermission(Resource):
-    @admin_token_required
+    @admin_token_required()
     def post(self):
         controller = PermissionController()
         return controller.create_permissions()

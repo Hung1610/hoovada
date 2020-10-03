@@ -44,7 +44,7 @@ parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed to
 @api.route('')
 @api.expect(parser)
 class TopicList(Resource):
-    # @admin_token_required
+    # @admin_token_required()
     # @api.marshal_list_with(topic_response)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
@@ -102,7 +102,7 @@ class Topic(Resource):
         controller = TopicController()
         return controller.update(object_id=topic_id_or_slug, data=data)
 
-    @admin_token_required
+    @admin_token_required()
     def delete(self, topic_id_or_slug):
         """ 
         Delete topic by its ID.
@@ -178,7 +178,7 @@ class TopicSearch(Resource):
 
 @api.route('/update_slug')
 class UpdateTopicSlug(Resource):
-    # @admin_token_required
+    # @admin_token_required()
     def post(self):
         """
         Update Slug for articles in DB
