@@ -186,19 +186,43 @@ class TopicController(Controller):
             return send_error(message='Could not create topic, please try again!')
 
 
-    def get(self):
+    def get(self, args):
         try:
-            topics = Topic.query.filter_by(is_fixed=True).all()
-            # results = list()
-            # for topic in topics:
-            #     id = topic.id
-            #     result = topic.__dict__
-            #     sub_topics = Topic.query.filter_by(parent_id=id).all()
-            #     result['sub_topics'] = sub_topics
-            #     results.append(result)
-            # json_result = ast.literal_eval(results.__str__())
-            return send_result(data=marshal(topics, TopicDto.model_topic_response),
-                               message='Success')  # marshal(results, TopicDto.model_response)
+            if not isinstance(args, dict):
+                return send_error(message='Could not parse the params')
+            name, user_id, parent_id, is_fixed = None, None, None, None
+            if 'name' in args:
+                name = args['name']
+            if 'user_id' in args:
+                try:
+                    user_id = int(args['user_id'])
+                except Exception as e:
+                    print(e.__str__())
+            if 'parent_id' in args:
+                try:
+                    parent_id = int(args['parent_id'])
+                except Exception as e:
+                    print(e.__str__())
+            if 'is_fixed' in args:
+                try:
+                    is_fixed = int(args['is_fixed'])
+                except Exception as e:
+                    print(e.__str__())
+                    
+            query = db.session.query(Topic)
+            is_filter = False
+            if name is not None and not str(name).strip().__eq__(''):
+                name = '%' + name.strip() + '%'
+                query = query.filter(Topic.name.like(name))
+            if user_id is not None:
+                query = query.filter(Topic.user_id == user_id)
+            if parent_id is not None:
+                query = query.filter(Topic.parent_id == parent_id)
+            if is_fixed is not None:
+                query = query.filter(Topic.is_fixed == is_fixed)
+
+            topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác"))).all()
+            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
