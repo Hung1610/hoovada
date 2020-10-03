@@ -82,7 +82,7 @@ class TopicController(Controller):
         try:
             topic = self._parse_topic(data=data, topic=None)
             if topic.is_default:
-                UserTopic.query.update({'is_default': False}, synchronize_session=False)
+                UserTopic.query.filter_by(user_id=user_id).update({'is_default': False}, synchronize_session=False)
             db.session.add(topic)
             db.session.commit()
             return send_result(data=marshal(topic, TopicDto.model_response))
@@ -100,11 +100,11 @@ class TopicController(Controller):
             topic = UserTopic.query.filter_by(id=object_id).first()
             if topic is None:
                 return send_error(message='UserTopic with the ID {} not found.'.format(object_id))
-            if topic.is_default:
-                UserTopic.query.update({'is_default': False}, synchronize_session=False)
 
             topic = self._parse_topic(data=data, topic=topic)
             topic.updated_date = datetime.utcnow()
+            if topic.is_default:
+                UserTopic.query.filter(UserTopic.id != topic.id, UserTopic.user_id == topic.user_id).update({'is_default': False}, synchronize_session=False)
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_response))
         except Exception as e:
