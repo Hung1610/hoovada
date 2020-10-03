@@ -32,6 +32,13 @@ model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 
+parser = reqparse.RequestParser()
+parser.add_argument('user_id', type=str, required=False, help='Search questions by user_id (who created question)')
+parser.add_argument('user_hidden', type=str, required=False, help='Search all questions by user hidden.')
+parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+
+
 @api.route('')
 class QuestionList(Resource):
     @api.expect(get_parser)
@@ -125,7 +132,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.update(object_id=id_or_slug, data=data)
 
-    @token_required
+    @admin_token_required
     def delete(self, id_or_slug):
         """ 
         Delete the question by its ID.

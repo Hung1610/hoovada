@@ -96,8 +96,7 @@ class Topic(Resource):
         controller = TopicController()
         return controller.update(object_id=topic_id_or_slug, data=data)
 
-
-    @token_required
+    @admin_token_required
     def delete(self, topic_id_or_slug):
         """ 
         Delete topic by its ID.
@@ -183,7 +182,7 @@ class TopicSearch(Resource):
 class UpdateTopicSlug(Resource):
     # @admin_token_required
     def post(self):
-        """ 
+        """
         Update Slug for articles in DB
         """
 
@@ -201,7 +200,7 @@ class TopicHot(Resource):
     #@token_required
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
-        """ get topic hot 
+        """ get topic hot
         """
 
         args = parser.parse_args()

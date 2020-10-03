@@ -21,6 +21,7 @@ from app.modules.common.controller import Controller
 from app.settings.config import BaseConfig as Config
 from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
+from app.utils.types import UserRole
 from app.utils.wasabi import upload_file
 
 __author__ = "hoovada.com team"
@@ -43,6 +44,9 @@ class UserController(Controller):
             exist_user = User.query.filter_by(email=data['email']).first()
             if not exist_user:
                 user = self._parse_user(data, None)
+                user.display_name = user.display_name or data['email']
+                user.password_hash = user.password_hash or data['email']
+                user.admin = UserRole.ADMIN
                 db.session.add(user)
                 db.session.commit()
                 return send_result(message='User was created successfully', data=marshal(user, UserDto.model_response))
@@ -55,7 +59,6 @@ class UserController(Controller):
     def get(self, args):
         try:
             query = User.query
-            query = query.filter(User.is_private != True)
             display_name, email = None, None
             if 'display_name' in args:
                 try:
@@ -114,12 +117,11 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(user_name))
 
-
     def update(self, user_name, data):
         """
         Doest now allow to update `id`, `email`, `password`, `profile_views`.
 
-        :param object_id:
+        :param user_name:
 
         :param data:
 
@@ -252,6 +254,8 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        else:
+            user.confirmed = 1
         if 'email_confirmed_at' in data:
             try:
                 user.email_confirmed_at = dateutil.parser.isoparse(data['email_confirmed_at'])
@@ -265,7 +269,7 @@ class UserController(Controller):
             user.profile_pic_data_url = data['profile_pic_data_url']
         if 'admin' in data:
             try:
-                user.admin = bool(data['admin'])
+                user.admin = UserRole.ADMIN if bool(data['admin']) is True else None
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -275,6 +279,8 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        else:
+            user.active = 1
 
         if 'reputation' in data:
             try:

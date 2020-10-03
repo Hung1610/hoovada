@@ -18,6 +18,8 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from app.utils.types import PermissionType
+from app.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -63,6 +65,9 @@ class CommentController(Controller):
             return send_result(message='Could not find any comments.')
 
     def create(self, article_id, data):
+        user, message = AuthController.get_logged_user(request)
+        if not has_permission(user.id, PermissionType.COMMENT):
+            return send_error(code=401, message='You have no authority to perform this action')
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:

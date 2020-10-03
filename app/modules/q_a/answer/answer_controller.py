@@ -28,6 +28,7 @@ from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
 from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
+from app.utils.types import UserRole
 from app.utils.wasabi import upload_file
 from app.constants import messages
 
@@ -73,9 +74,9 @@ class AnswerController(Controller):
                 print(e.__str__())
                 pass
 
-        if user_id is None and question_id is None and from_date is None and to_date is None:
-            send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
-        query = Answer.query.filter(Answer.is_deleted != True)
+        # if user_id is None and question_id is None and from_date is None and to_date is None:
+        #     send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
+        query = Answer.query.filter(Answer.is_deleted != True).filter(Answer.user_hidden != True)
         is_filter = False
         if user_id is not None:
             query = query.filter(Answer.user_id == user_id)
@@ -113,7 +114,7 @@ class AnswerController(Controller):
             else:
                 return send_result(message=messages.MSG_NOT_FOUND.format('Answer'))
         else:
-            return send_error(message=messages.MSG_GET_FAILED)
+             return send_error(message=messages.MSG_GET_FAILED)
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -207,21 +208,18 @@ class AnswerController(Controller):
         Search answers.
         """
         try:
-            if not isinstance(args, dict):
-                return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
-            user_id, question_id, from_date, to_date, is_deleted = None, None, None, None, None
-            if 'user_id' in args:
-                try:
-                    user_id = int(args['user_id'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if 'question_id' in args:
-                try:
-                    question_id = int(args['question_id'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
+            args = request.args
+            answers = Answer.query.order_by(desc(Answer.created_date))
+            user_id = args.get('user_id')
+            if user_id:
+                answers = answers.filter_by(user_id=user_id)
+            user_hidden = args.get('user_hidden')
+
+            if user_hidden:
+                answers = answers.filter_by(user_hidden=user_hidden)
+
+            from_date = None
+            to_date = None
             if 'from_date' in args:
                 try:
                     from_date = dateutil.parser.isoparse(args['from_date'])
@@ -234,67 +232,15 @@ class AnswerController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
-            if args.get('is_deleted'):
-                try:
-                    is_deleted = bool(args['is_deleted'])
-                except Exception as e:
-                    print(e)
-                    pass
-            query = Answer.query
-            query = query.join(User).filter(db.or_(Answer.user == None, User.is_deactivated != True))
-
-            if not is_deleted:
-                query = query.filter(Answer.is_deleted != True)
-            else:
-                query = query.filter(Answer.is_deleted == True)
-            if user_id is not None:
-                query = query.filter(Answer.user_id == user_id)
-            if question_id is not None:
-                query = query.filter(Answer.question_id == question_id)
-            if from_date is not None:
-                query = query.filter(Answer.created_date >= from_date)
-            if to_date is not None:
-                query = query.filter(Answer.created_date <= to_date)
-                
-            ordering_fields_desc = args.get('order_by_desc')
-            if ordering_fields_desc:
-                for ordering_field in ordering_fields_desc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Answer, ordering_field)
-                        query = query.order_by(db.desc(column_to_sort))
-            ordering_fields_asc = args.get('order_by_asc')
-            if ordering_fields_asc:
-                for ordering_field in ordering_fields_asc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Answer, ordering_field)
-                        query = query.order_by(db.asc(column_to_sort))
-                        
-            page, per_page = args.get('page', 1), args.get('per_page', 10)
-            query = query.paginate(page, per_page, error_out=True)
-            res, code = paginated_result(query)
-
-            # get user information for each answer.
-            results = []
-            for answer in res.get('data'):
-                result = answer._asdict()
-                user = User.query.filter_by(id=answer.user_id).first()
-                result['user'] = user
-                # lay thong tin up_vote down_vote cho current user
-                current_user, _ = AuthController.get_logged_user(request)
-                if current_user:
-                    vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
-                                                    AnswerFavorite.answer_id == answer.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                results.append(result)
-            res['data'] = marshal(results, AnswerDto.model_response)
-            return res, code
+            if from_date:
+                answers = answers.filter(Answer.created_date >= from_date)
+                if to_date:
+                    answers = answers.filter(Answer.created_date <= to_date)
+            answers = answers.all()
+            return send_result(data=marshal(answers, AnswerDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_GET_FAILED.format('Answer', e))
+            return send_error(message=messages.MSG_GET_FAILED.format('Answer'))
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -336,6 +282,11 @@ class AnswerController(Controller):
             if answer is None:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
+            current_user, _ = AuthController.get_logged_user(request)
+            # Check is admin or has permission
+            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
+                return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+
             answer = self._parse_answer(data=data, answer=answer)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.MSG_PLEASE_PROVIDE.format('answer content'))
@@ -354,7 +305,6 @@ class AnswerController(Controller):
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
-            current_user, _ = AuthController.get_logged_user(request)
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
@@ -375,15 +325,6 @@ class AnswerController(Controller):
             if answer is None:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
             else:
-                # ------- delete from other tables---------#
-                # delete from vote
-
-                # delete from comment
-
-                # delete from report
-
-                # delete from share
-
                 db.session.delete(answer)
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS)
@@ -425,6 +366,12 @@ class AnswerController(Controller):
         #     except Exception as e:
         #         print(e.__str__())
         #         pass
+        if 'anonymous' in data:
+            try:
+                answer.anonymous = bool(data['anonymous'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         if 'accepted' in data:
             try:
                 answer.accepted = bool(data['accepted'])
@@ -471,10 +418,9 @@ class AnswerController(Controller):
                 pass
         if 'allow_improvement' in data:
             try:
-                answer.allow_improvement = bool(data['allow_improvement'])
+                answer.user_hidden = bool(data['user_hidden'])
             except Exception as e:
-                answer.allow_improvement = True
+                answer.user_hidden = False
                 print(e.__str__())
                 pass
         return answer
-        

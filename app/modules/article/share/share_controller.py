@@ -20,7 +20,8 @@ from app.modules.article.share.share_dto import ShareDto
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.modules.auth.auth_controller import AuthController
-
+from app.utils.types import PermissionType
+from app.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -86,6 +87,9 @@ class ShareController(Controller):
             return send_result(constants.msg_not_found)
 
     def create(self, article_id, data):
+        user, message = AuthController.get_logged_user(request)
+        if not has_permission(user.id, PermissionType.SHARE):
+            return send_error(code=401, message='You have no authority to perform this action')
         if not isinstance(data, dict):
             return send_error(message=constants.msg_wrong_data_format)
         current_user, _ = AuthController.get_logged_user(request)

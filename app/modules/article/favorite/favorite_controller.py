@@ -21,6 +21,8 @@ from app.modules.article.favorite.favorite_dto import FavoriteDto
 from app.modules.user.user import User
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
+from app.utils.types import PermissionType
+from app.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -83,6 +85,9 @@ class FavoriteController(Controller):
             return send_result(message=constants.msg_article_favorite_not_found)
 
     def create(self, article_id):
+        user, message = AuthController.get_logged_user(request)
+        if not has_permission(user.id, PermissionType.FAVORITE):
+            return send_error(code=401, message='You have no authority to perform this action')
         data = {}
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id

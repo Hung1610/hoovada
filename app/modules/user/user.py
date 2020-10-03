@@ -14,6 +14,7 @@ from sqlalchemy_utils import aggregated
 
 # own modules
 from app.modules.common.model import Model
+from app.utils.types import UserRole
 from app import db
 
 __author__ = "hoovada.com team"
@@ -116,7 +117,7 @@ class User(Model):
 
     profile_pic_url = db.Column(db.String(255))  # (255), default='')
     profile_pic_data_url = db.Column(db.String(255))  # (10000), default='')
-    admin = db.Column(db.Boolean, default=False)
+    admin = db.Column(db.String(255))
     active = db.Column(db.Boolean, default=False)
 
     reputation = db.Column(db.Integer, server_default='0')
@@ -268,11 +269,17 @@ class User(Model):
     #         return url_for('static', filename='img/pro-pic.png', _scheme='https', _external=True)
 
     @property
-    def is_admin(self):
-        if self.admin:
-            return True
-        else:
-            return False
+    def is_super_admin(self):
+        return UserRole.is_super_admin(self.admin)
+
+    # @property
+    # def has_permission(self, permission_name):
+    #     permission = db.session.query(UserPermission) \
+    #         .join(User, UserPermission.id == User.id) \
+    #         .join(Permission, Permission.id == UserPermission.permission_id) \
+    #         .filter(Permission.permission_name == permission_name).first()
+    #     return permission.allow or False if permission else True
+    #     return False
 
     # @property
     # def is_authenticated(self):

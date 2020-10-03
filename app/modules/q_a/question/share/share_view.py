@@ -28,6 +28,7 @@ parser.add_argument('facebook', type=str, required=False, help='Search all share
 parser.add_argument('twitter', type=str, required=False, help='Search all shares to Twitter.')
 parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')
 
+
 @api.route('/<int:question_id>/share')
 class ShareList(Resource):
     @api.expect(parser)

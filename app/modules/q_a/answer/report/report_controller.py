@@ -18,6 +18,9 @@ from app.modules.q_a.answer.report.report_dto import AnswerReportDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
+from app.utils.types import UserRole, PermissionType
+from app.utils.permission import has_permission
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -67,6 +70,11 @@ class ReportController(Controller):
             return send_error(message='Data is wrong format')
         
         current_user, _ = AuthController.get_logged_user(request)
+        # Check is admin or has permission
+        if not (UserRole.is_admin(current_user.admin)
+                or has_permission(current_user.id, PermissionType.ANSWER_REPORT)):
+            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
         try:

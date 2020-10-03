@@ -7,8 +7,8 @@ from slugify import slugify
 from datetime import datetime
 
 # third-party modules
-from flask_restx import marshal
 from flask import request
+from flask_restx import marshal
 import dateutil.parser
 from sqlalchemy import or_, and_, func, desc, text
 
@@ -466,6 +466,6 @@ class TopicController(Controller):
 
         if topics is not None and len(topics) > 0:
             return send_result(data=marshal(topics, TopicDto.model_topic_response),
-                    message='Success') 
+                    message='Success')
         else:
             return send_result(message='Could not find any topics')
