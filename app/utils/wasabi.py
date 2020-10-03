@@ -57,7 +57,7 @@ def check_bucket_exist(bucket, region=None):
         return False
 
 
-def upload_file(file_name, file, bucket, sub_folder, acl='public-read', object_name=None, region=None):
+def upload_file(file_name, file, sub_folder, acl='public-read', bucket=Config.S3_BUCKET, object_name=None, region=None):
     if object_name is None:
         object_name = sub_folder + '/' + file_name
     s3 = _connection(region=region)
@@ -81,7 +81,7 @@ def upload_file(file_name, file, bucket, sub_folder, acl='public-read', object_n
         return None
 
 
-def delete_file(file_path, bucket, region=None):
+def delete_file(file_path, bucket=Config.S3_BUCKET, region=None):
     s3 = _connection(region=region)
     try:
         if not check_bucket_exist(bucket=bucket, region=region):

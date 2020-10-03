@@ -179,7 +179,7 @@ class UserController(Controller):
             bucket = 'hoovada'
             sub_folder = 'user' + '/' + encode_file_name(str(user.id))
             try:
-                url = upload_file(file=photo, file_name=file_name, bucket=bucket, sub_folder=sub_folder)
+                url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
                 return send_error(message='Could not save your media file.')
