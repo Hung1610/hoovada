@@ -289,7 +289,7 @@ class QuestionController(Controller):
             current_user, _ = AuthController.get_logged_user(request)
             if current_user:
                 if not current_user.show_nsfw:
-                    query = query.join(Topic).filter(Topic.is_nsfw != True)\
+                    query = query.join(Topic, isouter=True).filter(Topic.is_nsfw != True)\
                         .filter(Question.topics.any(Topic.is_nsfw != True))
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
@@ -600,7 +600,7 @@ class QuestionController(Controller):
             current_user, _ = AuthController.get_logged_user(request)
             title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
             query = Topic.query.distinct()\
-                .join(Question)\
+                .join(Question, isouter=True)\
                 .with_entities(Topic, title_similarity)\
                 .filter(Question.is_private == False)\
                 .filter(title_similarity > 50)\
