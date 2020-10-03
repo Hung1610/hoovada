@@ -54,7 +54,7 @@ class FileUploadController(Controller):
             bucket = 'hoovada'
             sub_folder = encode_file_name(str(user_id))
             try:
-                url = upload_file(file=photo, file_name=file_name, bucket=bucket, sub_folder=sub_folder)
+                url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
                 result = dict()
                 result['url'] = url
                 return send_result(data=marshal(result, FileUploadDto.model), message='Upload image successfully.')

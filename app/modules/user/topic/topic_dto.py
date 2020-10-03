@@ -19,7 +19,9 @@ class TopicDto(Dto):
 
     model_topic = api.model('topic_for_user', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
         'name': fields.String(description='The name of the topic'),
+        'color_code': fields.String(description='The color code for topic'),
         'description': fields.String(description='Description about topic')
     })
 
@@ -30,7 +32,6 @@ class TopicDto(Dto):
     })
 
     model_request = api.model('user_topic_request', {
-        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'topic_id': fields.Integer(description='The ID of the parent topic'),
         'description': fields.String(required=True, description='The content of the topic'),
         'is_default': fields.Boolean(default=False, description='The location is default or not'),
@@ -38,8 +39,8 @@ class TopicDto(Dto):
 
     model_response = api.model('user_topic_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the topic'),
-        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic': fields.Nested(model_topic, description='The information of the user'),
+        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic', attribute='topic.parent.id'),
+        'fixed_topic': fields.Nested(model_topic, description='The information of the user', attribute='topic.parent'),
         'topic_id': fields.Integer(description='The ID of the parent topic'),
         'topic': fields.Nested(model_topic, description='The information of the user'),
         'description': fields.String(required=True, description='The content of the topic'),

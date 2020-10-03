@@ -18,8 +18,6 @@ class UserTopic(Model):
     __tablename__ = 'user_topic'
 
     id = db.Column(db.Integer, primary_key=True)
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
-    fixed_topic = db.relationship('Topic', foreign_keys=[fixed_topic_id], lazy=True) # one-to-many relationship with table Article
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     topic = db.relationship('Topic', foreign_keys=[topic_id], lazy=True) # one-to-many relationship with table Article
     description = db.Column(db.UnicodeText)
