@@ -112,7 +112,7 @@ def token_required(f):
 #         return admin_token_required_internal(f)
 #     return admin_token_required_internal
 
-def admin_token_required(f=None, role=None):
+def admin_token_required(role=None):
     def admin_token_required_decorator(f):
         """ Check admin rights for further actions.
         """
