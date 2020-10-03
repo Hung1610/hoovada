@@ -50,7 +50,7 @@ class CommentController(Controller):
                 pass
 
         query = AnswerComment.query
-        query = query.join(User).filter(db.or_(AnswerComment.user == None, User.is_deactivated != True))
+        query = query.join(User, isouter=True).filter(db.or_(AnswerComment.user == None, User.is_deactivated != True))
         if answer_id is not None:
             query = query.filter(AnswerComment.answer_id == answer_id)
         if user_id is not None:
