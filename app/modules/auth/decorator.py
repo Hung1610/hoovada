@@ -124,3 +124,5 @@ def admin_token_required(role=None):
             if not user.admin:
                 return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
             return f(*args, **kwargs)
+        return decorated
+    return admin_token_required_decorator
