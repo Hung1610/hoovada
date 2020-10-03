@@ -117,12 +117,12 @@ class Avatar(Resource):
         return controller.upload_avatar(args=args)
 
 
-parser = api.parser()
-parser.add_argument('page', type=int, required=False, help='Search user by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_user_hot = reqparse.RequestParser()
+parser_user_hot.add_argument('page', type=int, required=False, help='Search user by page.')
+parser_user_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/user_hot')
-@api.expect(parser)
+@api.expect(parser_user_hot)
 class UserHot(Resource):
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
