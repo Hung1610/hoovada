@@ -17,7 +17,7 @@ from app.modules import ns_auth, ns_question, ns_answer, \
     ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote, ns_answer_comment_favorite,\
     ns_user, ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
     ns_user_friend, ns_user_follow,\
-    ns_language
+    ns_language, ns_permission, ns_user_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -98,5 +98,7 @@ def init_api(mode):
     api.add_namespace(ns_search, '/search')
     api.add_namespace(ns_qa_timeline, '/timeline')
     api.add_namespace(ns_language, '/language')
+    api.add_namespace(ns_permission, '/permission')
+    api.add_namespace(ns_user_permission, '/user_permission')
 
     return api

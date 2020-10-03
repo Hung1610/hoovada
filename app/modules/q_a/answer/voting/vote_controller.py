@@ -18,6 +18,9 @@ from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
+from app.utils.types import UserRole, PermissionType
+from app.utils.permission import has_permission
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -34,7 +37,7 @@ class AnswerVoteController(Controller):
         Returns
             A list of votes that satisfy conditions.
         """
-        
+
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
             try:
@@ -82,9 +85,13 @@ class AnswerVoteController(Controller):
             return send_result(data=marshal(vote, AnswerVoteDto.model_response), message='Success')
 
     def create(self, answer_id, data):
+        current_user, _ = AuthController.get_logged_user(request)
+        # Check is admin or has permission
+        if not (UserRole.is_admin(current_user.admin)
+                or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
+            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
-        current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
         try:

@@ -19,6 +19,9 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
+from app.utils.types import UserRole, PermissionType
+from app.utils.permission import has_permission
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -38,7 +41,7 @@ class CommentController(Controller):
         # user_id, question_id, answer_id = None, None, None
 
         current_user, _ = AuthController.get_logged_user(request)
-        user_id = None 
+        user_id = None
         if 'user_id' in args:
             try:
                 user_id = int(args['user_id'])
@@ -69,6 +72,12 @@ class CommentController(Controller):
             return send_result(message='Could not find any comments.')
 
     def create(self, answer_id, data):
+        current_user, _ = AuthController.get_logged_user(request)
+        # Check is admin or has permission
+        if not (UserRole.is_admin(current_user.admin)
+                or has_permission(current_user.id, PermissionType.ANSWER_COMMENT)):
+            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:
@@ -80,9 +89,9 @@ class CommentController(Controller):
         answer = Answer.query.filter(Answer.id == answer_id).first()
         if not answer:
             return send_error(message='The answer does not exist.')
-        if not answer.question.allow_comments: 
+        if not answer.question.allow_comments:
             return send_error(message='This question does not allow commenting.')
-        if not answer.allow_comments: 
+        if not answer.allow_comments:
             return send_error(message='This answer does not allow commenting.')
         data['answer_id'] = answer_id
 

@@ -21,6 +21,8 @@ from app.modules.user.user_view import api
 from app.modules.user.user_employment import api as ns_user_employment
 from app.modules.user.reputation import api as ns_reputation
 from app.modules.language import ns_language
+from app.modules.user.permission import ns_permission
+from app.modules.user.user_permission import ns_user_permission
 
 
 __author__ = "hoovada.com team"

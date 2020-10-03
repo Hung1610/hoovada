@@ -25,6 +25,7 @@ parser.add_argument('user_id', type=str, required=False, help='Search comments b
 # parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
 parser.add_argument('answer_id', type=str, required=False, help='Search all comments by answer_id.')
 
+
 @api.route('/<int:answer_id>/comment')
 class CommentList(Resource):
     @api.response(code=200, model=comment_response, description='Model for comment response.')

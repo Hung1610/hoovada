@@ -10,6 +10,7 @@ import dateutil.parser
 from flask import request
 from flask_restx import marshal
 from sqlalchemy import desc, text, func
+from slugify import slugify
 
 # own modules
 from app import db
@@ -31,7 +32,7 @@ from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
 #from app.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
-from slugify import slugify
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -51,7 +52,7 @@ class QuestionController(Controller):
         Returns:
         
         """
-        query = Question.query # query search from view
+        query = Question.query.filter(Question.user_hidden != True) # query search from view
         current_user, _ = AuthController.get_logged_user(request)
 
         if not isinstance(args, dict):
@@ -107,12 +108,6 @@ class QuestionController(Controller):
         if args.get('topic_id'):
             try:
                 topic_ids = args['topic_id']
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('page'):
-            try:
-                page = args['page']
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -299,7 +294,7 @@ class QuestionController(Controller):
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
             title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids, is_deleted = None, None, None, None, None, None, None, None, None, None
-           
+
             get_my_own = False
             if args.get('user_id'):
                 try:
@@ -312,7 +307,7 @@ class QuestionController(Controller):
                     pass
             if not get_my_own:
                 query = query.filter(Question.is_private != True)
-                
+
             if args.get('title'):
                 title = args['title']
             if args.get('fixed_topic_id'):
@@ -384,7 +379,7 @@ class QuestionController(Controller):
                 query = query.filter(Question.created_date <= to_date)
             if topic_ids is not None:
                 query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
-                
+
             ordering_fields_desc = args.get('order_by_desc')
             if ordering_fields_desc:
                 for ordering_field in ordering_fields_desc:
@@ -397,7 +392,7 @@ class QuestionController(Controller):
                     if ordering_field in self.allowed_ordering_fields:
                         column_to_sort = getattr(Question, ordering_field)
                         query = query.order_by(db.asc(column_to_sort))
-                        
+
             page, per_page = args.get('page', 1), args.get('per_page', 10)
             query = query.paginate(page, per_page, error_out=True)
             res, code = paginated_result(query)
@@ -1022,13 +1017,6 @@ class QuestionController(Controller):
                 question.user_hidden = False
                 print(e.__str__())
                 pass
-        if 'allow_comments' in data:
-            try:
-                question.allow_comments = bool(data['allow_comments'])
-            except Exception as e:
-                question.allow_comments = True
-                print(e.__str__())
-                pass
         if 'allow_video_question' in data:
             try:
                 question.allow_video_question = bool(data['allow_video_question'])
@@ -1230,7 +1218,6 @@ class QuestionController(Controller):
         #     topic = Topic.query.filter_by(id=topic_id).first()
         #     topics.append(topic)
         result['topics'] = question.topics
-        result['fixed_topic'] = question.fixed_topic
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -1240,9 +1227,6 @@ class QuestionController(Controller):
             favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                             QuestionFavorite.question_id == question.id).first()
             result['is_favorited_by_me'] = True if favorite else False
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                            QuestionBookmark.question_id == question.id).first()
-            result['is_bookmarked_by_me'] = True if bookmark else False
         # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         # if vote is not None:
         #     result['up_vote'] = vote.up_vote
@@ -1284,15 +1268,15 @@ class QuestionController(Controller):
 
         if page > 0 :
             page = page - 1
-        
-            
+
+
         # get current user voting status for this article
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
             query = db.session.query(Question).outerjoin(TopicBookmark,TopicBookmark.id==Question.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
         else:
             query = db.session.query(Question).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
-        
+
         questions = query.offset(page * page_size).limit(page_size).all()
 
         if questions is not None and len(questions) > 0:

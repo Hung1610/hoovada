@@ -18,6 +18,9 @@ from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
 from app.modules.user.user import User
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
+from app.utils.types import UserRole, PermissionType
+from app.utils.permission import has_permission
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -82,9 +85,13 @@ class QuestionVoteController(Controller):
             return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
 
     def create(self, question_id, data):
+        current_user, _ = AuthController.get_logged_user(request)
+        # Check is admin or has permission
+        if not (UserRole.is_admin(current_user.admin)
+                or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
+            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
-        current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
         data['question_id'] = question_id
         try:

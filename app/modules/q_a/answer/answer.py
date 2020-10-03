@@ -46,18 +46,22 @@ class Answer(Model):
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
         return db.func.sum(db.func.if_(AnswerVote.vote_status == 'UPVOTED', 1, 0))
+
     @aggregated('votes', db.Column(db.Integer))
     def downvote_count(self):
         return db.func.sum(db.func.if_(AnswerVote.vote_status == 'DOWNVOTED', 1, 0))
+
     @aggregated('answer_comments', db.Column(db.Integer))
     def comment_count(self):
         return db.func.count('1')
+
     @aggregated('answer_shares', db.Column(db.Integer))
     def share_count(self):
         return db.func.count('1')
-    @aggregated('answer_favorites', db.Column(db.Integer))
-    def favorite_count(self):
-        return db.func.count('1')
+
+    # @aggregated('answer_favorites', db.Column(db.Integer))
+    # def favorite_count(self):
+    #     return db.func.count('1')
 
     votes = db.relationship("AnswerVote", cascade='all,delete-orphan')
     answer_shares = db.relationship("AnswerShare", cascade='all,delete-orphan')

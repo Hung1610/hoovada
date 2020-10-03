@@ -11,6 +11,7 @@ from flask import request
 from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error
+from app.utils.types import UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -90,16 +91,23 @@ def token_required(f):
     return decorated
 
 
-def admin_token_required(f):
-    """ Check admin rights for further actions.
-    """
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        user, message = AuthController.get_logged_user(request)
-        if user is None:
-            return send_error(message=message, code=401)
-        if not user.admin:
-            return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
-        return f(*args, **kwargs)
+def admin_token_required(f=None, role=None):
+    def admin_token_required_internal(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            user, message = AuthController.get_logged_user(request)
+            if user is None:
+                return send_error(message=message)
+            if role is None:
+                if not UserRole.is_admin(role=user.admin):
+                    return send_error(message='You are not admin. You need admin right to perform this action.')
+            else:
+                if not UserRole.is_permission(role_default=role, role=user.admin):
+                    return send_error(message='You are not admin. You need admin right to perform this action.')
+            return f(*args, **kwargs)
 
-    return decorated
+        return decorated
+
+    if f:
+        return admin_token_required_internal(f)
+    return admin_token_required_internal

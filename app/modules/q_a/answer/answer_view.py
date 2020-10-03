@@ -43,14 +43,14 @@ class AnswerList(Resource):
     def get(self):
         """
         Get the list of answers from database.
-    
+
         :return: List of answers.
         """
         args = get_parser.parse_args()
         controller = AnswerController()
         return controller.get(args=args)
 
-    # @token_required
+    @token_required
     @api.expect(answer_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')

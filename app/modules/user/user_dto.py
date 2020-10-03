@@ -75,7 +75,7 @@ class UserDto(Dto):
 
         'profile_pic_url': fields.String(required=False, default=''),
         'profile_pic_data_url': fields.String(required=False, default=''),
-        'admin': fields.Boolean(required=False, default=False),
+        'admin': fields.Boolean(required=False),
         'active': fields.Boolean(required=False, default=False),
 
         'reputation': fields.Integer(required=False, default=0),
@@ -126,7 +126,8 @@ class UserDto(Dto):
 
         'profile_pic_url': fields.String(required=False),
         'profile_pic_data_url': fields.String(required=False),
-        'admin': fields.Boolean(required=False),
+        'admin': fields.String(required=False),
+        'permissions': fields.String(required=False),
         'active': fields.Boolean(required=False),
 
         'reputation': fields.Integer(required=False),
