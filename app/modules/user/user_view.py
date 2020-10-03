@@ -65,7 +65,7 @@ class User(Resource):
             # return controller.get_by_id(object_id=id)
         return controller.get_by_user_name(user_name)
 
-    @admin_token_required
+    @admin_token_required()
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
