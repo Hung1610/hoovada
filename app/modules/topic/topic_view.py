@@ -188,12 +188,12 @@ class UpdateTopicSlug(Resource):
         return controller.update_slug()
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search topic by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_hot = reqparse.RequestParser()
+parser_hot.add_argument('page', type=int, required=False, help='Search topic by page.')
+parser_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/topic_hot')
-@api.expect(hot_topics_parser)
+@api.expect(parser_hot)
 class TopicHot(Resource):
     #@token_required
     @api.response(code=200, model=topic_response, description='Model for topic response.')

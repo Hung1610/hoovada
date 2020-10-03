@@ -121,12 +121,12 @@ class UpdateArticleSlug(Resource):
         controller = ArticleController()
         return controller.update_slug()
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search articles by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_article_hot = reqparse.RequestParser()
+parser_article_hot.add_argument('page', type=int, required=False, help='Search articles by page.')
+parser_article_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/article_hot')
-@api.expect(parser)
+@api.expect(parser_article_hot)
 class ArticleHot(Resource):
     @token_required
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
