@@ -95,11 +95,107 @@ class UserEmploymentController(Controller):
     def get(self):
         pass
 
-    def get_by_id(self, user_id):
-        pass
+    def get_by_id(self, object_id):
+        try:
+            if object_id is None:
+                return send_error('UserEmployment ID is null')
+            employment = UserEmployment.query.filter_by(id=object_id).first()
+            if employment is None:
+                return send_error(message='Could not find employment with the ID {}'.format(object_id))
+            return send_result(data=marshal(employment, UserEmploymentDto.model_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not get employment with the ID {}'.format(object_id))
 
     def update(self, object_id, data):
-        pass
+        if object_id is None:
+            return send_error(message='UserEmployment ID is null')
+        if data is None or not isinstance(data, dict):
+            return send_error('Data is null or not in dictionary form. Check again.')
+        try:
+            employment = UserEmployment.query.filter_by(id=object_id).first()
+            if employment is None:
+                return send_error(message='UserEmployment with the ID {} not found.'.format(object_id))
+
+            employment = self._parse_employment(data=data, employment=employment)
+            employment.updated_date = datetime.utcnow()
+            db.session.commit()
+
+            # if is_default == true cac employment khac cua user cap nhat is_default == false
+            UserEmployment.query.filter(UserEmployment.id != employment.id,UserEmployment.user_id == data['user_id'])\
+                .update({UserEmployment.is_default: 0})
+
+            db.session.commit()
+            return send_result(message='Update successfully', data=marshal(employment, UserEmploymentDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message='Could not update employment. Error: ' + e.__str__())
 
     def delete(self, object_id):
-        pass
+        try:
+            employment = UserEmployment.query.filter_by(id=object_id).first()
+            if employment is None:
+                return send_error(message='UserEmployment with the ID {} not found.'.format(object_id))
+            db.session.delete(employment)
+            db.session.commit()
+            return send_result(message='UserEmployment with the ID {} was deleted.'.format(object_id))
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message='Could not delete employment with the ID {}.'.format(object_id))
+
+    def _parse_employment(self, data, employment=None):
+            if employment is None:
+                employment = UserEmployment()
+            if 'user_id' in data:
+                try:
+                    employment.user_id = int(data['user_id'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'position' in data:
+                try:
+                    employment.position = data['position']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'company' in data:
+                try:
+                    employment.company = data['company']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'start_year' in data:
+                try:
+                    employment.start_year = int(data['start_year'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'end_year' in data:
+                try:
+                    employment.end_year = int(data['end_year'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'is_currently_work' in data:  
+                pass
+                try:
+                    employment.is_currently_work = bool(data['is_currently_work'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'is_default' in data:  
+                pass
+                try:
+                    employment.is_default = bool(data['is_default'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if 'created_date' in data:
+                try:
+                    employment.created_date = dateutil.parser.isoparse(data['created_date'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            return employment

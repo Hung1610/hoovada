@@ -136,4 +136,4 @@ class ArticleHot(Resource):
 
         args = parser.parse_args()
         controller = ArticleController()
-        return controller.get_user_hot(args)
+        return controller.get_article_hot(args)

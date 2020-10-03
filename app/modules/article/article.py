@@ -22,7 +22,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 article_topics = db.Table('topic_article',
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'), primary_key=True),
-    db.Column('article_id', db.Integer, db.ForeignKey('article.id'), primary_key=True)
+    db.Column('article_id', db.Integer, db.ForeignKey('article.id'), primary_key=True),
+    extend_existing=True
 )
 
 class Article(Model):

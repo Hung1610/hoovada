@@ -259,9 +259,9 @@ class UpdateSlug(Resource):
         controller = QuestionController()
         return controller.update_slug()
 
-hot_parser = reqparse.RequestParser()
-hot_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-hot_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_hot')
 @api.expect(hot_parser)
@@ -277,9 +277,9 @@ class QuestionHot(Resource):
         return controller.get_question_hot(args)
 
 
-new_parser = reqparse.RequestParser()
-new_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-new_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_new')
 @api.expect(new_parser)
@@ -295,9 +295,9 @@ class QuestionNew(Resource):
         return controller.get_question_new(args)
 
 
-highlight_parser = reqparse.RequestParser()
-highlight_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-highlight_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_highlight')
 @api.expect(highlight_parser)
@@ -313,9 +313,9 @@ class QuestionhHghlight(Resource):
         return controller.get_question_highlight(args)
 
 
-many_answers_parser = reqparse.RequestParser()
-many_answers_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-many_answers_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser = reqparse.RequestParser()
+parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_many_answers')
 @api.expect(many_answers_parser)
