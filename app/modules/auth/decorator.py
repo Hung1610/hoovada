@@ -112,14 +112,15 @@ def token_required(f):
 #         return admin_token_required_internal(f)
 #     return admin_token_required_internal
 
-def admin_token_required(f):
-    """ Check admin rights for further actions.
-    """
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        user, message = AuthController.get_logged_user(request)
-        if user is None:
-            return send_error(message=message, code=401)
-        if not user.admin:
-            return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
-        return f(*args, **kwargs)
+def admin_token_required(f=None, role=None):
+    def admin_token_required(f):
+        """ Check admin rights for further actions.
+        """
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            user, message = AuthController.get_logged_user(request)
+            if user is None:
+                return send_error(message=message, code=401)
+            if not user.admin:
+                return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
+            return f(*args, **kwargs)
