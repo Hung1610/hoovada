@@ -8,6 +8,10 @@ RUN apt-get update -y && apt-get install -y enchant && apt-get install -y libenc
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+ENV TZ=Asia/Ho_Chi_Minh
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
+
 RUN addgroup gunicorn
 
 RUN useradd -g gunicorn -d /dev/null -s /usr/sbin/nologin gunicorn 
@@ -17,10 +21,6 @@ COPY --chown=gunicorn:gunicorn . /opt/
 USER gunicorn
 
 RUN chmod +x /opt/docker/app/entrypoint.sh
-
-ENV TZ=Asia/Ho_Chi_Minh
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
 EXPOSE 5000
 
