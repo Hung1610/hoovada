@@ -137,7 +137,7 @@ class TopicController(Controller):
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('User', user_id))
             user_endorsed_topics = TopicUserEndorse.query.distinct()\
                 .filter_by(endorsed_id=user.id)\
-                .join(Topic)\
+                .join(Topic, isouter=True)\
                 .with_entities(
                     Topic,
                     db.func.count(TopicUserEndorse.user_id).label('endorse_score'),

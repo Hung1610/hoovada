@@ -99,8 +99,8 @@ class UserPermissionController(Controller):
             return send_error(message="The user_name must not be null.")
         try:
             user_permission = (db.session.query(UserPermission, User, Permission)
-                               .join(Permission)
-                               .join(User)
+                               .join(Permission, isouter=True)
+                               .join(User, isouter=True)
                                .filter(User.display_name == user_name)).all()
             u_p_response = list()
             for u_p in user_permission:
