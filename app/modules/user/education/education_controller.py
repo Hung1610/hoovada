@@ -91,7 +91,7 @@ class EducationController(Controller):
         try:
             education = self._parse_education(data=data, education=None)
             if education.is_current:
-                UserEducation.query.update({'is_current': False}, synchronize_session=False)
+                UserEducation.query.filter_by(user_id=user_id).update({'is_current': False}, synchronize_session=False)
             db.session.add(education)
             db.session.commit()
             return send_result(data=marshal(education, EducationDto.model_response))
@@ -109,11 +109,11 @@ class EducationController(Controller):
             education = UserEducation.query.filter_by(id=object_id).first()
             if education is None:
                 return send_error(message='UserEducation with the ID {} not found.'.format(object_id))
-            if education.is_current:
-                UserEducation.query.update({'is_current': False}, synchronize_session=False)
 
             education = self._parse_education(data=data, education=education)
             education.updated_date = datetime.utcnow()
+            if education.is_current:
+                UserEducation.query.filter(UserEducation.id != education.id, UserEducation.user_id == education.user_id).update({'is_current': False}, synchronize_session=False)
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(education, EducationDto.model_response))
         except Exception as e:
