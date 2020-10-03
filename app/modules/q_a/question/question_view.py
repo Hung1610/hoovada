@@ -272,7 +272,7 @@ class QuestionHot(Resource):
         """ Lay danh sach question hot 
         """
 
-        args = hot_parser.parse_args()
+        args = parser_question_hot.parse_args()
         controller = QuestionController()
         return controller.get_question_hot(args)
 
@@ -290,7 +290,7 @@ class QuestionNew(Resource):
         """ Lay danh sach question new 
         """
 
-        args = new_parser.parse_args()
+        args = parser_question_new.parse_args()
         controller = QuestionController()
         return controller.get_question_new(args)
 
@@ -308,7 +308,7 @@ class QuestionhHghlight(Resource):
         """ Lay danh sach question new 
         """
 
-        args = highlight_parser.parse_args()
+        args = parser_question_highlight.parse_args()
         controller = QuestionController()
         return controller.get_question_highlight(args)
 
@@ -326,7 +326,7 @@ class QuestionhManyAnswers(Resource):
         """ Lay danh sach question new 
         """
 
-        args = many_answers_parser.parse_args()
+        args = parser_question_many_answers.parse_args()
         controller = QuestionController()
         return controller.get_question_many_answers(args)
 
