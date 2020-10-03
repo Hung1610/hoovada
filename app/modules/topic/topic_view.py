@@ -36,8 +36,13 @@ class TopicFile(Resource):
         controller = TopicController()
         return controller.create_with_file(object_id=topic_id_or_slug)
 
-
+parser = reqparse.RequestParser()
+parser.add_argument('name', type=str, required=False, help='The name of the topic')
+parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
+parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
+parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed topics in database.')
 @api.route('')
+@api.expect(parser)
 class TopicList(Resource):
     # @admin_token_required
     # @api.marshal_list_with(topic_response)
@@ -47,8 +52,9 @@ class TopicList(Resource):
         Get list of topics from database.
         """
 
+        args = parser.parse_args()
         controller = TopicController()
-        return controller.get()
+        return controller.get(args=args)
 
 
     #@token_required
@@ -155,14 +161,6 @@ class CreateFixedTopic(Resource):
         controller = TopicController()
         return controller.create_topics()
 
-
-parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=False, help='The name of the topic')
-parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
-parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
-parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed topics in database.')
-
-
 @api.route('/search')
 @api.expect(parser)
 class TopicSearch(Resource):
@@ -190,12 +188,12 @@ class UpdateTopicSlug(Resource):
         return controller.update_slug()
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search topic by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+hot_topics_parser = reqparse.RequestParser()
+hot_topics_parser.add_argument('page', type=int, required=False, help='Search topic by page.')
+hot_topics_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/topic_hot')
-@api.expect(parser)
+@api.expect(hot_topics_parser)
 class TopicHot(Resource):
     #@token_required
     @api.response(code=200, model=topic_response, description='Model for topic response.')
@@ -203,6 +201,6 @@ class TopicHot(Resource):
         """ get topic hot
         """
 
-        args = parser.parse_args()
+        args = hot_topics_parser.parse_args()
         controller = TopicController()
         return controller.get_topic_hot(args)
