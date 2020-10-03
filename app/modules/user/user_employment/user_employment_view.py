@@ -52,3 +52,45 @@ class UserEmploymentSearch(Resource):
         args = parser.parse_args()
         controller = UserEmploymentController()
         return controller.search(args=args)
+
+@api.route('/all/employment/<int:id>')
+class UserEmploymentAll(Resource):
+    @token_required
+    @api.response(code=200, model=user_employment_response, description='Model for employment response.')
+    def get(self, id):
+        """
+        Get employment by its ID.
+
+        :param id: The ID of the employment.
+
+        :return: The employment with the specific ID.
+        """
+        controller = UserEmploymentController()
+        return controller.get_by_id(object_id=id)
+
+    @token_required
+    @api.expect(user_employment_request)
+    @api.response(code=200, model=user_employment_response, description='Model for employment response.')
+    def put(self, id):
+        """
+        Update existing employment by its ID.
+
+        :param id: The ID of the employment which need to be updated.
+
+        :return: The updated employment if success and null vice versa.
+        """
+        data = api.payload
+        controller = UserEmploymentController()
+        return controller.update(object_id=id, data=data)
+
+    @token_required
+    def delete(self, id):
+        """
+        Delete employment by its ID.
+
+        :param id: The ID of the employment.
+
+        :return:
+        """
+        controller = UserEmploymentController()
+        return controller.delete(object_id=id)
