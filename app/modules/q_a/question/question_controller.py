@@ -1227,6 +1227,9 @@ class QuestionController(Controller):
             favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
                                             QuestionFavorite.question_id == question.id).first()
             result['is_favorited_by_me'] = True if favorite else False
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                            QuestionBookmark.question_id == question.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
         # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
         # if vote is not None:
         #     result['up_vote'] = vote.up_vote
