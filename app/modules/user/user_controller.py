@@ -22,7 +22,7 @@ from app.settings.config import BaseConfig as Config
 from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
 from app.utils.types import UserRole
-from app.utils.wasabi import upload_file
+from app.utils.wasabi import upload_file, delete_file
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -181,6 +181,8 @@ class UserController(Controller):
             bucket = 'hoovada'
             sub_folder = 'user' + '/' + encode_file_name(str(user.id))
             try:
+                if user.profile_pic_url:
+                    delete_file(file_path=user.profile_pic_url)
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())

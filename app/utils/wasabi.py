@@ -64,7 +64,7 @@ def upload_file(file_name, file, sub_folder, acl='public-read', bucket=Config.S3
     try:
         if not check_bucket_exist(bucket=bucket, region=region):
             create_bucket(bucket=bucket, region=region)
-        location = 'https://s3.wasabisys.com/hoovada/'
+        # location = 'https://s3.wasabisys.com/hoovada/'
         s3.upload_fileobj(
             file,
             bucket,
@@ -75,7 +75,7 @@ def upload_file(file_name, file, sub_folder, acl='public-read', bucket=Config.S3
             }
         )
 
-        return "{}{}".format(location, object_name)
+        return object_name
     except Exception as e:
         print(e.__str__())
         return None
@@ -86,7 +86,7 @@ def delete_file(file_path, bucket=Config.S3_BUCKET, region=None):
     try:
         if not check_bucket_exist(bucket=bucket, region=region):
             create_bucket(bucket=bucket, region=region)
-        location = 'https://s3.wasabisys.com/hoovada/'
+        # location = 'https://s3.wasabisys.com/hoovada/'
         s3.delete_object(Bucket=bucket, Key=file_path)
 
         return True
