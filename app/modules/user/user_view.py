@@ -117,7 +117,7 @@ class Avatar(Resource):
         return controller.upload_avatar(args=args)
 
 
-parser = reqparse.RequestParser()
+parser = api.parser()
 parser.add_argument('page', type=int, required=False, help='Search user by page.')
 parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
