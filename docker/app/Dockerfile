@@ -18,6 +18,10 @@ USER gunicorn
 
 RUN chmod +x /opt/docker/app/entrypoint.sh
 
+ENV TZ=Asia/Ho_Chi_Minh
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
+
 EXPOSE 5000
 
 ENTRYPOINT ["/opt/docker/app/entrypoint.sh"]
