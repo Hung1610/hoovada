@@ -36,7 +36,6 @@ class AnswerDto(Dto):
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
