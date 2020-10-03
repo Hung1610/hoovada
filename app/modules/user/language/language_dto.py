@@ -32,6 +32,7 @@ class LanguageDto(Dto):
     model_request = api.model('user_language_request', {
         'language_id': fields.Integer(description='The ID of the parent language'),
         'level': fields.String(required=True, description='The level of proficiency of the user for the language'),
+        'is_default': fields.Boolean(default=False, description='The location is default or not'),
     })
 
     model_response = api.model('user_language_response', {
@@ -41,6 +42,7 @@ class LanguageDto(Dto):
         'level': fields.String(required=True, description='The level of proficiency of the user for the language'),
         'user_id': fields.Integer(required=True, description='The ID of the user'),
         'user': fields.Nested(language_user, description='The information of the user'),
+        'is_default': fields.Boolean(default=False, description='The location is default or not'),
         'updated_date': fields.DateTime(description='The date language was updated'),
         'created_date': fields.DateTime(required=True, description='The date language was created')
     })

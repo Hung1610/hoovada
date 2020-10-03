@@ -32,12 +32,6 @@ model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 
-parser = reqparse.RequestParser()
-parser.add_argument('user_id', type=str, required=False, help='Search questions by user_id (who created question)')
-parser.add_argument('user_hidden', type=str, required=False, help='Search all questions by user hidden.')
-parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
-parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
-
 
 @api.route('')
 class QuestionList(Resource):
@@ -217,19 +211,17 @@ class QuestionApprove(Resource):
         return controller.approve_proposal(object_id=id)
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('title', type=str, required=False, help='Search question by its title')
-parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
-parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
-parser.add_argument('topic_id', type=str, required=False, help='Search all questions related to topic.')
-parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
-parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
-parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
-parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-
-
+search_parser = reqparse.RequestParser()
+search_parser.add_argument('title', type=str, required=False, help='Search question by its title')
+search_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
+search_parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
+search_parser.add_argument('topic_id', type=str, required=False, help='Search all questions related to topic.')
+search_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+search_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+search_parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
+search_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
 @api.route('/search')
-@api.expect(parser)
+@api.expect(search_parser)
 class QuesstionSearch(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
@@ -237,7 +229,7 @@ class QuesstionSearch(Resource):
         Search all questions that satisfy conditions.
         """
 
-        args = parser.parse_args()
+        args = search_parser.parse_args()
         controller = QuestionController()
         return controller.search(args=args)
 
@@ -267,12 +259,12 @@ class UpdateSlug(Resource):
         controller = QuestionController()
         return controller.update_slug()
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+hot_parser = reqparse.RequestParser()
+hot_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+hot_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_hot')
-@api.expect(parser)
+@api.expect(hot_parser)
 class QuestionHot(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -280,17 +272,17 @@ class QuestionHot(Resource):
         """ Lay danh sach question hot 
         """
 
-        args = parser.parse_args()
+        args = hot_parser.parse_args()
         controller = QuestionController()
         return controller.get_question_hot(args)
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+new_parser = reqparse.RequestParser()
+new_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+new_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_new')
-@api.expect(parser)
+@api.expect(new_parser)
 class QuestionNew(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -298,17 +290,17 @@ class QuestionNew(Resource):
         """ Lay danh sach question new 
         """
 
-        args = parser.parse_args()
+        args = new_parser.parse_args()
         controller = QuestionController()
         return controller.get_question_new(args)
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+highlight_parser = reqparse.RequestParser()
+highlight_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+highlight_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_highlight')
-@api.expect(parser)
+@api.expect(highlight_parser)
 class QuestionhHghlight(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -316,17 +308,17 @@ class QuestionhHghlight(Resource):
         """ Lay danh sach question new 
         """
 
-        args = parser.parse_args()
+        args = highlight_parser.parse_args()
         controller = QuestionController()
         return controller.get_question_highlight(args)
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+many_answers_parser = reqparse.RequestParser()
+many_answers_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
+many_answers_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_many_answers')
-@api.expect(parser)
+@api.expect(many_answers_parser)
 class QuestionhManyAnswers(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -334,7 +326,7 @@ class QuestionhManyAnswers(Resource):
         """ Lay danh sach question new 
         """
 
-        args = parser.parse_args()
+        args = many_answers_parser.parse_args()
         controller = QuestionController()
         return controller.get_question_many_answers(args)
 
