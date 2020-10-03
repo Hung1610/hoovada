@@ -15,7 +15,7 @@ push-test:
 	@docker push ${IMG_TEST}
 
 deploy-test:
-	@kubectl set image deployment/backend-${GIT_BRANCH} backend-${GIT_BRANCH}=${IMG_TEST} -n hoovada-staging
+	@kubectl set image deployment/backend-${GIT_BRANCH} backend-${GIT_BRANCH}=${IMG_TEST} -n hoovada-staging --record
 
 build-prod:
 	@docker build -t ${IMG_PROD} -f ./docker/app/Dockerfile .
@@ -24,7 +24,7 @@ push-prod:
 	@docker push ${IMG_PROD}
 
 deploy-prod:
-	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD} -n hoovada-prod
+	@kubectl set image deployment/backend-prod backend-prod=${IMG_PROD} -n hoovada-prod --record
 
 login:
 	@docker login registry.gitlab.com
