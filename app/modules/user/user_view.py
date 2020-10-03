@@ -4,13 +4,13 @@
 #third-party modules
 from flask import request
 from werkzeug.datastructures import FileStorage
-from flask_restx import reqparse
 
 # own modules
 from app.modules.common.view import Resource
 from app.modules.user.user_dto import UserDto
 from app.modules.user.user_controller import UserController
 from app.modules.auth.decorator import admin_token_required, token_required
+from app.utils.types import UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -37,7 +37,7 @@ class UserList(Resource):
         controller = UserController()
         return controller.get(args=args)
 
-    @admin_token_required
+    @admin_token_required(role=[UserRole.SUPER_ADMIN])
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
@@ -65,8 +65,7 @@ class User(Resource):
             # return controller.get_by_id(object_id=id)
         return controller.get_by_user_name(user_name)
 
-
-    @token_required
+    @admin_token_required
     @api.expect(user_request)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
@@ -78,8 +77,7 @@ class User(Resource):
         controller = UserController()
         return controller.update(user_name=user_name, data=data)
 
-
-    @token_required
+    @admin_token_required(role=[UserRole.SUPER_ADMIN])
     def delete(self, user_name):
         """ 
         Delete the user with the user_name `user_name`

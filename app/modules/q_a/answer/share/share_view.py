@@ -28,6 +28,7 @@ parser.add_argument('facebook', type=str, required=False, help='Search all share
 parser.add_argument('twitter', type=str, required=False, help='Search all shares to Twitter.')
 parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')
 
+
 @api.route('/<int:answer_id>/share')
 class ShareList(Resource):
     @api.expect(parser)
@@ -39,7 +40,8 @@ class ShareList(Resource):
         args = parser.parse_args()
         controller = ShareController()
         return controller.get(args=args, answer_id=answer_id)
-        
+
+    @token_required
     @api.expect(share_request)
     @api.response(code=200, model=share_response, description='The model for share response.')
     def post(self, answer_id):
