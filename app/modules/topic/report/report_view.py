@@ -50,7 +50,7 @@ class TopicReport(Resource):
 
 @api.route('/all/report/<int:id>')
 class Reporting(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, id):
         """

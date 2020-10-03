@@ -37,13 +37,13 @@ class UserPermissions(Resource):
 
 @api.route('/<string:user_name>')
 class UserPermission(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=user_permission_response, description='Model for user permission response.')
     def get(self, user_name):
         controller = UserPermissionController()
         return controller.get_by_user_name(user_name)
 
-    @admin_token_required
+    @admin_token_required()
     @api.expect(user_permission_request)
     @api.response(code=200, model=user_permission_response, description='Model for user permission response.')
     def post(self, user_name):

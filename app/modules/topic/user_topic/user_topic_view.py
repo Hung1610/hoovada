@@ -23,7 +23,7 @@ user_topic_response = UserTopicDto.model_response
 
 @api.route('')
 class UserTopicList(Resource):
-    # @admin_token_required
+    # @admin_token_required()
     # # @api.marshal_list_with(user_topic)
     # @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
     # def get(self):

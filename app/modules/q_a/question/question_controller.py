@@ -30,7 +30,7 @@ from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
-#from app.utils.checker import check_spelling
+from app.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from app.constants import messages
 

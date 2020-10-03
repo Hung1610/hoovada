@@ -90,24 +90,39 @@ def token_required(f):
 
     return decorated
 
+# NOTE: Implement this completely, and make sure it's working before merging to master branch.
+# def admin_token_required(f=None, role=None):
+#     def admin_token_required_internal(f):
+#         @wraps(f)
+#         def decorated(*args, **kwargs):
+#             user, message = AuthController.get_logged_user(request)
+#             if user is None:
+#                 return send_error(message=message)
+#             if role is None:
+#                 if not UserRole.is_admin(role=user.admin):
+#                     return send_error(message='You are not admin. You need admin right to perform this action.')
+#             else:
+#                 if not UserRole.is_permission(role_default=role, role=user.admin):
+#                     return send_error(message='You are not admin. You need admin right to perform this action.')
+#             return f(*args, **kwargs)
 
-def admin_token_required(f=None, role=None):
-    def admin_token_required_internal(f):
+#         return decorated
+
+#     if f:
+#         return admin_token_required_internal(f)
+#     return admin_token_required_internal
+
+def admin_token_required(role=None):
+    def admin_token_required_decorator(f):
+        """ Check admin rights for further actions.
+        """
         @wraps(f)
         def decorated(*args, **kwargs):
             user, message = AuthController.get_logged_user(request)
             if user is None:
-                return send_error(message=message)
-            if role is None:
-                if not UserRole.is_admin(role=user.admin):
-                    return send_error(message='You are not admin. You need admin right to perform this action.')
-            else:
-                if not UserRole.is_permission(role_default=role, role=user.admin):
-                    return send_error(message='You are not admin. You need admin right to perform this action.')
+                return send_error(message=message, code=401)
+            if not user.admin:
+                return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
             return f(*args, **kwargs)
-
         return decorated
-
-    if f:
-        return admin_token_required_internal(f)
-    return admin_token_required_internal
+    return admin_token_required_decorator
