@@ -59,6 +59,7 @@ class UserController(Controller):
     def get(self, args):
         try:
             query = User.query
+            query = query.filter(User.is_private != True)
             display_name, email = None, None
             if 'display_name' in args:
                 try:
