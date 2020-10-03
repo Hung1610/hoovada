@@ -4,6 +4,7 @@
 #third-party modules
 from flask import request
 from werkzeug.datastructures import FileStorage
+from flask_restx import reqparse
 
 # own modules
 from app.modules.common.view import Resource
@@ -129,6 +130,6 @@ class UserHot(Resource):
         """ get users hot 
         """
 
-        args = parser.parse_args()
+        args = parser_user_hot.parse_args()
         controller = UserController()
         return controller.get_user_hot(args)

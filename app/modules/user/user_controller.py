@@ -405,7 +405,7 @@ class UserController(Controller):
         if page > 0 :
             page = page - 1
 
-        query = db.session.query(User).outerjoin(Reputation).group_by(User).order_by(desc(func.sum(Reputation.score1)))
+        query = db.session.query(User).outerjoin(Reputation).group_by(User).order_by(desc(func.sum(Reputation.score)))
         users = query.offset(page * page_size).limit(page_size).all()
 
         if users is not None and len(users) > 0:

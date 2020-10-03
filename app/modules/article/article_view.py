@@ -134,6 +134,6 @@ class ArticleHot(Resource):
         """ get articles hot 
         """
 
-        args = parser.parse_args()
+        args = parser_article_hot.parse_args()
         controller = ArticleController()
         return controller.get_article_hot(args)
