@@ -54,15 +54,12 @@ class TopicController(Controller):
         if user_id is not None:
             query = query.filter(UserTopic.user_id == user_id)
         if fixed_topic_id is not None:
-            query = query.filter(UserTopic.fixed_topic_id == fixed_topic_id)
+            query = query.filter(UserTopic.topic.parent_id == fixed_topic_id)
         if topic_id is not None:
             query = query.filter(UserTopic.topic_id == topic_id)
             
         topics = query.all()
-        if topics is not None and len(topics) > 0:
-            return send_result(marshal(topics, TopicDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any topics.')
+        return send_result(marshal(topics, TopicDto.model_response), message='Success')
 
     def get_by_id(self, object_id):
         try:
