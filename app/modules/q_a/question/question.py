@@ -108,7 +108,7 @@ class Question(Model):
     question_reports = db.relationship("QuestionReport", cascade='all,delete-orphan')
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')
     question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
-    is_deleted = db.Column(db.Boolean, server_default=expression.false())
+    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
 
 class QuestionProposal(Model):
     __tablename__ = 'question_proposal'
@@ -143,7 +143,7 @@ class QuestionProposal(Model):
     invited_users = db.relationship('User', secondary='question_proposal_user_invite', lazy='subquery')
     proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
     proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
-    is_deleted = db.Column(db.Boolean, server_default=expression.false())
+    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     is_parma_delete = db.Column(db.Boolean, server_default=expression.false())
     is_approved = db.Column(db.Boolean, server_default=expression.false())
 
