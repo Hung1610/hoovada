@@ -1278,8 +1278,8 @@ class QuestionController(Controller):
         if current_user:
             query = db.session.query(Question).outerjoin(TopicBookmark,TopicBookmark.id==Question.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
         else:
-            query = db.session.query(Question).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
-
+            query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
+        
         questions = query.offset(page * page_size).limit(page_size).all()
 
         if questions is not None and len(questions) > 0:
@@ -1326,7 +1326,7 @@ class QuestionController(Controller):
         if page > 0 :
             page = page - 1
 
-        query = db.session.query(Question).order_by(desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
+        query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
         if questions is not None and len(questions) > 0:

@@ -259,12 +259,12 @@ class UpdateSlug(Resource):
         controller = QuestionController()
         return controller.update_slug()
 
-hot_parser = reqparse.RequestParser()
-hot_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-hot_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_question_hot = reqparse.RequestParser()
+parser_question_hot.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser_question_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_hot')
-@api.expect(hot_parser)
+@api.expect(parser_question_hot)
 class QuestionHot(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -272,17 +272,17 @@ class QuestionHot(Resource):
         """ Lay danh sach question hot 
         """
 
-        args = hot_parser.parse_args()
+        args = parser_question_hot.parse_args()
         controller = QuestionController()
         return controller.get_question_hot(args)
 
 
-new_parser = reqparse.RequestParser()
-new_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-new_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_question_new = reqparse.RequestParser()
+parser_question_new.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser_question_new.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_new')
-@api.expect(new_parser)
+@api.expect(parser_question_new)
 class QuestionNew(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -290,17 +290,17 @@ class QuestionNew(Resource):
         """ Lay danh sach question new 
         """
 
-        args = new_parser.parse_args()
+        args = parser_question_new.parse_args()
         controller = QuestionController()
         return controller.get_question_new(args)
 
 
-highlight_parser = reqparse.RequestParser()
-highlight_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-highlight_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_question_highlight = reqparse.RequestParser()
+parser_question_highlight.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser_question_highlight.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_highlight')
-@api.expect(highlight_parser)
+@api.expect(parser_question_highlight)
 class QuestionhHghlight(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -308,17 +308,17 @@ class QuestionhHghlight(Resource):
         """ Lay danh sach question new 
         """
 
-        args = highlight_parser.parse_args()
+        args = parser_question_highlight.parse_args()
         controller = QuestionController()
         return controller.get_question_highlight(args)
 
 
-many_answers_parser = reqparse.RequestParser()
-many_answers_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-many_answers_parser.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+parser_question_many_answers = reqparse.RequestParser()
+parser_question_many_answers.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser_question_many_answers.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
 @api.route('/question_many_answers')
-@api.expect(many_answers_parser)
+@api.expect(parser_question_many_answers)
 class QuestionhManyAnswers(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -326,7 +326,7 @@ class QuestionhManyAnswers(Resource):
         """ Lay danh sach question new 
         """
 
-        args = many_answers_parser.parse_args()
+        args = parser_question_many_answers.parse_args()
         controller = QuestionController()
         return controller.get_question_many_answers(args)
 
