@@ -20,6 +20,7 @@ class ArticleDto(Dto):
     model_topic = api.model('topic_for_article', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'name': fields.String(description='The name of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
         'description': fields.String(description='Description about topic')
     })
 
