@@ -27,6 +27,7 @@ from app.utils.wasabi import upload_file
 from app.constants import messages
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.article_topic.article_topic import ArticleTopic
+from app.modules.topic.bookmark.bookmark import TopicBookmark
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -83,6 +84,7 @@ class TopicController(Controller):
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params')
         name, user_id, parent_id, is_fixed = None, None, None, None
+        current_user, _ = AuthController.get_logged_user(request)
         if 'name' in args:
             name = args['name']
         if 'user_id' in args:
@@ -193,6 +195,7 @@ class TopicController(Controller):
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params')
             name, user_id, parent_id, is_fixed = None, None, None, None
+            current_user, _ = AuthController.get_logged_user(request)
             if 'name' in args:
                 name = args['name']
             if 'user_id' in args:
@@ -223,8 +226,20 @@ class TopicController(Controller):
             if is_fixed is not None:
                 query = query.filter(Topic.is_fixed == is_fixed)
 
-            topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác"))).all()
-            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
+            topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác")))
+            results = []
+            for topic in topics:
+                result = topic._asdict()
+                # get user info
+                result['parent'] = topic.parent
+                result['children'] = topic.children
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id,
+                                                    TopicBookmark.topic_id == topic.id).first()
+                    result['is_bookmarked_by_me'] = True if bookmark else False
+                results.append(result)
+            return send_result(marshal(results, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
@@ -239,8 +254,14 @@ class TopicController(Controller):
             topic = Topic.query.filter_by(slug=object_id).first()
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
-        else:
-            return send_result(data=marshal(topic, TopicDto.model_topic_response), message='Success')
+        current_user, _ = AuthController.get_logged_user(request)
+        result = topic._asdict()
+        # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+        if current_user:
+            bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id,
+                                            TopicBookmark.topic_id == topic.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
+        return send_result(data=marshal(result, TopicDto.model_topic_response), message='Success')
 
     def get_sub_topics(self, object_id):
         if object_id is None:
@@ -280,7 +301,14 @@ class TopicController(Controller):
                 # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.commit()
-                return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_topic_response))
+                current_user, _ = AuthController.get_logged_user(request)
+                result = topic._asdict()
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id,
+                                                    TopicBookmark.topic_id == topic.id).first()
+                    result['is_bookmarked_by_me'] = True if bookmark else False
+                return send_result(message='Update successfully', data=marshal(result, TopicDto.model_topic_response))
 
         except Exception as e:
             print(e.__str__())

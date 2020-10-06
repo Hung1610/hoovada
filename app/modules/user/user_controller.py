@@ -21,7 +21,8 @@ from app.modules.common.controller import Controller
 from app.settings.config import BaseConfig as Config
 from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
-from app.utils.wasabi import upload_file
+from app.utils.types import UserRole
+from app.utils.wasabi import upload_file, delete_file
 from app.modules.user.reputation.reputation import Reputation
 
 __author__ = "hoovada.com team"
