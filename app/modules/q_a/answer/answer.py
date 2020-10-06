@@ -69,4 +69,4 @@ class Answer(Model):
     answer_favorites = db.relationship("AnswerFavorite", cascade='all,delete-orphan')
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
     answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan')
-    is_deleted = db.Column(db.Boolean, server_default=expression.false())
+    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())

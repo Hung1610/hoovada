@@ -36,8 +36,8 @@ class UserFollowDto(Dto):
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
         'follower_id': fields.Integer(required=True, description='The user ID who friendd'),
         'follower':fields.Nested(model_follow_user, description='The information of the following user'),
-        'followee_id': fields.Integer(required=False, description='The user ID who has been followed'),
-        'followee':fields.Nested(model_follow_user, description='The information of the followed user'),
+        'followed_id': fields.Integer(required=False, description='The user ID who has been followed'),
+        'followed':fields.Nested(model_follow_user, description='The information of the followed user'),
         'is_approved': fields.Boolean(default=False, description='This follow request is approved or not'),
         'created_date': fields.DateTime(required=False, description='The created date'),
         'updated_date': fields.DateTime(required=False, description='The updated date')
