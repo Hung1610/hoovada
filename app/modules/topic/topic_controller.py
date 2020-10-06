@@ -384,6 +384,33 @@ class TopicController(Controller):
             print(e)
             return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))
 
+    def get_bookmarked_users(self, object_id, args):
+        page, per_page = args.get('page', 1), args.get('per_page', 10)
+        try:
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
+            if not topic:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
+            current_user, _ = AuthController.get_logged_user(request)
+            query = topic.bookmarked_users.paginate(page, per_page, error_out=True)
+            res, code = paginated_result(query)
+            results = []
+            for user in res.get('data'):
+                result = user._asdict()
+                if current_user:
+                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id,
+                                                    UserFollow.followed_id == user.id).first()
+                    result['is_followed_by_me'] = True if follow else False
+                results.append(result)
+            res['data'] = marshal(results, TopicDto.model_endorsed_user)
+            return res, code
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))
+
+
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.MSG_PLEASE_PROVIDE.format("Topic ID"))

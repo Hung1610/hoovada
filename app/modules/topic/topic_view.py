@@ -151,6 +151,20 @@ class EndorseUserTopic(Resource):
         return controller.create_endorsed_users(object_id=topic_id_or_slug, data=data)
 
 
+@api.route('/<string:topic_id_or_slug>/bookmarked_users')
+class EndorseUserTopic(Resource):
+    @api.expect(get_endorsed_users_parser)
+    @api.response(code=200, model=endorsed_user_dto, description='Bookmarked users')
+    def get(self, topic_id_or_slug):
+        """ 
+        Get endorsed users for topic.
+        """
+
+        args = get_endorsed_users_parser.parse_args()
+        controller = TopicController()
+        return controller.get_bookmarked_users(object_id=topic_id_or_slug, args=args)
+
+
 @api.route('/create_topics')
 class CreateFixedTopic(Resource):
     def post(self):
