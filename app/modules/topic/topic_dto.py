@@ -68,8 +68,9 @@ class TopicDto(Dto):
         'description': fields.String(description='Description about topic'),
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
         'children': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
-        'parent': fields.List(fields.Nested(model_parent_topic), description='The parent (fixed) topic'),
-        'article_count': fields.Integer(description='The amount of article belong to this topic')
+        'parent': fields.Nested(model_parent_topic, description='The parent (fixed) topic'),
+        'article_count': fields.Integer(description='The amount of article belong to this topic'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
     })
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {
