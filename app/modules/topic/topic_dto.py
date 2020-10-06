@@ -22,7 +22,9 @@ class TopicDto(Dto):
     model_endorsed_user = api.model('model_endorsed_user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
-        'profile_pic_url': fields.String(required=False)
+        'profile_pic_url': fields.String(required=False),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed by me or not'),
+        'profile_views': fields.Integer(default=False, description='User view count'),
     })
 
     model_sub_topic = api.model('sub_topic', {
@@ -48,7 +50,7 @@ class TopicDto(Dto):
     model_parent_topic = api.model('parent_topic', {
         'id': fields.Integer(readonly=True),
         'name': fields.String(description='The name of the topic'),
-        'description': fields.String(description='Description about the topic')
+        'description': fields.String(description='Description about the topic'),
     })
 
     # define the model for response

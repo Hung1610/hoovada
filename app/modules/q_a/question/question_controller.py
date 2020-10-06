@@ -27,6 +27,7 @@ from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
+from app.modules.user.follow.follow import UserFollow
 from app.modules.user.reputation.reputation import Reputation
 from app.utils.response import send_error, send_result, paginated_result
 from app.utils.sensitive_words import check_sensitive
@@ -573,7 +574,7 @@ class QuestionController(Controller):
                 topics = args['topic']
             else:
                 return send_error(message='Please provide topics')
-
+            current_user, _ = AuthController.get_logged_user(request)
             top_users_reputation = db.session.query(
                     User,
                     db.func.sum(Reputation.score).label('total_score'),
@@ -582,7 +583,13 @@ class QuestionController(Controller):
                 .group_by(User,)\
                 .order_by(desc('total_score'))\
                 .limit(limit).all()
-            results = [{'user': user, 'total_score': total_score} for user, total_score in top_users_reputation]
+            results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
+            for result in results:
+                user = result['user']
+                if current_user:
+                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id,
+                                                    UserFollow.followed_id == user['id']).first()
+                    user['is_followed_by_me'] = True if follow else False
             return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
         except Exception as e:
             print(e)

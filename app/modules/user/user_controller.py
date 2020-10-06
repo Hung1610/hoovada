@@ -90,13 +90,15 @@ class UserController(Controller):
         if object_id is None:
             return send_error(message="The user ID must not be null.")
         try:
+            current_user, _ = AuthController.get_logged_user(request)
             user = User.query.filter_by(id=object_id).first()
             if user is None:
                 return send_error(data="Could not find user by this id")
             else:
                 # when call to this function, increase the profile_views
-                user.profile_views += 1
-                db.session.commit()
+                if current_user.id != user.id:
+                    user.profile_views += 1
+                    db.session.commit()
                 return send_result(data=marshal(user, UserDto.model_response))
         except Exception as e:
             print(e.__str__())
