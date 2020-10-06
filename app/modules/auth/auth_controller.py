@@ -19,7 +19,6 @@ from app import db
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.blacklist import BlacklistToken
 from app.modules.user.user import User, SocialAccount
-from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \

@@ -18,8 +18,9 @@ from app.modules.auth.auth_controller import AuthController
 from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.topic.topic_dto import TopicDto
 from app import db
-from app.utils.response import send_error, send_result, send_paginated_result
+from app.utils.response import send_error, send_result, send_paginated_result, paginated_result
 from app.modules.user.user import User
+from app.modules.user.follow.follow import UserFollow
 from app.utils.sensitive_words import check_sensitive
 from app.utils.file_handler import append_id, get_file_name_extension
 from app.utils.util import encode_file_name
@@ -366,8 +367,19 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
-            result = topic.endorsed_users.paginate(page, per_page, error_out=True)
-            return send_paginated_result(query=result, dto=TopicDto.model_endorsed_user)
+            current_user, _ = AuthController.get_logged_user(request)
+            query = topic.endorsed_users.paginate(page, per_page, error_out=True)
+            res, code = paginated_result(query)
+            results = []
+            for user in res.get('data'):
+                result = user._asdict()
+                if current_user:
+                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id,
+                                                    UserFollow.followed_id == user.id).first()
+                    result['is_followed_by_me'] = True if follow else False
+                results.append(result)
+            res['data'] = marshal(results, TopicDto.model_endorsed_user)
+            return res, code
         except Exception as e:
             print(e)
             return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))

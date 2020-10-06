@@ -77,10 +77,10 @@ class UserFollowController(Controller):
     def create(self, object_id):
         data = {}
         current_user, _ = AuthController.get_logged_user(request)
-        data['follow_id'] = current_user.id
+        data['follower_id'] = current_user.id
         data['followed_id'] = object_id
         try:
-            follow = UserFollow.query.filter(UserFollow.follow_id == data['follow_id'],
+            follow = UserFollow.query.filter(UserFollow.follower_id == data['follower_id'],
                                              UserFollow.followed_id == data['followed_id']).first()
             if follow:
                 return send_result(message=messages.MSG_ISSUE.format('Already befollowed'))
@@ -188,7 +188,7 @@ class UserFollowController(Controller):
             follow = UserFollow()
         if 'follower_id' in data:
             try:
-                follow.follow_id = int(data['follower_id'])
+                follow.follower_id = int(data['follower_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
