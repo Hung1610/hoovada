@@ -13,7 +13,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ArticleTopic(Model):
     __tablename__ = 'topic_article'
+    __table_args__ = { "info": dict(is_view=True)}
 
-    id = db.Column(db.Integer, primary_key=True)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), nullable=False)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), primary_key=True)

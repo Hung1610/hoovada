@@ -806,8 +806,6 @@ class AuthController:
                     return send_error( message='Tai khoan email cua ban chua duoc xac nhan. Vui long dang nhap hop thu cua ban de tien hanh xac thuc.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
                 
                 auth_token = encode_auth_token(user_id=user.id)
-                user.active = True
-                db.session.commit()
                 # if user.blocked:
                 #     return None  # error(message='User has been blocked')
                 if auth_token:

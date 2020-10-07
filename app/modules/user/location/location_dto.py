@@ -44,4 +44,5 @@ class LocationDto(Dto):
 
     model_get_parser = reqparse.RequestParser()
     model_get_parser.add_argument('location_detail', type=str, required=False, help='Search location by location_detail')
+    model_get_parser.add_argument('is_current', type=bool, required=False, help='Search location by location_detail')
 

@@ -152,7 +152,7 @@ class EndorseUserTopic(Resource):
 
 
 @api.route('/<string:topic_id_or_slug>/bookmarked_users')
-class EndorseUserTopic(Resource):
+class BookmarkUserTopic(Resource):
     @api.expect(get_endorsed_users_parser)
     @api.response(code=200, model=endorsed_user_dto, description='Bookmarked users')
     def get(self, topic_id_or_slug):
