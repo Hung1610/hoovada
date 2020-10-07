@@ -42,25 +42,17 @@ class UserEmploymentController(Controller):
         if user_id is None :
             return send_error(message='Vui lòng nhập tham số để tìm kiếm.')
         query = db.session.query(UserEmployment)
-        is_filter = False
         if user_id is not None:
             query = query.filter(UserEmployment.user_id == user_id)
-            is_filter = True
         if is_current is not None:
             query = query.filter(UserEmployment.is_current == is_current)
-            is_filter = True
-        if is_filter:
-            user_employments = query.all()
-            if user_employments is not None and len(user_employments) > 0:
-                results = list()
-                for user_employment in user_employments:
-                    result = user_employment.__dict__
-                    results.append(result)
-                return send_result(marshal(results, UserEmploymentDto.model_response), message='Success')
-            else:
-                return send_result(message='Không thể tìm thấy thông tin nghề nghiệp.')
-        else:
-            return send_error(message='Không thể tìm thông tin nghề nghiệp. Vui lòng kiểm tra dữ liệu truyền vào.')
+
+        user_employments = query.all()
+        results = list()
+        for user_employment in user_employments:
+            result = user_employment.__dict__
+            results.append(result)
+        return send_result(marshal(results, UserEmploymentDto.model_response), message='Success')
 
     def create(self, data):
         if not isinstance(data, dict):

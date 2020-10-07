@@ -36,7 +36,7 @@ class TopicController(Controller):
 
         :return:
         """
-        fixed_topic_id, topic_id = None, None
+        fixed_topic_id, topic_id, is_fixed = None, None, None
         if 'fixed_topic_id' in args:
             try:
                 fixed_topic_id = int(args['fixed_topic_id'])
@@ -49,6 +49,12 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        if 'is_fixed' in args:
+            try:
+                is_fixed = args['is_fixed']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         query = UserTopic.query
         if user_id is not None:
@@ -57,6 +63,8 @@ class TopicController(Controller):
             query = query.filter(UserTopic.topic.parent_id == fixed_topic_id)
         if topic_id is not None:
             query = query.filter(UserTopic.topic_id == topic_id)
+        if is_fixed is not None:
+            query = query.filter(UserTopic.topic.is_fixed == True)
             
         topics = query.all()
         return send_result(marshal(topics, TopicDto.model_response), message='Success')

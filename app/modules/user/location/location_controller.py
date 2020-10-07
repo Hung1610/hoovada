@@ -34,10 +34,16 @@ class LocationController(Controller):
 
         :return:
         """
-        location_detail = None 
+        location_detail, is_current = None, None
         if 'location_detail' in args:
             try:
                 location_detail = args['location_detail']
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'is_current' in args:
+            try:
+                is_current = args['is_current']
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -47,6 +53,8 @@ class LocationController(Controller):
             query = query.filter(UserLocation.user_id == user_id)
         if location_detail is not None:
             query = query.filter(UserLocation.location_detail == location_detail)
+        if is_current is not None:
+            query = query.filter(UserLocation.is_current == is_current)
             
         locations = query.all()
         if locations is not None and len(locations) > 0:
