@@ -188,6 +188,10 @@ class UserDto(Dto):
         'comment_report_count': fields.Integer(required=False),
         'comment_reported_count': fields.Integer(required=False),
 
+        'article_count': fields.Integer(required=False),
+
+        'friend_count': fields.Integer(required=False),
+
         'user_report_count': fields.Integer(required=False),
         'user_reported_count': fields.Integer(required=False),
         'is_private': fields.Boolean(default=False, description='The user is private or not'),

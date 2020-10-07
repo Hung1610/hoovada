@@ -114,9 +114,23 @@ class UserFriendController(Controller):
             if friend is None:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
-            if friend.is_approved:
-                return send_result(message='Already friend.')
+            # if friend.is_approved:
+            #     return send_result(message='Already friend.')
 
+            actual_friend = UserFriend.query.filter(UserFriend.friend_id == friend.friended_id,
+                                                UserFriend.friended_id == friend.friend_id).first()
+            if actual_friend:
+                return send_result(message='Already friend.')
+            data = {}
+            data['friend_id'] = friend.friended_id
+            data['friended_id'] = friend.friend_id
+            try:
+                actual_friend = self._parse_friend(data=data, friend=None)
+                db.session.merge(actual_friend)
+                db.session.commit()
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message=messages.MSG_CREATE_FAILED.format('Friend', e))
             friend.is_approved = True
             db.session.commit()
         except Exception as e:

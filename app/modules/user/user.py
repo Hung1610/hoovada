@@ -206,6 +206,9 @@ class User(Model):
     show_nsfw = db.Column(db.Boolean, server_default=expression.false())
     
     articles = db.relationship("Article", cascade='all,delete-orphan')
+    @aggregated('articles', db.Column(db.Integer))
+    def article_count(self):
+        return db.func.count('1')
 
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     
@@ -217,6 +220,9 @@ class User(Model):
     user_locations = db.relationship("UserLocation", cascade='all,delete-orphan')
     
     languages = db.relationship("Language", secondary='user_language')
+    @aggregated('friends', db.Column(db.Integer))
+    def friend_count(self):
+        return db.func.count('1')
     # @hybrid_property
     # def about_me(self):
     #     """Return the value of _about_me but the html version."""
