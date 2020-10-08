@@ -24,7 +24,7 @@ _vote_get_params = TopicBookmarkDto.model_get_parser
 @api.route('/all/bookmark')
 class BookmarkTopicAll(Resource):
     @api.expect(_vote_get_params)
-    def get(self, topic_id):
+    def get(self):
         """
         Search all bookmark that satisfy conditions.
         """
