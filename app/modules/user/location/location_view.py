@@ -26,7 +26,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 @api.route('/<int:user_id>/location')
 class LocationList(Resource):
-    @admin_token_required()
     @api.response(code=200, model=location_response, description='Model for location response.')
     def get(self, user_id):
         """
