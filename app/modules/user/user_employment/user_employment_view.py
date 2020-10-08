@@ -41,7 +41,6 @@ parser.add_argument('is_default', type=int, required=False, help='Search default
 @api.route('/all/employment')
 @api.expect(parser)
 class UserEmploymentSearch(Resource):
-    @token_required
     @api.response(code=200, model=user_employment_response, description='Model for user title response.')
     def get(self):
         """ 
@@ -55,7 +54,6 @@ class UserEmploymentSearch(Resource):
 
 @api.route('/all/employment/<int:id>')
 class UserEmploymentAll(Resource):
-    @token_required
     @api.response(code=200, model=user_employment_response, description='Model for employment response.')
     def get(self, id):
         """
