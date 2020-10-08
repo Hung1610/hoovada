@@ -28,7 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class TopicBookmarkController(Controller):
-    def get(self, topic_id, args):
+    def get(self, args, topic_id=None):
         '''
         Get/Search bookmarks.
 
