@@ -26,7 +26,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 @api.route('/<int:user_id>/education')
 class EducationList(Resource):
-    @admin_token_required()
     @api.expect(get_parser)
     @api.response(code=200, model=education_response, description='Model for education response.')
     def get(self, user_id):
