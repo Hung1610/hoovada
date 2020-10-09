@@ -630,6 +630,8 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(slug=object_id).first()
             if question is None:
                 return send_error(message="Question with the ID {} not found".format(object_id))
+            
+            from_date, to_date = None, None
 
             if args.get('from_date'):
                 try:
