@@ -129,7 +129,9 @@ class AnswerController(Controller):
             data['user_id'] = current_user.id
             answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
             if answer:
-                return send_error(message=messages.MSG_ISSUE.format('This user already answered for this question'))
+                if answer.is_deleted:
+                    return send_error(message=messages.MSG_ISSUE.format('This has a hidden answer for this question. Consider recovering this.'), data={'answer_id': answer.id})
+                return send_error(message=messages.MSG_ISSUE.format('This user already answered for this question'), data={'answer_id': answer.id})
 
         try:
             # add new answer
