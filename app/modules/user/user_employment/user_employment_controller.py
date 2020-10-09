@@ -113,9 +113,9 @@ class UserEmploymentController(Controller):
             employment.updated_date = datetime.utcnow()
             db.session.commit()
 
-            # if is_default == true cac employment khac cua user cap nhat is_default == false
+            # if is_current == true cac employment khac cua user cap nhat is_current == false
             UserEmployment.query.filter(UserEmployment.id != employment.id,UserEmployment.user_id == data['user_id'])\
-                .update({UserEmployment.is_default: 0})
+                .update({UserEmployment.is_current: 0})
 
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(employment, UserEmploymentDto.model_response))
@@ -177,10 +177,10 @@ class UserEmploymentController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
-            if 'is_default' in data:  
+            if 'is_current' in data:  
                 pass
                 try:
-                    employment.is_default = bool(data['is_default'])
+                    employment.is_current = bool(data['is_current'])
                 except Exception as e:
                     print(e.__str__())
                     pass
