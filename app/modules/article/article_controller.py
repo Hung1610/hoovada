@@ -10,7 +10,7 @@ from datetime import datetime
 import dateutil.parser
 from flask import request
 from flask_restx import marshal
-from sqlalchemy import desc, text, func
+from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup
 
 # own modules
@@ -27,6 +27,9 @@ from app.modules.user.user import User
 from app.utils.response import send_error, send_result
 from app.utils.sensitive_words import check_sensitive
 from app.modules.topic.bookmark.bookmark import TopicBookmark
+from app.modules.user.friend.friend import UserFriend
+from app.modules.user.follow.follow import UserFollow
+
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -513,4 +516,40 @@ class ArticleController(Controller):
             return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
         else:
             return send_result(message='Could not find any articles')
+
+    def get_article_of_friend(self,args):
+            page = 1
+            page_size = 20
+
+            if args.get('page') and args['page'] > 0:
+                try:
+                    page = args['page']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+            if args.get('per_page') and args['per_page'] > 0 :
+                try:
+                    page_size = args['per_page']
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+            if page > 0 :
+                page = page - 1
+
+            current_user, _ = AuthController.get_logged_user(request)
+
+            query = db.session.query(Article)\
+            .outerjoin(UserFollow,and_(UserFollow.followed_id==Article.user_id, UserFollow.follower_id==current_user.id))\
+            .outerjoin(UserFriend,and_(UserFriend.friended_id==Article.user_id and UserFollow.friend_id==current_user.id))\
+            .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
+            .group_by(Article)\
+            .order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
+            articles = query.offset(page * page_size).limit(page_size).all()
+
+            if articles is not None and len(articles) > 0:
+                return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
+            else:
+                return send_result(message='Could not find any articles')
 

@@ -28,7 +28,8 @@ class UserEmploymentDto(Dto):
 
 
     model_response = api.model('user_employment_response', {
-        'id': fields.Integer(required=False, readonly=True, description='The user ID'),
+        'id': fields.Integer(required=False, readonly=True, description='The ID'),
+        'user_id': fields.Integer(required=True, description='The user ID'),
         'position': fields.String(required=True, description='The position'),
         'company': fields.String(required=True, description='The company'),
         'start_year': fields.Integer(description='The start year'),

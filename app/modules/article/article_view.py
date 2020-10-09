@@ -137,3 +137,20 @@ class ArticleHot(Resource):
         args = parser_article_hot.parse_args()
         controller = ArticleController()
         return controller.get_article_hot(args)
+
+parser_article_of_friend = reqparse.RequestParser()
+parser_article_of_friend.add_argument('page', type=int, required=False, help='Search articles by page.')
+parser_article_of_friend.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+
+@api.route('/article_of_friend')
+@api.expect(parser_article_of_friend)
+class ArticleOfFriend(Resource):
+    @token_required
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    def get(self):
+        """ Lay danh sach article of freind and of follow
+        """
+
+        args = parser_article_of_friend.parse_args()
+        controller = ArticleController()
+        return controller.get_article_of_friend(args)
