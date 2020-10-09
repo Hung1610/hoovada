@@ -330,6 +330,23 @@ class QuestionhManyAnswers(Resource):
         controller = QuestionController()
         return controller.get_question_many_answers(args)
 
+parser_question_of_friend = reqparse.RequestParser()
+parser_question_of_friend.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser_question_of_friend.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+
+@api.route('/question_of_friend')
+@api.expect(parser_question_of_friend)
+class QuestionOfFriend(Resource):
+    # @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def get(self):
+        """ Lay danh sach question of freind and of follow
+        """
+
+        args = parser_question_of_friend.parse_args()
+        controller = QuestionController()
+        return controller.get_question_of_friend(args)
+
 
 # @api.route('/get_by_topic/<int:topic_id>')
 # class GetQuestionByTopic(Resource):

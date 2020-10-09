@@ -9,7 +9,7 @@ from datetime import datetime
 import dateutil.parser
 from flask import request
 from flask_restx import marshal
-from sqlalchemy import desc, text, func
+from sqlalchemy import desc, text, func, and_, or_
 from slugify import slugify
 
 # own modules
@@ -34,6 +34,7 @@ from app.utils.sensitive_words import check_sensitive
 from app.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from app.constants import messages
+from app.modules.user.friend.friend import UserFriend
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -1429,6 +1430,61 @@ class QuestionController(Controller):
             page = page - 1
 
         query = db.session.query(Question).order_by(desc(Question.answers_count),desc(Question.created_date))
+        questions = query.offset(page * page_size).limit(page_size).all()
+
+        if questions is not None and len(questions) > 0:
+            results = list()
+            for question in questions:
+                # kiem tra den topic
+                result = question.__dict__
+                # get user info
+                user = User.query.filter_by(id=question.user_id).first()
+                result['user'] = user
+                # get all topics that question belongs to
+                question_id = question.id
+                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
+                topics = list()
+                for question_topic in question_topics:
+                    topic_id = question_topic.topic_id
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                result['topics'] = topics
+                result['fixed_topic'] = question.fixed_topic
+                results.append(result)
+            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
+        else:
+            return send_result(message='Could not find any questions')
+
+    def get_question_of_friend(self,args):
+        page = 1
+        page_size = 20
+        questions = None
+
+        if args.get('page') and args['page'] > 0:
+            try:
+                page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if page > 0 :
+            page = page - 1
+
+        current_user, _ = AuthController.get_logged_user(request)
+
+        query = db.session.query(Question)\
+        .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
+        .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id and UserFollow.friend_id==current_user.id))\
+        .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
+        .group_by(Question)\
+        .order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
         if questions is not None and len(questions) > 0:
