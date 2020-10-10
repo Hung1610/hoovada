@@ -347,6 +347,22 @@ class QuestionOfFriend(Resource):
         controller = QuestionController()
         return controller.get_question_of_friend(args)
 
+parser_question_for_you = reqparse.RequestParser()
+parser_question_for_you.add_argument('page', type=int, required=False, help='Search questions by page.')
+parser_question_for_you.add_argument('per_page', type=int, required=False, help='Get record number on page.')
+@api.route('/question_for_you')
+@api.expect(parser_question_for_you)
+class QuestionFoYou(Resource):
+    @token_required
+    @api.response(code=200, model=model_response, description='Model for question response.')
+    def get(self):
+        """ Lay danh sach question for you
+        """
+
+        args = parser_question_for_you.parse_args()
+        controller = QuestionController()
+        return controller.get_question_for_you(args)
+
 
 # @api.route('/get_by_topic/<int:topic_id>')
 # class GetQuestionByTopic(Resource):
