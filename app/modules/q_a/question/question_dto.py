@@ -55,6 +55,7 @@ class QuestionDto(Dto):
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         # the list of IDs of topics that question belongs to.
     })
 
@@ -95,6 +96,7 @@ class QuestionDto(Dto):
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         # 'image_ids':fields.String()
     })
 
