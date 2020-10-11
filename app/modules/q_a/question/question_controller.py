@@ -1041,6 +1041,13 @@ class QuestionController(Controller):
                 question.allow_audio_question = True
                 print(e.__str__())
                 pass
+        if 'is_deleted' in data:
+            try:
+                question.is_deleted = bool(data['is_deleted'])
+            except Exception as e:
+                question.is_deleted = False
+                print(e.__str__())
+                pass
         if 'is_private' in data:
             try:
                 question.is_private = bool(data['is_private'])

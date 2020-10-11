@@ -151,7 +151,7 @@ class User(Model):
     # question_count = db.Column(db.Integer, server_default='0')  # number of questions user created
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
-        return db.func.count('1')
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
     question_favorite_count = db.Column(db.Integer, server_default='0')
     question_favorited_count = db.Column(db.Integer, server_default='0')
     question_share_count = db.Column(db.Integer, server_default='0')
@@ -166,7 +166,7 @@ class User(Model):
     # answer_count = db.Column(db.Integer, server_default='0')  # number answers user created
     @aggregated('answers', db.Column(db.Integer))
     def answer_count(self):
-        return db.func.count('1')
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
     answer_share_count = db.Column(db.Integer, server_default='0')
     answer_shared_count = db.Column(db.Integer, server_default='0')
     answer_favorite_count = db.Column(db.Integer, server_default='0')
@@ -208,7 +208,7 @@ class User(Model):
     articles = db.relationship("Article", cascade='all,delete-orphan')
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
-        return db.func.count('1')
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
 
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     

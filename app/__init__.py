@@ -6,7 +6,7 @@ from flask_restx import Resource
 from flask_restx import Namespace
 
 # own modules
-from app.app import init_app, db
+from app.app import init_app, db, cache
 from app.apis import init_api
 from app.utils.response import send_result
 
