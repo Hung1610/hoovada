@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+from app import cache
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.q_a.question.question_controller import QuestionController
 from app.modules.auth.decorator import admin_token_required, token_required
@@ -51,6 +51,7 @@ class QuestionList(Resource):
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
+    @cache.cached(timeout=50)
     def post(self):
         """ 
         Create new question and save to database.

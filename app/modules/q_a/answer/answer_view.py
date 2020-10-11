@@ -6,6 +6,7 @@ from flask_restx import Resource, reqparse
 
 # own modules
 # from app.modules.common.decorator import token_required
+from app import cache
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.answer_controller import AnswerController
 from app.modules.auth.decorator import admin_token_required, token_required
@@ -40,6 +41,7 @@ class AnswerFile(Resource):
 class AnswerList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
+    @cache.cached(timeout=50)
     def get(self):
         """
         Get the list of answers from database.

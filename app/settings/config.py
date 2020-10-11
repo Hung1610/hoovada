@@ -20,13 +20,13 @@ class BaseConfig:
 
     # Cache configuration   # Flask-Caching related configs
     # Simple cache using Python dictionary
-    CACHE_TYPE = "simple" 
+    # CACHE_TYPE = "simple"
     # Redis cache using redis database
-    # CACHE_TYPE = 'redis'
-    # CACHE_KEY_PREFIX = 'fcache'
-    # CACHE_REDIS_HOST = 'localhost'
-    # CACHE_REDIS_PORT = '6379'
-    # CACHE_REDIS_URL = 'redis://localhost:6379'
+    CACHE_TYPE = 'redis'
+    CACHE_KEY_PREFIX = 'fcache'
+    CACHE_REDIS_HOST = '139.59.248.38'
+    CACHE_REDIS_PORT = '31930'
+    CACHE_REDIS_URL = 'redis://139.59.248.38:31930'
 
     CACHE_DEFAULT_TIMEOUT = 300
 
