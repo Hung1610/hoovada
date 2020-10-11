@@ -31,6 +31,9 @@ class BaseConfig:
 
     CACHE_DEFAULT_TIMEOUT = 300
 
+    # Flask-SQLAlchemy configurations
+    SQLALCHEMY_ECHO = False
+
     # Email configuration
     MAIL_SERVER = environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(environ.get('MAIL_PORT') or 587)
@@ -118,6 +121,7 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     """production configuration."""
     
+    SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,
