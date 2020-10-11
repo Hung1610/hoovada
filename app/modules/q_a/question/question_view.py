@@ -38,6 +38,7 @@ class QuestionList(Resource):
     @api.expect(get_parser)
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
+    @cache.cached(timeout=50)
     def get(self):
         """ 
         Get list of questions from database.
@@ -51,7 +52,6 @@ class QuestionList(Resource):
     @api.expect(model_request)
     # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    @cache.cached(timeout=50)
     def post(self):
         """ 
         Create new question and save to database.
