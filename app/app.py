@@ -34,7 +34,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
-cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache = Cache()
 
 
 def init_app(config_name):
