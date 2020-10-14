@@ -20,7 +20,7 @@
 
 from os import environ
 
-bind = '0.0.0.0:' + environ.get('PORT', '5000')
+bind = '0.0.0.0:' + environ.get('PORT', '5001')
 backlog = 2048
 
 #
@@ -67,16 +67,14 @@ backlog = 2048
 #       A positive integer. Generally set in the 1-5 seconds range.
 #
 
-
-from multiprocessing import cpu_count
-def max_workers():    
-    return cpu_count()
-    
 # https://medium.com/building-the-system/gunicorn-3-means-of-concurrency-efbb547674b7
 # we should prioritize memory , so gthread model is used
-#workers = 4
-threads = max_workers() * 2 + 1
-worker_class = 'gthread' #'sync'
+workers = 1
+
+# may not be useful due to gunicorn not supporting sticky session
+# https://github.com/miguelgrinberg/Flask-SocketIO/issues/924
+threads = workers * 2 + 1
+worker_class = 'eventlet' #'sync'
 worker_connections = 1001 #1000
 timeout = 30
 keepalive = 2

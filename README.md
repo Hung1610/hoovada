@@ -120,9 +120,10 @@ $ python -m ensurepip
 $ python -m pip install --upgrade pip
 $ pip3 install -r <path to project>/requirements.txt
 
-// Run project on development environment
+// Run APIs and socketIO on development environment
 
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
+$ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage_socketio.py -m dev -p <port>
 ```
 
 
@@ -135,7 +136,7 @@ $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p 
 $ cd <path to project>
 $ docker-compose build
 
-// Docker-compose up will run 3 dockers: API, DB and adminer for DB UI, REMEMBER to re-build before re-rerunning this 
+// Docker-compose up will run 4 dockers: API, socketio, DB and adminer for DB UI, REMEMBER to re-build before re-rerunning this 
 $ docker-compose up
 
 // Some other useful commands
@@ -147,7 +148,7 @@ $ docker-compose stop
 $ docker-compose rm
 ```
 
-- Swagger:  http://localhost:5000/api/v1/doc 
+- Swagger:  http://localhost:5000/api/v1/openapi
 - adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
 
 
