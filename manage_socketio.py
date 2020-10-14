@@ -14,12 +14,12 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Arguments parsing for hoovada.')
+    parser = argparse.ArgumentParser(description='Arguments parsing for socketio.')
     group = parser.add_argument_group('Arguments')
 
     group.add_argument('-m', '--mode', default='dev', required=False, type=str, help='dev for development and prod for production')
     group.add_argument('-i', '--ip', default='0.0.0.0', required=False, type=str, help='The IP address')
-    group.add_argument('-p', '--port', default='5000', required=False, type=str, help='The port to run app')
+    group.add_argument('-p', '--port', default='5001', required=False, type=str, help='The port to run app')
     arguments = parser.parse_args()
     return arguments
 
@@ -27,4 +27,4 @@ if __name__ == '__main__':
     args = parse_args()
     debug = True if args.mode == 'dev' else False
     socketio_app = create_app(args.mode)
-    socketio.run(socketio_app)
+    socketio.run(socketio_app, debug=debug, host=args.ip, port=args.port)
