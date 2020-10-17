@@ -1317,6 +1317,18 @@ class QuestionController(Controller):
                     topics.append(topic)
                 result['topics'] = topics
                 result['fixed_topic'] = question.fixed_topic
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
+                    result['is_bookmarked_by_me'] = True if bookmark else False
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1342,10 +1354,12 @@ class QuestionController(Controller):
 
         if page > 0 :
             page = page - 1
+            
 
         query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
+        current_user, _ = AuthController.get_logged_user(request)
         if questions is not None and len(questions) > 0:
             results = list()
             for question in questions:
@@ -1364,6 +1378,17 @@ class QuestionController(Controller):
                     topics.append(topic)
                 result['topics'] = topics
                 result['fixed_topic'] = question.fixed_topic
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1393,6 +1418,7 @@ class QuestionController(Controller):
         query = db.session.query(Question).order_by(desc(Question.upvote_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
+        current_user, _ = AuthController.get_logged_user(request)
         if questions is not None and len(questions) > 0:
             results = list()
             for question in questions:
@@ -1411,6 +1437,17 @@ class QuestionController(Controller):
                     topics.append(topic)
                 result['topics'] = topics
                 result['fixed_topic'] = question.fixed_topic
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1441,6 +1478,7 @@ class QuestionController(Controller):
         query = db.session.query(Question).order_by(desc(Question.answers_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
+        current_user, _ = AuthController.get_logged_user(request)
         if questions is not None and len(questions) > 0:
             results = list()
             for question in questions:
@@ -1459,6 +1497,17 @@ class QuestionController(Controller):
                     topics.append(topic)
                 result['topics'] = topics
                 result['fixed_topic'] = question.fixed_topic
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1514,6 +1563,17 @@ class QuestionController(Controller):
                     topics.append(topic)
                 result['topics'] = topics
                 result['fixed_topic'] = question.fixed_topic
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
                 results.append(result)
             return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
         else:
@@ -1568,6 +1628,17 @@ class QuestionController(Controller):
                         topics.append(topic)
                     result['topics'] = topics
                     result['fixed_topic'] = question.fixed_topic
+                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+                if current_user:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
+                                                    QuestionFavorite.question_id == question.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
+                                                    QuestionBookmark.question_id == question.id).first()
                     results.append(result)
                 return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
             else:
