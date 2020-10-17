@@ -130,7 +130,7 @@ parser_article_hot.add_argument('per_page', type=int, required=False, help='Get 
 @api.route('/article_hot')
 @api.expect(parser_article_hot)
 class ArticleHot(Resource):
-    @token_required
+    #@token_required
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self):
         """ get articles hot 

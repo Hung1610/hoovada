@@ -267,7 +267,7 @@ parser_question_hot.add_argument('per_page', type=int, required=False, help='Get
 @api.route('/question_hot')
 @api.expect(parser_question_hot)
 class QuestionHot(Resource):
-    @token_required
+    #@token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
         """ Lay danh sach question hot 
