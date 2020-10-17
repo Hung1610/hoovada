@@ -270,7 +270,7 @@ class QuestionHot(Resource):
     #@token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Lay danh sach question hot 
+        """ get questions question hot 
         """
 
         args = parser_question_hot.parse_args()
@@ -288,7 +288,7 @@ class QuestionNew(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Lay danh sach question new 
+        """ get questions question new 
         """
 
         args = parser_question_new.parse_args()
@@ -306,7 +306,7 @@ class QuestionhHghlight(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Lay danh sach question new 
+        """ get questions question new 
         """
 
         args = parser_question_highlight.parse_args()
@@ -324,7 +324,7 @@ class QuestionhManyAnswers(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Lay danh sach question new 
+        """ get questions question new 
         """
 
         args = parser_question_many_answers.parse_args()
@@ -341,7 +341,7 @@ class QuestionOfFriend(Resource):
     # @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Lay danh sach question of freind and of follow
+        """ get questions of freind and of follow
         """
 
         args = parser_question_of_friend.parse_args()
@@ -357,7 +357,7 @@ class QuestionFoYou(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Lay danh sach question for you
+        """ get questions for you
         """
 
         args = parser_question_for_you.parse_args()
