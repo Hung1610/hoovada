@@ -39,3 +39,16 @@ services:
       DB_PASSWORD: hoovada
       DB_HOST: db
 
+  backend:
+    image: socketio
+    build:
+        context: .
+        dockerfile: ./docker/app_socketio/Dockerfile
+    ports:
+        - "5001:5001"
+    depends_on:
+        - db
+    environment:
+      DB_USER: 'dev'
+      DB_PASSWORD: hoovada
+      DB_HOST: db

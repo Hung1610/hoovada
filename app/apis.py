@@ -41,7 +41,7 @@ class HTTPSApi(Api):
 
 def init_api(mode):
 
-    doc = False if mode == "prod" else "/api/v1/doc"
+    doc = False if mode == "prod" else "/api/v1/openapi"
 
     api = HTTPSApi(title='Hoovada APIs',
                 swagger='2.0',

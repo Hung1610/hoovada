@@ -13,9 +13,8 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-
 def parse_args():
-    parser = argparse.ArgumentParser( description='Arguments parsing for hoovada.')
+    parser = argparse.ArgumentParser( description='Arguments parsing for hoovada services.')
     group = parser.add_argument_group('Arguments')
 
     group.add_argument('-m', '--mode', default='dev', required=False, type=str, help='dev for development and prod for production')
