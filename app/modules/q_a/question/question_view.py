@@ -38,7 +38,7 @@ class QuestionList(Resource):
     @api.expect(get_parser)
     # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    @cache.cached(timeout=50)
+    @cache.cached(query_string=True)
     def get(self):
         """ 
         Get list of questions from database.
