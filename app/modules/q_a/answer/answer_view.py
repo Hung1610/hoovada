@@ -41,7 +41,7 @@ class AnswerFile(Resource):
 class AnswerList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
-    @cache.cached(timeout=50)
+    @cache.cached(query_string=True)
     def get(self):
         """
         Get the list of answers from database.
