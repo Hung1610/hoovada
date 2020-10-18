@@ -170,8 +170,7 @@ class QuestionProposal(Resource):
     @api.expect(proposal_get_parser)
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
     def get(self, id_or_slug):
-        """ 
-        Get list of questions from database.
+        """ Get list of questions from database.
         """
         args = proposal_get_parser.parse_args()
         controller = QuestionController()
@@ -180,8 +179,7 @@ class QuestionProposal(Resource):
     @token_required
     @api.expect(model_request)
     def post(self, id_or_slug):
-        """ 
-        Create question change proposal by its ID.
+        """ Create question change proposal by its ID.
         """
 
         data = api.payload
@@ -192,8 +190,7 @@ class QuestionProposal(Resource):
 class QuestionDeleteProposal(Resource):
     @token_required
     def post(self, id_or_slug):
-        """ 
-        Create question delete proposal by its ID.
+        """ Create question delete proposal by its ID.
         """
 
         controller = QuestionController()
@@ -241,8 +238,7 @@ class GetQuestionBySlug(Resource):
     # @api.param(name='id', description='The ID of thequestion.')
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self, slug):
-        """ 
-        Get specific question by its ID.
+        """ Get specific question by its ID.
         """
 
         controller = QuestionController()
@@ -253,8 +249,7 @@ class UpdateSlug(Resource):
     @admin_token_required()
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        """ 
-        Update Slug for questions in DB
+        """ Update Slug for questions in DB
         """
 
         controller = QuestionController()
@@ -302,11 +297,11 @@ parser_question_highlight.add_argument('per_page', type=int, required=False, hel
 
 @api.route('/question_highlight')
 @api.expect(parser_question_highlight)
-class QuestionhHghlight(Resource):
+class QuestionHighlight(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Get highlight question 
+        """ Get highlighted questions from a topic ranked based on number of vote and published date
         """
 
         args = parser_question_highlight.parse_args()
@@ -320,11 +315,11 @@ parser_question_many_answers.add_argument('per_page', type=int, required=False, 
 
 @api.route('/question_many_answers')
 @api.expect(parser_question_many_answers)
-class QuestionhManyAnswers(Resource):
+class QuestionManyAnswers(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ get questions question new 
+        """Get questions from a topic ranked based on number of answers and published date
         """
 
         args = parser_question_many_answers.parse_args()
@@ -341,7 +336,7 @@ class QuestionOfFriend(Resource):
     # @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Get questions by fiends and followee
+        """ Get questions published by friends and followees
         """
 
         args = parser_question_of_friend.parse_args()
@@ -353,11 +348,11 @@ parser_question_for_you.add_argument('page', type=int, required=False, help='Sea
 parser_question_for_you.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 @api.route('/question_for_you')
 @api.expect(parser_question_for_you)
-class QuestionFoYou(Resource):
+class QuestionForYou(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ get questions for you
+        """ Get questions that users bookmarked or being asked
         """
 
         args = parser_question_for_you.parse_args()
