@@ -29,7 +29,7 @@ _article_get_similar_params = ArticleDto.get_similar_articles_parser
 class ArticleList(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     @api.expect(_article_get_params)
-    @cache.cached(timeout=50)
+    @cache.cached(query_string=True)
     def get(self):
         """Get all articles that satisfy conditions
         """
