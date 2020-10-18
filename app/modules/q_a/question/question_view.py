@@ -265,7 +265,7 @@ class QuestionHot(Resource):
     #@token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Get hot questions ranked by number of votes, likes, etc.
+        """ Get hot questions ranked by total number of votes, likes, etc.
         """
 
         args = parser_question_hot.parse_args()
@@ -283,7 +283,7 @@ class QuestionNew(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ Get new questions ranked by date
+        """Get new questions ranked by date
         """
 
         args = parser_question_new.parse_args()

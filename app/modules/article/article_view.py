@@ -31,8 +31,7 @@ class ArticleList(Resource):
     @api.expect(_article_get_params)
     @cache.cached(timeout=50)
     def get(self):
-        """
-        Get all articles that satisfy conditions
+        """Get all articles that satisfy conditions
         """
 
         args = _article_get_params.parse_args()
@@ -44,8 +43,7 @@ class ArticleList(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def post(self):
-        """
-        Create new article and save to database.
+        """Create new article and save to database.
         """
 
         data = api.payload
@@ -57,8 +55,7 @@ class ArticleList(Resource):
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self, id_or_slug):
-        """
-        Get specific article by its ID.
+        """Get specific article by its ID.
         """
 
         controller = ArticleController()
@@ -68,8 +65,7 @@ class Article(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def put(self, id_or_slug):
-        """
-        Update existing article by its ID.
+        """Update existing article by its ID.
         """
 
         data = api.payload
@@ -80,8 +76,7 @@ class Article(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def patch(self, id_or_slug):
-        """
-        Update existing article by its ID.
+        """Update existing article by its ID.
         """
 
         data = api.payload
@@ -90,8 +85,7 @@ class Article(Resource):
 
     @admin_token_required()
     def delete(self, id_or_slug):
-        """
-        Delete the article by its ID.
+        """ Delete the article by its ID.
         """
 
         controller = ArticleController()
@@ -103,8 +97,7 @@ class ArticleSimilar(Resource):
     @api.expect(_article_get_similar_params)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self):
-        """ 
-        Get similar articles.
+        """ Get similar articles.
         """
         args = _article_get_similar_params.parse_args()
         controller = ArticleController()
@@ -116,8 +109,7 @@ class UpdateArticleSlug(Resource):
     # @admin_token_required()
     @api.response(code=200, model=_article_dto_response, description='Model for question response.')
     def post(self):
-        """ 
-        Update Slug for articles in DB
+        """ Update Slug for articles in DB
         """
 
         controller = ArticleController()
@@ -133,7 +125,7 @@ class ArticleHot(Resource):
     #@token_required
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self):
-        """ get articles hot 
+        """Get hot articles ranked by total number of votes, likes, etc.
         """
 
         args = parser_article_hot.parse_args()
@@ -150,7 +142,7 @@ class ArticleOfFriend(Resource):
     @token_required
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self):
-        """ Lay danh sach article of freind and of follow
+        """Get questions published by friends and followees
         """
 
         args = parser_article_of_friend.parse_args()
