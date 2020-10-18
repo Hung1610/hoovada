@@ -70,11 +70,6 @@ class Question(Model):
     anonymous = db.Column(db.Boolean, default=False)
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
-    # upvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly upvote
-    # downvote_count = db.Column(db.Integer, default=0)  # question tam thoi chua xu ly downvote
-    # share_count = db.Column(db.Integer, default=0)
-    # answers_count = db.Column(db.Integer, default=0)
-    # favorite_count = db.Column(db.Integer, default=0)
     
     @aggregated('answers', db.Column(db.Integer))
     def answers_count(self):

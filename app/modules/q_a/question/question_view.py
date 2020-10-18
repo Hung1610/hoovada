@@ -208,30 +208,6 @@ class QuestionApprove(Resource):
         controller = QuestionController()
         return controller.approve_proposal(object_id=id)
 
-
-search_parser = reqparse.RequestParser()
-search_parser.add_argument('title', type=str, required=False, help='Search question by its title')
-search_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
-search_parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
-search_parser.add_argument('topic_id', type=str, required=False, help='Search all questions related to topic.')
-search_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
-search_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
-search_parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
-search_parser.add_argument('page', type=int, required=False, help='Search questions by page.')
-@api.route('/search')
-@api.expect(search_parser)
-class QuesstionSearch(Resource):
-    @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self):
-        """ 
-        Search all questions that satisfy conditions.
-        """
-
-        args = search_parser.parse_args()
-        controller = QuestionController()
-        return controller.search(args=args)
-
-
 @api.route('/get_by_slug/<string:slug>')
 class GetQuestionBySlug(Resource):
     # @api.marshal_with(question)
