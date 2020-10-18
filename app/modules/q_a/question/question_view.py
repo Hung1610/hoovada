@@ -306,7 +306,7 @@ class QuestionhHghlight(Resource):
     @token_required
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ get questions question new 
+        """ Get highlight question 
         """
 
         args = parser_question_highlight.parse_args()
