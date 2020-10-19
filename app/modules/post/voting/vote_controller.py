@@ -12,9 +12,9 @@ from flask_restx import marshal
 # own modules
 from app import db
 from app.modules.common.controller import Controller
-from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
-from app.modules.article.voting.vote_dto import VoteDto
-from app.modules.article.voting import constants
+from app.modules.post.voting.vote import PostVote, VotingStatusEnum
+from app.modules.post.voting.vote_dto import VoteDto
+from app.modules.post.voting import constants
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
 from app.modules.auth.auth_controller import AuthController
@@ -28,7 +28,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class VoteController(Controller):
-    def get(self, args, article_id = None):
+    def get(self, args, post_id = None):
         """ Search votes.
 
         Args:
@@ -57,18 +57,18 @@ class VoteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if user_id is None and article_id is None and from_date is None and to_date is None:
+        if user_id is None and post_id is None and from_date is None and to_date is None:
             return send_error(message=constants.msg_lacking_query_params)
 
-        query = ArticleVote.query
+        query = PostVote.query
         if user_id is not None:
-            query = query.filter(ArticleVote.user_id == user_id)
-        if article_id is not None:
-            query = query.filter(ArticleVote.article_id == article_id)
+            query = query.filter(PostVote.user_id == user_id)
+        if post_id is not None:
+            query = query.filter(PostVote.post_id == post_id)
         if from_date is not None:
-            query = query.filter(ArticleVote.created_date >= from_date)
+            query = query.filter(PostVote.created_date >= from_date)
         if to_date is not None:
-            query = query.filter(ArticleVote.created_date <= to_date)
+            query = query.filter(PostVote.created_date <= to_date)
         votes = query.all()
         if votes is not None and len(votes) > 0:
             return send_result(data=marshal(votes, VoteDto.model_response), message='Success')
@@ -78,13 +78,13 @@ class VoteController(Controller):
     def get_by_id(self, object_id):
         if id is None:
             return send_error(message=constants.msg_lacking_id)
-        vote = ArticleVote.query.filter_by(id=object_id).first()
+        vote = PostVote.query.filter_by(id=object_id).first()
         if vote is None:
             return send_error(message=constants.msg_vote_not_found)
         else:
             return send_result(data=marshal(vote, VoteDto.model_response), message='Success')
 
-    def create(self, article_id, data):
+    def create(self, post_id, data):
         user, message = AuthController.get_logged_user(request)
         if not has_permission(user.id, PermissionType.VOTE):
             return send_error(code=401, message='You have no authority to perform this action')
@@ -92,13 +92,13 @@ class VoteController(Controller):
             return send_error(message=constants.msg_wrong_data_format)
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
-        data['article_id'] = article_id
+        data['post_id'] = post_id
         try:
             # add or update vote
             is_insert = True
             old_vote_status = None
-            vote = ArticleVote.query.filter(ArticleVote.user_id == data['user_id'], \
-                ArticleVote.article_id == data['article_id']).first()
+            vote = PostVote.query.filter(PostVote.user_id == data['user_id'], \
+                PostVote.post_id == data['post_id']).first()
             if vote:
                 old_vote_status = vote.vote_status
                 is_insert = False
@@ -109,13 +109,13 @@ class VoteController(Controller):
                 db.session.add(vote)
             db.session.commit()
             if is_insert or (old_vote_status and old_vote_status != vote.vote_status):
-                # update answer vote count in article and user
+                # update answer vote count in post and user
                 try:
-                    article = vote.voted_article
-                    # get user who was created article and was voted
-                    user_voted = article.article_by_user
-                    for topic in article.topics:
-                        # Article creator rep
+                    post = vote.voted_post
+                    # get user who was created post and was voted
+                    user_voted = post.post_by_user
+                    for topic in post.topics:
+                        # Post creator rep
                         reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
                             Reputation.topic_id == topic.id).first()
                         if reputation_creator is None:
@@ -124,7 +124,7 @@ class VoteController(Controller):
                             reputation_creator.topic_id = topic.id
                             reputation_creator.score = 0
                             db.session.add(reputation_creator)
-                        # Article voter rep
+                        # Post voter rep
                         reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
                             Reputation.topic_id == topic.id).first()
                         if reputation_voter is None:
@@ -149,11 +149,11 @@ class VoteController(Controller):
             print(e)
             return send_error(message=constants.msg_create_failed.format(e))
 
-    def delete(self, article_id):
+    def delete(self, post_id):
         current_user, _ = AuthController.get_logged_user(request)
         user_id = current_user.id
         try:
-            vote = ArticleVote.query.filter_by(article_id=article_id, user_id=user_id).first()
+            vote = PostVote.query.filter_by(post_id=post_id, user_id=user_id).first()
             if vote is None:
                 return send_error(message=constants.msg_vote_not_found)
             else:
@@ -177,16 +177,16 @@ class VoteController(Controller):
 
     def _parse_vote(self, data, vote=None):
         if vote is None:
-            vote = ArticleVote()
+            vote = PostVote()
         if 'user_id' in data:
             try:
                 vote.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'article_id' in data:
+        if 'post_id' in data:
              try:
-                 vote.article_id = int(data['article_id'])
+                 vote.post_id = int(data['post_id'])
              except Exception as e:
                  print(e.__str__())
                  pass

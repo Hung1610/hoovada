@@ -10,7 +10,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 # # Create Messages
 msg_create_success = 'Bài viết được tạo thành công.'
 msg_create_success_without_topics = 'Bài viết được tạo, nhưng không thể thêm chủ đề. Vui lòng cập nhật chủ đề sau này.'
-msg_article_already_exists = 'Bạn đã tạo bài viết với chủ đề {} từ trước.'
+msg_post_already_exists = 'Bạn đã tạo bài viết với chủ đề {} từ trước.'
 msg_create_failed = 'Không thể thêm đánh giá. Error {}'
 
 # # Get Messages

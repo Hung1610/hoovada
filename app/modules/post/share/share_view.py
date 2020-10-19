@@ -6,8 +6,8 @@ from flask_restx import Resource, reqparse
 
 # own modules
 # from app.modules.common.decorator import token_required
-from app.modules.article.share.share_dto import ShareDto
-from app.modules.article.share.share_controller import ShareController
+from app.modules.post.share.share_dto import ShareDto
+from app.modules.post.share.share_controller import ShareController
 from app.modules.auth.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -27,28 +27,28 @@ parser.add_argument('facebook', type=str, required=False, help='Search all share
 parser.add_argument('twitter', type=str, required=False, help='Search all shares to Twitter.')
 parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')
 
-@api.route('/<int:article_id>/share')
+@api.route('/<int:post_id>/share')
 class ShareList(Resource):
     @api.expect(parser)
-    def get(self, article_id):
+    def get(self, post_id):
         """
         Search all shares that satisfy conditions.
         """
 
         args = parser.parse_args()
         controller = ShareController()
-        return controller.get(args=args, article_id=article_id)
+        return controller.get(args=args, post_id=post_id)
         
     @api.expect(share_request)
     @api.response(code=200, model=share_response, description='The model for share response.')
-    def post(self, article_id):
+    def post(self, post_id):
         """
         Create new share.
         """
 
         data = api.payload
         controller = ShareController()
-        return controller.create(data=data, article_id=article_id)
+        return controller.create(data=data, post_id=post_id)
 
 
 @api.route('/all/share/<int:id>')
@@ -95,11 +95,11 @@ class ShareSearch(Resource):
     @api.response(code=200, model=share_response, description='Model for share response.')
     def get(self):
         """
-        Search all shares article that satisfy conditions.
+        Search all shares post that satisfy conditions.
         ---------------------
         :param `user_id`: Search shares by user_id
 
-        :return: List of shares article satisfy search condition.
+        :return: List of shares post satisfy search condition.
         """
         args = parser.parse_args()
         controller = ShareController()

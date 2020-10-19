@@ -14,13 +14,13 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class ArticleComment(Model):
-    __tablename__ = 'article_comment'
+class PostComment(Model):
+    __tablename__ = 'post_comment'
 
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.UnicodeText)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
-    article =  db.relationship('Article', lazy=True) # one-to-many relationship with table Article
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    post =  db.relationship('Post', lazy=True) # one-to-many relationship with table Post
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)

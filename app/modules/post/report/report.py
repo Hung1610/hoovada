@@ -11,12 +11,12 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class ArticleReport(Model):
-    __tablename__ = 'article_report'
+class PostReport(Model):
+    __tablename__ = 'post_report'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    article_id = db.Column(db.Integer)
+    post_id = db.Column(db.Integer)
     inappropriate = db.Column(db.Boolean)
     description = db.Column(db.String(255))
     created_date = db.Column(db.DateTime)

@@ -20,13 +20,13 @@ class VotingStatusEnum(enum.Enum):
     DOWNVOTED = 3
 
 
-class ArticleVote(Model):
-    __tablename__ = 'article_vote'
+class PostVote(Model):
+    __tablename__ = 'post_vote'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
-    voted_article =  db.relationship('Article', lazy=True) # one-to-many relationship with table Article
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    voted_post =  db.relationship('Post', lazy=True) # one-to-many relationship with table Post
     comment_id = db.Column(db.Integer)
     vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), nullable=False, server_default="NEUTRAL")
     created_date = db.Column(db.DateTime)

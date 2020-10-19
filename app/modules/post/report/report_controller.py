@@ -12,10 +12,10 @@ from flask_restx import marshal
 # own modules
 from app import db
 from app.modules.common.controller import Controller
-from app.modules.article import constants
-from app.modules.article.article import Article
-from app.modules.article.report.report import ArticleReport
-from app.modules.article.report.report_dto import ReportDto
+from app.modules.post import constants
+from app.modules.post.post import Post
+from app.modules.post.report.report import PostReport
+from app.modules.post.report.report_dto import ReportDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result
@@ -29,7 +29,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class ReportController(Controller):
-    def get(self, article_id, args):
+    def get(self, post_id, args):
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
             try:
@@ -50,22 +50,22 @@ class ReportController(Controller):
                 print(e.__str__())
                 pass
             
-        query = ArticleReport.query
+        query = PostReport.query
         if user_id is not None:
-            query = query.filter(ArticleReport.user_id == user_id)
-        if article_id is not None:
-            query = query.filter(ArticleReport.article_id == article_id)
+            query = query.filter(PostReport.user_id == user_id)
+        if post_id is not None:
+            query = query.filter(PostReport.post_id == post_id)
         if from_date is not None:
-            query = query.filter(ArticleReport.created_date >= from_date)
+            query = query.filter(PostReport.created_date >= from_date)
         if to_date is not None:
-            query = query.filter(ArticleReport.created_date <= to_date)
+            query = query.filter(PostReport.created_date <= to_date)
         reports = query.all()
         if reports is not None and len(reports) > 0:
             return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
         else:
             return send_result(message=constants.msg_not_found)
 
-    def create(self, article_id, data):
+    def create(self, post_id, data):
         user, message = AuthController.get_logged_user(request)
         if not has_permission(user.id, PermissionType.REPORT):
             return send_error(code=401, message='You have no authority to perform this action')
@@ -74,7 +74,7 @@ class ReportController(Controller):
         
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
-        data['article_id'] = article_id
+        data['post_id'] = post_id
         try:
             report = self._parse_report(data=data, report=None)
             report.created_date = datetime.utcnow()
@@ -86,8 +86,8 @@ class ReportController(Controller):
             return send_error(message=constants.msg_create_failed)
 
     def get_by_id(self, object_id):
-        query = ArticleReport.query
-        report = query.filter(ArticleReport.id == object_id).first()
+        query = PostReport.query
+        report = query.filter(PostReport.id == object_id).first()
         if report is None:
             return send_error(message=constants.msg_not_found)
         else:
@@ -111,15 +111,15 @@ class ReportController(Controller):
         """
 
         if report is None:
-            report = ArticleReport()
+            report = PostReport()
         if 'user_id' in data:
             try:
                 report.user_id = int(data['user_id'])
             except Exception as e:
                 pass
-        if 'article_id' in data:
+        if 'post_id' in data:
             try:
-                report.article_id = int(data['article_id'])
+                report.post_id = int(data['post_id'])
             except Exception as e:
                 pass
         if 'inappropriate' in data:

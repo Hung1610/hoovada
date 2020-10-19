@@ -1,1 +1,1 @@
-from app.modules.article.share.share_view import api
+from app.modules.post.share.share_view import api

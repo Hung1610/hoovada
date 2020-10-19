@@ -15,11 +15,10 @@ from bs4 import BeautifulSoup
 
 # own modules
 from app import db
-from app.modules.article import constants
-from app.modules.article.article import Article
-from app.modules.article.article_dto import ArticleDto
-from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
-from app.modules.article.favorite.favorite import ArticleFavorite
+from app.constants import messages
+from app.modules.post.post import Post
+from app.modules.post.post_dto import PostDto
+from app.modules.post.voting.vote import PostVote, VotingStatusEnum
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.topic.topic import Topic
@@ -37,79 +36,75 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class ArticleController(Controller):
+class PostController(Controller):
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
 
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
         if not 'title' in data:
-            return send_error(message=constants.msg_must_contain_title)
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('title'))
         if not 'fixed_topic_id' in data:
-            return send_error(message=constants.msg_must_contain_fixed_topic_id)
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('fixed_topic_id'))
         if not 'topic_ids' in data:
-            return send_error(message=constants.msg_must_contain_topics_id)
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('topic_ids'))
 
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
         try:
             is_sensitive = check_sensitive(data['title'])
             if is_sensitive:
-                return send_error(message=constants.msg_insensitive_title)
+                return send_error(message=messages.MSG_ISSUE.format('Title is too sensitive'))
 
-            article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
-            if not article:  # the article does not exist
-                article, topic_ids = self._parse_article(data=data, article=None)
-                is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
-                if is_sensitive:
-                    return send_error(message=constants.msg_insensitive_body)
-                article.created_date = datetime.utcnow()
-                article.last_activity = datetime.utcnow()
-                db.session.add(article)
-                db.session.commit()
-                # Add topics and get back list of topic for article
-                try:
-                    result = article.__dict__
-                    # get user info
-                    user = User.query.filter_by(id=article.user_id).first()
-                    result['user'] = user
-                    # add article_topics
-                    topics = []
-                    for topic_id in topic_ids:
-                        try:
-                            topic = Topic.query.filter_by(id=topic_id).first()
-                            article.topics.append(topic)
-                            db.session.commit()
-                            topics.append(topic)
-                        except Exception as e:
-                            print(e)
-                            pass
-                    result['topics'] = topics
-                    
-                    # upvote/downvote status for current user
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    return send_result(message=constants.msg_create_success,
-                                       data=marshal(result, ArticleDto.model_article_response))
-                except Exception as e:
-                    print(e)
-                    return send_result(data=marshal(article, ArticleDto.model_article_response),
-                                       message=constants.msg_create_success_without_topics)
-            else:  # topic already exist
-                return send_error(message=constants.msg_article_already_exists.format(data['title']))
+            post = Post.query.filter(Post.title == data['title']).filter(Post.user_id == data['user_id']).first()
+            if post:
+                return send_error(message=messages.MSG_ALREADY_EXISTS.format('Post'))
+            post, topic_ids = self._parse_post(data=data, post=None)
+            is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
+            if is_sensitive:
+                return send_error(message=messages.MSG_ISSUE.format('Post body is too sensitive'))
+            post.created_date = datetime.utcnow()
+            post.last_activity = datetime.utcnow()
+            db.session.add(post)
+            db.session.commit()
+            # Add topics and get back list of topic for post
+            try:
+                result = post.__dict__
+                # get user info
+                user = User.query.filter_by(id=post.user_id).first()
+                result['user'] = user
+                # add post_topics
+                topics = []
+                for topic_id in topic_ids:
+                    try:
+                        topic = Topic.query.filter_by(id=topic_id).first()
+                        post.topics.append(topic)
+                        db.session.commit()
+                        topics.append(topic)
+                    except Exception as e:
+                        print(e)
+                        pass
+                result['topics'] = topics
+                
+                # upvote/downvote status for current user
+                vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
+                if vote is not None:
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post'),
+                                    data=marshal(result, PostDto.model_post_response))
+            except Exception as e:
+                print(e)
+                return send_result(data=marshal(post, PostDto.model_post_response),
+                                    message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Post', e))
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message=constants.msg_create_failed)
+            return send_error(message=messages.MSG_CREATE_FAILED.format('Post', e))
 
     def get(self, args):
         """
-        Search articles.
+        Search posts.
         :param args:
         :return:
         """
@@ -173,107 +168,101 @@ class ArticleController(Controller):
                     print(e)
                     pass
 
-            query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
-            query = query.filter(db.or_(Article.article_by_user == None, User.is_deactivated != True))
+            query = Post.query.join(User, isouter=True).filter(db.or_(Post.scheduled_date == None, datetime.utcnow() >= Post.scheduled_date))
+            query = query.filter(db.or_(Post.post_by_user == None, User.is_deactivated != True))
             if not is_deleted:
-                query = query.filter(Article.is_deleted != True)
+                query = query.filter(Post.is_deleted != True)
             else:
-                query = query.filter(Article.is_deleted == True)
+                query = query.filter(Post.is_deleted == True)
             if title and not str(title).strip().__eq__(''):
                 title = '%' + title.strip() + '%'
-                query = query.filter(Article.title.like(title))
+                query = query.filter(Post.title.like(title))
             if user_id:
-                query = query.filter(Article.user_id == user_id)
+                query = query.filter(Post.user_id == user_id)
             if fixed_topic_id:
-                query = query.filter(Article.fixed_topic_id == fixed_topic_id)
+                query = query.filter(Post.fixed_topic_id == fixed_topic_id)
             if created_date:
-                query = query.filter(Article.created_date == created_date)
+                query = query.filter(Post.created_date == created_date)
             if updated_date:
-                query = query.filter(Article.updated_date == updated_date)
+                query = query.filter(Post.updated_date == updated_date)
             if from_date:
-                query = query.filter(Article.created_date >= from_date)
+                query = query.filter(Post.created_date >= from_date)
             if to_date:
-                query = query.filter(Article.created_date <= to_date)
+                query = query.filter(Post.created_date <= to_date)
             if topic_ids:
-                query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
+                query = query.filter(Post.topics.any(Topic.id.in_(topic_ids)))
             if draft is not None:
                 if draft:
-                    query = query.filter(Article.is_draft == True)
+                    query = query.filter(Post.is_draft == True)
                 else:
-                    query = query.filter(Article.is_draft != True)
+                    query = query.filter(Post.is_draft != True)
 
             ordering_fields_desc = args.get('order_by_desc')
             if ordering_fields_desc:
                 for ordering_field in ordering_fields_desc:
                     if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Article, ordering_field)
+                        column_to_sort = getattr(Post, ordering_field)
                         query = query.order_by(db.desc(column_to_sort))
 
             ordering_fields_asc = args.get('order_by_asc')
             if ordering_fields_asc:
                 for ordering_field in ordering_fields_asc:
                     if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Article, ordering_field)
+                        column_to_sort = getattr(Post, ordering_field)
                         query = query.order_by(db.asc(column_to_sort))
                         
-            articles = query.all()
+            posts = query.all()
             results = []
-            for article in articles:
-                result = article.__dict__
+            for post in posts:
+                result = post.__dict__
                 # get user info
-                user = User.query.filter_by(id=article.user_id).first()
+                user = User.query.filter_by(id=post.user_id).first()
                 result['user'] = user
-                # get all topics that article belongs to
-                result['topics'] = article.topics
+                # get all topics that post belongs to
+                result['topics'] = post.topics
                 # get fixed topic name
-                result['fixed_topic_name'] = article.fixed_topic.name
-                # get current user voting status for this article
+                result['fixed_topic_name'] = post.fixed_topic.name
+                # get current user voting status for this post
                 current_user, _ = AuthController.get_logged_user(request)
                 if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
-            return send_result(marshal(results, ArticleDto.model_article_response), message='Success')
+            return send_result(marshal(results, PostDto.model_post_response), message='Success')
         except Exception as e:
-            return send_error(message=constants.msg_search_failed)
+            return send_error(message=messages.MSG_CREATE_SUCCESS.format('Post'))
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=constants.msg_lacking_id)
+            return send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
         if object_id.isdigit():
-            article = Article.query.filter_by(id=object_id).first()
+            post = Post.query.filter_by(id=object_id).first()
         else:
-            article = Article.query.filter_by(slug=object_id).first()
-        if article is None:
-            return send_error(message=constants.msg_not_found_with_id.format(object_id))
+            post = Post.query.filter_by(slug=object_id).first()
+        if post is None:
+            return send_error(message=messages.msg_not_found_with_id.format(object_id))
         else:
-            article.views_count += 1
+            post.views_count += 1
             db.session.commit()
-            result = article.__dict__
+            result = post.__dict__
             # get user info
-            result['user'] = article.article_by_user
-            # get all topics that article belongs to
-            result['topics'] = article.topics
+            result['user'] = post.post_by_user
+            # get all topics that post belongs to
+            result['topics'] = post.topics
             # upvote/downvote status
             try:
                 current_user, _ = AuthController.get_logged_user(request)
                 if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
             except Exception as e:
                 print(e)
                 pass
-            return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
+            return send_result(data=marshal(result, PostDto.model_post_response), message='Success')
     
     def get_similar(self, args):
         if not 'title' in args:
@@ -292,60 +281,57 @@ class ArticleController(Controller):
         
         try:
             current_user, _ = AuthController.get_logged_user(request)
-            query = Article.query
-            title_similarity = db.func.SIMILARITY_STRING(title, Article.title).label('title_similarity')
-            query = query.with_entities(Article, title_similarity)\
+            query = Post.query
+            title_similarity = db.func.SIMILARITY_STRING(title, Post.title).label('title_similarity')
+            query = query.with_entities(Post, title_similarity)\
                 .filter(title_similarity > 50)
             if fixed_topic_id:
-                query = query.filter(Article.fixed_topic_id == fixed_topic_id)
+                query = query.filter(Post.fixed_topic_id == fixed_topic_id)
             if topic_ids:
-                query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
-            articles = query\
+                query = query.filter(Post.topics.any(Topic.id.in_(topic_ids)))
+            posts = query\
                 .order_by(desc(title_similarity))\
                 .limit(limit)\
                 .all()
             results = list()
-            for article in articles:
-                article = article[0]
-                result = article._asdict()
+            for post in posts:
+                post = post[0]
+                result = post._asdict()
                 # get user info
-                result['user'] = article.article_by_user
-                result['topics'] = article.topics
+                result['user'] = post.post_by_user
+                result['topics'] = post.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
-            return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
+            return send_result(data=marshal(results, PostDto.model_post_response), message='Success')
         except Exception as e:
             print(e)
-            return send_error(message="Get similar articles failed. Error: "+ e.__str__())
+            return send_error(message="Get similar posts failed. Error: "+ e.__str__())
 
     def update(self, object_id, data, is_put=False):
         if object_id is None:
-            return send_error(message=constants.msg_lacking_id)
+            return send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
         if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
 
         if object_id.isdigit():
-            article = Article.query.filter_by(id=object_id).first()
+            post = Post.query.filter_by(id=object_id).first()
         else:
-            article = Article.query.filter_by(slug=object_id).first()
-        if article is None:
-            return send_error(message=constants.msg_not_found_with_id.format(object_id))
+            post = Post.query.filter_by(slug=object_id).first()
+        if post is None:
+            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Post', object_id))
         if is_put:
-            db.session.delete(article)
+            db.session.delete(post)
             return self.create(data)
-        article, _ = self._parse_article(data=data, article=article)
+        post, _ = self._parse_post(data=data, post=post)
 
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
-            # update article topics
+            # update post topics
             topics = []
             for topic_id in topic_ids:
                 try:
@@ -354,120 +340,117 @@ class ArticleController(Controller):
                 except Exception as e:
                     print(e)
                     pass
-            article.topics = topics
+            post.topics = topics
         try:
             # check sensitive before updating
-            is_sensitive = check_sensitive(article.title)
+            is_sensitive = check_sensitive(post.title)
             if is_sensitive:
-                return send_error(message=constants.msg_update_failed_insensitive_title)
-            is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
+                return send_error(message=messages.MSG_ISSUE.format('Insensitive title'))
+            is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
             if is_sensitive:
-                return send_error(message=constants.msg_update_failed_insensitive_body)
-            # update topics to article_topic table
-            article.updated_date = datetime.utcnow()
-            article.last_activity = datetime.utcnow()
+                return send_error(message=messages.MSG_ISSUE.format('Insensitive body'))
+            # update topics to post_topic table
+            post.updated_date = datetime.utcnow()
+            post.last_activity = datetime.utcnow()
             db.session.commit()
             
-            result = article.__dict__
+            result = post.__dict__
             # get user info
-            result['user'] = article.article_by_user
-            # get all topics that article belongs to
-            result['topics'] = article.topics
+            result['user'] = post.post_by_user
+            # get all topics that post belongs to
+            result['topics'] = post.topics
             # upvote/downvote status
             try:
                 current_user, _ = AuthController.get_logged_user(request)
                 if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
             except Exception as e:
                 print(e)
                 pass
-            return send_result(message=constants.msg_update_success,
-                                data=marshal(result, ArticleDto.model_article_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Post'),
+                                data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             print(e)
-            return send_error(message=constants.msg_update_failed)
+            return send_error(message=messages.MSG_UPDATE_FAILED.format('Post', e))
 
     def delete(self, object_id):
         try:
             if object_id.isdigit():
-                article = Article.query.filter_by(id=object_id).first()
+                post = Post.query.filter_by(id=object_id).first()
             else:
-                article = Article.query.filter_by(slug=object_id).first()
-            if article is None:
-                return send_error(message=constants.msg_not_found_with_id.format(object_id))
+                post = Post.query.filter_by(slug=object_id).first()
+            if post is None:
+                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Post', object_id))
             else:
-                db.session.delete(article)
+                db.session.delete(post)
                 db.session.commit()
-                return send_result(message=constants.msg_delete_success_with_id.format(object_id))
+                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
         except Exception as e:
             print(e)
-            return send_error(message=constants.msg_delete_failed_with_id.format(object_id))
+            return send_error(message=messages.MSG_DELETE_FAILED.format('Post', e))
 
     def update_slug(self):
-        articles = Article.query.all()
+        posts = Post.query.all()
         try:
-            for article in articles:
-                article.slug = slugify(article.title)
+            for post in posts:
+                post.slug = slugify(post.title)
                 db.session.commit()
-            return send_result(marshal(articles, ArticleDto.model_article_response), message='Success')
+            return send_result(marshal(posts, PostDto.model_post_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error(message=e)
 
-    def _parse_article(self, data, article=None):
-        if article is None:
-            article = Article()
+    def _parse_post(self, data, post=None):
+        if post is None:
+            post = Post()
         if 'title' in data:
             try:
-                article.title = data['title']
+                post.title = data['title']
             except Exception as e:
                 print(e)
                 pass
         if 'user_id' in data:
             try:
-                article.user_id = data['user_id']
+                post.user_id = data['user_id']
             except Exception as e:
                 print(e)
                 pass
         if 'fixed_topic_id' in data:
             try:
-                article.fixed_topic_id = int(data['fixed_topic_id'])
+                post.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
                 print(e)
                 pass
         if 'html' in data:
-            article.html = data['html']
+            post.html = data['html']
         if 'user_hidden' in data:
             try:
-                article.user_hidden = bool(data['user_hidden'])
+                post.user_hidden = bool(data['user_hidden'])
             except Exception as e:
-                article.user_hidden = False
+                post.user_hidden = False
                 print(e)
                 pass
 
         if 'scheduled_date' in data:
             try:
-                article.scheduled_date = data['scheduled_date']
+                post.scheduled_date = data['scheduled_date']
             except Exception as e:
                 print(e)
                 pass
             
         if 'is_draft' in data:
             try:
-                article.is_draft = bool(data['is_draft'])
+                post.is_draft = bool(data['is_draft'])
             except Exception as e:
                 print(e)
                 pass
             
         if 'is_deleted' in data:
             try:
-                article.is_deleted = bool(data['is_deleted'])
+                post.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 print(e)
                 pass
@@ -479,9 +462,9 @@ class ArticleController(Controller):
             except Exception as e:
                 print(e)
                 pass
-        return article, topic_ids
+        return post, topic_ids
 
-    def get_article_hot(self,args):
+    def get_post_hot(self,args):
         page = 1
         page_size = 20
 
@@ -502,22 +485,22 @@ class ArticleController(Controller):
         if page > 0 :
             page = page - 1
 
-        query = db.session.query(Article).order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
-        # get current user voting status for this article
+        query = db.session.query(Post).order_by(desc(Post.upvote_count + Post.downvote_count + Post.share_count + Post.favorite_count),desc(Post.created_date))
+        # get current user voting status for this post
         current_user, _ = AuthController.get_logged_user(request)
         if current_user:
-            query = db.session.query(Article).outerjoin(TopicBookmark,TopicBookmark.id==Article.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
+            query = db.session.query(Post).outerjoin(TopicBookmark,TopicBookmark.id==Post.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Post.created_date))
         else:
-            query = db.session.query(Article).order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
+            query = db.session.query(Post).order_by(desc(Post.upvote_count + Post.downvote_count + Post.share_count + Post.favorite_count),desc(Post.created_date))
 
-        articles = query.offset(page * page_size).limit(page_size).all()
+        posts = query.offset(page * page_size).limit(page_size).all()
 
-        if articles is not None and len(articles) > 0:
-            return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
+        if posts is not None and len(posts) > 0:
+            return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
         else:
-            return send_result(message='Could not find any articles')
+            return send_result(message='Could not find any posts')
 
-    def get_article_of_friend(self,args):
+    def get_post_of_friend(self,args):
             page = 1
             page_size = 20
 
@@ -540,16 +523,16 @@ class ArticleController(Controller):
 
             current_user, _ = AuthController.get_logged_user(request)
 
-            query = db.session.query(Article)\
-            .outerjoin(UserFollow,and_(UserFollow.followed_id==Article.user_id, UserFollow.follower_id==current_user.id))\
-            .outerjoin(UserFriend,and_(UserFriend.friended_id==Article.user_id and UserFollow.friend_id==current_user.id))\
+            query = db.session.query(Post)\
+            .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\
+            .outerjoin(UserFriend,and_(UserFriend.friended_id==Post.user_id and UserFollow.friend_id==current_user.id))\
             .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
-            .group_by(Article)\
-            .order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
-            articles = query.offset(page * page_size).limit(page_size).all()
+            .group_by(Post)\
+            .order_by(desc(Post.upvote_count + Post.downvote_count + Post.share_count + Post.favorite_count),desc(Post.created_date))
+            posts = query.offset(page * page_size).limit(page_size).all()
 
-            if articles is not None and len(articles) > 0:
-                return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
+            if posts is not None and len(posts) > 0:
+                return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
             else:
-                return send_result(message='Could not find any articles')
+                return send_result(message='Could not find any posts')
 

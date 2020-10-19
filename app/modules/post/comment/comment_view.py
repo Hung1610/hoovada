@@ -6,8 +6,8 @@ from flask_restx import Resource, reqparse
 
 # own modules
 # from app.modules.common.decorator import token_required
-from app.modules.article.comment.comment_dto import CommentDto
-from app.modules.article.comment.comment_controller import CommentController
+from app.modules.post.comment.comment_dto import CommentDto
+from app.modules.post.comment.comment_controller import CommentController
 from app.modules.auth.decorator import admin_token_required, token_required, is_not_owner
 
 api = CommentDto.api
@@ -25,31 +25,31 @@ parser.add_argument('user_id', type=str, required=False, help='Search comments b
 # parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
 parser.add_argument('answer_id', type=str, required=False, help='Search all comments by answer_id.')
 
-@api.route('/<int:article_id>/comment')
+@api.route('/<int:post_id>/comment')
 class CommentList(Resource):
     # @token_required
     @api.response(code=200, model=comment_response, description='Model for comment response.')
-    def get(self, article_id):
+    def get(self, post_id):
         """
         Search all comments that satisfy conditions.
         ---------------------
 
         :user_id: Search comments by user_id
 
-        :article_id: Search all comments by article ID.
+        :post_id: Search all comments by post ID.
 
         :return: List of comments.
         """
         args = parser.parse_args()
         controller = CommentController()
-        return controller.get(article_id=article_id, args=args)
+        return controller.get(post_id=post_id, args=args)
 
     # @token_required
     @api.expect(comment_request)
-    @is_not_owner(table_name='article', object_id_arg_name='article_id', creator_field_name='article_by_user')
+    @is_not_owner(table_name='post', object_id_arg_name='post_id', creator_field_name='post_by_user')
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
-    def post(self, article_id):
+    def post(self, post_id):
         """
         Create new comment.
 
@@ -57,7 +57,7 @@ class CommentList(Resource):
         """
         data = api.payload
         controller = CommentController()
-        return controller.create(data=data, article_id=article_id)
+        return controller.create(data=data, post_id=post_id)
 
 
 @api.route('/all/comment/<int:id>')

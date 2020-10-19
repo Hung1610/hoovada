@@ -5,7 +5,7 @@
 from flask_restx import fields, Namespace, reqparse
 
 # own modules
-from app.modules.article.voting.vote import VotingStatusEnum
+from app.modules.post.voting.vote import VotingStatusEnum
 from app.modules.common.dto import Dto
 
 
@@ -16,17 +16,17 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class VoteDto(Dto):
-    name = 'article_vote'
-    api = Namespace(name, description="Article voting operations")
+    name = 'post_vote'
+    api = Namespace(name, description="Post voting operations")
 
-    model_request_article = api.model('vote_request_article_vote', {
+    model_request_post = api.model('vote_request_post_vote', {
         'vote_status': fields.Integer(description='1 - Neutral, 2 - Upvote, 3 - Downvote', default=False)
     })
 
-    model_response = api.model('vote_response_article_vote', {
+    model_response = api.model('vote_response_post_vote', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the vote record in database'),
         'user_id': fields.Integer(description='The user ID'),
-        'article_id': fields.Integer(description='The ID of the article'), 
+        'post_id': fields.Integer(description='The ID of the post'), 
         'vote_status': fields.String(description='The voting status', attribute='vote_status.name'),
         'created_date': fields.DateTime(description='The date user voted'),
         'updated_date': fields.DateTime(description='The date user modified vote value')

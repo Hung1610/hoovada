@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.article.voting.vote_view import api
+from app.modules.post.voting.vote_view import api
 
 
 __author__ = "hoovada.com team"
