@@ -36,12 +36,11 @@ class Post(Model):
     title = db.Column(db.UnicodeText)
     slug = db.Column(db.String(255), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    post_by_user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Post
     html = db.Column(db.UnicodeText)
-    user_hidden = db.Column(db.Boolean, default=False)
-    image_ids = db.Column(db.JSON)
+    file_url = db.Column(db.String(255))
     views_count = db.Column(db.Integer, default=0)
 
     @aggregated('votes', db.Column(db.Integer))

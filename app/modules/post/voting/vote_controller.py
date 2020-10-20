@@ -16,7 +16,6 @@ from app.modules.post.voting.vote import PostVote, VotingStatusEnum
 from app.modules.post.voting.vote_dto import VoteDto
 from app.modules.post.voting import constants
 from app.modules.user.user import User
-from app.modules.user.reputation.reputation import Reputation
 from app.modules.auth.auth_controller import AuthController
 from app.utils.response import send_error, send_result
 from app.utils.types import PermissionType
@@ -108,41 +107,6 @@ class VoteController(Controller):
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
-            if is_insert or (old_vote_status and old_vote_status != vote.vote_status):
-                # update answer vote count in post and user
-                try:
-                    post = vote.voted_post
-                    # get user who was created post and was voted
-                    user_voted = post.post_by_user
-                    for topic in post.topics:
-                        # Post creator rep
-                        reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
-                            Reputation.topic_id == topic.id).first()
-                        if reputation_creator is None:
-                            reputation_creator = Reputation()
-                            reputation_creator.user_id = user_voted.id
-                            reputation_creator.topic_id = topic.id
-                            reputation_creator.score = 0
-                            db.session.add(reputation_creator)
-                        # Post voter rep
-                        reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
-                            Reputation.topic_id == topic.id).first()
-                        if reputation_voter is None:
-                            reputation_voter = Reputation()
-                            reputation_voter.user_id = user_voted.id
-                            reputation_voter.topic_id = topic.id
-                            reputation_voter.score = 0
-                            db.session.add(reputation_voter)
-                        # Set reputation score
-                        if vote.vote_status == VotingStatusEnum.UPVOTED:
-                            reputation_creator.score += 10
-                        elif vote.vote_status == VotingStatusEnum.DOWNVOTED:
-                            reputation_creator.score -= 2
-                            reputation_voter.score -= 2
-                        db.session.commit()
-                except Exception as e:
-                    print(e)
-                    pass
             return send_result(data=marshal(vote, VoteDto.model_response), message='Success')
         except Exception as e:
             db.session.rollback()

@@ -169,7 +169,7 @@ class PostController(Controller):
                     pass
 
             query = Post.query.join(User, isouter=True).filter(db.or_(Post.scheduled_date == None, datetime.utcnow() >= Post.scheduled_date))
-            query = query.filter(db.or_(Post.post_by_user == None, User.is_deactivated != True))
+            query = query.filter(db.or_(Post.user == None, User.is_deactivated != True))
             if not is_deleted:
                 query = query.filter(Post.is_deleted != True)
             else:
@@ -234,6 +234,49 @@ class PostController(Controller):
         except Exception as e:
             return send_error(message=messages.MSG_CREATE_SUCCESS.format('Post'))
 
+    def create_with_file(self, object_id):
+        if object_id is None:
+            return send_error(messages.MSG_PLEASE_PROVIDE.format("Post ID"))
+        if 'file' not in request.files:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file'))
+
+        file_type = request.form.get('file_type', None)
+        media_file = request.files.get('file', None)
+        post = Post.query.filter_by(id=object_id).first()
+        if post is None:
+            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('post', object_id))
+
+        if not media_file:
+            return send_error(message=messages.MSG_NO_FILE)
+        if not file_type:
+            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file type'))
+        try:
+            filename = media_file.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name(file_name) + ext
+            bucket = 'hoovada'
+            sub_folder = 'post' + '/' + encode_file_name(str(post.id))
+            try:
+                url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message=messages.MSG_ISSUE.format('Could not save your media file.'))
+
+            post.file_url = url
+            post.updated_date = datetime.utcnow()
+            post.last_activity = datetime.utcnow()
+            db.session.commit()
+            result = post._asdict()
+            # update user information for post
+            result['user'] = post.user
+            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
+            result['up_vote'] = False
+            result['down_vote'] = False
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post media'), data=marshal(result, PostDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.MSG_CREATE_FAILED.format('Post media', e))
+
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
@@ -248,7 +291,7 @@ class PostController(Controller):
             db.session.commit()
             result = post.__dict__
             # get user info
-            result['user'] = post.post_by_user
+            result['user'] = post.user
             # get all topics that post belongs to
             result['topics'] = post.topics
             # upvote/downvote status
@@ -298,7 +341,7 @@ class PostController(Controller):
                 post = post[0]
                 result = post._asdict()
                 # get user info
-                result['user'] = post.post_by_user
+                result['user'] = post.user
                 result['topics'] = post.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -356,7 +399,7 @@ class PostController(Controller):
             
             result = post.__dict__
             # get user info
-            result['user'] = post.post_by_user
+            result['user'] = post.user
             # get all topics that post belongs to
             result['topics'] = post.topics
             # upvote/downvote status
@@ -403,103 +446,6 @@ class PostController(Controller):
             print(e.__str__())
             return send_error(message=e)
 
-    def _parse_post(self, data, post=None):
-        if post is None:
-            post = Post()
-        if 'title' in data:
-            try:
-                post.title = data['title']
-            except Exception as e:
-                print(e)
-                pass
-        if 'user_id' in data:
-            try:
-                post.user_id = data['user_id']
-            except Exception as e:
-                print(e)
-                pass
-        if 'fixed_topic_id' in data:
-            try:
-                post.fixed_topic_id = int(data['fixed_topic_id'])
-            except Exception as e:
-                print(e)
-                pass
-        if 'html' in data:
-            post.html = data['html']
-        if 'user_hidden' in data:
-            try:
-                post.user_hidden = bool(data['user_hidden'])
-            except Exception as e:
-                post.user_hidden = False
-                print(e)
-                pass
-
-        if 'scheduled_date' in data:
-            try:
-                post.scheduled_date = data['scheduled_date']
-            except Exception as e:
-                print(e)
-                pass
-            
-        if 'is_draft' in data:
-            try:
-                post.is_draft = bool(data['is_draft'])
-            except Exception as e:
-                print(e)
-                pass
-            
-        if 'is_deleted' in data:
-            try:
-                post.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                print(e)
-                pass
-
-        topic_ids = None
-        if 'topic_ids' in data:
-            try:
-                topic_ids = data['topic_ids']
-            except Exception as e:
-                print(e)
-                pass
-        return post, topic_ids
-
-    def get_post_hot(self,args):
-        page = 1
-        page_size = 20
-
-        if args.get('page') and args['page'] > 0:
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        query = db.session.query(Post).order_by(desc(Post.upvote_count + Post.downvote_count + Post.share_count + Post.favorite_count),desc(Post.created_date))
-        # get current user voting status for this post
-        current_user, _ = AuthController.get_logged_user(request)
-        if current_user:
-            query = db.session.query(Post).outerjoin(TopicBookmark,TopicBookmark.id==Post.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Post.created_date))
-        else:
-            query = db.session.query(Post).order_by(desc(Post.upvote_count + Post.downvote_count + Post.share_count + Post.favorite_count),desc(Post.created_date))
-
-        posts = query.offset(page * page_size).limit(page_size).all()
-
-        if posts is not None and len(posts) > 0:
-            return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
-        else:
-            return send_result(message='Could not find any posts')
-
     def get_post_of_friend(self,args):
             page = 1
             page_size = 20
@@ -535,4 +481,58 @@ class PostController(Controller):
                 return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
             else:
                 return send_result(message='Could not find any posts')
+
+    def _parse_post(self, data, post=None):
+        if post is None:
+            post = Post()
+        if 'title' in data:
+            try:
+                post.title = data['title']
+            except Exception as e:
+                print(e)
+                pass
+        if 'user_id' in data:
+            try:
+                post.user_id = data['user_id']
+            except Exception as e:
+                print(e)
+                pass
+        if 'fixed_topic_id' in data:
+            try:
+                post.fixed_topic_id = int(data['fixed_topic_id'])
+            except Exception as e:
+                print(e)
+                pass
+        if 'html' in data:
+            post.html = data['html']
+
+        if 'scheduled_date' in data:
+            try:
+                post.scheduled_date = data['scheduled_date']
+            except Exception as e:
+                print(e)
+                pass
+            
+        if 'is_draft' in data:
+            try:
+                post.is_draft = bool(data['is_draft'])
+            except Exception as e:
+                print(e)
+                pass
+            
+        if 'is_deleted' in data:
+            try:
+                post.is_deleted = bool(data['is_deleted'])
+            except Exception as e:
+                print(e)
+                pass
+
+        topic_ids = None
+        if 'topic_ids' in data:
+            try:
+                topic_ids = data['topic_ids']
+            except Exception as e:
+                print(e)
+                pass
+        return post, topic_ids
 

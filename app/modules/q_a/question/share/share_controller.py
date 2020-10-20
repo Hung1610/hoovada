@@ -133,9 +133,9 @@ class ShareController(Controller):
 
     def _parse_share(self, data):
         share = QuestionShare()
-        if 'user_id' in data:
+        if 'user_shared_to_id' in data:
             try:
-                share.user_id = int(data['user_id'])
+                share.user_shared_to_id = int(data['user_shared_to_id'])
             except Exception as e:
                 pass
         if 'question_id' in data:

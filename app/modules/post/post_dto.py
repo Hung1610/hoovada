@@ -34,7 +34,6 @@ class PostDto(Dto):
         'title': fields.String(description='The title of the post'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'html': fields.String(description='The content of the post'),
-        'user_hidden': fields.Boolean(default=False, description='The post was created by user but the user want to be hidden'),
         'topic_ids': fields.List(fields.Integer, description='The list of topics'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'is_draft': fields.Boolean(default=False, description='The post is a draft or not'),
@@ -53,7 +52,6 @@ class PostDto(Dto):
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of post views'),
         'last_activity': fields.DateTime(description='The last time this post was updated.'),
-        'user_hidden': fields.Boolean(default=False, description='The post was created by user but the user want to be hidden'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
@@ -64,6 +62,7 @@ class PostDto(Dto):
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
+        'file_url': fields.String(description='The file url'),
     })
 
     model_get_parser = reqparse.RequestParser()

@@ -43,6 +43,7 @@ class QuestionShareDto(Dto):
 
 
     model_request = api.model('share_question_request', {
+        'user_shared_to_id': fields.Integer(description=''),
         'facebook': fields.Boolean(description=''),
         'twitter': fields.Boolean(description=''),
         'linkedin': fields.Boolean(description=''),
@@ -56,6 +57,7 @@ class QuestionShareDto(Dto):
     model_response = api.model('share_question_response', {
         'id': fields.Integer(description=''),
         'user_id': fields.Integer(description=''),
+        'user_shared_to_id': fields.Integer(description=''),
         'question_id': fields.Integer(description=''),
         'created_date': fields.DateTime(description=''),
         'facebook': fields.Boolean(description=''),
