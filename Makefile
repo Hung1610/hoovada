@@ -18,7 +18,8 @@ push-test:
 	@docker push ${SOCKETIO_TEST}
 
 deploy-test:
-	@kubectl set image deployment/backend-${GIT_BRANCH} backend-${GIT_BRANCH}=${API_TEST} backend-socketio=${SOCKETIO_TEST} -n hoovada-staging --record
+	@kubectl set image deployment/backend-${GIT_BRANCH} backend-${GIT_BRANCH}=${API_TEST} -n hoovada-staging --record
+	@kubectl set image deployment/backend-socketio backend-socketio=${API_TEST}  -n hoovada-staging --record
 
 all-test: build-test push-test deploy-test
 
@@ -31,7 +32,8 @@ push-live:
 	@docker push ${SOCKETIO_LIVE}
 
 deploy-live:
-	@kubectl set image deployment/backend-prod backend-prod=${API_LIVE} backend-socketio=${SOCKETIO_LIVE} -n hoovada-live --record
+	@kubectl set image deployment/backend-live backend-live=${API_TEST} -n hoovada-live --record
+	@kubectl set image deployment/backend-socketio backend-socketio=${API_TEST}  -n hoovada-live --record
 
 all-live: build-live push-live deploy-live
 
