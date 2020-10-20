@@ -36,7 +36,6 @@ model_response = QuestionDto.model_question_response
 @api.route('')
 class QuestionList(Resource):
     @api.expect(get_parser)
-    # @api.marshal_list_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     @cache.cached(query_string=True)
     def get(self):
@@ -50,7 +49,6 @@ class QuestionList(Resource):
 
     # @token_required
     @api.expect(model_request)
-    # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
         """ 
