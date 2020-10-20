@@ -17,6 +17,7 @@ from app import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
+from app.modules.q_a.question.share.share import QuestionShare
 from app.modules.q_a.question.favorite.favorite import QuestionFavorite
 from app.modules.q_a.question.bookmark.bookmark import QuestionBookmark
 from app.modules.q_a.question.question_dto import QuestionDto
@@ -80,41 +81,11 @@ class QuestionController(Controller):
                 question.slug = slugify(question.title)
                 db.session.add(question)
                 db.session.commit()
-                # # update question_count for fixed topic
-                # try:
-                #     fixed_topic_id = question.fixed_topic_id
-                #     fixed_topic = Topic.query.filter_by(id=fixed_topic_id).first()
-                #     fixed_topic.question_count += 1
-                #     db.session.commit()
-                # except Exception as e:
-                #     print(e.__str__())
-                #     pass
-                # # update question_count for user
-                # try:
-                #     user = User.query.filter_by(id=user_id).first()
-                #     user.question_count += 1
-                #     db.session.commit()
-                # except Exception as e:
-                #     print(e.__str__())
-                #     pass
                 # Add topics and get back list of topic for question
                 try:
                     result = question._asdict()
                     # get user info
-                    # user = User.query.filter_by(id=question.user_id).first()
                     result['user'] = question.question_by_user
-                    # add question_topics
-                    # question_id = question.id
-                    # topics = list()
-                    # for topic_id in topic_ids:
-                    #     question_topic = QuestionTopic(question_id=question_id, topic_id=topic_id)
-                    #     db.session.add(question_topic)
-                    #     db.session.commit()
-                    #     topic = Topic.query.filter_by(id=topic_id).first()
-                    #     # update question_count for current topic.
-                    #     topic.question_count += 1
-                    #     db.session.commit()
-                    #     topics.append(topic)
                     result['topics'] = question.topics
                     result['fixed_topic'] = question.fixed_topic
                     # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
@@ -143,7 +114,7 @@ class QuestionController(Controller):
                         .filter(Question.topics.any(Topic.is_nsfw != True))
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
-            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids, is_deleted = None, None, None, None, None, None, None, None, None, None
+            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids, is_deleted, is_shared = None, None, None, None, None, None, None, None, None, None, None
 
             get_my_own = False
             if args.get('user_id'):
@@ -208,6 +179,12 @@ class QuestionController(Controller):
                 except Exception as e:
                     print(e)
                     pass
+            if args.get('is_shared'):
+                try:
+                    is_shared = bool(args['is_shared'])
+                except Exception as e:
+                    print(e)
+                    pass
 
             if not is_deleted:
                 query = query.filter(Question.is_deleted != True)
@@ -229,6 +206,8 @@ class QuestionController(Controller):
                 query = query.filter(Question.created_date <= to_date)
             if topic_ids is not None:
                 query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
+            if is_shared and current_user:
+                query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
 
             ordering_fields_desc = args.get('order_by_desc')
             if ordering_fields_desc:

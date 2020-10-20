@@ -6,8 +6,8 @@ from flask_restx import Resource, reqparse
 
 # own modules
 # from app.modules.common.decorator import token_required
-from app.modules.q_a.comment.report.report_dto import CommentReportDto
-from app.modules.q_a.comment.report.report_controller import ReportController
+from app.modules.post.report.report_dto import ReportDto
+from app.modules.post.report.report_controller import ReportController
 from app.modules.auth.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -16,36 +16,36 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-api = CommentReportDto.api
-report_request = CommentReportDto.model_request
-report_response = CommentReportDto.model_response
-_get_parser = CommentReportDto.get_parser
+api = ReportDto.api
+report_request = ReportDto.model_request
+report_response = ReportDto.model_response
+_get_parser = ReportDto.get_parser
 
-@api.route('/<int:comment_id>/report')
-class CommentReport(Resource):
+@api.route('/<int:post_id>/report')
+class ReportUser(Resource):
     @token_required
     @api.expect(_get_parser)
     @api.response(code=200, model=report_response, description='The model for report response.')
-    def get(self, comment_id):
+    def get(self, post_id):
         """
         Search all votes that satisfy conditions.
         """
 
         args = _get_parser.parse_args()
         controller = ReportController()
-        return controller.get(comment_id=comment_id, args=args)
+        return controller.get(post_id=post_id, args=args)
 
     @token_required
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
-    def post(self, comment_id):
+    def post(self, post_id):
         """
         Make report
         """
 
         controller = ReportController()
         data = api.payload
-        return controller.create(comment_id=comment_id, data=data)
+        return controller.create(post_id=post_id, data=data)
 
 
 @api.route('/all/report/<int:id>')

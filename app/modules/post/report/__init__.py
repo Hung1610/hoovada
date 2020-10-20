@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.q_a.comment.comment_view import api
+from app.modules.post.report.report_view import api
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
