@@ -20,7 +20,9 @@ class QuestionShare(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    user = db.relationship('User', foreign_keys=[user_id], lazy=True) # one-to-many relationship with table Article
+    user_shared_to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_shared_to = db.relationship('User', foreign_keys=[user_shared_to_id], lazy=True) # one-to-many relationship with table Article
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Article
     created_date = db.Column(db.Date)
