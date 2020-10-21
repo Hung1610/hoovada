@@ -44,10 +44,6 @@ class PostController(Controller):
             return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
         if not 'title' in data:
             return send_error(message=messages.MSG_PLEASE_PROVIDE.format('title'))
-        if not 'fixed_topic_id' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('fixed_topic_id'))
-        if not 'topic_ids' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('topic_ids'))
 
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id

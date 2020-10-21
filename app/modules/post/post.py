@@ -37,7 +37,7 @@ class Post(Model):
     slug = db.Column(db.String(255), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Post
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
