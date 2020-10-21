@@ -11,8 +11,8 @@ from flask_restx import marshal
 
 # own modules
 from app import db
+from app.constants import messages
 from app.modules.common.controller import Controller
-from app.modules.post import constants
 from app.modules.post.post import Post
 from app.modules.post.report.report import PostReport
 from app.modules.post.report.report_dto import ReportDto
@@ -60,17 +60,14 @@ class ReportController(Controller):
         if to_date is not None:
             query = query.filter(PostReport.created_date <= to_date)
         reports = query.all()
-        if reports is not None and len(reports) > 0:
-            return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
-        else:
-            return send_result(message=constants.msg_not_found)
+        return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
 
     def create(self, post_id, data):
-        user, message = AuthController.get_logged_user(request)
+        user, _ = AuthController.get_logged_user(request)
         if not has_permission(user.id, PermissionType.REPORT):
             return send_error(code=401, message='You have no authority to perform this action')
         if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
         
         current_user, _ = AuthController.get_logged_user(request)
         data['user_id'] = current_user.id
@@ -83,13 +80,13 @@ class ReportController(Controller):
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message=constants.msg_create_failed)
+            return send_error(message=messages.MSG_CREATE_FAILED.format('Post Report'))
 
     def get_by_id(self, object_id):
         query = PostReport.query
         report = query.filter(PostReport.id == object_id).first()
         if report is None:
-            return send_error(message=constants.msg_not_found)
+            return send_error(message=messages.MSG_NOT_FOUND.format('Post Report'))
         else:
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
 

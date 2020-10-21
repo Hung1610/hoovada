@@ -12,8 +12,8 @@ from sqlalchemy import desc
 
 # own modules
 from app import db
+from app.constants import messages
 from app.modules.common.controller import Controller
-from app.modules.post import constants
 from app.modules.post.post import Post
 from app.modules.post.share.share import PostShare
 from app.modules.post.share.share_dto import ShareDto
@@ -84,14 +84,14 @@ class ShareController(Controller):
         if len(shares) > 0:
             return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
         else:
-            return send_result(constants.msg_not_found)
+            return send_result(messages.MSG_NOT_FOUND.format('Post Share'))
 
     def create(self, post_id, data):
         user, message = AuthController.get_logged_user(request)
         if not has_permission(user.id, PermissionType.SHARE):
             return send_error(code=401, message='You have no authority to perform this action')
         if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
         current_user, _ = AuthController.get_logged_user(request)
 
         data['user_id'] = current_user.id
@@ -105,10 +105,10 @@ class ShareController(Controller):
             try:
                 post = Post.query.filter_by(id=share.post_id).first()
                 if not post:
-                    return send_error(message=constants.msg_not_found)
+                    return send_error(message=messages.MSG_NOT_FOUND.format('Post'))
                 user_voted = User.query.filter_by(id=post.user_id).first()
                 if not user_voted:
-                    return send_error(message=constants.msg_not_found)
+                    return send_error(message=messages.MSG_NOT_FOUND.format('User'))
                 user_voted.post_shared_count += 1
                 if current_user:
                     share.user_id = current_user.id
@@ -119,15 +119,15 @@ class ShareController(Controller):
             return send_result(data=marshal(share, ShareDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=constants.msg_create_failed)
+            return send_error(message=messages.MSG_CREATE_FAILED.format('Post Share', e))
 
     def get_by_id(self, object_id):
         query = PostShare.query
-        report = query.filter(PostShare.id == object_id).first()
-        if report is None:
-            return send_error(message=constants.msg_not_found)
+        share = query.filter(PostShare.id == object_id).first()
+        if share is None:
+            return send_error(message=messages.MSG_NOT_FOUND.format('Post Share'))
         else:
-            return send_result(data=marshal(report, ShareDto.model_response), message='Success')
+            return send_result(data=marshal(share, ShareDto.model_response), message='Success')
 
     def update(self, object_id, data):
         pass
@@ -183,49 +183,3 @@ class ShareController(Controller):
             except Exception as e:
                 pass
         return share
-
-    def get_share_by_user_id(self,args):
-        """ Search share.
-
-        Args:
-            `user_id` (int): Search shares by user_id
-
-        Returns:
-             List of shares post satisfy search condition.
-        """
-
-        query = PostShare.query
-        if not isinstance(args, dict):
-            return send_error(message='Could not parse the params.')
-        user_id = None 
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if user_id is None :
-            send_error(message='Provide params to search.')
-
-        is_filter = False
-        if user_id is not None:
-            query = query.filter(PostShare.user_id == user_id)
-            is_filter = True
-
-        if is_filter:
-            shares = query.order_by(desc(PostShare.created_date)).all()
-            if shares is not None and len(shares) > 0:
-                results = list()
-                for share in shares:
-                    result = PostShare.__dict__
-
-                    # get user post
-                    post = Post.query.filter_by(id=PostShare.post_id).first()
-                    result['post'] = post
-
-                    results.append(result)
-                return send_result(data=marshal(results, ShareDto.model_response), message='Success')
-            else:
-                return send_result(message='Could not find any share.')
-        else:
-            return send_error(message='Could not find questions. Please check your parameters again.')
