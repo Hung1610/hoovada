@@ -52,9 +52,6 @@ class Post(Model):
     @aggregated('post_shares', db.Column(db.Integer))
     def share_count(self):
         return db.func.count('1')
-    @aggregated('post_favorites', db.Column(db.Integer))
-    def favorite_count(self):
-        return db.func.count('1')
     @aggregated('post_comments', db.Column(db.Integer))
     def comment_count(self):
         return db.func.count('1')
@@ -67,7 +64,6 @@ class Post(Model):
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     votes = db.relationship("PostVote", cascade='all,delete-orphan')
-    post_favorites = db.relationship("PostFavorite", cascade='all,delete-orphan')
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan')
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
 
