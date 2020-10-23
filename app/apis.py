@@ -18,6 +18,7 @@ from app.modules import ns_auth, ns_question, ns_answer, \
     ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote, ns_answer_comment_favorite,\
     ns_user, ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
     ns_user_friend, ns_user_follow,\
+    ns_user_ban,\
     ns_language, ns_permission, ns_user_permission
 
 __author__ = "hoovada.com team"
@@ -62,6 +63,7 @@ def init_api(mode):
     api.add_namespace(ns_user_employment, '/user')
     api.add_namespace(ns_user_friend, '/user')
     api.add_namespace(ns_user_follow, '/user')
+    api.add_namespace(ns_user_ban, '/user')
     api.add_namespace(ns_reputation, '/reputation')
     api.add_namespace(ns_topic, '/topic')
     api.add_namespace(ns_topic_bookmark, '/topic')

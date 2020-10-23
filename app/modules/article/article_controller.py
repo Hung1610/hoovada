@@ -8,7 +8,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app, abort
 from flask_restx import marshal
 from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup

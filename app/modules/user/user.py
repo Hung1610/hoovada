@@ -223,111 +223,13 @@ class User(Model):
     @aggregated('friends', db.Column(db.Integer))
     def friend_count(self):
         return db.func.count('1')
-    # @hybrid_property
-    # def about_me(self):
-    #     """Return the value of _about_me but the html version."""
-    #     return self._about_me_html
-    #
-    # @about_me.setter
-    # def about_me(self, markdown):
-    #     """Constrain markdown with html so html is never set directly"""
-    #     # self._about_me = remove_markdown(markdown)
-    #     # self._about_me_markdown = markdown
-    #     # self._about_me_html = convert_markdown(markdown)
-    #     pass
-
-    # @hybrid_property
-    # def about_me_markdown(self):
-    #     """Return the value of _markdown."""
-    #     return self.about_me_markdown
-    #
-    # @hybrid_property
-    # def about_me_html(self):
-    #     """Return the value of _html."""
-    #     return self.about_me_html
-
-    # @hybrid_property
-    # def topics(self):
-    #     """Return the value of _topics."""
-    #     return self.topics
-    #
-    # @property
-    # def current_user_topics(self):
-    #     return self.topics + self.assigned_topics
-
-    # def get_topicstring(self):
-    #     """Return the topics for this instance as a comma separated string"""
-    #     return ', '.join([topic.name for topic in self.topics])
-
+        
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    # @property
-    # def avatar(self):
-    #     if self.profile_pic_url:
-    #         return self.profile_pic_url
-    #     if self.profile_pic_data_url:
-    #         return self.profile_pic_data_url
-    #     else:
-    #         return url_for('static', filename='img/pro-pic.png', _scheme='https', _external=True)
-
     @property
     def is_super_admin(self):
         return UserRole.is_super_admin(self.admin)
-
-    # @property
-    # def has_permission(self, permission_name):
-    #     permission = db.session.query(UserPermission) \
-    #         .join(User, UserPermission.id == User.id) \
-    #         .join(Permission, Permission.id == UserPermission.permission_id) \
-    #         .filter(Permission.permission_name == permission_name).first()
-    #     return permission.allow or False if permission else True
-    #     return False
-
-    # @property
-    # def is_authenticated(self):
-    #     return True
-
-    # @property
-    # def is_active(self):
-    #     return self.active # True
-
-    # @property
-    # def is_anonymous(self):
-    #     return False
-
-    # def get_id(self):
-    #     try:
-    #         return str(self.id)
-    #     except AttributeError:
-    #         raise NotImplementedError('No `id` attribute - override `get_id`')
-
-    # @property
-    # def name(self):
-    #     if self.first_name and self.last_name:
-    #         return f'{self.first_name} {self.last_name}'
-    #     else:
-    #         return f'{self.display_name}'
-
-    # @property
-    # def email_confirmed(self):
-    #     if self.confirmed:
-    #         return True
-    #     else:
-    #         return False
-
-    # @validates('email')
-    # def validate_email(self, key, address):
-    #     assert '@' in address
-    #     return address
-
-    # class Meta:
-    #     order_by = ('-joined_date')
-    #
-    # def __repr__(self):
-    #     return (
-    #         f'User [ID: {self.id}]\nName: {self.display_name}\nEmail: {self.email}'
-    #     )
