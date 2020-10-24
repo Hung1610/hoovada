@@ -11,7 +11,7 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.post.voting.vote import PostVote, VotingStatusEnum
 from app.modules.post.voting.vote_dto import VoteDto
 from app.modules.post.voting import constants

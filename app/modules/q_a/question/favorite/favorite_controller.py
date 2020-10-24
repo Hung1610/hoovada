@@ -12,7 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.question.favorite.favorite import QuestionFavorite
 from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto

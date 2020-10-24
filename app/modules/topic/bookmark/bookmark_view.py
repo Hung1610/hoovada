@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.topic.bookmark.bookmark_dto import TopicBookmarkDto
 from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
 from app.modules.auth.decorator import admin_token_required, token_required

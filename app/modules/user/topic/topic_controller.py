@@ -10,7 +10,7 @@ from flask import request
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.user.user import User
 from app.modules.user.topic.topic import UserTopic

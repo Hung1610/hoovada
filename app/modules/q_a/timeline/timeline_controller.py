@@ -10,7 +10,7 @@ from sqlalchemy import desc
 # own modules 
 from app import db
 from app.modules.auth.auth_controller import AuthController
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
 from app.modules.q_a.timeline.timeline import Timeline, Timeline

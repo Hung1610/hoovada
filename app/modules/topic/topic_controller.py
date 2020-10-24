@@ -13,7 +13,7 @@ import dateutil.parser
 from sqlalchemy import or_, and_, func, desc, text
 
 # own modules
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.auth.auth_controller import AuthController
 from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.topic.topic_dto import TopicDto

@@ -12,7 +12,7 @@ from sqlalchemy import desc
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.topic.share.share import TopicShare
 from app.modules.topic.share.share_dto import TopicShareDto

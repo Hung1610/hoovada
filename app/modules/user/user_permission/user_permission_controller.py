@@ -17,7 +17,7 @@ from app.modules.user.permission.permission import Permission
 from app.modules.user.user_permission.user_permission import UserPermission
 from app.modules.user.user_permission.user_permission_dto import UserPermissionDto
 from app.utils.response import send_result, send_error
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.constants import messages
 # from app.settings.config import BaseConfig as Config
 # from app.utils.util import encode_file_name

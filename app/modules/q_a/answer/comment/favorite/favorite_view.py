@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.q_a.answer.comment.favorite.favorite_dto import AnswerCommentFavoriteDto
 from app.modules.q_a.answer.comment.favorite.favorite_controller import AnswerCommentFavoriteController
 from app.modules.auth.decorator import admin_token_required, token_required

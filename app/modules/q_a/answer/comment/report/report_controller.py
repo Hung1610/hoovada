@@ -11,7 +11,7 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.q_a.answer.comment.comment import AnswerComment
 from app.modules.q_a.answer.comment.report.report import AnswerCommentReport
 from app.modules.q_a.answer.comment.report.report_dto import AnswerCommentReportDto

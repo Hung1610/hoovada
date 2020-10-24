@@ -10,7 +10,7 @@ from flask import request
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.user.user import User
 from app.modules.user.location.location import UserLocation
 from app.modules.user.location.location_dto import LocationDto

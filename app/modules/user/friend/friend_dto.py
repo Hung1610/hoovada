@@ -5,7 +5,7 @@
 from flask_restx import fields, Namespace, reqparse
 
 # own modules
-from app.modules.common.dto import Dto
+from app.common.dto import Dto
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,10 +23,9 @@ class UserFriendDto(Dto):
     })
 
     model_friend_user = api.model('friend_user', {
-        'title': fields.String(description='The title of the user'),
-        'user_id': fields.Integer(description='The user information'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
-        'topics': fields.List(fields.Nested(model_topic_user_friend), description='The list of topics')
+        'id': fields.Integer(readonly=True),
+        'display_name': fields.String(required=False),
+        'profile_pic_url': fields.String(required=False)
     })
 
     model_request = api.model('friend_user_request', {

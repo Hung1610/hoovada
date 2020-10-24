@@ -12,7 +12,7 @@ from sqlalchemy import event
 
 # own modules
 from app import db
-from app.modules.common.model import Model
+from app.common.model import Model
 from app.modules.post.voting.vote import PostVote
 
 __author__ = "hoovada.com team"
