@@ -13,7 +13,7 @@ from sqlalchemy import desc
 # own modules
 from app import db
 from app.constants import messages
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.post.post import Post
 from app.modules.post.share.share import PostShare
 from app.modules.post.share.share_dto import ShareDto

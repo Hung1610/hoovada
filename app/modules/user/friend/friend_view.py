@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.user.friend.friend_dto import UserFriendDto
 from app.modules.user.friend.friend_controller import UserFriendController
 from app.modules.auth.decorator import admin_token_required, token_required

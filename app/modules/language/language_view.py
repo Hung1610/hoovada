@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.language.language_dto import LanguageDto
 from app.modules.language.language_controller import LanguageController
 from app.modules.auth.decorator import token_required

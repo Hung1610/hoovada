@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import Flask
+from flask import Flask, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt

@@ -9,7 +9,7 @@ from flask_restx import marshal
 
 # own modules   
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.user.reputation.reputation import Reputation
 from app.modules.user.reputation.reputation_dto import ReputationDto
 from app.modules.user.user import User

@@ -6,7 +6,7 @@ from flask_restx import Resource, reqparse
 from flask import request
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.education.education_dto import EducationDto
 from app.modules.user.education.education_controller import EducationController

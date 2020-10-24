@@ -5,7 +5,7 @@
 from flask_restx import Resource
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
 from app.modules.q_a.timeline.timeline_controller import TimelineController
 from app.modules.auth.decorator import admin_token_required, token_required

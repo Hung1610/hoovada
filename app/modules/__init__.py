@@ -5,7 +5,8 @@
 #from app.modules.user import api as ns_user, ns_user_employment, ns_reputation
 from app.modules.user import ns_user,\
                             ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
-                            ns_user_friend, ns_user_follow
+                            ns_user_friend, ns_user_follow,\
+                            ns_user_ban
 from app.modules.auth import api as ns_auth
 from app.modules.q_a import ns_question, ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report, ns_question_bookmark,\
                             ns_answer, ns_answer_bookmark, ns_answer_favorite, ns_answer_report, ns_answer_share, ns_answer_vote,\

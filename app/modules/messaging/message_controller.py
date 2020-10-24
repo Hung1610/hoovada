@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

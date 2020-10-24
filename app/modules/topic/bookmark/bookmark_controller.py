@@ -12,7 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.topic.bookmark import constants
 from app.modules.topic.bookmark.bookmark import TopicBookmark

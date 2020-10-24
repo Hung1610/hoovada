@@ -9,7 +9,7 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.topic.user_topic.user_topic import UserTopic
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto

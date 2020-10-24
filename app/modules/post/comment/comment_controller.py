@@ -10,7 +10,7 @@ from flask import request
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.post.post import Post
 from app.modules.post.comment.comment import PostComment
 from app.modules.post.comment.comment_dto import CommentDto

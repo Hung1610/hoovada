@@ -7,7 +7,7 @@ from flask_restx import marshal
 
 # own modules
 from app.modules.auth.auth_controller import AuthController
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.file_upload.file_upload_dto import FileUploadDto
 from app.utils.file_handler import get_file_name_extension
 from app.utils.response import send_error, send_result

@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app import cache
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.answer_controller import AnswerController

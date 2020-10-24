@@ -15,7 +15,7 @@ from slugify import slugify
 # own modules
 from app import db
 from app.modules.auth.auth_controller import AuthController
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
 from app.modules.q_a.question.share.share import QuestionShare
 from app.modules.q_a.question.favorite.favorite import QuestionFavorite

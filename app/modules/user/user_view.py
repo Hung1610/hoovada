@@ -7,7 +7,7 @@ from werkzeug.datastructures import FileStorage
 from flask_restx import reqparse
 
 # own modules
-from app.modules.common.view import Resource
+from app.common.view import Resource
 from app.modules.user.user_dto import UserDto
 from app.modules.user.user_controller import UserController
 from app.modules.auth.decorator import admin_token_required, token_required

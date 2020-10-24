@@ -12,7 +12,7 @@ from flask_restx import marshal
 # own modules
 from app import db
 from app.constants import messages
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.post.post import Post
 from app.modules.post.report.report import PostReport
 from app.modules.post.report.report_dto import ReportDto

@@ -3,7 +3,7 @@
 
 # own modules
 from app import db
-from app.modules.common.model import Model
+from app.common.model import Model
 
 
 __author__ = "hoovada.com team"

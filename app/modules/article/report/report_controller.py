@@ -11,7 +11,7 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.article import constants
 from app.modules.article.article import Article
 from app.modules.article.report.report import ArticleReport

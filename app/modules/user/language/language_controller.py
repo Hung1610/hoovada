@@ -10,7 +10,7 @@ from flask import request
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.user.user import User
 from app.modules.user.language.language import UserLanguage
 from app.modules.user.language.language_dto import LanguageDto

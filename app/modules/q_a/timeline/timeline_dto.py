@@ -5,7 +5,7 @@
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
-from app.modules.common.dto import Dto
+from app.common.dto import Dto
 from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 
 __author__ = "hoovada.com team"
