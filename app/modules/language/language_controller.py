@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_restx import marshal
 
 # own modules
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.language.language import Language
 from app.modules.language.language_dto import LanguageDto
 from app import db

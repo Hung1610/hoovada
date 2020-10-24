@@ -1,5 +1,5 @@
 from app import db
-from app.modules.common.model import Model
+from app.common.model import Model
 
 
 class History(Model):

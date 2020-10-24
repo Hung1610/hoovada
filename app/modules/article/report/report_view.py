@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.modules.common.decorator import token_required
+# from app.common.decorator import token_required
 from app.modules.article.report.report_dto import ReportDto
 from app.modules.article.report.report_controller import ReportController
 from app.modules.auth.decorator import admin_token_required, token_required

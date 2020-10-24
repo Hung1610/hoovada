@@ -17,7 +17,7 @@ from werkzeug.utils import secure_filename
 # own modules
 from app import db
 from app.modules.auth.auth_controller import AuthController
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite

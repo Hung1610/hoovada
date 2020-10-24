@@ -12,9 +12,9 @@ from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
+from app.common.models.ban import UserBan, BanTypeEnum
 from app.modules.user.user import User
-from app.modules.user.ban.ban import UserBan, BanTypeEnum
 from app.modules.user.ban.ban_dto import UserBanDto
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation

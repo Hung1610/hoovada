@@ -11,7 +11,7 @@ from sqlalchemy_utils import aggregated
 
 # own modules
 from app import db
-from app.modules.common.model import Model
+from app.common.model import Model
 from app.modules.q_a.answer.voting.vote import AnswerVote
 
 __author__ = "hoovada.com team"

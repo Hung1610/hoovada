@@ -5,7 +5,7 @@
 from flask_restx import fields
 
 # own modules
-from app.modules.common.dto import Dto
+from app.common.dto import Dto
 from flask_restx_patched import Namespace
 
 __author__ = "hoovada.com team"

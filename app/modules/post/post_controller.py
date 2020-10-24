@@ -20,7 +20,7 @@ from app.modules.post.post import Post
 from app.modules.post.post_dto import PostDto
 from app.modules.post.voting.vote import PostVote, VotingStatusEnum
 from app.modules.auth.auth_controller import AuthController
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result

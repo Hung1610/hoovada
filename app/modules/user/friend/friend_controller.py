@@ -12,7 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.user.user import User
 from app.modules.user.friend.friend import UserFriend
 from app.modules.user.friend.friend_dto import UserFriendDto

@@ -21,7 +21,7 @@ from app.modules.article.article_dto import ArticleDto
 from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
 from app.modules.article.favorite.favorite import ArticleFavorite
 from app.modules.auth.auth_controller import AuthController
-from app.modules.common.controller import Controller
+from app.common.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.utils.response import send_error, send_result

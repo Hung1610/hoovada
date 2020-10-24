@@ -19,6 +19,7 @@ from app import db
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.blacklist import BlacklistToken
 from app.modules.user.user import User, SocialAccount
+from app.common.models.ban import UserBan
 from app.modules.user.user_dto import UserDto
 from app.utils.response import send_error, send_result
 from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
@@ -43,35 +44,6 @@ def save_token(token):
         db.session.rollback()
         return send_error(message=e)
 
-
-# def generate_confirmation_token(email):
-#     """Confirmation email token"""
-#     serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
-#     return serializer.dumps(email, salt=Config.SECURITY_PASSWORD_SALT)
-#
-#
-# def confirm_token(token, expiration=3600):
-#     """Plausibility check of confirmation token."""
-#     serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
-#     try:
-#         email = serializer.loads(token, salt=Config.SECURITY_PASSWORD_SALT, max_age=expiration)
-#     except:
-#         return False
-#     return email
-#
-#
-# def send_confirmation_email(to):
-#     """Send a confirmation email to the registered user"""
-#     token = generate_confirmation_token(email=to)
-#     confirm_url = url_for('confirmationview', token=token, _external=True)
-#     html = render_template('app/templates/confirmation.html', confirm_url=confirm_url)
-#     # send_email(subject='Email confirmation', sender=Config.MAIL_DEFAULT_SENDER, recipients=to, html_body=html)
-
-
-def get_id(user_id, role):
-    pass
-
-
 def save_social_account(provider, extra_data):
     social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
     if social_account is not None:
@@ -83,6 +55,9 @@ def save_social_account(provider, extra_data):
         email = extra_data.get('email', '')
         if (AuthController.check_user_exist(email)):
             raise Exception('Người dùng với địa chỉ Email {} đã tồn tại, vui lòng đăng nhập.'.format(email))
+        banned = UserBan.query.filter(UserBan.ban_by == email).first()
+        if banned:
+            raise Exception('This is email is banned.')
         user, _ = get_logged_user(request)
         if not user:
             user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
@@ -284,6 +259,9 @@ class AuthController:
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
             return send_error(message='Số điện thoại không đúng định dạng!')
+        banned = UserBan.query.filter(UserBan.ban_by == phone_number).first()
+        if banned:
+            raise send_error(message='This is email is banned.')
         
         if AuthController.check_phone_number_exist(phone_number):
             return send_error(message='Số điện thoại đã tồn tại, vui lòng đăng nhập!')
@@ -373,7 +351,9 @@ class AuthController:
         """
     
         try:
-            # print(data)
+            banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
+            if banned:
+                raise send_error(message='This is email is banned.')
             user = User.query.filter_by(phone_number=data['phone_number']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:
@@ -401,7 +381,9 @@ class AuthController:
         """
 
         try:
-            # print(data)
+            banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
+            if banned:
+                raise send_error(message='This is email is banned.')
             user = User.query.filter_by(phone_number=data['phone_number']).first()
             if user:
                 if not user.confirmed:
@@ -427,6 +409,9 @@ class AuthController:
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
             return send_error(message="Vui lòng cung cấp số điện thoại!")
         
+        banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
+        if banned:
+            raise send_error(message='This is email is banned.')
         phone_number = data['phone_number']
         code = data['code']
         if not validate_phone_number(phone_number):
@@ -491,6 +476,10 @@ class AuthController:
         display_name = data['display_name']
         password = data['password']
         is_policy_accepted = data['is_policy_accepted']
+
+        banned = UserBan.query.filter(UserBan.ban_by == email).first()
+        if banned:
+            raise send_error(message='This is email is banned.')
 
         if not is_policy_accepted:
             return send_error(message='Pleases accept our policies!') # Pleases provide a the policy acceptance status.
@@ -798,7 +787,9 @@ class AuthController:
         """ Login user handling.
         """
         try:
-            # print(data)
+            banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
+            if banned:
+                raise send_error(message='This is email is banned.')
             user = User.query.filter_by(email=data['email']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:

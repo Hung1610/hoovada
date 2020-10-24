@@ -13,7 +13,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from app.modules.common.model import Model
+from app.common.model import Model
 from app.utils.types import UserRole
 from app import db
 

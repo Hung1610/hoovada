@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.common.dto import Dto
+from app.common.dto import Dto
 
 # third-party modules
 from flask_restx import marshal
