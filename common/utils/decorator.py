@@ -5,7 +5,7 @@
 from functools import wraps
 
 # third-party modules
-from flask import request, current_app
+from flask import current_app, g
 
 # own modules
 from app import db
@@ -40,10 +40,9 @@ def is_not_owner(table_name, object_id_arg_name, creator_field_name):
         @wraps(f)
         def decorated(*args, **kwargs):
             object_id = kwargs.get(object_id_arg_name)
-            user, message = current_app.get_logged_user(request)
+            user = g.current_user
             if user is None:
                 return f(*args, **kwargs)
-            print(table_name, object_id)
             status, result = get_entity(table_name, object_id)
             if not status:
                 return result
@@ -62,7 +61,7 @@ def is_owner(table_name, object_id_arg_name, creator_field_name):
         @wraps(f)
         def decorated(*args, **kwargs):
             object_id = kwargs.get(object_id_arg_name)
-            user, message = current_app.get_logged_user(request)
+            user = g.current_user
             if user is None:
                 return f(*args, **kwargs)
             status, result = get_entity(table_name, object_id)
@@ -82,9 +81,9 @@ def token_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        user, message = current_app.get_logged_user(request)
+        user = g.current_user
         if user is None:
-            return send_error(message=message, code=401)
+            return send_error(message='You are not logged in.', code=401)
         return f(*args, **kwargs)
 
     return decorated
@@ -94,7 +93,7 @@ def token_required(f):
 #     def admin_token_required_internal(f):
 #         @wraps(f)
 #         def decorated(*args, **kwargs):
-#             user, message = current_app.get_logged_user(request)
+#             user, message = g.current_user
 #             if user is None:
 #                 return send_error(message=message)
 #             if role is None:
@@ -117,11 +116,12 @@ def admin_token_required(role=None):
         """
         @wraps(f)
         def decorated(*args, **kwargs):
-            user, message = current_app.get_logged_user(request)
+            user = g.current_user
             if user is None:
-                return send_error(message=message, code=401)
+                return send_error(message='You are not logged in.', code=401)
             if not user.admin:
                 return send_error(message='You are not admin. You need admin right to perform this action.', code=403)
+            g.current_user_is_admin = True
             return f(*args, **kwargs)
         return decorated
     return admin_token_required_decorator

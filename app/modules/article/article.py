@@ -40,6 +40,7 @@ class Article(Model):
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
+    allow_voting = db.Column(db.Boolean, default=True)
     user_hidden = db.Column(db.Boolean, default=False)
     image_ids = db.Column(db.JSON)
     views_count = db.Column(db.Integer, default=0)

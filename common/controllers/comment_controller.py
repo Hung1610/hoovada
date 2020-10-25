@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 from flask_restx import marshal
-from flask import request
+from flask import g
 
 # own modules
 from app import db
@@ -23,8 +23,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class BaseCommentController(Controller):
     related_field_name = None
-
-
 
     def _parse_comment(self, data, comment=None):
         if comment is None:
@@ -43,4 +41,11 @@ class BaseCommentController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        if g.current_user_is_admin:
+            if 'allow_favorite' in data:
+                try:
+                    comment.allow_favorite = bool(data['allow_favorite'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
         return comment

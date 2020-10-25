@@ -171,10 +171,10 @@ class UserController(Controller):
         if not isinstance(args, dict) or not 'avatar' in args:
             return send_error(message='Your request does not contain avatar.')
         # upload here
-        user, message = current_app.get_logged_user(request)
+        user, _ = current_app.get_logged_user(request)
         # user = User.query.filter_by(id=id).first()
         if user is None:
-            return send_error(message)
+            return send_error('You are not logged in')
 
         photo = args['avatar']
         if photo:
@@ -210,10 +210,10 @@ class UserController(Controller):
         #     return send_file(filename)
         # else:
         #     return send_error(message='Avatar does not exist. Upload it first.')
-        user, message = current_app.get_logged_user(request)
+        user, _ = current_app.get_logged_user(request)
         # user = User.query.filter_by(id=id).first()
         if user is None:
-            return send_error(message)
+            return send_error('You are not logged in')
         return user.profile_pic_url
 
 

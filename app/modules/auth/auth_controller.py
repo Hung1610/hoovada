@@ -851,9 +851,9 @@ class AuthController:
 
         :return:
         """
-        user, message = current_app.get_logged_user(req=req)
+        user, _ = current_app.get_logged_user(req=req)
         if user is None:
-            return send_error(message=message)
+            return send_error(message='You are not logged in.')
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
 
         # auth_token = new_request.headers.get('Authorization')

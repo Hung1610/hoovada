@@ -8,7 +8,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app, abort
+from flask import request, current_app, abort, g
 from flask_restx import marshal
 from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup
@@ -478,6 +478,14 @@ class ArticleController(Controller):
             except Exception as e:
                 print(e)
                 pass
+
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    article.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
         return article, topic_ids
 
     def get_article_hot(self,args):

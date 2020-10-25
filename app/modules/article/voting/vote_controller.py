@@ -89,6 +89,11 @@ class VoteController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if not has_permission(current_user.id, PermissionType.VOTE):
             return send_error(code=401, message='You have no authority to perform this action')
+        article = db.get_model('Article').query.get(article_id)
+        if not article:
+            return send_error(message='Article not found')
+        if not article.allow_voting:
+            return send_error(message='Article does not allow voting')
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:
