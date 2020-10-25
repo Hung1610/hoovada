@@ -26,12 +26,10 @@ class BaseComment(object):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     
-    @classmethod
     @declared_attr
     def user_id(cls):
         return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    @classmethod
     @declared_attr
     def user(cls):
         return db.relationship('User', lazy=True)
