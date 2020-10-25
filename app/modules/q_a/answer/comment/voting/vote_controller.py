@@ -85,6 +85,11 @@ class AnswerCommentVoteController(Controller):
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
         current_user, _ = current_app.get_logged_user(request)
+        comment = AnswerComment.query.get(comment_id)
+        if not comment:
+            return send_error(message='Comment not found.')
+        if not comment.allow_voting:
+            return send_error(message='Comment does not allow voting.')
         data['user_id'] = current_user.id
         data['comment_id'] = comment_id
         try:

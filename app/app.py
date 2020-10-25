@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import Flask, abort
+from flask import Flask, request, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -33,8 +33,13 @@ Flask.db_context = db
 Flask.mail_context = mail
 Flask.get_logged_user = get_logged_user
 
+app = Flask(__name__, static_folder='static')
+
+@app.before_request
+def before_request():
+    g.current_user, _ = app.get_logged_user(request)
+
 def init_app(config_name):
-    app = Flask(__name__, static_folder='static')
     app.config['JSON_AS_ASCII'] = False
     app.config.from_object(config_by_name[config_name])
     CORS(app)
