@@ -22,16 +22,14 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class BaseComment(object):
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.UnicodeText)
-    allow_voting = db.Column(db.Boolean, default=True)
+    allow_favorite = db.Column(db.Boolean, default=True)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     
-    @classmethod
     @declared_attr
     def user_id(cls):
         return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    @classmethod
     @declared_attr
     def user(cls):
         return db.relationship('User', lazy=True)

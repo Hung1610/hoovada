@@ -82,6 +82,11 @@ class AnswerCommentFavoriteController(Controller):
     def create(self, answer_comment_id):
         data = {}
         current_user, _ = current_app.get_logged_user(request)
+        comment = AnswerComment.query.get(answer_comment_id)
+        if not comment:
+            return send_error(message='Comment not found.')
+        if not comment.allow_favorite:
+            return send_error(message='Comment does not allow voting.')
         data['user_id'] = current_user.id
         data['answer_comment_id'] = answer_comment_id
         try:
