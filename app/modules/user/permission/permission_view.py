@@ -5,7 +5,7 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-from app.modules.auth.decorator import admin_token_required, token_required
+from common.utils.decorator import admin_token_required, token_required
 from app.modules.user.permission.permission_dto import PermissionDto
 from app.modules.user.permission.permission_controller import PermissionController
 

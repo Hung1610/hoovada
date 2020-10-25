@@ -7,7 +7,7 @@ from flask_restx import Resource, reqparse
 # own modules
 from app.modules.user.user_employment.user_employment_dto import UserEmploymentDto
 from app.modules.user.user_employment.user_employment_controller import UserEmploymentController
-from app.modules.auth.decorator import admin_token_required, token_required
+from common.utils.decorator import admin_token_required, token_required
 
 api = UserEmploymentDto.api
 user_employment_request = UserEmploymentDto.model_request

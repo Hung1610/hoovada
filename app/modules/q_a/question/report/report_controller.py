@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.question.question import Question
 from app.modules.q_a.question.report.report import QuestionReport, ReportTypeEnum
 from app.modules.q_a.question.report.report_dto import QuestionReportDto
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.utils.types import UserRole, PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.types import UserRole, PermissionType
+from common.utils.permission import has_permission
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -66,7 +65,7 @@ class ReportController(Controller):
             return send_result(message='Report not found')
 
     def create(self, question_id, data):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.QUESTION_REPORT)):
@@ -74,7 +73,7 @@ class ReportController(Controller):
         if not isinstance(data, dict):
             return send_error(message='Data is wrong format')
         
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         data['question_id'] = question_id
         try:

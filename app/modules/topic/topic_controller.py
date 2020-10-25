@@ -7,24 +7,23 @@ from slugify import slugify
 from datetime import datetime
 
 # third-party modules
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 import dateutil.parser
 from sqlalchemy import or_, and_, func, desc, text
 
 # own modules
-from app.common.controller import Controller
-from app.modules.auth.auth_controller import AuthController
+from common.controllers.controller import Controller
 from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.topic.topic_dto import TopicDto
 from app import db
-from app.utils.response import send_error, send_result, send_paginated_result, paginated_result
+from common.utils.response import send_error, send_result, send_paginated_result, paginated_result
 from app.modules.user.user import User
 from app.modules.user.follow.follow import UserFollow
-from app.utils.sensitive_words import check_sensitive
-from app.utils.file_handler import append_id, get_file_name_extension
-from app.utils.util import encode_file_name
-from app.utils.wasabi import upload_file
+from common.utils.sensitive_words import check_sensitive
+from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.util import encode_file_name
+from common.utils.wasabi import upload_file
 from app.constants import messages
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.article_topic.article_topic import ArticleTopic
@@ -85,7 +84,7 @@ class TopicController(Controller):
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params')
         name, user_id, parent_id, is_fixed = None, None, None, None
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if 'name' in args:
             name = args['name']
         if 'user_id' in args:
@@ -196,7 +195,7 @@ class TopicController(Controller):
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params')
             name, user_id, parent_id, is_fixed = None, None, None, None
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             if 'name' in args:
                 name = args['name']
             if 'user_id' in args:
@@ -255,7 +254,7 @@ class TopicController(Controller):
             topic = Topic.query.filter_by(slug=object_id).first()
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         result = topic._asdict()
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
@@ -302,7 +301,7 @@ class TopicController(Controller):
                 # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.commit()
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 result = topic._asdict()
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -341,7 +340,7 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             user_id = data['user_id']
             user = User.query.filter_by(id=user_id).first()
             if not user:
@@ -367,7 +366,7 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             query = topic.endorsed_users.paginate(page, per_page, error_out=True)
             res, code = paginated_result(query)
             results = []
@@ -393,7 +392,7 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             query = topic.bookmarked_users.paginate(page, per_page, error_out=True)
             res, code = paginated_result(query)
             results = []

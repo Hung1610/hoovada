@@ -9,11 +9,11 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.topic.question_topic.question_topic_dto import QuestionTopicDto
 from app.modules.topic.topic import Topic
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

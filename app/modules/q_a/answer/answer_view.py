@@ -5,11 +5,11 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.common.decorator import token_required
+# from common.decorator import token_required
 from app import cache
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.answer_controller import AnswerController
-from app.modules.auth.decorator import admin_token_required, token_required
+from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

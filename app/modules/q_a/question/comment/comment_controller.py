@@ -6,21 +6,20 @@ from datetime import datetime
 
 # third-party modules
 from flask_restx import marshal
-from flask import request
+from flask import request, current_app
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.comment_controller import BaseCommentController
 from app.modules.q_a.question.question import Question
 from app.modules.q_a.question.comment.favorite.favorite import QuestionCommentFavorite
-from app.modules.q_a.question.comment.comment import QuestionComment
+from common.models.comment import QuestionComment
 from app.modules.q_a.question.comment.comment_dto import CommentDto
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.utils.sensitive_words import check_sensitive
-from app.utils.types import UserRole, PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.sensitive_words import check_sensitive
+from common.utils.types import UserRole, PermissionType
+from common.utils.permission import has_permission
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -29,7 +28,13 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class CommentController(Controller):
+class CommentController(BaseCommentController):
+    '''
+    Controller for question comments
+    '''
+    query_classname = 'QuestionComment'
+    related_field_name = 'question_id'
+
     def get(self, question_id, args):
         """
         Search comments by params.
@@ -47,7 +52,7 @@ class CommentController(Controller):
                 print(e.__str__())
                 pass
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
 
         query = QuestionComment.query
         query = query.join(User, isouter=True).filter(db.or_(QuestionComment.user == None, User.is_deactivated != True))
@@ -72,7 +77,7 @@ class CommentController(Controller):
             return send_result(message='Could not find any comments.')
 
     def create(self, question_id, data):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.QUESTION_COMMENT)):
@@ -125,7 +130,7 @@ class CommentController(Controller):
         if object_id is None:
             return send_error('QuestionComment ID is null')
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
 
         comment = QuestionComment.query.filter_by(id=object_id).first()
         if comment is None:
@@ -149,7 +154,7 @@ class CommentController(Controller):
         if data is None or not isinstance(data, dict):
             return send_error('Data is null or not in dictionary form. Check again.')
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
 
         try:
             comment = QuestionComment.query.filter_by(id=object_id).first()
@@ -194,22 +199,3 @@ class CommentController(Controller):
             print(e.__str__())
             db.session.rollback()
             return send_error(message='Could not delete comment with the ID {}.'.format(object_id))
-
-    def _parse_comment(self, data, comment=None):
-        if comment is None:
-            comment = QuestionComment()
-        if 'comment' in data:
-            comment.comment = data['comment']
-        if 'question_id' in data:
-            try:
-                comment.question_id = int(data['question_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'user_id' in data:
-            try:
-                comment.user_id = int(data['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        return comment

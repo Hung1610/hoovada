@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Api
+from flask_restx import Resource, Namespace, Api
 from flask import url_for
 
 # own modules
+from common.utils.response import send_result
 from app.modules import ns_auth, ns_question, ns_answer, \
     ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report, ns_question_topic,\
     ns_question_comment, ns_question_comment_report, ns_question_comment_vote, ns_question_comment_favorite,\
@@ -41,6 +42,23 @@ class HTTPSApi(Api):
         """Monkey patch for HTTPS"""
         return url_for(self.endpoint('specs'), _external=True, _scheme='https')
 
+
+ns_health = Namespace(name='health')
+@ns_health.route('/')
+class HealthCheck(Resource):
+    def get(self):
+        """ Use for Readiness and Liveness Probes
+        
+        Args:
+            None
+
+        Returns
+           None - 200 code for success 
+        """
+        
+        return send_result(message="OK!", code=200)
+
+
 def init_api(mode):
 
     doc = False if mode == "prod" else "/api/v1/openapi"
@@ -54,6 +72,7 @@ def init_api(mode):
                 prefix='/api/v1',
                 doc=doc)
 
+    api.add_namespace(ns_health)
     api.add_namespace(ns_auth, '/auth')
     api.add_namespace(ns_user, '/user')
     api.add_namespace(ns_user_education, '/user')

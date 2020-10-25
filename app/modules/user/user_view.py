@@ -7,11 +7,11 @@ from werkzeug.datastructures import FileStorage
 from flask_restx import reqparse
 
 # own modules
-from app.common.view import Resource
+from common.view import Resource
 from app.modules.user.user_dto import UserDto
 from app.modules.user.user_controller import UserController
-from app.modules.auth.decorator import admin_token_required, token_required
-from app.utils.types import UserRole
+from common.utils.decorator import admin_token_required, token_required
+from common.utils.types import UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

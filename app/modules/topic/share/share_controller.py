@@ -7,18 +7,17 @@ from datetime import datetime
 # third-part modules
 import dateutil.parser
 from flask_restx import marshal
-from flask import request
+from flask import request, current_app
 from sqlalchemy import desc
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.topic.share.share import TopicShare
 from app.modules.topic.share.share_dto import TopicShareDto
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.modules.auth.auth_controller import AuthController
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -87,7 +86,7 @@ class ShareController(Controller):
     def create(self, topic_id, data):
         if not isinstance(data, dict):
             return send_error(message='Data is not in the correct format')
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
 
         data['user_id'] = current_user.id
         data['topic_id'] = topic_id

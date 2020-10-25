@@ -7,7 +7,7 @@ from flask_restx import Resource, reqparse
 # own modules
 from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
 from app.modules.q_a.question.voting.vote_controller import QuestionVoteController
-from app.modules.auth.decorator import admin_token_required, token_required
+from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

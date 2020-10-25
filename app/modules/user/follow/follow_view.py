@@ -5,10 +5,10 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.common.decorator import token_required
+# from common.decorator import token_required
 from app.modules.user.follow.follow_dto import UserFollowDto
 from app.modules.user.follow.follow_controller import UserFollowController
-from app.modules.auth.decorator import admin_token_required, token_required
+from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
