@@ -6,19 +6,18 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.answer.favorite.favorite_dto import AnswerFavoriteDto
 from app.modules.user.user import User
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -82,7 +81,7 @@ class AnswerFavoriteController(Controller):
 
     def create(self, answer_id):
         data = {}
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
         try:
@@ -115,7 +114,7 @@ class AnswerFavoriteController(Controller):
         pass
 
     def delete(self, answer_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             favorite = AnswerFavorite.query.filter_by(answer_id=answer_id, user_id=user_id).first()

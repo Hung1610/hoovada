@@ -1,6 +1,6 @@
 from flask_restx import fields, Namespace
 
-from app.common.dto import Dto
+from common.dto import Dto
 
 
 class ShareDto(Dto):

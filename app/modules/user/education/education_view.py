@@ -3,15 +3,13 @@
 
 # third-party modules
 from flask_restx import Resource, reqparse
-from flask import request
+from flask import request, current_app
 
 # own modules
-# from app.common.decorator import token_required
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.education.education_dto import EducationDto
 from app.modules.user.education.education_controller import EducationController
-from app.modules.auth.decorator import admin_token_required, token_required
-from app.utils.response import send_error
+from common.utils.decorator import admin_token_required, token_required
+from common.utils.response import send_error
 
 api = EducationDto.api
 education_response = EducationDto.model_response
@@ -61,7 +59,7 @@ class EducationMeList(Resource):
         args = get_parser.parse_args()
         controller = EducationController()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
 
         return controller.get(user_id=user_id, args=args)
@@ -78,7 +76,7 @@ class EducationMeList(Resource):
         data = api.payload
         controller = EducationController()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
 
         return controller.create(data=data, user_id=user_id)

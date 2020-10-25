@@ -10,15 +10,15 @@ from flask import request
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.topic.topic import Topic, TopicUserEndorse
 from app.modules.user.user import User
 from app.modules.user.topic.topic import UserTopic
 from app.modules.user.topic.topic_dto import TopicDto
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result, send_paginated_result, paginated_result
-from app.utils.sensitive_words import check_sensitive
+from common.utils.response import send_error, send_result, send_paginated_result, paginated_result
+from common.utils.sensitive_words import check_sensitive
 from app.constants import messages
 
 __author__ = "hoovada.com team"

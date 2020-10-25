@@ -7,22 +7,21 @@ from datetime import datetime
 import dateutil.parser
 
 # third-party modules
-from flask import url_for, request, send_file
+from flask import url_for, request, send_file, current_app
 from flask_restx import marshal
 from sqlalchemy import desc, text, func
 
 # own modules
 from app import db
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
 from app.modules.user.user_dto import UserDto
-from app.utils.response import send_result, send_error
-from app.common.controller import Controller
+from common.utils.response import send_result, send_error
+from common.controllers.controller import Controller
 from app.settings.config import BaseConfig as Config
-from app.utils.file_handler import append_id, get_file_name_extension
-from app.utils.util import encode_file_name
-from app.utils.types import UserRole
-from app.utils.wasabi import upload_file, delete_file
+from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.util import encode_file_name
+from common.utils.types import UserRole
+from common.utils.wasabi import upload_file, delete_file
 from app.modules.user.reputation.reputation import Reputation
 
 __author__ = "hoovada.com team"
@@ -90,7 +89,7 @@ class UserController(Controller):
         if object_id is None:
             return send_error(message="The user ID must not be null.")
         try:
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             user = User.query.filter_by(id=object_id).first()
             if user is None:
                 return send_error(data="Could not find user by this id")
@@ -172,7 +171,7 @@ class UserController(Controller):
         if not isinstance(args, dict) or not 'avatar' in args:
             return send_error(message='Your request does not contain avatar.')
         # upload here
-        user, message = AuthController.get_logged_user(request)
+        user, message = current_app.get_logged_user(request)
         # user = User.query.filter_by(id=id).first()
         if user is None:
             return send_error(message)
@@ -211,7 +210,7 @@ class UserController(Controller):
         #     return send_file(filename)
         # else:
         #     return send_error(message='Avatar does not exist. Upload it first.')
-        user, message = AuthController.get_logged_user(request)
+        user, message = current_app.get_logged_user(request)
         # user = User.query.filter_by(id=id).first()
         if user is None:
             return send_error(message)

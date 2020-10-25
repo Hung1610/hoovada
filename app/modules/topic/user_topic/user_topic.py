@@ -5,7 +5,7 @@
 from datetime import datetime
 
 # own modules
-from app.common.model import Model
+from common.models.model import Model
 from app.app import db
 
 __author__ = "hoovada.com team"

@@ -20,12 +20,11 @@ from app.modules.article.article import Article
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
 from app.modules.article.favorite.favorite import ArticleFavorite
-from app.modules.auth.auth_controller import AuthController
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.utils.sensitive_words import check_sensitive
+from common.utils.response import send_error, send_result
+from common.utils.sensitive_words import check_sensitive
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from app.modules.user.friend.friend import UserFriend
 from app.modules.user.follow.follow import UserFollow
@@ -50,7 +49,7 @@ class ArticleController(Controller):
         if not 'topic_ids' in data:
             return send_error(message=constants.msg_must_contain_topics_id)
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         try:
             is_sensitive = check_sensitive(data['title'])
@@ -228,7 +227,7 @@ class ArticleController(Controller):
                 # get fixed topic name
                 result['fixed_topic_name'] = article.fixed_topic.name
                 # get current user voting status for this article
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
@@ -261,7 +260,7 @@ class ArticleController(Controller):
             result['topics'] = article.topics
             # upvote/downvote status
             try:
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
@@ -291,7 +290,7 @@ class ArticleController(Controller):
             return send_error(message='Please provide limit')
         
         try:
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             query = Article.query
             title_similarity = db.func.SIMILARITY_STRING(title, Article.title).label('title_similarity')
             query = query.with_entities(Article, title_similarity)\
@@ -375,7 +374,7 @@ class ArticleController(Controller):
             result['topics'] = article.topics
             # upvote/downvote status
             try:
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
@@ -504,7 +503,7 @@ class ArticleController(Controller):
 
         query = db.session.query(Article).order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
         # get current user voting status for this article
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if current_user:
             query = db.session.query(Article).outerjoin(TopicBookmark,TopicBookmark.id==Article.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
         else:
@@ -538,7 +537,7 @@ class ArticleController(Controller):
             if page > 0 :
                 page = page - 1
 
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
 
             query = db.session.query(Article)\
             .outerjoin(UserFollow,and_(UserFollow.followed_id==Article.user_id, UserFollow.follower_id==current_user.id))\

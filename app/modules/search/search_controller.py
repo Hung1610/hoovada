@@ -19,7 +19,7 @@ from app.modules.q_a.question.question import Question
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.search.search_dto import SearchDto
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 from app import db
 
 __author__ = "hoovada.com team"

@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
 from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
 from app.modules.user.user import User
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
-from app.utils.types import UserRole, PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.types import UserRole, PermissionType
+from common.utils.permission import has_permission
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -85,7 +84,7 @@ class QuestionVoteController(Controller):
             return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
 
     def create(self, question_id, data):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
@@ -116,7 +115,7 @@ class QuestionVoteController(Controller):
             return send_error(message='Failed to create question vote.')
 
     def delete(self, question_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             vote = QuestionVote.query.filter_by(question_id=question_id, user_id=user_id).first()

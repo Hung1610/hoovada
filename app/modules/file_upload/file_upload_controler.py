@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 
 # own modules
-from app.modules.auth.auth_controller import AuthController
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.file_upload.file_upload_dto import FileUploadDto
-from app.utils.file_handler import get_file_name_extension
-from app.utils.response import send_error, send_result
-from app.utils.util import encode_file_name
-from app.utils.wasabi import upload_file
+from common.utils.file_handler import get_file_name_extension
+from common.utils.response import send_error, send_result
+from common.utils.util import encode_file_name
+from common.utils.wasabi import upload_file
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -40,7 +39,7 @@ class FileUploadController(Controller):
         if not isinstance(args, dict) or not 'image' in args:
             return send_error(message='Your request does not contain image.')
         # upload here
-        user, message = AuthController.get_logged_user(request)
+        user, message = current_app.get_logged_user(request)
         # user = User.query.filter_by(id=id).first()
         if user is None:
             return send_error(message)

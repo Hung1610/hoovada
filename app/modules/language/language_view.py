@@ -5,10 +5,10 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from app.common.decorator import token_required
+# from common.decorator import token_required
 from app.modules.language.language_dto import LanguageDto
 from app.modules.language.language_controller import LanguageController
-from app.modules.auth.decorator import token_required
+from common.utils.decorator import token_required
 
 api = LanguageDto.api
 language_response = LanguageDto.model_response

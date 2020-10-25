@@ -9,27 +9,25 @@ from datetime import datetime
 # third-party modules
 import dateutil.parser
 from flask import request, url_for
-from flask import current_app as app
+from flask import current_app
 from flask_restx import marshal
 from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
 # own modules
 from app import db
-from app.modules.auth.auth_controller import AuthController
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
 from app.modules.user.user import User
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result, paginated_result
-from app.utils.sensitive_words import check_sensitive
-from app.utils.file_handler import append_id, get_file_name_extension
-from app.utils.util import encode_file_name
-from app.utils.types import UserRole
-from app.utils.wasabi import upload_file
+from common.utils.response import send_error, send_result, paginated_result
+from common.utils.sensitive_words import check_sensitive
+from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.util import encode_file_name
+from common.utils.types import UserRole
+from common.utils.wasabi import upload_file
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -100,7 +98,7 @@ class AnswerController(Controller):
                     user = User.query.filter_by(id=answer.user_id).first()
                     result['user'] = user
                     # lay thong tin up_vote down_vote cho current user
-                    current_user, _ = AuthController.get_logged_user(request)
+                    current_user, _ = current_app.get_logged_user(request)
                     if current_user:
                         vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                         if vote is not None:
@@ -124,7 +122,7 @@ class AnswerController(Controller):
         if not 'answer' in data:
             return send_error(message=messages.MSG_PLEASE_PROVIDE.format('answer body'))
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
             answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
@@ -283,7 +281,7 @@ class AnswerController(Controller):
                 user = User.query.filter_by(id=answer.user_id).first()
                 result['user'] = user
                 # lay thong tin up_vote down_vote cho current user
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                     if vote is not None:
@@ -311,7 +309,7 @@ class AnswerController(Controller):
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
             # lay thong tin up_vote down_vote cho current user
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
@@ -339,7 +337,7 @@ class AnswerController(Controller):
             if answer is None:
                 return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             # Check is admin or has permission
             if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)

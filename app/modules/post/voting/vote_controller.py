@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.post.voting.vote import PostVote, VotingStatusEnum
 from app.modules.post.voting.vote_dto import VoteDto
 from app.modules.post.voting import constants
 from app.modules.user.user import User
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
-from app.utils.types import PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.types import PermissionType
+from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -84,12 +83,11 @@ class VoteController(Controller):
             return send_result(data=marshal(vote, VoteDto.model_response), message='Success')
 
     def create(self, post_id, data):
-        user, message = AuthController.get_logged_user(request)
-        if not has_permission(user.id, PermissionType.VOTE):
-            return send_error(code=401, message='You have no authority to perform this action')
         if not isinstance(data, dict):
             return send_error(message=constants.msg_wrong_data_format)
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
+        if not has_permission(current_user.id, PermissionType.VOTE):
+            return send_error(code=401, message='You have no authority to perform this action')
         data['user_id'] = current_user.id
         data['post_id'] = post_id
         try:
@@ -114,7 +112,7 @@ class VoteController(Controller):
             return send_error(message=constants.msg_create_failed.format(e))
 
     def delete(self, post_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             vote = PostVote.query.filter_by(post_id=post_id, user_id=user_id).first()

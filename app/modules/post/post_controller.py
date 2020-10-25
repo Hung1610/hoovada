@@ -8,7 +8,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup
@@ -19,12 +19,11 @@ from app.constants import messages
 from app.modules.post.post import Post
 from app.modules.post.post_dto import PostDto
 from app.modules.post.voting.vote import PostVote, VotingStatusEnum
-from app.modules.auth.auth_controller import AuthController
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.utils.sensitive_words import check_sensitive
+from common.utils.response import send_error, send_result
+from common.utils.sensitive_words import check_sensitive
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from app.modules.user.friend.friend import UserFriend
 from app.modules.user.follow.follow import UserFollow
@@ -45,7 +44,7 @@ class PostController(Controller):
         if not 'title' in data:
             return send_error(message=messages.MSG_PLEASE_PROVIDE.format('title'))
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         try:
             is_sensitive = check_sensitive(data['title'])
@@ -219,7 +218,7 @@ class PostController(Controller):
                 # get fixed topic name
                 result['fixed_topic_name'] = post.fixed_topic.name
                 # get current user voting status for this post
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
@@ -292,7 +291,7 @@ class PostController(Controller):
             result['topics'] = post.topics
             # upvote/downvote status
             try:
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
@@ -319,7 +318,7 @@ class PostController(Controller):
             return send_error(message='Please provide limit')
         
         try:
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             query = Post.query
             title_similarity = db.func.SIMILARITY_STRING(title, Post.title).label('title_similarity')
             query = query.with_entities(Post, title_similarity)\
@@ -400,7 +399,7 @@ class PostController(Controller):
             result['topics'] = post.topics
             # upvote/downvote status
             try:
-                current_user, _ = AuthController.get_logged_user(request)
+                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = PostVote.query.filter(PostVote.user_id == current_user.id, PostVote.post_id == post.id).first()
                     if vote is not None:
@@ -463,7 +462,7 @@ class PostController(Controller):
             if page > 0 :
                 page = page - 1
 
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
 
             query = db.session.query(Post)\
             .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\

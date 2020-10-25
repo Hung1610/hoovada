@@ -5,13 +5,12 @@
 from functools import wraps
 
 # third-party modules
-from flask import request
+from flask import request, current_app
 
 # own modules
 from app import db
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error
-from app.utils.types import UserRole
+from common.utils.response import send_error
+from common.utils.types import UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -41,7 +40,7 @@ def is_not_owner(table_name, object_id_arg_name, creator_field_name):
         @wraps(f)
         def decorated(*args, **kwargs):
             object_id = kwargs.get(object_id_arg_name)
-            user, message = AuthController.get_logged_user(request)
+            user, message = current_app.get_logged_user(request)
             if user is None:
                 return f(*args, **kwargs)
             print(table_name, object_id)
@@ -63,7 +62,7 @@ def is_owner(table_name, object_id_arg_name, creator_field_name):
         @wraps(f)
         def decorated(*args, **kwargs):
             object_id = kwargs.get(object_id_arg_name)
-            user, message = AuthController.get_logged_user(request)
+            user, message = current_app.get_logged_user(request)
             if user is None:
                 return f(*args, **kwargs)
             status, result = get_entity(table_name, object_id)
@@ -83,7 +82,7 @@ def token_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        user, message = AuthController.get_logged_user(request)
+        user, message = current_app.get_logged_user(request)
         if user is None:
             return send_error(message=message, code=401)
         return f(*args, **kwargs)
@@ -95,7 +94,7 @@ def token_required(f):
 #     def admin_token_required_internal(f):
 #         @wraps(f)
 #         def decorated(*args, **kwargs):
-#             user, message = AuthController.get_logged_user(request)
+#             user, message = current_app.get_logged_user(request)
 #             if user is None:
 #                 return send_error(message=message)
 #             if role is None:
@@ -118,7 +117,7 @@ def admin_token_required(role=None):
         """
         @wraps(f)
         def decorated(*args, **kwargs):
-            user, message = AuthController.get_logged_user(request)
+            user, message = current_app.get_logged_user(request)
             if user is None:
                 return send_error(message=message, code=401)
             if not user.admin:

@@ -6,7 +6,7 @@ import datetime
 
 # own modules
 from app.app import db
-from app.common.model import Model
+from common.models.model import Model
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -6,7 +6,7 @@ from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
 
 # own modules
-from app.modules.auth.decorator import token_required
+from common.utils.decorator import token_required
 from app.modules.file_upload.file_upload_controler import FileUploadController
 from app.modules.file_upload.file_upload_dto import FileUploadDto
 

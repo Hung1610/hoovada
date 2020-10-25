@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 from flask_restx import marshal
-from flask import request
+from flask import request, current_app
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.comment_controller import BaseCommentController
 from app.modules.post.post import Post
-from app.modules.post.comment.comment import PostComment
+from common.models.comment import PostComment
 from app.modules.post.comment.comment_dto import CommentDto
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.utils.sensitive_words import check_sensitive
-from app.utils.types import PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.sensitive_words import check_sensitive
+from common.utils.types import PermissionType
+from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -27,7 +26,13 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class CommentController(Controller):
+class CommentController(BaseCommentController):
+    '''
+    Controller for post comments
+    '''
+    query_classname = 'PostComment'
+    related_field_name = 'post_id'
+
     def get(self, post_id, args):
         """
         Search comments by params.
@@ -65,16 +70,15 @@ class CommentController(Controller):
             return send_result(message='Could not find any comments.')
 
     def create(self, post_id, data):
-        user, message = AuthController.get_logged_user(request)
-        if not has_permission(user.id, PermissionType.COMMENT):
-            return send_error(code=401, message='You have no authority to perform this action')
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:
             return send_error(message="The comment body must be included")
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if current_user:
+            if not has_permission(current_user.id, PermissionType.COMMENT):
+                return send_error(code=401, message='You have no authority to perform this action')
             data['user_id'] = current_user.id
         data['post_id'] = post_id
 
@@ -173,22 +177,3 @@ class CommentController(Controller):
             print(e.__str__())
             db.session.rollback()
             return send_error(message='Could not delete comment with the ID {}.'.format(object_id))
-
-    def _parse_comment(self, data, comment=None):
-        if comment is None:
-            comment = PostComment()
-        if 'comment' in data:
-            comment.comment = data['comment']
-        if 'post_id' in data:
-            try:
-                comment.post_id = int(data['post_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'user_id' in data:
-            try:
-                comment.user_id = int(data['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        return comment
