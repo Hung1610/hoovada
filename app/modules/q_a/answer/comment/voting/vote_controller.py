@@ -88,7 +88,7 @@ class AnswerCommentVoteController(Controller):
         comment = AnswerComment.query.get(comment_id)
         if not comment:
             return send_error(message='Comment not found.')
-        if not comment.allow_voting:
+        if not comment.allow_favorite:
             return send_error(message='Comment does not allow voting.')
         data['user_id'] = current_user.id
         data['comment_id'] = comment_id

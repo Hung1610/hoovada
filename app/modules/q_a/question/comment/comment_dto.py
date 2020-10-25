@@ -25,13 +25,13 @@ class CommentDto(Dto):
 
     model_request = api.model('question_comment_request', {
         'comment': fields.String(required=True, description='The content of the comment'),
-        'allow_voting': fields.Boolean(default=True, description='Allow voting for comment'),
+        'allow_favorite': fields.Boolean(default=True, description='Allow voting for comment'),
     })
 
     model_response = api.model('question_comment_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the comment'),
         'comment': fields.String(required=True, description='The content of the comment'),
-        'allow_voting': fields.Boolean(default=True, description='Allow voting for comment'),
+        'allow_favorite': fields.Boolean(default=True, description='Allow voting for comment'),
         'question_id': fields.Integer(required=True, description='The ID of the question'),
         'user': fields.Nested(comment_user, description='The information of the user'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),

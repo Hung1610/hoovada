@@ -42,9 +42,9 @@ class BaseCommentController(Controller):
                 print(e.__str__())
                 pass
         if g.current_user_is_admin:
-            if 'allow_voting' in data:
+            if 'allow_favorite' in data:
                 try:
-                    comment.allow_voting = bool(data['allow_voting'])
+                    comment.allow_favorite = bool(data['allow_favorite'])
                 except Exception as e:
                     print(e.__str__())
                     pass
