@@ -3,20 +3,18 @@
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules 
 from app import db
-from app.modules.auth.auth_controller import AuthController
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
 from app.modules.q_a.timeline.timeline import Timeline, Timeline
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 
 __author__ = "hoovada.com team"
@@ -32,7 +30,7 @@ class TimelineController(Controller):
         if not 'activity' in data:
             return send_error(message='Must contain at least the activity type.')
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
 
         try:
@@ -59,7 +57,7 @@ class TimelineController(Controller):
         """ Search timeline.
         """
         query = Timeline.query
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
 
         if not isinstance(args, dict):
             return send_error(message='Could not parse the params.')

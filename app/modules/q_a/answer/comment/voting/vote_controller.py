@@ -6,19 +6,18 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 
 # own modules
 from app import db
-from app.common.controller import Controller
-from app.modules.q_a.answer.comment.comment import AnswerComment
+from common.controllers.controller import Controller
+from common.models.comment import AnswerComment
 from app.modules.q_a.answer.comment.voting.vote import AnswerCommentVote, VotingStatusEnum
 from app.modules.q_a.answer.comment.voting.vote_dto import AnswerCommentVoteDto
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -85,7 +84,7 @@ class AnswerCommentVoteController(Controller):
     def create(self, comment_id, data):
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         data['comment_id'] = comment_id
         try:
@@ -145,7 +144,7 @@ class AnswerCommentVoteController(Controller):
             return send_error(message='Failed to create comment vote.')
 
     def delete(self, comment_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             vote = AnswerCommentVote.query.filter_by(comment_id=comment_id, user_id=user_id).first()

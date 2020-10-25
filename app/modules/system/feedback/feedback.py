@@ -1,5 +1,5 @@
 from app import db
-from app.common.model import Model
+from common.models.model import Model
 
 
 class Feedback(Model):

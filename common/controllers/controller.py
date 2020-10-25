@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from app import db
 from abc import ABC, abstractmethod
 
 __author__ = "hoovada.com team"
@@ -13,6 +14,10 @@ class Controller(ABC):
     """
     This class will control all interactions between clients, database server and other things.
     """
+    query_classname = ''
+    
+    def get_model_class(self):
+        return db.get_model(self.query_classname)
 
     @abstractmethod
     def create(self, data):

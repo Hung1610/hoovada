@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.report.report import AnswerReport
 from app.modules.q_a.answer.report.report_dto import AnswerReportDto
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.user import User
-from app.utils.response import send_error, send_result
-from app.utils.types import UserRole, PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.types import UserRole, PermissionType
+from common.utils.permission import has_permission
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -69,7 +68,7 @@ class ReportController(Controller):
         if not isinstance(data, dict):
             return send_error(message='Data is wrong format')
         
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.ANSWER_REPORT)):

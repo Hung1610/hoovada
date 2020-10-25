@@ -14,6 +14,9 @@ class BaseConfig:
     # debug mode is turned off by default
     DEBUG = False
 
+    # The name of the model used as User class
+    USER_MODEL_NAME = environ.get('FLASK_USER_MODEL_NAME', 'User')
+
     # flask configuration
     SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
     SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')

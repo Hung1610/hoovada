@@ -10,10 +10,10 @@ import dateutil.parser
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.user.user_employment.user_employment import UserEmployment
 from app.modules.user.user_employment.user_employment_dto import UserEmploymentDto
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

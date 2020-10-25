@@ -1,4 +1,4 @@
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 
 
 class MailAddressController(Controller):

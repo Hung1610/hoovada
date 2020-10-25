@@ -6,19 +6,18 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.common.controller import Controller
-from app.modules.q_a.question.comment.comment import QuestionComment
+from common.controllers.controller import Controller
+from common.models.comment import QuestionComment
 from app.modules.q_a.question.comment.favorite.favorite import QuestionCommentFavorite
 from app.modules.q_a.question.comment.favorite.favorite_dto import QuestionCommentFavoriteDto
 from app.modules.user.user import User
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -82,7 +81,7 @@ class QuestionCommentFavoriteController(Controller):
 
     def create(self, question_comment_id):
         data = {}
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         data['question_comment_id'] = question_comment_id
         try:
@@ -115,7 +114,7 @@ class QuestionCommentFavoriteController(Controller):
         pass
 
     def delete(self, question_comment_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             favorite = QuestionCommentFavorite.query.filter_by(question_comment_id=question_comment_id, user_id=user_id).first()

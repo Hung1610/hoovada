@@ -7,11 +7,11 @@ import dateutil.parser
 from sqlalchemy import or_, and_, func, desc
 
 # own modules
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.user.permission.permission import Permission
 from app.modules.user.permission.permission_dto import PermissionDto
-from app.utils.response import send_result, send_error
-from app.utils.types import PermissionType
+from common.utils.response import send_result, send_error
+from common.utils.types import PermissionType
 from app import db
 
 

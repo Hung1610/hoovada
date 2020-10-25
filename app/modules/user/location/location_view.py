@@ -3,15 +3,13 @@
 
 # third-party modules
 from flask_restx import Resource, reqparse
-from flask import request
+from flask import request, current_app
 
 # own modules
-# from app.common.decorator import token_required
-from app.modules.auth.auth_controller import AuthController
 from app.modules.user.location.location_dto import LocationDto
 from app.modules.user.location.location_controller import LocationController
-from app.modules.auth.decorator import admin_token_required, token_required
-from app.utils.response import send_error
+from common.utils.decorator import admin_token_required, token_required
+from common.utils.response import send_error
 
 api = LocationDto.api
 location_response = LocationDto.model_response
@@ -60,7 +58,7 @@ class LocationMeList(Resource):
         args = get_parser.parse_args()
         controller = LocationController()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
 
         return controller.get(user_id=user_id, args=args)
@@ -77,7 +75,7 @@ class LocationMeList(Resource):
         data = api.payload
         controller = LocationController()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
 
         return controller.create(data=data, user_id=user_id)

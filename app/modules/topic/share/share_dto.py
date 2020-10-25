@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_restx import fields, Namespace
 
 # own modules
-from app.common.dto import Dto
+from common.dto import Dto
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

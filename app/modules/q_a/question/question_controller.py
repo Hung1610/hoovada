@@ -7,21 +7,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import desc, text, func, and_, or_
 from slugify import slugify
 
 # own modules
 from app import db
-from app.modules.auth.auth_controller import AuthController
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.q_a.question.question import Question, QuestionProposal
 from app.modules.q_a.question.share.share import QuestionShare
 from app.modules.q_a.question.favorite.favorite import QuestionFavorite
 from app.modules.q_a.question.bookmark.bookmark import QuestionBookmark
 from app.modules.q_a.question.question_dto import QuestionDto
-from app.modules.auth.auth_controller import AuthController
 from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.q_a.answer.answer import Answer
@@ -30,9 +28,9 @@ from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.user.follow.follow import UserFollow
 from app.modules.user.reputation.reputation import Reputation
-from app.utils.response import send_error, send_result, paginated_result
-from app.utils.sensitive_words import check_sensitive
-from app.utils.checker import check_spelling
+from common.utils.response import send_error, send_result, paginated_result
+from common.utils.sensitive_words import check_sensitive
+from common.utils.checker import check_spelling
 from app.modules.topic.bookmark.bookmark import TopicBookmark
 from app.constants import messages
 from app.modules.user.friend.friend import UserFriend
@@ -52,7 +50,7 @@ class QuestionController(Controller):
         if not 'title' in data:
             return send_error(message='Question must contain at least the title.')
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
 
@@ -107,7 +105,7 @@ class QuestionController(Controller):
     def get(self, args):
         try:
             query = Question.query # query search from view
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             if current_user:
                 if not current_user.show_nsfw:
                     query = query.join(Topic, isouter=True).filter(Topic.is_nsfw != True)\
@@ -260,7 +258,7 @@ class QuestionController(Controller):
             question = Question.query.filter_by(slug=object_id).first()
         if question is None:
             return send_error(message='Could not find question with the ID {}'.format(object_id))
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if question.is_private:
             if not current_user == question.question_by_user:
                 if not self.is_invited(question, current_user):
@@ -308,7 +306,7 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(slug=object_id).first()
             if question is None:
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             emails_or_usernames = data['emails_or_usernames']
             for email_or_username in emails_or_usernames:
                 try:
@@ -354,7 +352,7 @@ class QuestionController(Controller):
             return send_error(message='Please provide limit')
         
         try:
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             query = Question.query.filter_by(is_private=False)  # query search from view
             title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
             questions = query.with_entities(Question, title_similarity)\
@@ -402,7 +400,7 @@ class QuestionController(Controller):
                 topics = args['topic']
             else:
                 return send_error(message='Please provide topics')
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             top_users_reputation = db.session.query(
                     User,
                     db.func.sum(Reputation.score).label('total_score'),
@@ -432,7 +430,7 @@ class QuestionController(Controller):
         limit = int(args['limit'])
         
         try:
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
             query = Topic.query.distinct()\
                 .join(Question, isouter=True)\
@@ -631,7 +629,7 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             if current_user:
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:
@@ -699,7 +697,7 @@ class QuestionController(Controller):
         if not 'answer' in data:
             return send_error(message='Please fill the answer body before sending.')
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
             answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
@@ -1044,7 +1042,7 @@ class QuestionController(Controller):
         question = Question.query.filter_by(slug=slug).first()
         if question is None:
             return send_error(message='Could not find question with the slug {}'.format(slug))
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if question.is_private:
             if not current_user == question.question_by_user:
                 if not self.is_invited(question, current_user):
@@ -1118,7 +1116,7 @@ class QuestionController(Controller):
 
 
         # get current user voting status for this article
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if current_user:
             query = db.session.query(Question).outerjoin(TopicBookmark,TopicBookmark.id==Question.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
         else:
@@ -1186,7 +1184,7 @@ class QuestionController(Controller):
         query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if questions is not None and len(questions) > 0:
             results = list()
             for question in questions:
@@ -1245,7 +1243,7 @@ class QuestionController(Controller):
         query = db.session.query(Question).order_by(desc(Question.upvote_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if questions is not None and len(questions) > 0:
             results = list()
             for question in questions:
@@ -1305,7 +1303,7 @@ class QuestionController(Controller):
         query = db.session.query(Question).order_by(desc(Question.answers_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         if questions is not None and len(questions) > 0:
             results = list()
             for question in questions:
@@ -1362,7 +1360,7 @@ class QuestionController(Controller):
         if page > 0 :
             page = page - 1
 
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
 
         query = db.session.query(Question)\
         .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
@@ -1428,7 +1426,7 @@ class QuestionController(Controller):
             if page > 0 :
                 page = page - 1
 
-            current_user, _ = AuthController.get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
 
             query = db.session.query(Question)\
             .outerjoin(QuestionBookmark,and_(QuestionBookmark.question_id==Question.id, QuestionBookmark.user_id==current_user.id))\

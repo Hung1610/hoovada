@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.user.user import User
 from app.modules.user.follow.follow import UserFollow
 from app.modules.user.follow.follow_dto import UserFollowDto
 from app.modules.user.user import User
 from app.modules.user.reputation.reputation import Reputation
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 from app.constants import messages
 
 __author__ = "hoovada.com team"
@@ -76,7 +75,7 @@ class UserFollowController(Controller):
 
     def create(self, object_id):
         data = {}
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         data['follower_id'] = current_user.id
         data['followed_id'] = object_id
         try:
@@ -140,7 +139,7 @@ class UserFollowController(Controller):
             return send_error(message=messages.MSG_ISSUE.format(e))
         
     def delete(self, object_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             follow = UserFollow.query.filter_by(follow_id=object_id, followed_id=user_id).first()

@@ -7,8 +7,8 @@ from flask_restx import Resource, reqparse
 # own modules
 from app.modules.user.user_permission.user_permission_dto import UserPermissionDto
 from app.modules.user.user_permission.user_permission_controller import UserPermissionController
-from app.modules.auth.decorator import admin_token_required, token_required
-from app.utils.types import UserRole
+from common.utils.decorator import admin_token_required, token_required
+from common.utils.types import UserRole
 
 api = UserPermissionDto.api
 user_permission_request = UserPermissionDto.model_request

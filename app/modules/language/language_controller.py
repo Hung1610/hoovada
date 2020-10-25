@@ -8,11 +8,11 @@ from datetime import datetime
 from flask_restx import marshal
 
 # own modules
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.language.language import Language
 from app.modules.language.language_dto import LanguageDto
 from app import db
-from app.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

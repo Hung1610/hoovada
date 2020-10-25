@@ -10,7 +10,7 @@ from sqlalchemy_utils import aggregated
 
 # own modules
 from app import db
-from app.common.model import Model
+from common.models.model import Model
 from app.modules.q_a.question.voting.vote import QuestionVote
 from app.modules.q_a.answer.answer import Answer
 

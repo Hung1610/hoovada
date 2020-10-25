@@ -12,7 +12,7 @@ from io import StringIO
 # third-party modules
 import jwt
 import markdown2
-from flask import url_for, render_template, request
+from flask import url_for, render_template, request, current_app
 from flask_babel import lazy_gettext as _l
 from flask_mail import Message
 from flask_restx import ValidationError
@@ -23,10 +23,6 @@ from password_strength import PasswordPolicy
 import phonenumbers
 
 # own modules
-from app.app import mail
-from app.modules.user.user import User
-from app import db
-from app.modules.user.blacklist import BlacklistToken
 from app.settings.config import BaseConfig
 
 __author__ = "hoovada.com team"
@@ -99,7 +95,7 @@ def send_email(to, subject, template):
     """
     
     msg = Message(subject, sender=BaseConfig.MAIL_USERNAME, recipients=[to], html=template)
-    mail.send(msg)
+    current_app.mail_context.send(msg)
 
 
 def send_confirmation_email(to):
@@ -186,11 +182,7 @@ def decode_auth_token(auth_token):
 
     try:
         payload = jwt.decode(auth_token, BaseConfig.SECRET_KEY)
-        is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
-        if is_blacklisted_token:
-            return None, 'Token blacklisted. Please log in again.'
-        else:
-            return payload['sub'], ''  # return the user_id
+        return payload['sub'], ''  # return the user_id
     except jwt.ExpiredSignatureError:
         return None, 'Signature expired. Please log in again.'
     except jwt.InvalidTokenError:
@@ -296,7 +288,7 @@ def send_verification_sms(to=''):
     """ Send verification code to that phone number
     """
     
-    user = User.query.filter_by(phone_number=to).first()
+    user = current_app.db_context.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=to).first()
     service = BaseConfig.VERIFICATION_SID
     verification = client.verify \
         .services(service) \
@@ -305,7 +297,7 @@ def send_verification_sms(to=''):
 
     if verification and verification.sid and user:
         user.verification_sms_time = datetime.utcnow()
-        db.session.commit()
+        current_app.db_context.session.commit()
     
     return verification.sid
 
@@ -337,7 +329,7 @@ def validate_phone_number(phone_number):
         phone_number = phonenumbers.parse(phone_number, None)
         return phonenumbers.is_valid_number(phone_number)
     except Exception as e:
-        logger.error(e.__str__())
+        print(e.__str__())
         return False
     # return re.match('^(09|01[2|6|8|9])+([0-9]{8})$', phone_number)
 
@@ -346,7 +338,7 @@ def check_verification(phone, code):
     """ Verify code sent to that phone number
     """
     
-    user = User.query.filter_by(phone_number=phone).first()
+    user = current_app.db_context.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=phone).first()
     service = BaseConfig.VERIFICATION_SID
     
     try:
@@ -391,4 +383,39 @@ def is_valid_email(email):
 
     regex = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.search(regex, email) is not None
+    
 
+def get_model(self, name):
+    return self.Model._decl_class_registry.get(name, None)
+
+
+def get_model_by_tablename(self, tablename):
+    for c in self.Model._decl_class_registry.values():
+        if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
+            return c
+
+
+def get_logged_user(self, req):
+    """ User information retrieving.
+    """
+    auth_token = None
+    api_key = None
+    # auth = False
+    if 'X-API-KEY' in req.headers:
+        api_key = req.headers['X-API-KEY']
+    if 'Authorization' in req.headers:
+        auth_token = req.headers.get('Authorization')
+    if not auth_token and not api_key:
+        # auth = False
+        return None, 'You must provide a valid token to continue.'
+    if api_key is not None:
+        auth_token = api_key
+    user_id, message = decode_auth_token(auth_token=auth_token)
+    if user_id is None:
+        return None, message
+    try:
+        user = current_app.db_context.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(id=user_id).first()
+        return user, None
+    except Exception as e:
+        print(e.__str__())
+        return None, message

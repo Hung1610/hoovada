@@ -11,7 +11,7 @@ from flask_restx import Resource, reqparse
 from app import cache
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.article_controller import ArticleController
-from app.modules.auth.decorator import token_required, admin_token_required
+from common.utils.decorator import token_required, admin_token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

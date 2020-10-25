@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 # third-party modules
 import chardet
-from flask import make_response, request
+from flask import make_response, request, current_app
 from flask_restx import marshal
 
 # own modules
@@ -19,10 +19,10 @@ from app import db
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.blacklist import BlacklistToken
 from app.modules.user.user import User, SocialAccount
-from app.common.models.ban import UserBan
+from common.models.ban import UserBan
 from app.modules.user.user_dto import UserDto
-from app.utils.response import send_error, send_result
-from app.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
+from common.utils.response import send_error, send_result
+from common.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
     get_response_message, convert_vietnamese_diacritics, validate_phone_number, is_valid_username, send_verification_sms, \
     check_verification, check_password, is_valid_email, generate_confirmation_token, send_password_reset_email
 from app.constants import messages
@@ -58,7 +58,7 @@ def save_social_account(provider, extra_data):
         banned = UserBan.query.filter(UserBan.ban_by == email).first()
         if banned:
             raise Exception('This is email is banned.')
-        user, _ = get_logged_user(request)
+        user, _ = current_app.get_logged_user(request)
         if not user:
             user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
             user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
@@ -625,7 +625,7 @@ class AuthController:
         if len(check_password(password)) > 0:
             return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt!')
 
-        user, _ = get_logged_user(request)
+        user, _ = current_app.get_logged_user(request)
         if user and user.check_password(old_password):
             user.set_password(password=password)
             try:
@@ -677,7 +677,7 @@ class AuthController:
             if not validate_phone_number(phone_number):
                 return send_error(message='Số điện thoại không đúng định dạng!')
                 
-            current_user, _ = get_logged_user(request)
+            current_user, _ = current_app.get_logged_user(request)
             
             if current_user:
                 if not check_verification(phone_number, code):
@@ -851,37 +851,10 @@ class AuthController:
 
         :return:
         """
-        user, message = AuthController.get_logged_user(req=req)
+        user, message = current_app.get_logged_user(req=req)
         if user is None:
             return send_error(message=message)
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
-
-    @staticmethod
-    def get_logged_user(req):
-        """ User information retrieving.
-        """
-
-        auth_token = None
-        api_key = None
-        # auth = False
-        if 'X-API-KEY' in req.headers:
-            api_key = req.headers['X-API-KEY']
-        if 'Authorization' in req.headers:
-            auth_token = req.headers.get('Authorization')
-        if not auth_token and not api_key:
-            # auth = False
-            return None, 'You must provide a valid token to continue.'
-        if api_key is not None:
-            auth_token = api_key
-        user_id, message = decode_auth_token(auth_token=auth_token)
-        if user_id is None:
-            return None, message
-        try:
-            user = User.query.filter_by(id=user_id).first()
-            return user, None
-        except Exception as e:
-            print(e.__str__())
-            return None, message
 
         # auth_token = new_request.headers.get('Authorization')
         # if auth_token:

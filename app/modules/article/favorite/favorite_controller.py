@@ -6,23 +6,22 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request
+from flask import request, current_app
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
 from app import db
-from app.common.controller import Controller
+from common.controllers.controller import Controller
 from app.modules.article.article import Article
-from app.modules.article.comment.comment import ArticleComment
+from common.models.comment import ArticleComment
 from app.modules.article.favorite import constants
 from app.modules.article.favorite.favorite import ArticleFavorite
 from app.modules.article.favorite.favorite_dto import FavoriteDto
 from app.modules.user.user import User
-from app.modules.auth.auth_controller import AuthController
-from app.utils.response import send_error, send_result
-from app.utils.types import PermissionType
-from app.utils.permission import has_permission
+from common.utils.response import send_error, send_result
+from common.utils.types import PermissionType
+from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -85,11 +84,10 @@ class FavoriteController(Controller):
             return send_result(message=constants.msg_article_favorite_not_found)
 
     def create(self, article_id):
-        user, message = AuthController.get_logged_user(request)
-        if not has_permission(user.id, PermissionType.FAVORITE):
-            return send_error(code=401, message='You have no authority to perform this action')
         data = {}
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
+        if not has_permission(current_user.id, PermissionType.FAVORITE):
+            return send_error(code=401, message='You have no authority to perform this action')
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:
@@ -122,7 +120,7 @@ class FavoriteController(Controller):
         pass
 
     def delete(self, article_id):
-        current_user, _ = AuthController.get_logged_user(request)
+        current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
             favorite = ArticleFavorite.query.filter_by(article_id=article_id, user_id=user_id).first()

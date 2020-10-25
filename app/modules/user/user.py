@@ -13,8 +13,8 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from app.common.model import Model
-from app.utils.types import UserRole
+from common.models.model import Model
+from common.utils.types import UserRole
 from app import db
 
 __author__ = "hoovada.com team"
