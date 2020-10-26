@@ -23,52 +23,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class SignupUser(Model):
-    """
-    Define the SignUpUser Model.
-    """
-    __tablename__ = 'signup_user'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255))
-    password_hash = db.Column(db.String(255))
-    registered_date = db.Column(db.Date)
-    registered_time = db.Column(db.Time)
-    activation_code = db.Column(db.String(255))
-    code_created_date = db.Column(db.Date)
-    code_created_time = db.Column(db.Time)
-    code_duration_time = db.Column(db.Float)
-    code_sent_date = db.Column(db.Date)
-    code_sent_time = db.Column(db.Time)
-    trial_number = db.Column(db.Integer)
-    confirm = db.Column(db.Boolean)
-
-
-class RecoveryUser(Model):
-    """
-    Define the RecoveryUser model.
-    """
-    __tablename__ = 'recovery_user'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255))
-    new_password_hash = db.Column(db.String(255))
-    required_date = db.Column(db.Date)
-    required_time = db.Column(db.Time)
-    recovery_code = db.Column(db.String(255))
-    code_created_date = db.Column(db.Date)
-    code_created_time = db.Column(db.Time)
-    code_duration_time = db.Column(db.Float)
-    code_sent_date = db.Column(db.Date)
-    code_sent_time = db.Column(db.Time)
-    trial_number = db.Column(db.Integer)
-    continued = db.Column(db.Boolean)
-    session_start_date = db.Column(db.Date)
-    session_start_time = db.Column(db.Time)
-    session_duration = db.Column(db.Float)
-    recovered = db.Column(db.Boolean)
-
-
 class SocialAccount(Model):
     """
     Define the SocialAccount model.

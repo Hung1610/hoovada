@@ -13,9 +13,9 @@ from sqlalchemy import and_
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.q_a.question.question import Question
+from common.models.question import Question
 from app.modules.q_a.question.bookmark import constants
-from app.modules.q_a.question.bookmark.bookmark import QuestionBookmark
+from common.models.bookmark import QuestionBookmark
 from app.modules.q_a.question.bookmark.bookmark_dto import QuestionBookmarkDto
 from app.modules.user.user import User
 from common.utils.response import send_error, send_result

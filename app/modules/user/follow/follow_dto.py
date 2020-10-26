@@ -23,10 +23,9 @@ class UserFollowDto(Dto):
     })
 
     model_follow_user = api.model('follow_user', {
-        'title': fields.String(description='The title of the user'),
-        'user_id': fields.Integer(description='The user information'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
-        'topics': fields.List(fields.Nested(model_topic_user_follow), description='The list of topics')
+        'id': fields.Integer(readonly=True),
+        'display_name': fields.String(required=False),
+        'profile_pic_url': fields.String(required=False)
     })
 
     model_request = api.model('follow_user_request', {

@@ -46,7 +46,7 @@ class CommentList(Resource):
 
     @api.expect(comment_request)
     # @api.marshal_with(comment)
-    @is_not_owner(table_name='question', object_id_arg_name='question_id', creator_field_name='question_by_user')
+    @is_not_owner(table_name='question', object_id_arg_name='question_id', creator_field_name='user')
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self, question_id):
         """

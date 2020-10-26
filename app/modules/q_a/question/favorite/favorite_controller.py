@@ -14,9 +14,9 @@ from sqlalchemy import and_
 from app import db
 from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.question.favorite.favorite import QuestionFavorite
+from common.models.favorite import QuestionFavorite
 from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto
-from app.modules.q_a.question.question import Question
+from common.models.question import Question
 from app.modules.user.user import User
 from common.utils.response import send_error, send_result
 from common.utils.types import UserRole, PermissionType

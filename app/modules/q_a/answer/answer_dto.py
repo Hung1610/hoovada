@@ -32,7 +32,6 @@ class AnswerDto(Dto):
     })
 
     model_request = api.model('answer_request', {
-        'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
@@ -54,7 +53,6 @@ class AnswerDto(Dto):
         # 'user_id': fields.Integer(default=0, description='The user ID'),
         'user':fields.Nested(answer_user, description='The information of the user'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        # 'image_ids': fields.String(),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),

@@ -25,7 +25,6 @@ class AnswerFavoriteDto(Dto):
     model_favorite_answer = api.model('favorite_answer', {
         'title': fields.String(description='The title of the answer'),
         'user_id': fields.Integer(description='The user information'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'topics': fields.List(fields.Nested(model_topic_answer_favorite), description='The list of topics')
     })
 

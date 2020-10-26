@@ -5,7 +5,7 @@
 from flask_restx import fields, Namespace, reqparse
 
 # own modules
-from app.modules.q_a.question.voting.vote import VotingStatusEnum
+from common.models.question import VotingStatusEnum
 from common.dto import Dto
 
 

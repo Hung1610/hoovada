@@ -215,8 +215,8 @@ class PostController(Controller):
                 result['user'] = user
                 # get all topics that post belongs to
                 result['topics'] = post.topics
-                # get fixed topic name
-                result['fixed_topic_name'] = post.fixed_topic.name
+                # get fixed topic
+                result['fixed_topic'] = post.fixed_topic
                 # get current user voting status for this post
                 current_user, _ = current_app.get_logged_user(request)
                 if current_user:

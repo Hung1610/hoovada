@@ -37,7 +37,6 @@ class Answer(Model):
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
-    image_ids = db.Column(db.JSON)
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     allow_improvement = db.Column(db.Boolean, server_default=expression.true())
     file_url = db.Column(db.String(255))

@@ -46,7 +46,7 @@ class PostDto(Dto):
         'slug': fields.String(description='The slug of the post'),
         'user': fields.Nested(model_post_user, description='The user information'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
+        'fixed_topic': fields.Nested(model_topic, description='The parent (fixed) topic'),
         'html': fields.String(description='The content of the post'),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),
