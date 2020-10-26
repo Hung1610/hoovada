@@ -41,6 +41,8 @@ class BaseShare(object):
 class QuestionShare(Model, BaseShare):
     __tablename__ = 'question_share'
     
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user = db.relationship('User', foreign_keys=[user_id], lazy=True)
     user_shared_to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user_shared_to = db.relationship('User', foreign_keys=[user_shared_to_id], lazy=True) # one-to-many relationship with table Article
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
