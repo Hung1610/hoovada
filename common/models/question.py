@@ -32,12 +32,6 @@ question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
-question_proposal_user_invite = db.Table('question_proposal_user_invite',
-    db.Column('id', db.Integer, primary_key=True),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id')),
-)
-
 # pylint: disable=R0201
 class BaseQuestion(object):
     id = db.Column(db.Integer, primary_key=True)
