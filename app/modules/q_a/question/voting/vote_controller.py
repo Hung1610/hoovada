@@ -13,7 +13,7 @@ from flask_restx import marshal
 from app import db
 from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
+from common.models.vote import QuestionVote, VotingStatusEnum
 from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
 from app.modules.user.user import User
 from common.utils.response import send_error, send_result

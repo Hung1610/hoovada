@@ -28,16 +28,9 @@ class TopicShareDto(Dto):
 
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
-
-        'anonymous': fields.Boolean(default=False, description='The topic was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The topic was accepted or not'),
         'topic': fields.String(description='The content of the topic'),
-        # 'markdown': fields.String(),
-        # 'html': fields.String(),
-        # 'user_id': fields.Integer(default=0, description='The user ID'),
         'topic_id': fields.Integer(default=0, description='The ID of the topic'),
-        # 'image_ids': fields.String(),
-        'user_hidden': fields.Boolean(default=False, description='The topic was created by user but in hidden mode'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this topic'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this topic')
     })
@@ -49,7 +42,6 @@ class TopicShareDto(Dto):
         'linkedin': fields.Boolean(description=''),
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
-        'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Integer(description='')
     })
@@ -64,7 +56,6 @@ class TopicShareDto(Dto):
         'linkedin': fields.Boolean(description=''),
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
-        'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Boolean(description=''),
         'topic': fields.Nested(model_topic, description='The user information'),

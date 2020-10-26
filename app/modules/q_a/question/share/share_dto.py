@@ -24,7 +24,6 @@ class QuestionShareDto(Dto):
         'id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the question'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),
@@ -32,9 +31,6 @@ class QuestionShareDto(Dto):
         'last_activity': fields.DateTime(description='The last time this question was updated.'),
         'answers_count': fields.Integer(default=0, description='The amount of answers on this question'),
         'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
-        'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
-        'user_hidden': fields.Boolean(default=False,
-                                      description='The question wss created by user but the user want to be hidden'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
@@ -49,7 +45,6 @@ class QuestionShareDto(Dto):
         'linkedin': fields.Boolean(description=''),
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
-        'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Integer(description='')
     })
@@ -65,7 +60,6 @@ class QuestionShareDto(Dto):
         'linkedin': fields.Boolean(description=''),
         'zalo': fields.Boolean(description=''),
         'vkontakte': fields.Boolean(description=''),
-        'anonymous': fields.Boolean(description=''),
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Boolean(description=''),
         'question': fields.Nested(model_question, description=''),

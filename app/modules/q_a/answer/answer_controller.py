@@ -390,43 +390,6 @@ class AnswerController(Controller):
     def _parse_answer(self, data, answer=None):
         if answer is None:
             answer = Answer()
-        # if 'created_date' in data:
-        #     try:
-        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
-        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'updated_date' in data:
-        #     try:
-        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'last_activity' in data:
-        #     try:
-        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'upvote_count' in data:
-        #     try:
-        #         answer.upvote_count = int(data['upvote_count'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'downvote_count' in data:
-        #     try:
-        #         answer.downvote_count = int(data['downvote_count'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        if 'anonymous' in data:
-            try:
-                answer.anonymous = bool(data['anonymous'])
-            except Exception as e:
-                print(e.__str__())
-                pass
         if 'accepted' in data:
             try:
                 answer.accepted = bool(data['accepted'])
@@ -435,10 +398,6 @@ class AnswerController(Controller):
                 pass
         if 'answer' in data:
             answer.answer = data['answer']
-        # if 'markdown' in data:
-        #     answer.markdown = data['markdown']
-        # if 'html' in data:
-        #     answer.html = data['html']
         if 'user_id' in data:
             try:
                 answer.user_id = int(data['user_id'])
@@ -451,12 +410,6 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        # if 'image_ids' in data:
-        #     try:
-        #         answer.image_ids = json.loads(data['image_ids'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
             
         if 'is_deleted' in data:
             try:

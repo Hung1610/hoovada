@@ -25,7 +25,6 @@ class QuestionCommentFavoriteDto(Dto):
     model_favorite_question_comment = api.model('favorite_question_comment', {
         'title': fields.String(description='The title of the question_comment'),
         'user_id': fields.Integer(description='The user information'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'topics': fields.List(fields.Nested(model_topic_question_comment_favorite), description='The list of topics')
     })
 

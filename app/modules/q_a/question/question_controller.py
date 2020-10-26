@@ -7,7 +7,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import request, current_app, g
 from flask_restx import marshal
 from sqlalchemy import desc, text, func, and_, or_
 from slugify import slugify
@@ -15,12 +15,12 @@ from slugify import slugify
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.q_a.question.question import Question, QuestionProposal
-from app.modules.q_a.question.share.share import QuestionShare
-from app.modules.q_a.question.favorite.favorite import QuestionFavorite
-from app.modules.q_a.question.bookmark.bookmark import QuestionBookmark
+from common.models.question import Question, QuestionProposal
+from common.models.share import QuestionShare
+from common.models.favorite import QuestionFavorite
+from common.models.bookmark import QuestionBookmark
 from app.modules.q_a.question.question_dto import QuestionDto
-from app.modules.q_a.question.voting.vote import QuestionVote, VotingStatusEnum
+from common.models.vote import QuestionVote, VotingStatusEnum
 from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
@@ -83,7 +83,7 @@ class QuestionController(Controller):
                 try:
                     result = question._asdict()
                     # get user info
-                    result['user'] = question.question_by_user
+                    result['user'] = question.user
                     result['topics'] = question.topics
                     result['fixed_topic'] = question.fixed_topic
                     # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
@@ -112,7 +112,7 @@ class QuestionController(Controller):
                         .filter(Question.topics.any(Topic.is_nsfw != True))
             if not isinstance(args, dict):
                 return send_error(message='Could not parse the params.')
-            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, anonymous, topic_ids, is_deleted, is_shared = None, None, None, None, None, None, None, None, None, None, None
+            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, is_deleted, is_shared = None, None, None, None, None, None, None, None, None, None
 
             get_my_own = False
             if args.get('user_id'):
@@ -156,12 +156,6 @@ class QuestionController(Controller):
             if args.get('to_date'):
                 try:
                     to_date = dateutil.parser.isoparse(args['to_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('anonymous'):
-                try:
-                    anonymous = int(args['anonymous'])
                 except Exception as e:
                     print(e.__str__())
                     pass
@@ -228,7 +222,7 @@ class QuestionController(Controller):
             for question in res.get('data'):
                 result = question._asdict()
                 # get user info
-                result['user'] = question.question_by_user
+                result['user'] = question.user
                 result['fixed_topic'] = question.fixed_topic
                 result['topics'] = question.topics
                 if current_user:
@@ -260,20 +254,12 @@ class QuestionController(Controller):
             return send_error(message='Could not find question with the ID {}'.format(object_id))
         current_user, _ = current_app.get_logged_user(request)
         if question.is_private:
-            if not current_user == question.question_by_user:
+            if not current_user == question.user:
                 if not self.is_invited(question, current_user):
                     return send_error(message='Question is invitations only.')
         result = question._asdict()
         # get user info
-        result['user'] = question.question_by_user
-        # get all topics that question belongs to
-        # question_id = question.id
-        # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-        # topics = list()
-        # for question_topic in question_topics:
-        #     topic_id = question_topic.topic_id
-        #     topic = Topic.query.filter_by(id=topic_id).first()
-        #     topics.append(topic)
+        result['user'] = question.user
         result['topics'] = question.topics
         result['fixed_topic'] = question.fixed_topic
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
@@ -288,10 +274,6 @@ class QuestionController(Controller):
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
                                             QuestionBookmark.question_id == question.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
-            # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-            # if vote is not None:
-            #     result['up_vote'] = vote.up_vote
-            #     result['down_vote'] = vote.down_vote
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def invite(self, object_id, data):
@@ -318,7 +300,7 @@ class QuestionController(Controller):
                     pass
             db.session.commit()
             result = question._asdict()
-            result['user'] = question.question_by_user
+            result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
@@ -333,11 +315,18 @@ class QuestionController(Controller):
                 bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
                                                 QuestionBookmark.question_id == question.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
-                # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                # if vote is not None:
-                #     result['up_vote'] = vote.up_vote
-                #     result['down_vote'] = vote.down_vote
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        except Exception as e:
+            print(e)
+            return send_error(message="Invite failed. Error: " + e.__str__())
+
+    def invite_friends(self, object_id):
+        try:
+            current_user = g.current_user
+            emails_or_usernames = [friend.display_name for friend in current_user.friends]
+            data = {}
+            data['emails_or_usernames'] = emails_or_usernames
+            return self.invite(object_id, data)
         except Exception as e:
             print(e)
             return send_error(message="Invite failed. Error: " + e.__str__())
@@ -365,7 +354,7 @@ class QuestionController(Controller):
                 question = question[0]
                 result = question._asdict()
                 # get user info
-                result['user'] = question.question_by_user
+                result['user'] = question.user
                 result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
@@ -617,15 +606,7 @@ class QuestionController(Controller):
             db.session.commit()
             result = question._asdict()
             # get user info
-            result['user'] = question.question_by_user
-            # get all topics that question belongs to
-            # question_id = question.id
-            # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-            # topics = list()
-            # for question_topic in question_topics:
-            #     topic_id = question_topic.topic_id
-            #     topic = Topic.query.filter_by(id=topic_id).first()
-            #     topics.append(topic)
+            result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
             # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
@@ -641,10 +622,6 @@ class QuestionController(Controller):
                 bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
                                                 QuestionBookmark.question_id == question.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
-                # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                # if vote is not None:
-                #     result['up_vote'] = vote.up_vote
-                #     result['down_vote'] = vote.down_vote
             return send_result(message="Update successfully",
                                 data=marshal(result, QuestionDto.model_question_response))
         except Exception as e:
@@ -654,7 +631,6 @@ class QuestionController(Controller):
     def delete(self, object_id):
         """ Delete question permanently- only Admin is allowed to performed this action accordingly to hoovada.com policy
             User can only send delete request to Admin
-
         """
         try:
             if object_id.isdigit():
@@ -729,43 +705,6 @@ class QuestionController(Controller):
     def _parse_answer(self, data, answer=None):
         if answer is None:
             answer = Answer()
-        # if 'created_date' in data:
-        #     try:
-        #         answer.created_date = dateutil.parser.isoparse(data['created_date'])
-        #         # answer.created_date = dateutil.parser.isoparse(data['created_date'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'updated_date' in data:
-        #     try:
-        #         answer.updated_date = dateutil.parser.isoparse(data['updated_date']) #dateutil.parser.isoparse(data['update_date'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'last_activity' in data:
-        #     try:
-        #         answer.last_activity = dateutil.parser.isoparse(data['last_activity'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'upvote_count' in data:
-        #     try:
-        #         answer.upvote_count = int(data['upvote_count'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        # if 'downvote_count' in data:
-        #     try:
-        #         answer.downvote_count = int(data['downvote_count'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-        if 'anonymous' in data:
-            try:
-                answer.anonymous = bool(data['anonymous'])
-            except Exception as e:
-                print(e.__str__())
-                pass
         if 'accepted' in data:
             try:
                 answer.accepted = bool(data['accepted'])
@@ -774,10 +713,6 @@ class QuestionController(Controller):
                 pass
         if 'answer' in data:
             answer.answer = data['answer']
-        # if 'markdown' in data:
-        #     answer.markdown = data['markdown']
-        # if 'html' in data:
-        #     answer.html = data['html']
         if 'user_id' in data:
             try:
                 answer.user_id = int(data['user_id'])
@@ -790,25 +725,11 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        # if 'image_ids' in data:
-        #     try:
-        #         answer.image_ids = json.loads(data['image_ids'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
-            
         if 'is_deleted' in data:
             try:
                 answer.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 print(e)
-                pass
-        if 'user_hidden' in data:
-            try:
-                answer.user_hidden = bool(data['user_hidden'])
-            except Exception as e:
-                answer.user_hidden = False
-                print(e.__str__())
                 pass
         return answer
 
@@ -829,27 +750,12 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'fixed_topic_name' in data:
-            question.fixed_topic_name = data['fixed_topic_name']
         if 'question' in data:
             question.question = data['question']
         if 'accepted_question_id' in data:
             try:
                 question.accepted_question_id = int(data['accepted_question_id'])
             except Exception as e:
-                print(e.__str__())
-                pass
-        if 'anonymous' in data:
-            try:
-                question.anonymous = bool(data['anonymous'])
-            except Exception as e:
-                print(e.__str__())
-                question.anonymous = False
-        if 'user_hidden' in data:
-            try:
-                question.user_hidden = bool(data['user_hidden'])
-            except Exception as e:
-                question.user_hidden = False
                 print(e.__str__())
                 pass
         if 'allow_video_question' in data:
@@ -880,12 +786,6 @@ class QuestionController(Controller):
                 question.is_private = False
                 print(e.__str__())
                 pass
-        # if 'image_ids' in data:
-        #     try:
-        #         question.image_ids = json.loads(data['image_ids'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
@@ -920,27 +820,12 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'fixed_topic_name' in data:
-            proposal.fixed_topic_name = data['fixed_topic_name']
         if 'question' in data:
             proposal.question = data['question']
         if 'accepted_question_id' in data:
             try:
                 proposal.accepted_question_id = int(data['accepted_question_id'])
             except Exception as e:
-                print(e.__str__())
-                pass
-        if 'anonymous' in data:
-            try:
-                proposal.anonymous = bool(data['anonymous'])
-            except Exception as e:
-                print(e.__str__())
-                proposal.anonymous = False
-        if 'user_hidden' in data:
-            try:
-                proposal.user_hidden = bool(data['user_hidden'])
-            except Exception as e:
-                proposal.user_hidden = False
                 print(e.__str__())
                 pass
         if 'allow_video_question' in data:
@@ -978,12 +863,6 @@ class QuestionController(Controller):
                 proposal.is_parma_delete = False
                 print(e.__str__())
                 pass
-        # if 'image_ids' in data:
-        #     try:
-        #         proposal.image_ids = json.loads(data['image_ids'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
@@ -1000,42 +879,6 @@ class QuestionController(Controller):
 
         return proposal, topic_ids
 
-
-    # def get_by_topic_id(self,topic_id):
-    #     """ Get all question of a topic that sorted based in upvote count
-
-    #         Args:
-
-    #         Returns:
-    #     """
-
-    #     if topic_id is None:
-    #         return send_error("Topic ID Không được để trống")
-
-    #     questions = db.session.query(Question).filter(Question.topic_id == topic_id).order_by(desc(Question.upvote_count)).all()
-
-    #     if questions is not None and len(questions) > 0:
-    #         results = list()
-    #         for question in questions:
-    #             # kiem tra den topic
-    #             result = question._asdict()
-    #             # get user info
-    #             user = User.query.filter_by(id=question.user_id).first()
-    #             result['user'] = user
-    #             # get all topics that question belongs to
-    #             question_id = question.id
-    #             question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-    #             topics = list()
-    #             for question_topic in question_topics:
-    #                 topic_id = question_topic.topic_id
-    #                 topic = Topic.query.filter_by(id=topic_id).first()
-    #                 topics.append(topic)
-    #             result['topics'] = topics
-    #             results.append(result)
-    #         return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
-    #     else:
-    #         return send_result(message='Không tìm thấy câu hỏi! ')
-
     def get_by_slug(self, slug):
         if slug is None:
             return send_error("Question slug is null")
@@ -1044,21 +887,13 @@ class QuestionController(Controller):
             return send_error(message='Could not find question with the slug {}'.format(slug))
         current_user, _ = current_app.get_logged_user(request)
         if question.is_private:
-            if not current_user == question.question_by_user:
+            if not current_user == question.user:
                 if not self.is_invited(question, current_user):
                     return send_error(message='Question is invitations only.')
         result = question._asdict()
         # get user info
         user = User.query.filter_by(id=question.user_id).first()
-        result['user'] = question.question_by_user
-        # get all topics that question belongs to
-        # question_id = question.id
-        # question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-        # topics = list()
-        # for question_topic in question_topics:
-        #     topic_id = question_topic.topic_id
-        #     topic = Topic.query.filter_by(id=topic_id).first()
-        #     topics.append(topic)
+        result['user'] = question.user
         result['topics'] = question.topics
         # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
         if current_user:
@@ -1072,10 +907,6 @@ class QuestionController(Controller):
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
                                             QuestionBookmark.question_id == question.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
-        # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-        # if vote is not None:
-        #     result['up_vote'] = vote.up_vote
-        #     result['down_vote'] = vote.down_vote
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def update_slug(self):
@@ -1113,7 +944,6 @@ class QuestionController(Controller):
 
         if page > 0 :
             page = page - 1
-
 
         # get current user voting status for this article
         current_user, _ = current_app.get_logged_user(request)
@@ -1179,7 +1009,6 @@ class QuestionController(Controller):
 
         if page > 0 :
             page = page - 1
-            
 
         query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
         questions = query.offset(page * page_size).limit(page_size).all()
