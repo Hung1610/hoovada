@@ -25,7 +25,6 @@ class FavoriteDto(Dto):
     model_favorite_article = api.model('favorite_article', {
         'title': fields.String(description='The title of the article'),
         'user_id': fields.Integer(description='The user information'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'topics': fields.List(fields.Nested(model_topic_article_favorite), description='The list of topics')
     })
 

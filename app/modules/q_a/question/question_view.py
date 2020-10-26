@@ -160,6 +160,17 @@ class QuestionInvite(Resource):
         controller = QuestionController()
         return controller.invite(object_id=id_or_slug, data=data)
 
+@api.route('/<string:id_or_slug>/friend-invite')
+class QuestionFriendInvite(Resource):
+    @token_required
+    def post(self, id_or_slug):
+        """ 
+        Delete the question by its ID.
+        """
+
+        controller = QuestionController()
+        return controller.invite_friends(object_id=id_or_slug)
+
 proposal_get_parser = reqparse.RequestParser()
 proposal_get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
 proposal_get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
@@ -332,22 +343,3 @@ class QuestionForYou(Resource):
         args = parser_question_for_you.parse_args()
         controller = QuestionController()
         return controller.get_question_for_you(args)
-
-
-# @api.route('/get_by_topic/<int:topic_id>')
-# class GetQuestionByTopic(Resource):
-#     # @token_required
-#     @api.response(code=200, model=model_response, description='Model for question response.')
-#     #13/07/2020 thongnv - add param `topic_id`
-#     def get(self,topic_id):
-#         """  Get all question of a topic that sorted based in upvote count.
-
-#         Args:
-#             `topic_id` (int): Search all questions by topic ID.
-
-#         Returns:
-#              Get all question of a topic that sorted based in upvote count.
-#         """
-
-#         controller = QuestionController()
-#         return controller.get_by_topic_id(topic_id)

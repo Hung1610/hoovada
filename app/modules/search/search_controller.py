@@ -15,7 +15,7 @@ import dateutil.parser
 
 # own modules
 from app.modules.article.article import Article
-from app.modules.q_a.question.question import Question
+from common.models.question import Question
 from app.modules.topic.topic import Topic
 from app.modules.user.user import User
 from app.modules.search.search_dto import SearchDto

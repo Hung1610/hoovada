@@ -12,50 +12,6 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-class SignupUserDto(Dto):
-    name = 'signup_user'
-    api = Namespace(name, description="User operations")
-
-    model = api.model(name, {
-        'id': fields.Integer(),
-        'email': fields.String(required=True),
-        'password': fields.String(required=True),
-        'registered_date': fields.Date(),
-        'registered_time': fields.DateTime(),
-        'activation_code': fields.String(),
-        'code_created_date': fields.Date(),
-        'code_created_time': fields.DateTime(),
-        'code_duration_time': fields.Float(),
-        'code_sent_date': fields.Date(),
-        'code_sent_time': fields.DateTime(),
-        'trial_number': fields.Integer(),
-        'confirm': fields.Boolean()
-    })
-
-
-class RecoveryUserDto(Dto):
-    name = 'recovery_user'
-    api = Namespace(name)
-    model = api.model(name, {
-        'id': fields.Integer(),
-        'email': fields.String(),
-        'new_password': fields.String(),
-        'required_date': fields.Date(),
-        'required_time': fields.DateTime(),
-        'recovery_code': fields.String(),
-        'code_created_date': fields.Date(),
-        'code_created_time': fields.DateTime(),
-        'code_duration_time': fields.Float(),
-        'code_sent_date': fields.Date(),
-        'code_sent_time': fields.DateTime(),
-        'trial_number': fields.Integer(),
-        'continued': fields.Boolean(),
-        'session_start_date': fields.Date(),
-        'session_start_time': fields.DateTime(),
-        'session_duration': fields.Float(),
-        'recovered': fields.Boolean()
-    })
-
 
 class UserDto(Dto):
     name = 'user'

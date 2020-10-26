@@ -11,7 +11,7 @@ from flask import request, current_app
 # own modules
 from app import db
 from common.controllers.comment_controller import BaseCommentController
-from app.modules.q_a.question.question import Question
+from common.models.question import Question
 from app.modules.q_a.question.comment.favorite.favorite import QuestionCommentFavorite
 from common.models.comment import QuestionComment
 from app.modules.q_a.question.comment.comment_dto import CommentDto

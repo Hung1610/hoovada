@@ -225,7 +225,7 @@ class ArticleController(Controller):
                 # get all topics that article belongs to
                 result['topics'] = article.topics
                 # get fixed topic name
-                result['fixed_topic_name'] = article.fixed_topic.name
+                result['fixed_topic'] = article.fixed_topic
                 # get current user voting status for this article
                 current_user, _ = current_app.get_logged_user(request)
                 if current_user:
@@ -442,13 +442,6 @@ class ArticleController(Controller):
                 pass
         if 'html' in data:
             article.html = data['html']
-        if 'user_hidden' in data:
-            try:
-                article.user_hidden = bool(data['user_hidden'])
-            except Exception as e:
-                article.user_hidden = False
-                print(e)
-                pass
 
         if 'scheduled_date' in data:
             try:

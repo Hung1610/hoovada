@@ -12,8 +12,8 @@ from flask_restx import marshal
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.q_a.question.question import Question
-from app.modules.q_a.question.report.report import QuestionReport, ReportTypeEnum
+from common.models.question import Question
+from common.models.report import QuestionReport, ReportTypeEnum
 from app.modules.q_a.question.report.report_dto import QuestionReportDto
 from app.modules.user.user import User
 from common.utils.response import send_error, send_result

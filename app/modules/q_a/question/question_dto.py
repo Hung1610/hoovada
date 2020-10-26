@@ -33,10 +33,8 @@ class QuestionDto(Dto):
     })
 
     model_answer_request = api.model('answer_question_request', {
-        'anonymous': fields.Boolean(default=False, description='The answer was created by anonymous'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
-        'user_hidden': fields.Boolean(default=False, description='The answer was created by user but in hidden mode'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
@@ -47,9 +45,6 @@ class QuestionDto(Dto):
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
         'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
-        'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
-        'user_hidden': fields.Boolean(default=False,
-                                      description='The question wss created by user but the user want to be hidden'),
         'topics': fields.List(fields.Integer, description='The list of topics'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
@@ -67,19 +62,13 @@ class QuestionDto(Dto):
         'user': fields.Nested(model_question_user, description='The user information'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
-        # 'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
-        # 'markdown': fields.String(description=''),
-        # 'html': fields.String(description=''),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of question views'),
         'last_activity': fields.DateTime(description='The last time this question was updated.'),
         'answers_count': fields.Integer(default=0, description='The amount of answers on this question'),
         'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
-        'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
-        'user_hidden': fields.Boolean(default=False,
-                                      description='The question wss created by user but the user want to be hidden'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         # the list of IDs of topics that question belongs to.
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
@@ -97,7 +86,6 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
-        # 'image_ids':fields.String()
     })
 
     model_question_proposal_response = api.model('question_proposal_response', {
@@ -107,21 +95,14 @@ class QuestionDto(Dto):
         # 'user_id': fields.Integer(description='The user ID'),
         'user': fields.Nested(model_question_user, description='The user information'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
-        # 'markdown': fields.String(description=''),
-        # 'html': fields.String(description=''),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of question views'),
         'last_activity': fields.DateTime(description='The last time this question was updated.'),
         'answers_count': fields.Integer(default=0, description='The amount of answers on this question'),
         'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
-        'anonymous': fields.Boolean(default=False, description='The question was created by anonymous'),
-        'user_hidden': fields.Boolean(default=False,
-                                      description='The question wss created by user but the user want to be hidden'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-        # the list of IDs of topics that question belongs to.
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
@@ -136,7 +117,6 @@ class QuestionDto(Dto):
         'is_approved': fields.Boolean(default=False, description='The question proposal is approved or not'),
         'proposal_created_date': fields.DateTime(description='The proposal created date'),
         'proposal_updated_date': fields.DateTime(description='The proposal updated date'),
-        # 'image_ids':fields.String()
     })
 
     top_user_reputation_args_parser = reqparse.RequestParser()
@@ -168,7 +148,6 @@ class QuestionDto(Dto):
     get_parser.add_argument('topic_id', type=str, required=False, help='Search all questions related to topic.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
-    get_parser.add_argument('anonymous', type=str, required=False, help='Search questions created by Anonymous.')
     get_parser.add_argument('is_deleted', type=bool, required=False, help='Search questions that are deleted.')
     get_parser.add_argument('is_shared', type=bool, required=False, help='Search questions that are shared.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,

@@ -25,7 +25,6 @@ class TopicBookmarkDto(Dto):
     model_bookmark_topic = api.model('bookmark_topic', {
         'title': fields.String(description='The title of the topic'),
         'user_id': fields.Integer(description='The user information'),
-        'fixed_topic_name': fields.String(description='The name of the parent (fixed) topic'),
         'topics': fields.List(fields.Nested(model_topic_topic_bookmark), description='The list of topics')
     })
 
