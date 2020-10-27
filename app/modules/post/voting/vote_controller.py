@@ -11,11 +11,10 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from common.controllers.controller import Controller
-from app.modules.post.voting.vote import PostVote, VotingStatusEnum
 from app.modules.post.voting.vote_dto import VoteDto
 from app.modules.post.voting import constants
-from app.modules.user.user import User
+from common.controllers.controller import Controller
+from common.enum import VotingStatusEnum
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission
@@ -24,6 +23,10 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+User = db.get_model('User')
+PostVote = db.get_model('PostVote')
 
 class VoteController(Controller):
     def get(self, args, post_id = None):

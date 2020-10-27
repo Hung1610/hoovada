@@ -10,10 +10,10 @@ from flask_restx import marshal
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.topic.topic import Topic
+from common.models import Topic
 from app.modules.topic.user_topic.user_topic import UserTopic
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

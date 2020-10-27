@@ -13,11 +13,11 @@ from sqlalchemy import and_
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.user.user import User
-from app.modules.user.follow.follow import UserFollow
+from common.models import User
+from common.models import UserFollow
 from app.modules.user.follow.follow_dto import UserFollowDto
-from app.modules.user.user import User
-from app.modules.user.reputation.reputation import Reputation
+from common.models import User
+from common.models import Reputation
 from common.utils.response import send_error, send_result
 from app.constants import messages
 

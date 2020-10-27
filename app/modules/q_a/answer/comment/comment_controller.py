@@ -13,9 +13,9 @@ from app import db
 from common.controllers.comment_controller import BaseCommentController
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.comment.favorite.favorite import AnswerCommentFavorite
-from common.models.comment import AnswerComment
+from common.models import AnswerComment
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import UserRole, PermissionType

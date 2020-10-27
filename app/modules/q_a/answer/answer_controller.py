@@ -21,7 +21,7 @@ from app.modules.q_a.answer.answer import Answer, FileTypeEnum
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result, paginated_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.file_handler import append_id, get_file_name_extension

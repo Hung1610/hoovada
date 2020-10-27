@@ -14,10 +14,10 @@ from sqlalchemy import and_
 from app import db
 from common.controllers.controller import Controller
 from common.models.ban import UserBan, BanTypeEnum
-from app.modules.user.user import User
+from common.models import User
 from app.modules.user.ban.ban_dto import UserBanDto
-from app.modules.user.user import User
-from app.modules.user.reputation.reputation import Reputation
+from common.models import User
+from common.models import Reputation
 from common.utils.response import send_error, send_result
 from app.constants import messages
 

@@ -17,7 +17,7 @@ from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.bookmark import constants
 from app.modules.q_a.answer.bookmark.bookmark import AnswerBookmark
 from app.modules.q_a.answer.bookmark.bookmark_dto import AnswerBookmarkDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

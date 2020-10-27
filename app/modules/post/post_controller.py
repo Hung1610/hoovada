@@ -16,23 +16,26 @@ from bs4 import BeautifulSoup
 # own modules
 from app import db
 from app.constants import messages
-from app.modules.post.post import Post
 from app.modules.post.post_dto import PostDto
-from app.modules.post.voting.vote import PostVote, VotingStatusEnum
+from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from app.modules.topic.topic import Topic
-from app.modules.user.user import User
+from common.models import Topic
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from app.modules.topic.bookmark.bookmark import TopicBookmark
-from app.modules.user.friend.friend import UserFriend
-from app.modules.user.follow.follow import UserFollow
+from common.models import TopicBookmark
+from common.models import UserFriend
+from common.models import UserFollow
 
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+User = db.get_model('User')
+Post = db.get_model('Post')
+PostVote = db.get_model('PostVote')
 
 
 class PostController(Controller):

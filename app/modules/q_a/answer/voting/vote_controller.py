@@ -14,8 +14,8 @@ from app import db
 from common.controllers.controller import Controller
 from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
 from app.modules.q_a.answer.voting.vote_dto import AnswerVoteDto
-from app.modules.user.user import User
-from app.modules.user.reputation.reputation import Reputation
+from common.models import User
+from common.models import Reputation
 from common.utils.response import send_error, send_result
 from common.utils.types import UserRole, PermissionType
 from common.utils.permission import has_permission

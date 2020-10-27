@@ -11,11 +11,11 @@ from flask import request
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.user.user import User
+from common.models import User
 from app.modules.user.education.education import UserEducation
 from app.modules.user.education.education_dto import EducationDto
 from app.modules.auth.auth_controller import AuthController
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 

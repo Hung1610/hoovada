@@ -47,3 +47,21 @@ class QuestionShare(Model, BaseShare):
     user_shared_to = db.relationship('User', foreign_keys=[user_shared_to_id], lazy=True) # one-to-many relationship with table Article
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Article
+
+
+class ArticleShare(Model, BaseShare):
+    __tablename__ = 'article_share'
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
+
+
+class PostShare(Model, BaseShare):
+    __tablename__ = 'post_share'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post

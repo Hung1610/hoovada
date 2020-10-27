@@ -12,10 +12,10 @@ from flask_restx import marshal
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from common.models.comment import AnswerComment
+from common.models import AnswerComment
 from app.modules.q_a.answer.comment.report.report import AnswerCommentReport
 from app.modules.q_a.answer.comment.report.report_dto import AnswerCommentReportDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

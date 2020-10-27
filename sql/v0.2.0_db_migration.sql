@@ -139,14 +139,14 @@ ALTER TABLE `hoovada`.`comment` CHANGE `id` `id` INT(10) NOT NULL AUTO_INCREMENT
 UPDATE question SET is_private = False;
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM question WHERE user_id NOT IN (SELECT user.id FROM user);
-SET SQL_SAFE_UPDATES = 0;
 DELETE FROM question_topic WHERE question_id NOT IN (SELECT question .id FROM question);
-SET SQL_SAFE_UPDATES = 0;
 DELETE FROM answer WHERE user_id NOT IN (SELECT user.id FROM user);
-SET SQL_SAFE_UPDATES = 0;
 DELETE FROM answer WHERE question_id NOT IN (SELECT question.id FROM question);
-SET SQL_SAFE_UPDATES = 0;
 DELETE FROM user_topic WHERE fixed_topic_id NOT IN (SELECT topic.id FROM topic);
+DELETE FROM article_report WHERE user_id NOT IN (SELECT user.id FROM user);
+DELETE FROM article_vote WHERE user_id NOT IN (SELECT user.id FROM user);
+DELETE FROM post_report WHERE user_id NOT IN (SELECT user.id FROM user);
+DELETE FROM post_vote WHERE user_id NOT IN (SELECT user.id FROM user);
 
 # add_account_super_admin
 ALTER TABLE `user` MODIFY admin VARCHAR(255);

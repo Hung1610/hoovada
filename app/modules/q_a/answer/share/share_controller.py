@@ -16,7 +16,7 @@ from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.share.share import AnswerShare
 from app.modules.q_a.answer.share.share_dto import AnswerShareDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.types import UserRole, PermissionType
 from common.utils.permission import has_permission

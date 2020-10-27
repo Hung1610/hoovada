@@ -38,3 +38,17 @@ class QuestionFavorite(Model, BaseFavorite):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+
+
+class ArticleFavorite(Model, BaseFavorite):
+    __tablename__ = 'article_favorite'
+    
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=False)
+    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
+
+
+class PostFavorite(Model, BaseFavorite):
+    __tablename__ = 'post_favorite'
+    
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post
