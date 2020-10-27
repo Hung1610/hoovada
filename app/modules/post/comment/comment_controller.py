@@ -11,10 +11,7 @@ from flask import request, current_app
 # own modules
 from app import db
 from common.controllers.comment_controller import BaseCommentController
-from app.modules.post.post import Post
-from common.models.comment import PostComment
 from app.modules.post.comment.comment_dto import CommentDto
-from app.modules.user.user import User
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import PermissionType
@@ -24,6 +21,11 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+User = db.get_model('User')
+Post = db.get_model('Post')
+PostComment = db.get_model('PostComment')
 
 
 class CommentController(BaseCommentController):

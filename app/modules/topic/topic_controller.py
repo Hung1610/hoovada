@@ -33,8 +33,6 @@ Topic = db.get_model('Topic')
 TopicUserEndorse = db.get_model('TopicUserEndorse')
 UserFollow = db.get_model('UserFollow')
 Reputation = db.get_model('Reputation')
-QuestionTopic = db.get_model('QuestionTopic')
-ArticleTopic = db.get_model('ArticleTopic')
 TopicBookmark = db.get_model('TopicBookmark')
 
 class TopicController(Controller):
@@ -565,10 +563,7 @@ class TopicController(Controller):
         if page > 0 :
             page = page - 1
 
-        #query = db.session.query(Topic).order_by(desc(text("(SELECT COUNT(*) FROM `question_topic` WHERE topic_id = topic.id) + (SELECT COUNT(*) FROM `topic_article` WHERE topic_id = topic.id)")))
-        query = db.session.query(Topic)
-        query = query.join(QuestionTopic).outerjoin(ArticleTopic).group_by(Topic).order_by(desc(func.count(QuestionTopic.question_id) + func.count(ArticleTopic.article_id)))
-        query.filter(Topic.is_fixed!=1)
+        query = Topic.query.filter(Topic.is_fixed!=1).order_by(Topic.article_count + Topic.question_count)
         topics = query.offset(page * page_size).limit(page_size).all()
 
         if topics is not None and len(topics) > 0:

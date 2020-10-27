@@ -14,10 +14,7 @@ from sqlalchemy import desc
 from app import db
 from app.constants import messages
 from common.controllers.controller import Controller
-from app.modules.post.post import Post
-from app.modules.post.share.share import PostShare
 from app.modules.post.share.share_dto import ShareDto
-from app.modules.user.user import User
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission
@@ -26,6 +23,12 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+User = db.get_model('User')
+Post = db.get_model('Post')
+PostShare = db.get_model('PostShare')
+
 
 class ShareController(Controller):
     def get(self, post_id, args):

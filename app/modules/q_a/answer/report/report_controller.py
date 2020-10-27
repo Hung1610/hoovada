@@ -15,7 +15,7 @@ from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.report.report import AnswerReport
 from app.modules.q_a.answer.report.report_dto import AnswerReportDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.types import UserRole, PermissionType
 from common.utils.permission import has_permission

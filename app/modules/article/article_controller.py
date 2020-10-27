@@ -16,18 +16,18 @@ from bs4 import BeautifulSoup
 # own modules
 from app import db
 from app.modules.article import constants
-from app.modules.article.article import Article
+from common.models import Article
 from app.modules.article.article_dto import ArticleDto
-from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
-from app.modules.article.favorite.favorite import ArticleFavorite
+from common.models.vote import ArticleVote, VotingStatusEnum
+from common.models import ArticleFavorite
 from common.controllers.controller import Controller
-from app.modules.topic.topic import Topic
-from app.modules.user.user import User
+from common.models import Topic
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from app.modules.topic.bookmark.bookmark import TopicBookmark
-from app.modules.user.friend.friend import UserFriend
-from app.modules.user.follow.follow import UserFollow
+from common.models import TopicBookmark
+from common.models import UserFriend
+from common.models import UserFollow
 
 
 __author__ = "hoovada.com team"

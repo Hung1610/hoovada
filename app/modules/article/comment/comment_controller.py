@@ -11,10 +11,10 @@ from flask import request, current_app
 # own modules
 from app import db
 from common.controllers.comment_controller import BaseCommentController
-from app.modules.article.article import Article
-from common.models.comment import ArticleComment
+from common.models import Article
+from common.models import ArticleComment
 from app.modules.article.comment.comment_dto import CommentDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import PermissionType

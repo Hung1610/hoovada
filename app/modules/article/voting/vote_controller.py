@@ -12,11 +12,11 @@ from flask_restx import marshal
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.article.voting.vote import ArticleVote, VotingStatusEnum
+from common.models.vote import ArticleVote, VotingStatusEnum
 from app.modules.article.voting.vote_dto import VoteDto
 from app.modules.article.voting import constants
-from app.modules.user.user import User
-from app.modules.user.reputation.reputation import Reputation
+from common.models import User
+from common.models import Reputation
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission
@@ -114,7 +114,7 @@ class VoteController(Controller):
             if is_insert or (old_vote_status and old_vote_status != vote.vote_status):
                 # update answer vote count in article and user
                 try:
-                    article = vote.voted_article
+                    article = vote.article
                     # get user who was created article and was voted
                     user_voted = article.article_by_user
                     for topic in article.topics:

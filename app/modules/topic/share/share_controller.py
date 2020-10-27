@@ -13,10 +13,10 @@ from sqlalchemy import desc
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.topic.topic import Topic
+from common.models import Topic
 from app.modules.topic.share.share import TopicShare
 from app.modules.topic.share.share_dto import TopicShareDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

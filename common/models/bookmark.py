@@ -38,3 +38,10 @@ class QuestionBookmark(Model, BaseBookmark):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+
+
+class TopicBookmark(Model, BaseBookmark):
+    __tablename__ = 'topic_bookmark'
+    
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic

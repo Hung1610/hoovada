@@ -12,11 +12,9 @@ from flask_restx import marshal
 # own modules
 from app import db
 from app.constants import messages
+from common.enum import ReportTypeEnum
 from common.controllers.controller import Controller
-from app.modules.post.post import Post
-from app.modules.post.report.report import PostReport
 from app.modules.post.report.report_dto import ReportDto
-from app.modules.user.user import User
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission
@@ -25,6 +23,11 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+User = db.get_model('User')
+Post = db.get_model('Post')
+PostReport = db.get_model('PostReport')
 
 
 class ReportController(Controller):
@@ -117,10 +120,12 @@ class ReportController(Controller):
                 report.post_id = int(data['post_id'])
             except Exception as e:
                 pass
-        if 'inappropriate' in data:
+        if 'report_type' in data:
             try:
-                report.inappropriate = bool(data['inappropriate'])
+                report_type = int(data['report_type'])
+                report.report_type = ReportTypeEnum(report_type).name
             except Exception as e:
+                print(e.__str__())
                 pass
         if 'description' in data:
             report.description = data['description']

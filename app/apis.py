@@ -6,21 +6,9 @@ from flask_restx import Resource, Namespace, Api
 from flask import url_for
 
 # own modules
+from app.modules import *
+from common.models import *
 from common.utils.response import send_result
-from app.modules import ns_auth, ns_question, ns_answer, \
-    ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report,\
-    ns_question_comment, ns_question_comment_report, ns_question_comment_vote, ns_question_comment_favorite,\
-    ns_upload, ns_search, ns_user_employment, ns_reputation,\
-    ns_article, ns_article_vote, ns_article_favorite, ns_article_report, ns_article_share, ns_article_comment,\
-    ns_post, ns_post_vote, ns_post_report, ns_post_share, ns_post_comment, ns_post_favorite,\
-    ns_qa_timeline, ns_question_bookmark,\
-    ns_topic, ns_topic_report, ns_topic_share, ns_topic_bookmark, ns_topic_follow,\
-    ns_answer_bookmark, ns_answer_favorite, ns_answer_report, ns_answer_share, ns_answer_vote, \
-    ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote, ns_answer_comment_favorite,\
-    ns_user, ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
-    ns_user_friend, ns_user_follow,\
-    ns_user_ban,\
-    ns_language, ns_permission, ns_user_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -40,7 +28,7 @@ class HTTPSApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        return url_for(self.endpoint('specs'), _external=True, _scheme='https')
+        return url_for(self.endpoint('specs'), _external=True, _scheme='http')
 
 
 ns_health = Namespace(name='health')

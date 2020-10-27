@@ -17,8 +17,8 @@ from flask_restx import marshal
 from app.settings.config import BaseConfig as Config
 from app import db
 from app.modules.auth.auth_dto import AuthDto
-from app.modules.user.blacklist import BlacklistToken
-from app.modules.user.user import User, SocialAccount
+from common.models.blacklist import BlacklistToken
+from common.models.user import User, SocialAccount
 from common.models.ban import UserBan
 from app.modules.user.user_dto import UserDto
 from common.utils.response import send_error, send_result

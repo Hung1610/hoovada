@@ -18,7 +18,7 @@ class ReportDto(Dto):
     api = Namespace(name, description="Post report operations")
 
     model_request = api.model('post_report_request', {
-        'inappropriate': fields.Boolean(description=''),
+        'report_type': fields.Integer(description='1 - General, 2 - Inapproriate, 3 - Duplicate', default=False),
         'description': fields.String(description='')
     })
 
@@ -26,7 +26,7 @@ class ReportDto(Dto):
         'id': fields.Integer(description=''),
         'user_id': fields.Integer(description=''),
         'post_id': fields.Integer(description=''),
-        'inappropriate': fields.Boolean(description=''),
+        'report_type': fields.Integer(description='1 - General, 2 - Inapproriate, 3 - Duplicate', default=False),
         'description': fields.String(description=''),
         'created_date': fields.DateTime(description='')
     })

@@ -13,10 +13,10 @@ from flask_restx import marshal
 from app import db
 from common.controllers.controller import Controller
 from app.modules.article import constants
-from app.modules.article.article import Article
-from app.modules.article.report.report import ArticleReport
+from common.models import Article, ArticleReport
+from common.enum import ReportTypeEnum
 from app.modules.article.report.report_dto import ReportDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission
@@ -120,12 +120,14 @@ class ReportController(Controller):
                 report.article_id = int(data['article_id'])
             except Exception as e:
                 pass
-        if 'inappropriate' in data:
-            try:
-                report.inappropriate = bool(data['inappropriate'])
-            except Exception as e:
-                pass
         if 'description' in data:
             report.description = data['description']
+        if 'report_type' in data:
+            try:
+                report_type = int(data['report_type'])
+                report.report_type = ReportTypeEnum(report_type).name
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         return report

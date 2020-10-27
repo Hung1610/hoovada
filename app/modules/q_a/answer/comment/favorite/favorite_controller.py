@@ -13,10 +13,10 @@ from sqlalchemy import and_
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from common.models.comment import AnswerComment
+from common.models import AnswerComment
 from app.modules.q_a.answer.comment.favorite.favorite import AnswerCommentFavorite
 from app.modules.q_a.answer.comment.favorite.favorite_dto import AnswerCommentFavoriteDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

@@ -13,12 +13,12 @@ from sqlalchemy import and_
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from app.modules.article.article import Article
-from common.models.comment import ArticleComment
+from common.models import Article
+from common.models import ArticleComment
 from app.modules.article.favorite import constants
-from app.modules.article.favorite.favorite import ArticleFavorite
+from common.models import ArticleFavorite
 from app.modules.article.favorite.favorite_dto import FavoriteDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission
