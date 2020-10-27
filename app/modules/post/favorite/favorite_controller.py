@@ -12,25 +12,26 @@ from sqlalchemy import and_
 
 # own modules
 from app import db
-from common.controllers.controller import Controller
-from app.modules.q_a.answer.answer import Answer
-from common.models.favorite import QuestionFavorite
-from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto
-from common.models.question import Question
-from app.modules.user.user import User
-from common.utils.response import send_error, send_result
-from common.utils.types import UserRole, PermissionType
-from common.utils.permission import has_permission
 from app.constants import messages
+from app.modules.post.favorite.favorite_dto import FavoriteDto
+from common.controllers.controller import Controller
+from common.utils.response import send_error, send_result
+from common.utils.types import PermissionType
+from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+User = db.get_model('User')
+Post = db.get_model('Post')
+PostComment = db.get_model('PostComment')
+PostFavorite = db.get_model('PostFavorite')
 
-class QuestionFavoriteController(Controller):
-    def get(self, question_id, args):
+
+class FavoriteController(Controller):
+    def get(self, post_id, args):
         '''
         Get/Search favorites.
 
@@ -66,89 +67,86 @@ class QuestionFavoriteController(Controller):
                 print(e.__str__())
                 pass
 
-        query = QuestionFavorite.query
-        if question_id is not None:
-            query = query.filter(QuestionFavorite.question_id == question_id)
+        query = PostFavorite.query
+        if post_id is not None:
+            query = query.filter(PostFavorite.post_id == post_id)
         if user_id is not None:
-            query = query.filter(QuestionFavorite.user_id == user_id)
+            query = query.filter(PostFavorite.user_id == user_id)
         if favorited_user_id is not None:
-            query = query.filter(QuestionFavorite.question.user_id == favorited_user_id)
+            query = query.filter(PostFavorite.post.user_id == favorited_user_id)
         if from_date is not None:
-            query = query.filter(QuestionFavorite.created_date >= from_date)
+            query = query.filter(PostFavorite.created_date >= from_date)
         if to_date is not None:
-            query = query.filter(QuestionFavorite.created_date <= to_date)
+            query = query.filter(PostFavorite.created_date <= to_date)
         favorites = query.all()
-        if favorites is not None and len(favorites) > 0:
-            return send_result(data=marshal(favorites, QuestionFavoriteDto.model_response), message='Success')
-        else:
-            return send_result(message='Question favorite not found.')
+        return send_result(data=marshal(favorites, FavoriteDto.model_response), message='Success')
 
-    def create(self, question_id):
-        current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.QUESTION_FAVORITE)):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+    def create(self, post_id):
         data = {}
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
-        data['question_id'] = question_id
+        data['post_id'] = post_id
+        post = Post.query.get(post_id)
+        if not post:
+            return send_error(message=messages.ERR_NOT_FOUND.format('Topic'))
+        if not post.allow_favorite:
+            return send_error(message=messages.ERR_ISSUE.format('Post does not allow voting.'))
         try:
-            favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == data['user_id'],
-                                             QuestionFavorite.question_id == data['question_id']).first()
+            favorite = PostFavorite.query.filter(PostFavorite.user_id == data['user_id'],
+                                             PostFavorite.post_id == data['post_id']).first()
             if favorite:
-                return send_result(message='This question is already favorited.')
+                return send_result(message=messages.ERR_ISSUE.format('Post already favorited'))
 
             favorite = self._parse_favorite(data=data, favorite=None)
             favorite.created_date = datetime.utcnow()
             favorite.updated_date = datetime.utcnow()
             db.session.add(favorite)
             db.session.commit()
-            return send_result(message='Question successfully favorited.',
-                               data=marshal(favorite, QuestionFavoriteDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post Favorite'),
+                               data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to favorite question.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Post Favorite', e))
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message='Please provide question favorite id.')
-        favorite = QuestionFavorite.query.filter_by(id=object_id).first()
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Id'))
+        favorite = PostFavorite.query.filter_by(id=object_id).first()
         if favorite is None:
-            return send_error(message='Question favorite not found.')
+            return send_error(message=messages.ERR_NOT_FOUND.format('Post Favorite'))
         else:
-            return send_result(data=marshal(favorite, QuestionFavoriteDto.model_response), message='Success')
+            return send_result(data=marshal(favorite, FavoriteDto.model_response), message='Success')
 
     def update(self, object_id, data):
         pass
 
-    def delete(self, question_id):
+    def delete(self, post_id):
         current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
-            favorite = QuestionFavorite.query.filter_by(question_id=question_id, user_id=user_id).first()
+            favorite = PostFavorite.query.filter_by(post_id=post_id, user_id=user_id).first()
             if favorite is None:
-                return send_error(message='Question favorite not found.')
+                return send_error(message=messages.ERR_NOT_FOUND.format('Post Favorite'))
             else:
                 db.session.delete(favorite)
                 db.session.commit()
-                return send_result(message='Question favorite deleted successfully.')
+                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post Favorite'))
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to delete question favorite.')
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Post Favorite', e))
 
     def _parse_favorite(self, data, favorite=None):
         if favorite is None:
-            favorite = QuestionFavorite()
+            favorite = PostFavorite()
         if 'user_id' in data:
             try:
                 favorite.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'question_id' in data:
+        if 'post_id' in data:
             try:
-                favorite.question_id = int(data['question_id'])
+                favorite.post_id = int(data['post_id'])
             except Exception as e:
                 print(e.__str__())
                 pass

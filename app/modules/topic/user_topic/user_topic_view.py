@@ -5,7 +5,6 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-# from common.decorator import token_required
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
 from app.modules.topic.user_topic.user_topic_controller import UserTopicController
 from common.utils.decorator import admin_token_required, token_required

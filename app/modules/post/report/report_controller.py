@@ -63,7 +63,7 @@ class ReportController(Controller):
 
     def create(self, post_id, data):
         if not isinstance(data, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
         if not has_permission(current_user.id, PermissionType.REPORT):
@@ -78,13 +78,13 @@ class ReportController(Controller):
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Post Report'))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Post Report'))
 
     def get_by_id(self, object_id):
         query = PostReport.query
         report = query.filter(PostReport.id == object_id).first()
         if report is None:
-            return send_error(message=messages.MSG_NOT_FOUND.format('Post Report'))
+            return send_error(message=messages.ERR_NOT_FOUND.format('Post Report'))
         else:
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
 

@@ -45,7 +45,7 @@ class AnswerController(Controller):
         """
         
         if not isinstance(args, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         user_id, question_id, from_date, to_date = None, None, None, None  # , None, None
         if 'user_id' in args:
             try:
@@ -73,7 +73,7 @@ class AnswerController(Controller):
                 pass
 
         # if user_id is None and question_id is None and from_date is None and to_date is None:
-        #     send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
+        #     send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
         query = Answer.query.filter(Answer.is_deleted != True)
         is_filter = False
         if user_id is not None:
@@ -110,17 +110,17 @@ class AnswerController(Controller):
                     results.append(result)
                 return send_result(marshal(results, AnswerDto.model_response), message='Success')
             else:
-                return send_result(message=messages.MSG_NOT_FOUND.format('Answer'))
+                return send_result(message=messages.ERR_NOT_FOUND.format('Answer'))
         else:
-             return send_error(message=messages.MSG_GET_FAILED)
+             return send_error(message=messages.ERR_GET_FAILED)
 
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         if not 'question_id' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('question ID'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question ID'))
         if not 'answer' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('answer body'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer body'))
 
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
@@ -128,17 +128,17 @@ class AnswerController(Controller):
             answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
             if answer:
                 if answer.is_deleted:
-                    return send_error(message=messages.MSG_ISSUE.format('This has a hidden answer for this question. Consider recovering this.'), data={'answer_id': answer.id})
-                return send_error(message=messages.MSG_ISSUE.format('This user already answered for this question'), data={'answer_id': answer.id})
+                    return send_error(message=messages.ERR_ISSUE.format('This has a hidden answer for this question. Consider recovering this.'), data={'answer_id': answer.id})
+                return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question'), data={'answer_id': answer.id})
 
         try:
             # add new answer
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('answer content'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
             is_sensitive = check_sensitive(answer.answer)
             if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Content is not allowed'))
+                return send_error(message=messages.ERR_ISSUE.format('Content is not allowed'))
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
@@ -151,29 +151,29 @@ class AnswerController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Answer', e))
 
     def create_with_file(self, object_id):
         if object_id is None:
-            return send_error(messages.MSG_PLEASE_PROVIDE.format("Answer ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
         if 'file' not in request.files:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
         file_type = request.form.get('file_type', None)
         media_file = request.files.get('file', None)
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('answer', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('answer', object_id))
         question = answer.question
 
         if not media_file:
-            return send_error(message=messages.MSG_NO_FILE)
+            return send_error(message=messages.ERR_NO_FILE)
         if not file_type:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file type'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file type'))
         if FileTypeEnum(int(file_type)).name == FileTypeEnum.AUDIO.name and not question.allow_audio_answer:
-            return send_error(message=messages.MSG_ISSUE.format('Question does not allow answer by audio.'))
+            return send_error(message=messages.ERR_ISSUE.format('Question does not allow answer by audio.'))
         if FileTypeEnum(int(file_type)).name == FileTypeEnum.VIDEO.name and not question.allow_video_answer:
-            return send_error(message=messages.MSG_ISSUE.format('Question does not allow answer by video.'))
+            return send_error(message=messages.ERR_ISSUE.format('Question does not allow answer by video.'))
         try:
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
@@ -184,7 +184,7 @@ class AnswerController(Controller):
                 url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
-                return send_error(message=messages.MSG_ISSUE.format('Could not save your media file.'))
+                return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
 
             answer.file_url = url
             answer.file_type = FileTypeEnum(int(file_type)).name
@@ -201,7 +201,7 @@ class AnswerController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Answer media', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Answer media', e))
 
     def get(self, args):
         """
@@ -209,7 +209,7 @@ class AnswerController(Controller):
         """
         try:
             if not isinstance(args, dict):
-                return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
             user_id, question_id, from_date, to_date, is_deleted = None, None, None, None, None
             if 'user_id' in args:
                 try:
@@ -295,14 +295,14 @@ class AnswerController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_GET_FAILED.format('Answer'))
+            return send_error(message=messages.ERR_GET_FAILED.format('Answer'))
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(messages.MSG_PLEASE_PROVIDE.format("Answer ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
         else:
             # get user information for each answer.
             result = answer._asdict()
@@ -323,9 +323,9 @@ class AnswerController(Controller):
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format("Answer ID"))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
         if data is None or not isinstance(data, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         # if not 'question_id' in data:
         #     return send_error(message="Please fill the question ID")
         # if not 'answer' in data:
@@ -335,23 +335,23 @@ class AnswerController(Controller):
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
             # Check is admin or has permission
             if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
-                return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             answer = self._parse_answer(data=data, answer=answer)
             if answer.answer.__str__().strip().__eq__(''):
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('answer content'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
             is_sensitive = check_sensitive(answer.answer)
             if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Comment content not allowed'))
+                return send_error(message=messages.ERR_ISSUE.format('Comment content not allowed'))
             if answer.question_id is None:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('question_id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question_id'))
             if answer.user_id is None:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('user_id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.commit()
@@ -372,13 +372,13 @@ class AnswerController(Controller):
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_UPDATE_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format('Answer', e))
 
     def delete(self, object_id):
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Answer', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
             else:
                 db.session.delete(answer)
                 db.session.commit()

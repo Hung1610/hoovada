@@ -20,46 +20,36 @@ class Controller(ABC):
         return db.get_model(self.query_classname)
 
     @abstractmethod
-    def create(self, data):
+    def create(self, *args, **kwargs):
         """
         Create object and insert to database.
-        :param data:
-        :return:
         """
         pass
 
     @abstractmethod
-    def get(self):
+    def get(self, *args, **kwargs):
         """
         Return all objects from database
-        :return:
         """
         pass
 
     @abstractmethod
-    def get_by_id(self, object_id):
+    def get_by_id(self, *args, **kwargs):
         """
         Get object from database by ID
-        :param object_id:
-        :return:
         """
         pass
 
     @abstractmethod
-    def update(self, object_id, data):
+    def update(self, *args, **kwargs):
         """
         Updata object from search_data in database
-        :param object_id:
-        :param data:
-        :return:
         """
         pass
 
     @abstractmethod
-    def delete(self, object_id):
+    def delete(self, *args, **kwargs):
         """
         Delete object from database.
-        :param object_id:
-        :return:
         """
         pass

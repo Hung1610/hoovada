@@ -71,7 +71,7 @@ class UserFriendController(Controller):
         if friends is not None and len(friends) > 0:
             return send_result(data=marshal(friends, UserFriendDto.model_response), message='Success')
         else:
-            return send_result(message=messages.MSG_NOT_FOUND.format('Friend'))
+            return send_result(message=messages.ERR_NOT_FOUND.format('Friend'))
 
     def create(self, object_id):
         data = {}
@@ -82,7 +82,7 @@ class UserFriendController(Controller):
             friend = UserFriend.query.filter(UserFriend.friend_id == data['friend_id'],
                                              UserFriend.friended_id == data['friended_id']).first()
             if friend:
-                return send_result(message=messages.MSG_ISSUE.format('Already befriended'))
+                return send_result(message=messages.ERR_ISSUE.format('Already befriended'))
 
             friend = self._parse_friend(data=data, friend=None)
             db.session.add(friend)
@@ -91,14 +91,14 @@ class UserFriendController(Controller):
                                data=marshal(friend, UserFriendDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Friend', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Friend', e))
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
         friend = UserFriend.query.filter_by(id=object_id).first()
         if friend is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
         else:
             return send_result(data=marshal(friend, UserFriendDto.model_response), message='Success')
 
@@ -108,10 +108,10 @@ class UserFriendController(Controller):
     def approve(self, object_id):
         try:
             if object_id is None:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
             friend = UserFriend.query.filter_by(id=object_id).first()
             if friend is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
             # if friend.is_approved:
             #     return send_result(message='Already friend.')
@@ -129,20 +129,20 @@ class UserFriendController(Controller):
                 db.session.commit()
             except Exception as e:
                 print(e.__str__())
-                return send_error(message=messages.MSG_CREATE_FAILED.format('Friend', e))
+                return send_error(message=messages.ERR_CREATE_FAILED.format('Friend', e))
             friend.is_approved = True
             db.session.commit()
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_ISSUE.format(e))
+            return send_error(message=messages.ERR_ISSUE.format(e))
 
     def disapprove(self, object_id):
         try:
             if object_id is None:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
             friend = UserFriend.query.filter_by(id=object_id).first()
             if friend is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
             if friend.is_approved:
                 return send_result(message='Already friend.')
@@ -150,7 +150,7 @@ class UserFriendController(Controller):
             return self.delete(object_id)
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_ISSUE.format(e))
+            return send_error(message=messages.ERR_ISSUE.format(e))
         
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)
@@ -158,14 +158,14 @@ class UserFriendController(Controller):
         try:
             friend = UserFriend.query.filter_by(friend_id=object_id, friended_id=user_id).first()
             if friend is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Friend', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
             else:
                 db.session.delete(friend)
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_DELETE_FAILED.format('Friend', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Friend', e))
 
     def get_top_users(self, args, object_id):
         try:
