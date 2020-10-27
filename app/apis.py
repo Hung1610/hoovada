@@ -3,7 +3,7 @@
 
 # third-party modules
 from flask_restx import Resource, Namespace, Api
-from flask import url_for
+from flask import url_for, current_app
 
 # own modules
 from app.modules import *
@@ -47,6 +47,22 @@ class HealthCheck(Resource):
         return send_result(message="OK!", code=200)
 
 
+ns_cache = Namespace(name='cache')
+@ns_cache.route('/flush')
+class Cache(Resource):
+    def post(self):
+        """ Use for Clearing cache
+        
+        Args:
+            None
+
+        Returns
+           None - 200 code for success 
+        """
+        current_app.cache_context.clear()
+        return send_result(message="Cache Cleared!", code=200)
+
+
 def init_api(mode):
 
     doc = False if mode == "prod" else "/api/v1/openapi"
@@ -61,6 +77,7 @@ def init_api(mode):
                 doc=doc)
 
     api.add_namespace(ns_health)
+    api.add_namespace(ns_cache, '/cache')
     api.add_namespace(ns_auth, '/auth')
     api.add_namespace(ns_user, '/user')
     api.add_namespace(ns_user_education, '/user')
