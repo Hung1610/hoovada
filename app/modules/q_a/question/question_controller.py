@@ -15,24 +15,24 @@ from slugify import slugify
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from common.models.question import Question, QuestionProposal
-from common.models.share import QuestionShare
-from common.models.favorite import QuestionFavorite
+from common.models import Question, QuestionProposal
+from common.models import QuestionShare
+from common.models import QuestionFavorite
 from common.models.bookmark import QuestionBookmark
 from app.modules.q_a.question.question_dto import QuestionDto
 from common.models.vote import QuestionVote, VotingStatusEnum
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
-from app.modules.topic.topic import Topic
-from app.modules.user.user import User
-from app.modules.user.follow.follow import UserFollow
-from app.modules.user.reputation.reputation import Reputation
+from common.models import Topic
+from common.models import User
+from common.models import UserFollow
+from common.models import Reputation
 from common.utils.response import send_error, send_result, paginated_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.checker import check_spelling
-from app.modules.topic.bookmark.bookmark import TopicBookmark
+from common.models import TopicBookmark
 from app.constants import messages
-from app.modules.user.friend.friend import UserFriend
+from common.models import UserFriend
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

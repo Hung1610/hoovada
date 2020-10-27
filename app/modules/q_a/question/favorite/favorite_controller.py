@@ -14,10 +14,10 @@ from sqlalchemy import and_
 from app import db
 from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
-from common.models.favorite import QuestionFavorite
+from common.models import QuestionFavorite
 from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto
-from common.models.question import Question
-from app.modules.user.user import User
+from common.models import Question
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.types import UserRole, PermissionType
 from common.utils.permission import has_permission

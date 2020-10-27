@@ -9,7 +9,7 @@ from flask_restx import marshal
 
 # own modules
 from common.controllers.controller import Controller
-from app.modules.language.language import Language
+from common.models import Language
 from app.modules.language.language_dto import LanguageDto
 from app import db
 from common.utils.response import send_error, send_result

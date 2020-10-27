@@ -18,17 +18,17 @@ class ReportDto(Dto):
     api = Namespace(name, description="Article report operations")
 
     model_request = api.model('article_report_request', {
-        'inappropriate': fields.Boolean(description=''),
-        'description': fields.String(description='')
+        'description': fields.String(description=''),
+        'report_type': fields.Integer(description='1 - General, 2 - Inapproriate, 3 - Duplicate', default=False),
     })
 
     model_response = api.model('article_report_response', {
         'id': fields.Integer(description=''),
         'user_id': fields.Integer(description=''),
         'article_id': fields.Integer(description=''),
-        'inappropriate': fields.Boolean(description=''),
         'description': fields.String(description=''),
-        'created_date': fields.DateTime(description='')
+        'created_date': fields.DateTime(description=''),
+        'report_type': fields.Integer(description='1 - General, 2 - Inapproriate, 3 - Duplicate', default=False),
     })
 
     get_parser = reqparse.RequestParser()

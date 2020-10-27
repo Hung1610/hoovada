@@ -13,11 +13,11 @@ from sqlalchemy import and_
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from common.models.question import Question
+from common.models import Question
 from app.modules.q_a.question.bookmark import constants
 from common.models.bookmark import QuestionBookmark
 from app.modules.q_a.question.bookmark.bookmark_dto import QuestionBookmarkDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

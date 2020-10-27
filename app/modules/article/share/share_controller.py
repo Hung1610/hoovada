@@ -14,10 +14,10 @@ from sqlalchemy import desc
 from app import db
 from common.controllers.controller import Controller
 from app.modules.article import constants
-from app.modules.article.article import Article
-from app.modules.article.share.share import ArticleShare
+from common.models import Article
+from common.models import ArticleShare
 from app.modules.article.share.share_dto import ShareDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
 from common.utils.permission import has_permission

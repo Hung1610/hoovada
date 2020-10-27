@@ -20,3 +20,8 @@ class ReportTypeEnum(enum.Enum):
     GENERAL = 1
     INAPPROPRIATE = 2
     DUPLICATE = 3
+
+
+class BanTypeEnum(enum.Enum):
+    EMAIL = 1
+    PHONE_NUMBER = 2

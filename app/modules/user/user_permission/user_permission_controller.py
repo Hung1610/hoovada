@@ -12,7 +12,7 @@ from flask_restx import marshal
 
 # own modules
 from app import db
-from app.modules.user.user import User
+from common.models import User
 from app.modules.user.permission.permission import Permission
 from app.modules.user.user_permission.user_permission import UserPermission
 from app.modules.user.user_permission.user_permission_dto import UserPermissionDto

@@ -14,10 +14,10 @@ from sqlalchemy import desc
 from app import db
 from common.controllers.controller import Controller
 from app.modules.q_a.answer.answer import Answer
-from common.models.question import Question
-from common.models.share import QuestionShare
+from common.models import Question
+from common.models import QuestionShare
 from app.modules.q_a.question.share.share_dto import QuestionShareDto
-from app.modules.user.user import User
+from common.models import User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

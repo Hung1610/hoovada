@@ -12,10 +12,10 @@ from flask_restx import marshal
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from common.models.question import Question
-from common.models.report import QuestionReport, ReportTypeEnum
+from common.models import User
+from common.models import Question, QuestionReport
+from common.enum import ReportTypeEnum
 from app.modules.q_a.question.report.report_dto import QuestionReportDto
-from app.modules.user.user import User
 from common.utils.response import send_error, send_result
 from common.utils.types import UserRole, PermissionType
 from common.utils.permission import has_permission

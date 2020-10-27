@@ -38,4 +38,18 @@ class QuestionVote(Model, BaseVote):
     __tablename__ = 'question_vote'
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
-    question =  db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+    question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+
+
+class ArticleVote(Model, BaseVote):
+    __tablename__ = 'article_vote'
+
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
+
+
+class PostVote(Model, BaseVote):
+    __tablename__ = 'post_vote'
+    
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post

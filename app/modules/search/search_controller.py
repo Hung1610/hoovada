@@ -14,10 +14,10 @@ from flask_restx import marshal
 import dateutil.parser
 
 # own modules
-from app.modules.article.article import Article
-from common.models.question import Question
-from app.modules.topic.topic import Topic
-from app.modules.user.user import User
+from common.models import Article
+from common.models import Question
+from common.models import Topic
+from common.models import User
 from app.modules.search.search_dto import SearchDto
 from common.utils.response import send_error, send_result
 from app import db

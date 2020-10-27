@@ -13,7 +13,7 @@ from sqlalchemy import desc, text, func
 
 # own modules
 from app import db
-from app.modules.user.user import User
+from common.models import User
 from app.modules.user.user_dto import UserDto
 from common.utils.response import send_result, send_error
 from common.controllers.controller import Controller
@@ -22,7 +22,7 @@ from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.util import encode_file_name
 from common.utils.types import UserRole
 from common.utils.wasabi import upload_file, delete_file
-from app.modules.user.reputation.reputation import Reputation
+from common.models import Reputation
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

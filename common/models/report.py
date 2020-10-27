@@ -40,3 +40,15 @@ class QuestionReport(Model, BaseReport):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+
+
+class ArticleReport(Model, BaseReport):
+    __tablename__ = 'article_report'
+    
+    article_id = db.Column(db.Integer)
+
+
+class PostReport(Model, BaseReport):
+    __tablename__ = 'post_report'
+    
+    post_id = db.Column(db.Integer)

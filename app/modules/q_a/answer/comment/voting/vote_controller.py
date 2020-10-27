@@ -12,11 +12,11 @@ from flask_restx import marshal
 # own modules
 from app import db
 from common.controllers.controller import Controller
-from common.models.comment import AnswerComment
+from common.models import AnswerComment
 from app.modules.q_a.answer.comment.voting.vote import AnswerCommentVote, VotingStatusEnum
 from app.modules.q_a.answer.comment.voting.vote_dto import AnswerCommentVoteDto
-from app.modules.user.user import User
-from app.modules.user.reputation.reputation import Reputation
+from common.models import User
+from common.models import Reputation
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
