@@ -105,7 +105,7 @@ class QuestionProposal(Model, BaseQuestion):
     __tablename__ = 'question_proposal'
     
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
+    question_id = db.Column(db.Integer, nullable=True)
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
     proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
     proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
