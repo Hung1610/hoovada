@@ -45,6 +45,7 @@ class TopicDto(Dto):
         'color_code': fields.String(description='The color code for topic'),
         'description': fields.String(description='Description about topic'),
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
+        'allow_follow': fields.Boolean(default=False, description='This topic allows following or not'),
     })
 
     model_parent_topic = api.model('parent_topic', {
@@ -69,6 +70,7 @@ class TopicDto(Dto):
         'created_date': fields.DateTime(description='The date topic was created'),
         'description': fields.String(description='Description about topic'),
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
+        'allow_follow': fields.Boolean(default=False, description='This topic allows following or not'),
         'children': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
         'parent': fields.Nested(model_parent_topic, description='The parent (fixed) topic'),
         'article_count': fields.Integer(description='The amount of article belong to this topic'),

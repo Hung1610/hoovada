@@ -8,7 +8,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import request, current_app, g
 from flask_restx import marshal
 from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup
@@ -40,16 +40,16 @@ class PostController(Controller):
 
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         if not 'title' in data:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('title'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         try:
             is_sensitive = check_sensitive(data['title'])
             if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Title is too sensitive'))
+                return send_error(message=messages.ERR_ISSUE.format('Title is too sensitive'))
 
             post = Post.query.filter(Post.title == data['title']).filter(Post.user_id == data['user_id']).first()
             if post:
@@ -57,7 +57,7 @@ class PostController(Controller):
             post, topic_ids = self._parse_post(data=data, post=None)
             is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
             if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Post body is too sensitive'))
+                return send_error(message=messages.ERR_ISSUE.format('Post body is too sensitive'))
             post.created_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
             db.session.add(post)
@@ -95,7 +95,7 @@ class PostController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Post', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Post', e))
 
     def get(self, args):
         """
@@ -231,20 +231,20 @@ class PostController(Controller):
 
     def create_with_file(self, object_id):
         if object_id is None:
-            return send_error(messages.MSG_PLEASE_PROVIDE.format("Post ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("Post ID"))
         if 'file' not in request.files:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
         file_type = request.form.get('file_type', None)
         media_file = request.files.get('file', None)
         post = Post.query.filter_by(id=object_id).first()
         if post is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('post', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('post', object_id))
 
         if not media_file:
-            return send_error(message=messages.MSG_NO_FILE)
+            return send_error(message=messages.ERR_NO_FILE)
         if not file_type:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file type'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file type'))
         try:
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
@@ -255,7 +255,7 @@ class PostController(Controller):
                 url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
-                return send_error(message=messages.MSG_ISSUE.format('Could not save your media file.'))
+                return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
 
             post.file_url = url
             post.updated_date = datetime.utcnow()
@@ -270,11 +270,11 @@ class PostController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post media'), data=marshal(result, PostDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Post media', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Post media', e))
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
+            return send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
         if object_id.isdigit():
             post = Post.query.filter_by(id=object_id).first()
         else:
@@ -352,16 +352,16 @@ class PostController(Controller):
 
     def update(self, object_id, data, is_put=False):
         if object_id is None:
-            return send_error(message=messages.MSG_LACKING_QUERY_PARAMS)
+            return send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
         if not isinstance(data, dict):
-            return send_error(message=messages.MSG_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if object_id.isdigit():
             post = Post.query.filter_by(id=object_id).first()
         else:
             post = Post.query.filter_by(slug=object_id).first()
         if post is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Post', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
         if is_put:
             db.session.delete(post)
             return self.create(data)
@@ -383,10 +383,10 @@ class PostController(Controller):
             # check sensitive before updating
             is_sensitive = check_sensitive(post.title)
             if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Insensitive title'))
+                return send_error(message=messages.ERR_ISSUE.format('Insensitive title'))
             is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
             if is_sensitive:
-                return send_error(message=messages.MSG_ISSUE.format('Insensitive body'))
+                return send_error(message=messages.ERR_ISSUE.format('Insensitive body'))
             # update topics to post_topic table
             post.updated_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
@@ -412,7 +412,7 @@ class PostController(Controller):
                                 data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_UPDATE_FAILED.format('Post', e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format('Post', e))
 
     def delete(self, object_id):
         try:
@@ -421,14 +421,14 @@ class PostController(Controller):
             else:
                 post = Post.query.filter_by(slug=object_id).first()
             if post is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Post', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
             else:
                 db.session.delete(post)
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_DELETE_FAILED.format('Post', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Post', e))
 
     def update_slug(self):
         posts = Post.query.all()
@@ -529,5 +529,14 @@ class PostController(Controller):
             except Exception as e:
                 print(e)
                 pass
+
+        if g.current_user_is_admin:
+            if 'allow_favorite' in data:
+                try:
+                    post.allow_favorite = bool(data['allow_favorite'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
         return post, topic_ids
 

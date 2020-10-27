@@ -21,7 +21,6 @@ from common.models.favorite import QuestionFavorite
 from common.models.bookmark import QuestionBookmark
 from app.modules.q_a.question.question_dto import QuestionDto
 from common.models.vote import QuestionVote, VotingStatusEnum
-from app.modules.topic.question_topic.question_topic import QuestionTopic
 from app.modules.q_a.answer.answer import Answer
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.topic.topic import Topic
@@ -678,7 +677,7 @@ class QuestionController(Controller):
             data['user_id'] = current_user.id
             answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
             if answer:
-                return send_error(message=messages.MSG_ISSUE.format('This user already answered for this question'))
+                return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question'))
 
         try:
             # add new answer
@@ -964,13 +963,7 @@ class QuestionController(Controller):
                 result['user'] = user
                 # get all topics that question belongs to
                 question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
+                result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -1024,13 +1017,7 @@ class QuestionController(Controller):
                 result['user'] = user
                 # get all topics that question belongs to
                 question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
+                result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -1083,13 +1070,7 @@ class QuestionController(Controller):
                 result['user'] = user
                 # get all topics that question belongs to
                 question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
+                result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -1143,13 +1124,7 @@ class QuestionController(Controller):
                 result['user'] = user
                 # get all topics that question belongs to
                 question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
+                result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -1209,13 +1184,7 @@ class QuestionController(Controller):
                 result['user'] = user
                 # get all topics that question belongs to
                 question_id = question.id
-                question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                topics = list()
-                for question_topic in question_topics:
-                    topic_id = question_topic.topic_id
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                result['topics'] = topics
+                result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -1274,13 +1243,7 @@ class QuestionController(Controller):
                     result['user'] = user
                     # get all topics that question belongs to
                     question_id = question.id
-                    question_topics = QuestionTopic.query.filter_by(question_id=question_id).all()
-                    topics = list()
-                    for question_topic in question_topics:
-                        topic_id = question_topic.topic_id
-                        topic = Topic.query.filter_by(id=topic_id).first()
-                        topics.append(topic)
-                    result['topics'] = topics
+                    result['topics'] = question.topics
                     result['fixed_topic'] = question.fixed_topic
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:

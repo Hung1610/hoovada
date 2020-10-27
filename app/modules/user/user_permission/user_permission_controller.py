@@ -29,7 +29,7 @@ class UserPermissionController(Controller):
         user_id = data.get('user_id')
         user = User.query.filter_by(id=user_id).first()
         if user is None:
-            return send_error(data=messages.MSG_NOT_FOUND_WITH_ID.format(user_id))
+            return send_error(data=messages.ERR_NOT_FOUND_WITH_ID.format(user_id))
         if not isinstance(data, dict):
             return send_error(message='You must pass dictionary-like data.')
         try:

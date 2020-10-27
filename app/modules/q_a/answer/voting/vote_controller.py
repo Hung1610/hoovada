@@ -88,7 +88,7 @@ class AnswerVoteController(Controller):
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
-            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
         data['user_id'] = current_user.id

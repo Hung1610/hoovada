@@ -181,7 +181,7 @@ class AuthController:
             if auth_token:
                 return send_result(data={'access_token': auth_token.decode('utf8')})
         except Exception:
-            return send_error(message=messages.MSG_ISSUE.format(e))
+            return send_error(message=messages.ERR_ISSUE.format(e))
 
 
     def login_with_facebook(self, data):
@@ -214,7 +214,7 @@ class AuthController:
             if auth_token:
                 return send_result(data={'access_token': auth_token.decode('utf8')})
         except Exception:
-            return send_error(message=messages.MSG_ISSUE.format(e))
+            return send_error(message=messages.ERR_ISSUE.format(e))
 
 
     def sms_register(self, data):
@@ -687,7 +687,7 @@ class AuthController:
                 return send_result(message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_ISSUE.format(e))
+            return send_error(message=messages.ERR_ISSUE.format(e))
 
     def change_password_by_token(self, data):
         """Change password using token received in email
