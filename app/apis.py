@@ -8,13 +8,13 @@ from flask import url_for
 # own modules
 from common.utils.response import send_result
 from app.modules import ns_auth, ns_question, ns_answer, \
-    ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report, ns_question_topic,\
+    ns_question_vote, ns_question_favorite, ns_question_share, ns_question_report,\
     ns_question_comment, ns_question_comment_report, ns_question_comment_vote, ns_question_comment_favorite,\
     ns_upload, ns_search, ns_user_employment, ns_reputation,\
     ns_article, ns_article_vote, ns_article_favorite, ns_article_report, ns_article_share, ns_article_comment,\
-    ns_post, ns_post_vote, ns_post_report, ns_post_share, ns_post_comment,\
+    ns_post, ns_post_vote, ns_post_report, ns_post_share, ns_post_comment, ns_post_favorite,\
     ns_qa_timeline, ns_question_bookmark,\
-    ns_topic, ns_topic_report, ns_topic_share, ns_topic_bookmark,\
+    ns_topic, ns_topic_report, ns_topic_share, ns_topic_bookmark, ns_topic_follow,\
     ns_answer_bookmark, ns_answer_favorite, ns_answer_report, ns_answer_share, ns_answer_vote, \
     ns_answer_comment, ns_answer_comment_report, ns_answer_comment_vote, ns_answer_comment_favorite,\
     ns_user, ns_user_education, ns_user_location, ns_user_topic, ns_user_language,\
@@ -85,11 +85,13 @@ def init_api(mode):
     api.add_namespace(ns_user_ban, '/user')
     api.add_namespace(ns_reputation, '/reputation')
     api.add_namespace(ns_topic, '/topic')
+    api.add_namespace(ns_topic_follow, '/topic')
     api.add_namespace(ns_topic_bookmark, '/topic')
     api.add_namespace(ns_topic_report, '/topic')
     api.add_namespace(ns_topic_share, '/topic')
     api.add_namespace(ns_user_topic, '/user_topic')
     api.add_namespace(ns_post, '/post')
+    api.add_namespace(ns_post_favorite, '/post')
     api.add_namespace(ns_post_vote, '/post')
     api.add_namespace(ns_post_report, '/post')
     api.add_namespace(ns_post_share, '/post')
@@ -106,7 +108,6 @@ def init_api(mode):
     api.add_namespace(ns_question_vote, '/question')
     api.add_namespace(ns_question_bookmark, '/question')
     api.add_namespace(ns_question_report, '/question')
-    api.add_namespace(ns_question_topic, '/question_topic')
     api.add_namespace(ns_question_comment, '/question')
     api.add_namespace(ns_question_comment_report, '/question/all/comment')
     api.add_namespace(ns_question_comment_vote, '/question/all/comment')

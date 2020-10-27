@@ -81,7 +81,7 @@ class CommentController(BaseCommentController):
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.QUESTION_COMMENT)):
-            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:

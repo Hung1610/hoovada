@@ -56,12 +56,12 @@ class UserBanController(Controller):
         if bans is not None and len(bans) > 0:
             return send_result(data=marshal(bans, UserBanDto.model_response), message='Success')
         else:
-            return send_result(message=messages.MSG_NOT_FOUND.format('Ban'))
+            return send_result(message=messages.ERR_NOT_FOUND.format('Ban'))
 
     def create(self, user_id, data):
         user = User.query.get(user_id)
         if not user:
-            return send_error(message=messages.MSG_NOT_FOUND.format('User'))
+            return send_error(message=messages.ERR_NOT_FOUND.format('User'))
 
         current_user, _ = current_app.get_logged_user(request)
 
@@ -89,14 +89,14 @@ class UserBanController(Controller):
                                 data=marshal(results, UserBanDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Ban', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Ban', e))
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('object_id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
         ban = UserBan.query.filter_by(id=object_id).first()
         if ban is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Ban', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Ban', object_id))
         else:
             return send_result(data=marshal(ban, UserBanDto.model_response), message='Success')
 
@@ -107,14 +107,14 @@ class UserBanController(Controller):
         try:
             ban = UserBan.query.filter_by(id=object_id).first()
             if ban is None:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Ban', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Ban', object_id))
             else:
                 db.session.delete(ban)
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format('Ban'))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_DELETE_FAILED.format('Ban', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Ban', e))
     
     def _parse_ban(self, data, ban=None):
         if ban is None:

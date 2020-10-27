@@ -3,36 +3,39 @@
 
 # built-in modules
 import ast
+import dateutil.parser
 from slugify import slugify
 from datetime import datetime
 
 # third-party modules
-from flask import request, current_app
+from flask import request, current_app, g
 from flask_restx import marshal
-import dateutil.parser
 from sqlalchemy import or_, and_, func, desc, text
 
 # own modules
-from common.controllers.controller import Controller
-from app.modules.topic.topic import Topic, TopicUserEndorse
-from app.modules.topic.topic_dto import TopicDto
 from app import db
+from app.constants import messages
+from app.modules.topic.topic_dto import TopicDto
+from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result, send_paginated_result, paginated_result
-from app.modules.user.user import User
-from app.modules.user.follow.follow import UserFollow
 from common.utils.sensitive_words import check_sensitive
 from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
-from app.constants import messages
-from app.modules.topic.question_topic.question_topic import QuestionTopic
-from app.modules.topic.article_topic.article_topic import ArticleTopic
-from app.modules.topic.bookmark.bookmark import TopicBookmark
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+User = db.get_model('User')
+Topic = db.get_model('Topic')
+TopicUserEndorse = db.get_model('TopicUserEndorse')
+UserFollow = db.get_model('UserFollow')
+Reputation = db.get_model('Reputation')
+QuestionTopic = db.get_model('QuestionTopic')
+ArticleTopic = db.get_model('ArticleTopic')
+TopicBookmark = db.get_model('TopicBookmark')
 
 class TopicController(Controller):
 
@@ -323,6 +326,8 @@ class TopicController(Controller):
             if not topic:
                 return send_error(message="Topic with ID {} not found".format(object_id))
             else:
+                Reputation.query.filter(Reputation.topic_id == topic.id)\
+                    .delete(synchronize_session=False)
                 db.session.delete(topic)
                 db.session.commit()
                 return send_result(message='Topic was deleted.')
@@ -333,18 +338,18 @@ class TopicController(Controller):
     def create_endorsed_users(self, object_id, data):
         try:
             if not 'user_id' in data:
-                return send_error(message=messages.MSG_PLEASE_PROVIDE.format('user_id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
             if object_id.isdigit():
                 topic = Topic.query.filter_by(id=object_id).first()
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = current_app.get_logged_user(request)
             user_id = data['user_id']
             user = User.query.filter_by(id=user_id).first()
             if not user:
-                return send_error(message=messages.MSG_NOT_FOUND.format('User'))
+                return send_error(message=messages.ERR_NOT_FOUND.format('User'))
 
             endorse = TopicUserEndorse()
             endorse.user_id = current_user.id
@@ -355,7 +360,7 @@ class TopicController(Controller):
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Topic'))
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_UPDATE_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format('Topic', e.__str__))
 
     def get_endorsed_users(self, object_id, args):
         page, per_page = args.get('page', 1), args.get('per_page', 10)
@@ -365,7 +370,7 @@ class TopicController(Controller):
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = current_app.get_logged_user(request)
             query = topic.endorsed_users.paginate(page, per_page, error_out=True)
             res, code = paginated_result(query)
@@ -381,7 +386,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e.__str__))
 
     def get_bookmarked_users(self, object_id, args):
         page, per_page = args.get('page', 1), args.get('per_page', 10)
@@ -391,7 +396,7 @@ class TopicController(Controller):
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = current_app.get_logged_user(request)
             query = topic.bookmarked_users.paginate(page, per_page, error_out=True)
             res, code = paginated_result(query)
@@ -407,24 +412,24 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_GET_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e.__str__))
 
 
     def create_with_file(self, object_id):
         if object_id is None:
-            return send_error(messages.MSG_PLEASE_PROVIDE.format("Topic ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("Topic ID"))
         if 'file' not in request.files:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('file'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
         if object_id.isdigit():
             topic = Topic.query.filter_by(id=object_id).first()
         else:
             topic = Topic.query.filter_by(slug=object_id).first()
         if topic is None:
-            return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('topic', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('topic', object_id))
         media_file = request.files.get('file', None)
         if not media_file:
-            return send_error(message=messages.MSG_NO_FILE)
+            return send_error(message=messages.ERR_NO_FILE)
         try:
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
@@ -435,14 +440,14 @@ class TopicController(Controller):
                 url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
-                return send_error(message=messages.MSG_ISSUE.format('Could not save your media file.'))
+                return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
 
             topic.file_url = url
             db.session.commit()
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(topic, TopicDto.model_topic_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_CREATE_FAILED.format('Topic media', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Topic media', e))
 
     def update_slug(self):
         topics = Topic.query.all()
@@ -521,13 +526,21 @@ class TopicController(Controller):
         if 'color_code' in data:
             topic.color_code = data['color_code']
 
-        if 'is_nsfw' in data:  
+        if 'is_nsfw' in data: 
             pass
             try:
                 topic.is_nsfw = bool(data['is_nsfw'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if g.current_user_is_admin:
+            if 'allow_follow' in data:
+                try:
+                    topic.allow_follow = bool(data['allow_follow'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
 
         return topic
 

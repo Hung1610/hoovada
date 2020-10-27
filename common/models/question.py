@@ -32,6 +32,12 @@ question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
+question_topics = db.Table('question_topic',
+    db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'), nullable=False),
+    db.Column('created_date', db.DateTime, default=datetime.utcnow),
+)
+
 # pylint: disable=R0201
 class BaseQuestion(object):
     id = db.Column(db.Integer, primary_key=True)

@@ -61,6 +61,7 @@ class Post(Model):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    allow_favorite = db.Column(db.Boolean, default=True, server_default=expression.true())
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     votes = db.relationship("PostVote", cascade='all,delete-orphan')

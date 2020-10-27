@@ -135,14 +135,14 @@ class TopicController(Controller):
 
     def get_endorsed_topics(self, user_id, args):
         if not 'page' in args:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('page'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('page'))
         if not 'per_page' in args:
-            return send_error(message=messages.MSG_PLEASE_PROVIDE.format('per_page'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('per_page'))
         page, per_page = args.get('page', 0), args.get('per_page', 10)
         try:
             user = User.query.filter_by(id=user_id).first()
             if not user:
-                return send_error(message=messages.MSG_NOT_FOUND_WITH_ID.format('User', user_id))
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('User', user_id))
             user_endorsed_topics = TopicUserEndorse.query.distinct()\
                 .filter_by(endorsed_id=user.id)\
                 .join(Topic, isouter=True)\
@@ -158,7 +158,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e)
-            return send_error(message=messages.MSG_GET_FAILED.format('endorsed topics', e.__str__))
+            return send_error(message=messages.ERR_GET_FAILED.format('endorsed topics', e.__str__))
 
     def _parse_topic(self, data, topic=None):
         if topic is None:

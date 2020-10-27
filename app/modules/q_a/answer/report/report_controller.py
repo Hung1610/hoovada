@@ -72,7 +72,7 @@ class ReportController(Controller):
         # Check is admin or has permission
         if not (UserRole.is_admin(current_user.admin)
                 or has_permission(current_user.id, PermissionType.ANSWER_REPORT)):
-            return send_error(code=401, message=messages.MSG_NOT_DO_ACTION)
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id

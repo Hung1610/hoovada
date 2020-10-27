@@ -36,6 +36,7 @@ class PostDto(Dto):
         'html': fields.String(description='The content of the post'),
         'topic_ids': fields.List(fields.Integer, description='The list of topics'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
+        'allow_favorite': fields.Boolean(default=False, description='The post allows favoriting or not'),
         'is_draft': fields.Boolean(default=False, description='The post is a draft or not'),
         'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
     })
@@ -53,6 +54,7 @@ class PostDto(Dto):
         'views_count': fields.Integer(default=0, description='The amount of post views'),
         'last_activity': fields.DateTime(description='The last time this post was updated.'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+        'allow_favorite': fields.Boolean(default=False, description='The post allows favoriting or not'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
