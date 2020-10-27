@@ -31,6 +31,7 @@ cache = Cache()
 
 Flask.db_context = db
 Flask.mail_context = mail
+Flask.cache_context = cache
 Flask.get_logged_user = get_logged_user
 
 app = Flask(__name__, static_folder='static')

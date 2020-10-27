@@ -31,7 +31,7 @@ class BaseConfig:
     CACHE_REDIS_PORT = environ.get('CACHE_REDIS_PORT', '31930')
     CACHE_REDIS_PASSWORD = environ.get('CACHE_REDIS_PASSWORD', '74HPHt3ewf')
     CACHE_REDIS_URL = 'redis://:' + CACHE_REDIS_PASSWORD + '@' + CACHE_REDIS_HOST + ':' + CACHE_REDIS_PORT
-    CACHE_DEFAULT_TIMEOUT = 300
+    CACHE_DEFAULT_TIMEOUT = 50
 
     # Flask-SQLAlchemy configurations
     SQLALCHEMY_ECHO = False
