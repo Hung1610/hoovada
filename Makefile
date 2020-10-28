@@ -38,7 +38,7 @@ deploy-live:
 all-live: build-live push-live deploy-live
 
 nginx:
-	@docker build -f ./docker/app/Dockerfile -t ${IMG_NGINX} .
+	@docker build -f ./docker/nginx/Dockerfile -t ${IMG_NGINX} .
 
 push-nginx:
 	@docker push ${IMG_NGINX}
