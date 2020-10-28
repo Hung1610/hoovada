@@ -12,13 +12,18 @@ ENV TZ=Asia/Ho_Chi_Minh
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
-RUN addgroup gunicorn
+ARG ENVIRONMENT
 
-RUN useradd -g gunicorn -d /dev/null -s /usr/sbin/nologin gunicorn 
+ENV ENVIRONMENT=$ENVIRONMENT
 
-COPY --chown=gunicorn:gunicorn . /opt/
+RUN addgroup app
 
-USER gunicorn
+RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app
+
+COPY --chown=app:app . /opt/
+
+# change to the app user
+USER app
 
 RUN chmod +x /opt/docker/app/entrypoint.sh
 
