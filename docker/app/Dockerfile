@@ -12,7 +12,7 @@ ENV TZ=Asia/Ho_Chi_Minh
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
-ARG ENVIRONMENT
+ARG ENVIRONMENT=dev
 
 ENV ENVIRONMENT=$ENVIRONMENT
 
