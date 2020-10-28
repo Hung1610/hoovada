@@ -10,10 +10,7 @@ Project Overview
 
 - The app/requirements.txt is where you should put your new third-party libraries.
 
-- Conf file is at app/settings/config.py, we use environment variables to manage conf in production. You can use the default values in config.py for your development.
-
-- We use [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) but the library could not detect every changes, i.e. change of data type. If migration does not work, please put the required sql command into sql/
-
+- Conf file is at app/settings/config.py, we use environment variables to manage conf in production.
 
 ### Built with
 
@@ -22,7 +19,7 @@ Project Overview
 - Database: MySQL (Percona Distribution)
 - OpenAPI: [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
 - Front-end data format: [Json](https://pyjwt.readthedocs.io/en/latest/)
-- DB migration: [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/)
+- DB migration: [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/); the library could not detect every changes, i.e. change of data type. If migration does not work, please put the required sql command into sql/
 - ORM: [SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
 - Hashing: [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/en/latest/)
 - MySQL client library: [PyMySQL](https://pypi.org/project/PyMySQL/)
@@ -48,14 +45,8 @@ Project Overview
 Development instruction
 ---
 
-### Environments definition
-
-- Production: the real environment where we deploy www.hoovada.com
-
-- Testing: replicate production environment as much as possible at www.test.hoovada.com
-
-- Development: developers' local desktop
-
+- Production: the real environment where we deploy https://www.hoovada.com
+- Staging: replicate production environment as much as possible at https://www.staging.hoovada.com
 
 ### Branch
 

@@ -12,10 +12,6 @@ ENV TZ=Asia/Ho_Chi_Minh
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
-ARG ENVIRONMENT=dev
-
-ENV ENVIRONMENT=$ENVIRONMENT
-
 RUN addgroup app
 
 RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app

@@ -10,8 +10,8 @@ SOCKETIO_LIVE   := ${REGISTRY}:socketio-${VERSION}
 IMG_NGINX		:= ${REGISTRY}:nginx-${VERSION}
 
 build-test:
-	@docker build --build-arg ENVIRONMENT=dev -t ${API_TEST} -f ./docker/app/Dockerfile .
-	@docker build --build-arg ENVIRONMENT=dev -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
+	@docker build -t ${API_TEST} -f ./docker/app/Dockerfile .
+	@docker build -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
 
 push-test:
 	@docker push ${API_TEST}
@@ -24,8 +24,8 @@ deploy-test:
 all-test: build-test push-test deploy-test
 
 build-live:
-	@docker build --build-arg ENVIRONMENT=prod -t ${API_LIVE} -f ./docker/app/Dockerfile .
-	@docker build --build-arg ENVIRONMENT=prod -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
+	@docker build -t ${API_LIVE} -f ./docker/app/Dockerfile .
+	@docker build -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
 
 push-live:
 	@docker push ${API_LIVE}
