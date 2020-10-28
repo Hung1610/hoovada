@@ -37,7 +37,7 @@ model_response = QuestionDto.model_question_response
 class QuestionList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    @cache.cached(query_string=True)
+    # @cache.cached(query_string=True)
     def get(self):
         """ 
         Get list of questions from database.
