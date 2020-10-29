@@ -39,6 +39,7 @@ app = Flask(__name__, static_folder='static')
 @app.before_request
 def before_request():
     g.current_user, _ = app.get_logged_user(request)
+    g.current_user_is_admin = False
 
 def init_app(config_name):
     app.config['JSON_AS_ASCII'] = False
