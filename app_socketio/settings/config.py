@@ -20,7 +20,7 @@ class BaseConfig:
 
     # Cache configuration   # Flask-Caching related configs
     # Simple cache using Python dictionary
-    CACHE_TYPE = "simple" 
+    CACHE_TYPE = "simple"
     # Redis cache using redis database
     # CACHE_TYPE = 'redis'
     # CACHE_KEY_PREFIX = 'fcache'
@@ -38,7 +38,7 @@ class BaseConfig:
     MAIL_USERNAME =  environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
-    ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
+    MAIL_ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # need to set this so that email can be sent
     MAIL_SUPPRESS_SEND = False
