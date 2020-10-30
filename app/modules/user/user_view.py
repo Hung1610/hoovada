@@ -54,7 +54,6 @@ class UserList(Resource):
 #@api.route('/<int:id>')
 @api.route('/<string:user_name>')
 class User(Resource):
-    @token_required
     # @api.marshal_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
