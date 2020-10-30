@@ -1,0 +1,25 @@
+<p>Chào mừng bạn!</p>
+<br>
+<p>Danh sách người dùng đăng ký trong một tuần.</p>
+<p>
+    <table>
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Username</th>
+            <th>Ngày đăng ký</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{user.id}}</td>
+            <td>{{user.display_name}}</td>
+            <td>{{user.joined_date}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      </table>
+</p>
+<br>
+<p>Trân trọng!</p>

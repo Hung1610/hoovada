@@ -21,16 +21,22 @@ class BaseConfig:
     SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
     SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')
 
+    # Redis configuration
+    REDIS_PORT = environ.get('CACHE_REDIS_PORT', '31930')
+    REDIS_HOST = environ.get('CACHE_REDIS_HOST', '139.59.248.38')
+    REDIS_PASSWORD = environ.get('CACHE_REDIS_PASSWORD', '74HPHt3ewf')
+    REDIS_URL = 'redis://:' + REDIS_PASSWORD + '@' + REDIS_HOST + ':' + REDIS_PORT
+
     # Cache configuration   # Flask-Caching related configs
     # Simple cache using Python dictionary
     # CACHE_TYPE = "simple"
     # Redis cache using redis database
     CACHE_TYPE = 'redis'
     CACHE_KEY_PREFIX = 'fcache'
-    CACHE_REDIS_HOST = environ.get('CACHE_REDIS_HOST', '139.59.248.38')
-    CACHE_REDIS_PORT = environ.get('CACHE_REDIS_PORT', '31930')
-    CACHE_REDIS_PASSWORD = environ.get('CACHE_REDIS_PASSWORD', '74HPHt3ewf')
-    CACHE_REDIS_URL = 'redis://:' + CACHE_REDIS_PASSWORD + '@' + CACHE_REDIS_HOST + ':' + CACHE_REDIS_PORT
+    CACHE_REDIS_PORT = REDIS_PORT
+    CACHE_REDIS_HOST = REDIS_HOST
+    CACHE_REDIS_PASSWORD = REDIS_PASSWORD
+    CACHE_REDIS_URL = REDIS_URL
     CACHE_DEFAULT_TIMEOUT = environ.get('CACHE_DEFAULT_TIMEOUT', 50)
 
     # Flask-SQLAlchemy configurations
@@ -44,7 +50,7 @@ class BaseConfig:
     MAIL_USERNAME =  environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
-    ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
+    MAIL_ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
 
     # need to set this so that email can be sent
     MAIL_SUPPRESS_SEND = False
