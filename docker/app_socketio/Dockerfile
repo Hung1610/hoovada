@@ -6,8 +6,6 @@ COPY ./app_socketio/requirements.txt /opt/
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-RUN pip3 install --upgrade setuptools
-
 ENV TZ=Asia/Ho_Chi_Minh
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
