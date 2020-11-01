@@ -47,6 +47,13 @@ class ArticleFavorite(Model, BaseFavorite):
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
 
 
+class ArticleCommentFavorite(Model, BaseFavorite):
+    __tablename__ = 'article_comment_favorite'
+
+    article_comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'), nullable=False)
+    article_comment = db.relationship('ArticleComment', lazy=True) # one-to-many relationship with table QuestionComment
+
+
 class PostFavorite(Model, BaseFavorite):
     __tablename__ = 'post_favorite'
     

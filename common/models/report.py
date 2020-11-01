@@ -48,6 +48,13 @@ class ArticleReport(Model, BaseReport):
     article_id = db.Column(db.Integer)
 
 
+class ArticleCommentReport(Model, BaseReport):
+    __tablename__ = 'article_comment_report'
+    comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'), nullable=False)
+    comment = db.relationship('ArticleComment', lazy=True) # one-to-many relationship with table Comment
+
+
+
 class PostReport(Model, BaseReport):
     __tablename__ = 'post_report'
     
