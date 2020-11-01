@@ -11,11 +11,11 @@ from common.models.article import Article
 from common.models.ban import UserBan
 from common.models.bookmark import QuestionBookmark, TopicBookmark
 from common.models.comment import ArticleComment, PostComment, QuestionComment, AnswerComment
-from common.models.favorite import QuestionFavorite, ArticleFavorite, PostFavorite
+from common.models.favorite import QuestionFavorite, ArticleFavorite, ArticleCommentFavorite, PostFavorite
 from common.models.question import Question, QuestionProposal
-from common.models.report import QuestionReport, ArticleReport, PostReport
+from common.models.report import QuestionReport, ArticleReport, ArticleCommentReport, PostReport
 from common.models.share import QuestionShare, ArticleShare, PostShare
-from common.models.vote import QuestionVote, ArticleVote, PostVote
+from common.models.vote import QuestionVote, ArticleVote, ArticleCommentVote, PostVote
 from common.models.post import Post
 from common.models.language import Language
 
