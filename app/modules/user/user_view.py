@@ -26,7 +26,6 @@ user_response = UserDto.model_response
 
 @api.route('')
 class UserList(Resource):
-    @token_required
     @api.expect(user_get_parser)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
@@ -49,6 +48,19 @@ class UserList(Resource):
         data = api.payload
         controller = UserController()
         return controller.create(data=data)
+
+
+@api.route('/all/count')
+@api.expect(user_get_parser)
+class UserListCount(Resource):
+    def get(self):
+        """ 
+        Get list of topics from database.
+        """
+
+        args = user_get_parser.parse_args()
+        controller = UserController()
+        return controller.get_count(args=args)
 
 
 #@api.route('/<int:id>')

@@ -36,6 +36,8 @@ Reputation = db.get_model('Reputation')
 TopicBookmark = db.get_model('TopicBookmark')
 
 class TopicController(Controller):
+    query_classname = 'Topic'
+    special_filtering_fields = ['from_date']
 
     def create_topics(self):
         fixed_topics = ["Những lĩnh vực khác",
@@ -80,58 +82,6 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             pass
-
-    def search(self, args):
-        if not isinstance(args, dict):
-            return send_error(message='Could not parse the params')
-        name, user_id, parent_id, is_fixed = None, None, None, None
-        current_user, _ = current_app.get_logged_user(request)
-        if 'name' in args:
-            name = args['name']
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-        if 'parent_id' in args:
-            try:
-                parent_id = int(args['parent_id'])
-            except Exception as e:
-                print(e.__str__())
-        if 'is_fixed' in args:
-            try:
-                is_fixed = int(args['is_fixed'])
-            except Exception as e:
-                print(e.__str__())
-        if name is None and user_id is None and parent_id is None and is_fixed is None:
-            return send_error(message='Please provide params to search.')
-        query = db.session.query(Topic)
-        is_filter = False
-        if name is not None and not str(name).strip().__eq__(''):
-            name = '%' + name.strip() + '%'
-            query = query.filter(Topic.name.like(name))
-            is_filter = True
-        if user_id is not None:
-            query = query.filter(Topic.user_id == user_id)
-            is_filter = True
-        if parent_id is not None:
-            query = query.filter(Topic.parent_id == parent_id)
-            is_filter = True
-        if is_fixed is not None:
-            query = query.filter(Topic.is_fixed == is_fixed)
-            is_filter = True
-
-        # default: "Những lĩnh vực khác" trên frontend
-        if is_filter:
-            topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác"))).all()
-            if topics is not None and len(topics) > 0:
-                return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
-            else:
-                return send_error(message='Could not find any topics.')
-
-        else:
-            return send_error(message='Could not find topics with these parameters.')
-
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -190,43 +140,12 @@ class TopicController(Controller):
             print(e.__str__())
             return send_error(message='Could not create topic, please try again!')
 
-
     def get(self, args):
         try:
-            if not isinstance(args, dict):
-                return send_error(message='Could not parse the params')
-            name, user_id, parent_id, is_fixed = None, None, None, None
-            current_user, _ = current_app.get_logged_user(request)
-            if 'name' in args:
-                name = args['name']
-            if 'user_id' in args:
-                try:
-                    user_id = int(args['user_id'])
-                except Exception as e:
-                    print(e.__str__())
-            if 'parent_id' in args:
-                try:
-                    parent_id = int(args['parent_id'])
-                except Exception as e:
-                    print(e.__str__())
-            if 'is_fixed' in args:
-                try:
-                    is_fixed = int(args['is_fixed'])
-                except Exception as e:
-                    print(e.__str__())
-                    
-            query = db.session.query(Topic)
-            is_filter = False
-            if name is not None and not str(name).strip().__eq__(''):
-                name = '%' + name.strip() + '%'
-                query = query.filter(Topic.name.like(name))
-            if user_id is not None:
-                query = query.filter(Topic.user_id == user_id)
-            if parent_id is not None:
-                query = query.filter(Topic.parent_id == parent_id)
-            if is_fixed is not None:
-                query = query.filter(Topic.is_fixed == is_fixed)
+            query = self.get_query()
+            query = self.apply_filtering(query, args)
 
+            current_user = g.current_user
             topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác")))
             results = []
             for topic in topics:
@@ -244,7 +163,14 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
-
+    
+    def get_count(self, args):
+        try:
+            count = self.get_query_results_count(args)
+            return send_result({'count': count}, message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load topics. Contact your administrator for solution.")
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -411,7 +337,6 @@ class TopicController(Controller):
         except Exception as e:
             print(e)
             return send_error(message=messages.ERR_GET_FAILED.format('Topic', e.__str__))
-
 
     def create_with_file(self, object_id):
         if object_id is None:

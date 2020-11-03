@@ -15,7 +15,7 @@ from sqlalchemy import desc, text, func
 from app import db
 from common.models import User
 from app.modules.user.user_dto import UserDto
-from common.utils.response import send_result, send_error
+from common.utils.response import send_result, send_error, paginated_result
 from common.controllers.controller import Controller
 from app.settings.config import BaseConfig as Config
 from common.utils.file_handler import append_id, get_file_name_extension
@@ -30,11 +30,9 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-# AVATAR_FOLDER = Config.AVATAR_FOLDER
-# IMAGE_FOLDER = Config.IMAGE_FOLDER
-
-
 class UserController(Controller):
+    query_classname = 'User'
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary type")
@@ -56,34 +54,28 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not create user. Check again')
 
+    def get_query(self):
+        query = super().get_query()
+        query = query.filter(User.is_private != True)
+        return query
+
     def get(self, args):
         try:
-            query = User.query
-            query = query.filter(User.is_private != True)
-            display_name, email = None, None
-            if 'display_name' in args:
-                try:
-                    display_name = args['display_name']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if 'email' in args:
-                try:
-                    email = args['email']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if display_name:
-                query = query.filter(User.display_name == display_name)
-            if email:
-                query = query.filter(User.email == email)
-
-            users = query.all()
-            return send_result(data=marshal(users, UserDto.model_response), message='Success')
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            res['data'] = marshal(res['data'], UserDto.model_response)
+            return res, code
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load error, please try again later.")
+    
+    def get_count(self, args):
+        try:
+            count = self.get_query_results_count(args)
+            return send_result({'count': count}, message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load topics. Contact your administrator for solution.")
 
     def get_by_id(self, object_id):
         if object_id is None:
