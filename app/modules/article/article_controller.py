@@ -23,7 +23,7 @@ from common.models import ArticleFavorite
 from common.controllers.controller import Controller
 from common.models import Topic
 from common.models import User
-from common.utils.response import send_error, send_result
+from common.utils.response import send_error, send_result, paginated_result
 from common.utils.sensitive_words import check_sensitive
 from common.models import TopicBookmark
 from common.models import UserFriend
@@ -37,6 +37,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class ArticleController(Controller):
+    query_classname = 'Article'
+    special_filtering_fields = ['from_date', 'to_date', 'draft', 'topic_id', 'title']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
 
     def create(self, data):
@@ -106,6 +108,29 @@ class ArticleController(Controller):
             print(e)
             return send_error(message=constants.msg_create_failed)
 
+    def get_query(self):
+        query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
+        query = query.filter(db.or_(Article.article_by_user == None, User.is_deactivated != True))
+        return query
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('title'):
+            query = query.filter(Article.title.like(params.get('title')))
+        if params.get('from_date'):
+            query = query.filter(Article.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        if params.get('to_date'):
+            query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+        if params.get('topic_id'):
+            query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
+        if params.get('draft') is not None:
+            if params.get('draft'):
+                query = query.filter(Article.is_draft == True)
+            else:
+                query = query.filter(Article.is_draft != True)
+
+        return query
+
     def get(self, args):
         """
         Search articles.
@@ -113,109 +138,9 @@ class ArticleController(Controller):
         :return:
         """
         try:
-            # Get search parameters
-            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, draft, is_deleted = None, None, None, None, None, None, None, None, None, None
-            if args.get('title'):
-                title = args['title']
-            if args.get('user_id'):
-                try:
-                    user_id = int(args['user_id'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('fixed_topic_id'):
-                try:
-                    fixed_topic_id = int(args['fixed_topic_id'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('created_date'):
-                try:
-                    created_date = dateutil.parser.isoparse(args['created_date'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('updated_date'):
-                try:
-                    updated_date = dateutil.parser.isoparse(args['updated_date'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('from_date'):
-                try:
-                    from_date = dateutil.parser.isoparse(args['from_date'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('to_date'):
-                try:
-                    to_date = dateutil.parser.isoparse(args['to_date'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('topic_id'):
-                try:
-                    topic_ids = args['topic_id']
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('draft'):
-                try:
-                    draft = bool(args['draft'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('is_deleted'):
-                try:
-                    is_deleted = bool(args['is_deleted'])
-                except Exception as e:
-                    print(e)
-                    pass
-
-            query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
-            query = query.filter(db.or_(Article.article_by_user == None, User.is_deactivated != True))
-            if not is_deleted:
-                query = query.filter(Article.is_deleted != True)
-            else:
-                query = query.filter(Article.is_deleted == True)
-            if title and not str(title).strip().__eq__(''):
-                title = '%' + title.strip() + '%'
-                query = query.filter(Article.title.like(title))
-            if user_id:
-                query = query.filter(Article.user_id == user_id)
-            if fixed_topic_id:
-                query = query.filter(Article.fixed_topic_id == fixed_topic_id)
-            if created_date:
-                query = query.filter(Article.created_date == created_date)
-            if updated_date:
-                query = query.filter(Article.updated_date == updated_date)
-            if from_date:
-                query = query.filter(Article.created_date >= from_date)
-            if to_date:
-                query = query.filter(Article.created_date <= to_date)
-            if topic_ids:
-                query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
-            if draft is not None:
-                if draft:
-                    query = query.filter(Article.is_draft == True)
-                else:
-                    query = query.filter(Article.is_draft != True)
-
-            ordering_fields_desc = args.get('order_by_desc')
-            if ordering_fields_desc:
-                for ordering_field in ordering_fields_desc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Article, ordering_field)
-                        query = query.order_by(db.desc(column_to_sort))
-
-            ordering_fields_asc = args.get('order_by_asc')
-            if ordering_fields_asc:
-                for ordering_field in ordering_fields_asc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Article, ordering_field)
-                        query = query.order_by(db.asc(column_to_sort))
-                        
-            articles = query.all()
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            articles = res.get('data')
             results = []
             for article in articles:
                 result = article.__dict__
@@ -237,9 +162,19 @@ class ArticleController(Controller):
                                                     ArticleFavorite.article_id == article.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
-            return send_result(marshal(results, ArticleDto.model_article_response), message='Success')
+            
+            res['data'] = marshal(results, ArticleDto.model_article_response)
+            return res, code
         except Exception as e:
             return send_error(message=constants.msg_search_failed)
+    
+    def get_count(self, args):
+        try:
+            count = self.get_query_results_count(args)
+            return send_result({'count': count}, message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load topics. Contact your administrator for solution.")
 
     def get_by_id(self, object_id):
         if object_id is None:

@@ -51,6 +51,19 @@ class ArticleList(Resource):
         return controller.create(data=data)
 
 
+@api.route('/all/count')
+@api.expect(_article_get_params)
+class ArticleListCount(Resource):
+    def get(self):
+        """ 
+        Get list of topics from database.
+        """
+
+        args = _article_get_params.parse_args()
+        controller = ArticleController()
+        return controller.get_count(args=args)
+
+
 @api.route('/<string:id_or_slug>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
@@ -119,7 +132,7 @@ parser_article_hot = reqparse.RequestParser()
 parser_article_hot.add_argument('page', type=int, required=False, help='Search articles by page.')
 parser_article_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
-@api.route('/article_hot')
+@api.route('/all/hot')
 @api.expect(parser_article_hot)
 class ArticleHot(Resource):
     #@token_required

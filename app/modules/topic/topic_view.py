@@ -24,6 +24,7 @@ get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
 topic_endorse_user_request = TopicDto.topic_endorse_user_request
 upload_parser = TopicDto.upload_parser
 
+
 @api.route('/<string:topic_id_or_slug>/file')
 @api.doc(params={'topic_id_or_slug': 'The topic id or slug'})
 class TopicFile(Resource):
@@ -35,6 +36,7 @@ class TopicFile(Resource):
         """
         controller = TopicController()
         return controller.create_with_file(object_id=topic_id_or_slug)
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=False, help='The name of the topic')
@@ -68,6 +70,19 @@ class TopicList(Resource):
         data = api.payload
         controller = TopicController()
         return controller.create(data=data)
+
+
+@api.route('/all/count')
+@api.expect(parser)
+class TopicListCount(Resource):
+    def get(self):
+        """ 
+        Get list of topics from database.
+        """
+
+        args = parser.parse_args()
+        controller = TopicController()
+        return controller.get_count(args=args)
 
 
 # @api.route('/fixed_topic')
@@ -175,20 +190,6 @@ class CreateFixedTopic(Resource):
         controller = TopicController()
         return controller.create_topics()
 
-@api.route('/search')
-@api.expect(parser)
-class TopicSearch(Resource):
-    #@token_required
-    @api.response(code=200, model=topic_response, description='Model for success response.')
-    def get(self):
-        """ 
-        Search all topics that satisfy conditions.
-        """
-
-        args = parser.parse_args()
-        controller = TopicController()
-        return controller.search(args=args)
-
 
 @api.route('/update_slug')
 class UpdateTopicSlug(Resource):
@@ -205,8 +206,7 @@ class UpdateTopicSlug(Resource):
 parser_topic_hot = reqparse.RequestParser()
 parser_topic_hot.add_argument('page', type=int, required=False, help='Search topic by page.')
 parser_topic_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-
-@api.route('/topic_hot')
+@api.route('/all/hot')
 @api.expect(parser_topic_hot)
 class TopicHot(Resource):
     #@token_required

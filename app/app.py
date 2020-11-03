@@ -83,4 +83,5 @@ def init_app(config_name):
     }
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
     add_jobs(scheduler)
+    scheduler.start()
     return app
