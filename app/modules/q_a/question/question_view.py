@@ -244,7 +244,7 @@ parser_question_hot = reqparse.RequestParser()
 parser_question_hot.add_argument('page', type=int, required=False, help='Search questions by page.')
 parser_question_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
-@api.route('/question_hot')
+@api.route('/all/hot')
 @api.expect(parser_question_hot)
 class QuestionHot(Resource):
     #@token_required
