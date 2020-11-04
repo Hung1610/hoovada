@@ -6,18 +6,18 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
+from flask import current_app, request
 from flask_restx import marshal
-from flask import request, current_app
 from sqlalchemy import desc
 
 # own modules
-from app import db
+from app.app import db
 from app.constants import messages
-from common.controllers.controller import Controller
 from app.modules.post.share.share_dto import ShareDto
+from common.controllers.controller import Controller
+from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
-from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

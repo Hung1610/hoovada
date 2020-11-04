@@ -3,10 +3,10 @@
 
 # built-in modules
 from datetime import datetime
-from werkzeug.datastructures import FileStorage
 
 # third-party modules
 from flask_restx import Namespace, fields, reqparse
+from werkzeug.datastructures import FileStorage
 
 # own modules
 from common.dto import Dto
@@ -79,9 +79,9 @@ class AnswerDto(Dto):
     get_parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
     get_parser.add_argument('is_deleted', type=bool, required=False, help='Search answers that are deleted.')
-    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )
-    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )

@@ -7,9 +7,9 @@ from flask import request
 # own modules
 from app.modules.auth.auth_controller import AuthController
 from app.modules.auth.auth_dto import AuthDto
+from app.modules.user.user_dto import UserDto
 from common.utils.decorator import token_required
 from common.view import Resource
-from app.modules.user.user_dto import UserDto
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

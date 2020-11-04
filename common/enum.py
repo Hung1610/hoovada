@@ -25,3 +25,8 @@ class ReportTypeEnum(enum.Enum):
 class BanTypeEnum(enum.Enum):
     EMAIL = 1
     PHONE_NUMBER = 2
+
+
+class FileTypeEnum(enum.Enum):
+    AUDIO = 1
+    VIDEO = 2

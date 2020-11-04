@@ -6,17 +6,16 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
+from flask import current_app, request
 from flask_restx import marshal
-from flask import request, current_app
 from sqlalchemy import desc
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import Topic
+from app.app import db
 from app.modules.topic.share.share import TopicShare
 from app.modules.topic.share.share_dto import TopicShareDto
-from common.models import User
+from common.controllers.controller import Controller
+from common.models import Topic, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

@@ -3,24 +3,21 @@
 
 """Implement logic for search APIs"""
 
+import ast
 # built-in modules
 import re
-import ast
 from datetime import datetime
 
+import dateutil.parser
+from flask_restx import marshal
 # third-party modules
 from sqlalchemy import or_
-from flask_restx import marshal
-import dateutil.parser
 
-# own modules
-from common.models import Article
-from common.models import Question
-from common.models import Topic
-from common.models import User
+from app.app import db
 from app.modules.search.search_dto import SearchDto
+# own modules
+from common.models import Article, Question, Topic, User
 from common.utils.response import send_error, send_result
-from app import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

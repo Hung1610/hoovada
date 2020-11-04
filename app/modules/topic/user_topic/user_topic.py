@@ -4,9 +4,9 @@
 # built-in modules
 from datetime import datetime
 
+from app.app import db
 # own modules
 from common.models.model import Model
-from app.app import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

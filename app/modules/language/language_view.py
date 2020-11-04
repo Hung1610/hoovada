@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.language.language_controller import LanguageController
 # own modules
 # from common.decorator import token_required
 from app.modules.language.language_dto import LanguageDto
-from app.modules.language.language_controller import LanguageController
 from common.utils.decorator import token_required
 
 api = LanguageDto.api

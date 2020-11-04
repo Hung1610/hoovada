@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# own modules
-from common.dto import Dto
-
 # third-party modules
 from flask_restx import marshal
+
+# own modules
+from common.dto import Dto
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

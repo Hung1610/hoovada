@@ -6,14 +6,15 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app import db
+from app.app import db
+from app.modules.article.comment.favorite.favorite_dto import \
+    ArticleCommentFavoriteDto
 from common.controllers.controller import Controller
-from app.modules.article.comment.favorite.favorite_dto import ArticleCommentFavoriteDto
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

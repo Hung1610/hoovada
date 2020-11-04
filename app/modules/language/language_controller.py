@@ -7,11 +7,11 @@ from datetime import datetime
 # third-party modules
 from flask_restx import marshal
 
+from app.app import db
+from app.modules.language.language_dto import LanguageDto
 # own modules
 from common.controllers.controller import Controller
 from common.models import Language
-from app.modules.language.language_dto import LanguageDto
-from app import db
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

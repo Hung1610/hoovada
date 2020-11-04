@@ -3,15 +3,15 @@
 
 # built-in modules
 from datetime import datetime
-from slugify import slugify
 
+from slugify import slugify
+from sqlalchemy import event
+from sqlalchemy.sql import expression
 # third-party modules
 from sqlalchemy_utils import aggregated
-from sqlalchemy.sql import expression
-from sqlalchemy import event
 
 # own modules
-from app import db
+from app.app import db
 from common.models.model import Model
 
 __author__ = "hoovada.com team"

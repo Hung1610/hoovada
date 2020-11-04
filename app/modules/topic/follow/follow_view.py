@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.topic.follow.follow_controller import TopicFollowController
 # own modules
 # from common.decorator import token_required
 from app.modules.topic.follow.follow_dto import TopicFollowDto
-from app.modules.topic.follow.follow_controller import TopicFollowController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

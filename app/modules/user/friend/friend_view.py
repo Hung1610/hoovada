@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.user.friend.friend_controller import UserFriendController
 # own modules
 # from common.decorator import token_required
 from app.modules.user.friend.friend_dto import UserFriendDto
-from app.modules.user.friend.friend_controller import UserFriendController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

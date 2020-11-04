@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from flask import current_app, request
 # third-party modules
 from flask_restx import Resource, reqparse
-from flask import request, current_app
 
+from app.modules.user.topic.topic_controller import TopicController
 # own modules
 from app.modules.user.topic.topic_dto import TopicDto
-from app.modules.user.topic.topic_controller import TopicController
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.response import send_error
 

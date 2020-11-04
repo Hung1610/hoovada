@@ -4,9 +4,9 @@
 # third-party modules
 from flask_restx import Namespace, fields, reqparse
 
+from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 # own modules
 from common.dto import Dto
-from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

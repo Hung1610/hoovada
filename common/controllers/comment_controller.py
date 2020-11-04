@@ -4,16 +4,16 @@
 # built-in modules
 from datetime import datetime
 
+from flask import g
 # third-party modules
 from flask_restx import marshal
-from flask import g
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.utils.response import send_error, send_result
-from common.utils.permission import has_permission
+from app.app import db
 from app.constants import messages
+from common.controllers.controller import Controller
+from common.utils.permission import has_permission
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

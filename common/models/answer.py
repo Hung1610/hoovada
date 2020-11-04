@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import enum
 from datetime import datetime
 
 #third-party modules
@@ -10,19 +9,14 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from app import db
+from app.app import db
+from common.enum import FileTypeEnum
 from common.models.model import Model
-from app.modules.q_a.answer.voting.vote import AnswerVote
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
-
-
-class FileTypeEnum(enum.Enum):
-    AUDIO = 1
-    VIDEO = 2
 
 class Answer(Model):
     __tablename__ = 'answer'
@@ -44,11 +38,11 @@ class Answer(Model):
 
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
-        return db.func.sum(db.func.if_(AnswerVote.vote_status == 'UPVOTED', 1, 0))
+        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
 
     @aggregated('votes', db.Column(db.Integer))
     def downvote_count(self):
-        return db.func.sum(db.func.if_(AnswerVote.vote_status == 'DOWNVOTED', 1, 0))
+        return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
 
     @aggregated('answer_comments', db.Column(db.Integer))
     def comment_count(self):
