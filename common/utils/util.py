@@ -3,24 +3,24 @@
 
 """This file contains some useful and essential function utilities."""
 
+import hashlib
 # bulit-in modules
 import re
-import hashlib
 from datetime import datetime, timedelta
 from io import StringIO
 
 # third-party modules
 import jwt
 import markdown2
-from flask import url_for, render_template, request, current_app
+import phonenumbers
+from flask import current_app, render_template, request, url_for
 from flask_babel import lazy_gettext as _l
 from flask_mail import Message
 from flask_restx import ValidationError
 from itsdangerous import URLSafeTimedSerializer
 from markdown import Markdown
-from twilio.rest import Client
 from password_strength import PasswordPolicy
-import phonenumbers
+from twilio.rest import Client
 
 # own modules
 from app.settings.config import BaseConfig

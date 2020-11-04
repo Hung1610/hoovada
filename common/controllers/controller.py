@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-from app import db
 from abc import ABC, abstractmethod
+
+# built-in modules
+from app.app import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -27,12 +28,10 @@ class Controller(ABC):
     def get_query_results(self, params=None):
         query = self.get_query()
         if params:
-            query = self.apply_filtering(query, params)
-            
-            ordering_fields_asc, ordering_fields_desc = params.pop('ordering_fields_asc', None), params.pop('order_by_desc', None)
-            query = self.apply_sorting(query, ordering_fields_desc, ordering_fields_asc)
-
+            ordering_fields_asc, ordering_fields_desc = params.pop('order_by_asc', None), params.pop('order_by_desc', None)
             page, per_page = params.pop('page', None), params.pop('per_page', None)
+            query = self.apply_filtering(query, params)
+            query = self.apply_sorting(query, ordering_fields_desc, ordering_fields_asc)
             query = self.apply_pagination(query, page, per_page)
 
         return query

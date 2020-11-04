@@ -8,12 +8,11 @@ from datetime import datetime
 from flask_restx import marshal
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import Topic
+from app.app import db
 from app.modules.topic.user_topic.user_topic import UserTopic
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
-from common.models import User
+from common.controllers.controller import Controller
+from common.models import Topic, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

@@ -4,15 +4,16 @@
 # built-in modules
 from datetime import datetime
 
+import dateutil.parser
 # third-party modules
 from flask_restx import marshal
-import dateutil.parser
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
+from app.app import db
 from app.modules.user.user_employment.user_employment import UserEmployment
-from app.modules.user.user_employment.user_employment_dto import UserEmploymentDto
+from app.modules.user.user_employment.user_employment_dto import \
+    UserEmploymentDto
+from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

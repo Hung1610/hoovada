@@ -8,14 +8,14 @@ from datetime import datetime
 from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
-from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
+from werkzeug.security import check_password_hash, generate_password_hash
 
+from app.app import db
 # own modules
 from common.models.model import Model
 from common.utils.types import UserRole
-from app import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.topic.topic_controller import TopicController
 # own modules
 # from common.decorator import token_required
 from app.modules.topic.topic_dto import TopicDto
-from app.modules.topic.topic_controller import TopicController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

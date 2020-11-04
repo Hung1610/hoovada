@@ -4,23 +4,22 @@
 # built-in modules
 from datetime import datetime
 
+from flask import current_app, request
 # third-party modules
 from flask_restx import marshal
-from flask import request, current_app
 
 # own modules
-from app import db
-from common.controllers.comment_controller import BaseCommentController
-from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.answer.comment.favorite.favorite import AnswerCommentFavorite
-from common.models import AnswerComment
+from app.app import db
+from app.constants import messages
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
-from common.models import User
+from app.modules.q_a.answer.comment.favorite.favorite import \
+    AnswerCommentFavorite
+from common.controllers.comment_controller import BaseCommentController
+from common.models import Answer, AnswerComment, User
+from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.utils.types import UserRole, PermissionType
-from common.utils.permission import has_permission
-from app.constants import messages
+from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

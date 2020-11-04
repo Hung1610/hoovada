@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from os import environ
+
 # own modules
 from app import create_app
-from os import environ
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

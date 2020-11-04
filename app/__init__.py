@@ -4,7 +4,7 @@
 # third-party modules
 
 # own modules
-from app.app import init_app, db, cache
+from app.app import init_app
 from app.apis import init_api
 
 __author__ = "hoovada.com team"

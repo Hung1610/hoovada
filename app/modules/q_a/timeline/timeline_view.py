@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource
 
+from app.modules.q_a.timeline.timeline_controller import TimelineController
 # own modules
 # from common.decorator import token_required
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
-from app.modules.q_a.timeline.timeline_controller import TimelineController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

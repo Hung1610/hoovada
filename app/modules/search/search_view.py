@@ -4,9 +4,9 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.search.search_controller import SearchController
 # own modules
 from app.modules.search.search_dto import SearchDto
-from app.modules.search.search_controller import SearchController
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

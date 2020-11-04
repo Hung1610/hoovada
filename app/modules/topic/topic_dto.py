@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-from werkzeug.datastructures import FileStorage
-
 # third-party modules
 from flask_restx import Namespace, fields
+# built-in modules
+from werkzeug.datastructures import FileStorage
 
 # own modules
 from common.dto import Dto

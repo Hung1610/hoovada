@@ -75,11 +75,11 @@ class ArticleDto(Dto):
     model_get_parser.add_argument('draft', type=bool, required=False, help='Search articles that are drafts.')
     model_get_parser.add_argument('is_deleted', type=bool, required=False, help='Search articles that are deleted.')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search all articles created by user.')
-    model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+    model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )
-    model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+    model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )
 
     get_similar_articles_parser = reqparse.RequestParser()

@@ -6,15 +6,15 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app, g
+from flask import current_app, g, request
 from flask_restx import marshal
 
 # own modules
-from app import db
+from app.app import db
 from app.constants import messages
 from app.modules.topic.follow.follow_dto import TopicFollowDto
-from common.utils.response import send_error, send_result
 from common.controllers.controller import Controller
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

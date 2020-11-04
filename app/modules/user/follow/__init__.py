@@ -4,7 +4,6 @@
 # own modules
 from app.modules.user.follow.follow_view import api
 
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"

@@ -1,34 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 # built-in modules
 import os
-import json
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, url_for
-from flask import current_app
+from flask import current_app, g, request, url_for
 from flask_restx import marshal
 from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from app.modules.q_a.answer.answer import Answer, FileTypeEnum
+from app.app import db
+from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
 from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
-from common.models import User
-from common.utils.response import send_error, send_result, paginated_result
-from common.utils.sensitive_words import check_sensitive
+from common.controllers.controller import Controller
+from common.enum import FileTypeEnum
+from common.models import Answer, User
 from common.utils.file_handler import append_id, get_file_name_extension
-from common.utils.util import encode_file_name
+from common.utils.response import paginated_result, send_error, send_result
+from common.utils.sensitive_words import check_sensitive
 from common.utils.types import UserRole
+from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
-from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -37,7 +36,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class AnswerController(Controller):
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
+    query_classname = 'Answer'
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
 
     def search(self, args):
         """
@@ -203,85 +203,35 @@ class AnswerController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Answer media', e))
 
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated != True))
+        
+        return query
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(Answer.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        if params.get('to_date'):
+            query = query.filter(Answer.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+
+        return query
+
     def get(self, args):
         """
         Search answers.
         """
         try:
-            if not isinstance(args, dict):
-                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-            user_id, question_id, from_date, to_date, is_deleted = None, None, None, None, None
-            if 'user_id' in args:
-                try:
-                    user_id = int(args['user_id'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if 'question_id' in args:
-                try:
-                    question_id = int(args['question_id'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if 'from_date' in args:
-                try:
-                    from_date = dateutil.parser.isoparse(args['from_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if 'to_date' in args:
-                try:
-                    to_date = dateutil.parser.isoparse(args['to_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('is_deleted'):
-                try:
-                    is_deleted = bool(args['is_deleted'])
-                except Exception as e:
-                    print(e)
-                    pass
-            query = Answer.query
-            query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated != True))
-
-            if not is_deleted:
-                query = query.filter(Answer.is_deleted != True)
-            else:
-                query = query.filter(Answer.is_deleted == True)
-            if user_id is not None:
-                query = query.filter(Answer.user_id == user_id)
-            if question_id is not None:
-                query = query.filter(Answer.question_id == question_id)
-            if from_date is not None:
-                query = query.filter(Answer.created_date >= from_date)
-            if to_date is not None:
-                query = query.filter(Answer.created_date <= to_date)
-                
-            ordering_fields_desc = args.get('order_by_desc')
-            if ordering_fields_desc:
-                for ordering_field in ordering_fields_desc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Answer, ordering_field)
-                        query = query.order_by(db.desc(column_to_sort))
-            ordering_fields_asc = args.get('order_by_asc')
-            if ordering_fields_asc:
-                for ordering_field in ordering_fields_asc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Answer, ordering_field)
-                        query = query.order_by(db.asc(column_to_sort))
-                        
-            page, per_page = args.get('page', 1), args.get('per_page', 10)
-            query = query.paginate(page, per_page, error_out=True)
+            query = self.get_query_results(args)
             res, code = paginated_result(query)
-
+            current_user = g.current_user
             # get user information for each answer.
             results = []
             for answer in res.get('data'):
                 result = answer._asdict()
                 user = User.query.filter_by(id=answer.user_id).first()
                 result['user'] = user
-                # lay thong tin up_vote down_vote cho current user
-                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                     if vote is not None:

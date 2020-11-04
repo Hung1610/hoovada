@@ -4,10 +4,11 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.q_a.question.favorite.favorite_controller import \
+    QuestionFavoriteController
 # own modules
 # from common.decorator import token_required
 from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto
-from app.modules.q_a.question.favorite.favorite_controller import QuestionFavoriteController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

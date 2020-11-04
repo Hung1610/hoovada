@@ -6,22 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import Article
-from common.models import ArticleComment
+from app.app import db
 from app.modules.article.favorite import constants
-from common.models import ArticleFavorite
 from app.modules.article.favorite.favorite_dto import FavoriteDto
-from common.models import User
+from common.controllers.controller import Controller
+from common.models import Article, ArticleComment, ArticleFavorite, User
+from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
-from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

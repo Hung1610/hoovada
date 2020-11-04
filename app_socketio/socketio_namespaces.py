@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from app_socketio.app import socketio
 # own modules
 from app_socketio.modules.chat.chat_namespace import ChatNamespace
-from app_socketio.app import socketio
-
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

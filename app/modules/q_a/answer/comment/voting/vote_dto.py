@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import fields, Namespace, reqparse
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from app.modules.q_a.answer.comment.voting.vote import VotingStatusEnum
 from common.dto import Dto
-
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

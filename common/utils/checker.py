@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-from dateutil.parser import parse
-
 # third-party modules
 import enchant
+# built-in modules
+from dateutil.parser import parse
 from enchant.checker import SpellChecker
-from enchant.tokenize import get_tokenizer, HTMLChunker, EmailFilter, URLFilter
+from enchant.tokenize import EmailFilter, HTMLChunker, URLFilter, get_tokenizer
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
