@@ -6,20 +6,19 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from app.modules.q_a.answer.answer import Answer
+from app.app import db
+from app.constants import messages
 from app.modules.q_a.answer.report.report import AnswerReport
 from app.modules.q_a.answer.report.report_dto import AnswerReportDto
-from common.models import User
-from common.utils.response import send_error, send_result
-from common.utils.types import UserRole, PermissionType
+from common.controllers.controller import Controller
+from common.models import Answer, User
 from common.utils.permission import has_permission
-from app.constants import messages
+from common.utils.response import send_error, send_result
+from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

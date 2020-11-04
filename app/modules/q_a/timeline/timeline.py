@@ -6,7 +6,7 @@ import enum
 from datetime import datetime
 
 # own modules
-from app import db
+from app.app import db
 from common.models.model import Model
 
 __author__ = "hoovada.com team"

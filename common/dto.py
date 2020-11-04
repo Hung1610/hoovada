@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# third-party modules
-from flask_restx import reqparse
-
 # built-in modules
 from abc import ABC, abstractmethod
+
+# third-party modules
+from flask_restx import reqparse
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

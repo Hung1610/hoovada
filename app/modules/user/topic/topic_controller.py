@@ -4,22 +4,21 @@
 # built-in modules
 from datetime import datetime
 
+from flask import request
 # third-party modules
 from flask_restx import marshal
-from flask import request
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import Topic, TopicUserEndorse
-from common.models import User
+from app.app import db
+from app.constants import messages
+from app.modules.auth.auth_controller import AuthController
 from app.modules.user.topic.topic import UserTopic
 from app.modules.user.topic.topic_dto import TopicDto
-from app.modules.auth.auth_controller import AuthController
-from common.models import User
-from common.utils.response import send_error, send_result, send_paginated_result, paginated_result
+from common.controllers.controller import Controller
+from common.models import Topic, TopicUserEndorse, User
+from common.utils.response import (paginated_result, send_error,
+                                   send_paginated_result, send_result)
 from common.utils.sensitive_words import check_sensitive
-from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

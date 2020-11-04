@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from flask import current_app, url_for
 # third-party modules
-from flask_restx import Resource, Namespace, Api
-from flask import url_for, current_app
+from flask_restx import Api, Namespace, Resource
 
 # own modules
 from app.modules import *

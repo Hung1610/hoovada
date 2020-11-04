@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-from slugify import slugify
 from datetime import datetime
 
+# built-in modules
+from slugify import slugify
+from sqlalchemy import event
 # third-party modules
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
-from sqlalchemy import event
 
 # own modules
-from app import db
+from app.app import db
 from common.models.model import Model
 
 __author__ = "hoovada.com team"

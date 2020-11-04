@@ -6,7 +6,6 @@ import os
 import shutil
 import uuid
 
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"

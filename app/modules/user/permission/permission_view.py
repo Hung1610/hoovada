@@ -4,10 +4,11 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.user.permission.permission_controller import \
+    PermissionController
+from app.modules.user.permission.permission_dto import PermissionDto
 # own modules
 from common.utils.decorator import admin_token_required, token_required
-from app.modules.user.permission.permission_dto import PermissionDto
-from app.modules.user.permission.permission_controller import PermissionController
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

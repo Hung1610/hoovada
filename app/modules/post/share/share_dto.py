@@ -1,4 +1,4 @@
-from flask_restx import fields, Namespace
+from flask_restx import Namespace, fields
 
 from common.dto import Dto
 

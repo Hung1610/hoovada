@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from os import environ, path, pardir
+from os import environ, pardir, path
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

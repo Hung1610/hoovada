@@ -7,32 +7,21 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app, g
+from flask import current_app, g, request
 from flask_restx import marshal
-from sqlalchemy import desc, text, func, and_, or_
 from slugify import slugify
+from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import Question, QuestionProposal
-from common.models import QuestionShare
-from common.models import QuestionFavorite
-from common.models.bookmark import QuestionBookmark
-from app.modules.q_a.question.question_dto import QuestionDto
-from common.models.vote import QuestionVote, VotingStatusEnum
-from app.modules.q_a.answer.answer import Answer
-from app.modules.q_a.answer.answer_dto import AnswerDto
-from common.models import Topic
-from common.models import User
-from common.models import UserFollow
-from common.models import Reputation
-from common.utils.response import send_error, send_result, paginated_result
-from common.utils.sensitive_words import check_sensitive
-from common.utils.checker import check_spelling
-from common.models import TopicBookmark
+from app.app import db
 from app.constants import messages
-from common.models import UserFriend
+from app.modules.q_a.answer.answer_dto import AnswerDto
+from app.modules.q_a.question.question_dto import QuestionDto
+from common.controllers.controller import Controller
+from common.enum import VotingStatusEnum
+from common.utils.checker import check_spelling
+from common.utils.response import paginated_result, send_error, send_result
+from common.utils.sensitive_words import check_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -40,8 +29,25 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+User = db.get_model('User')
+UserFollow = db.get_model('UserFollow')
+UserFriend = db.get_model('UserFriend')
+Topic = db.get_model('Topic')
+TopicBookmark = db.get_model('TopicBookmark')
+Reputation = db.get_model('Reputation')
+Answer = db.get_model('Answer')
+Question = db.get_model('Question')
+QuestionProposal = db.get_model('QuestionProposal')
+QuestionShare = db.get_model('QuestionShare')
+QuestionFavorite = db.get_model('QuestionFavorite')
+QuestionBookmark = db.get_model('QuestionBookmark')
+QuestionVote = db.get_model('QuestionVote')
+
+
 class QuestionController(Controller):
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
+    query_classname = 'Question'
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
     
     def create(self, data):
         if not isinstance(data, dict):
@@ -101,123 +107,43 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could not create question. Contact administrator for solution.')
 
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        current_user = g.current_user
+        if current_user:
+            if not current_user.show_nsfw:
+                query = query.join(Topic, isouter=True).filter(Topic.is_nsfw != True)\
+                    .filter(Question.topics.any(Topic.is_nsfw != True))
+
+        get_my_own = False
+        if params.get('user_id'):
+            user_id = int(args['user_id'])
+            if current_user:
+                if user_id == current_user.id:
+                    get_my_own = True
+        if not get_my_own:
+            query = query.filter(Question.is_private != True)
+
+        if params.get('title'):
+            title_similarity = db.func.SIMILARITY_STRING(params.get('title'), Question.title).label('title_similarity')
+            query = query.filter(title_similarity > 50)
+        if params.get('from_date'):
+            query = query.filter(Question.created_date >= params.get('from_date'))
+        if params.get('to_date'):
+            query = query.filter(Question.created_date <= params.get('to_date'))
+        if params.get('topic_id'):
+            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
+        if params.get('is_shared') and current_user:
+            query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+
+        return query
+
     def get(self, args):
         try:
-            query = Question.query # query search from view
-            current_user, _ = current_app.get_logged_user(request)
-            if current_user:
-                if not current_user.show_nsfw:
-                    query = query.join(Topic, isouter=True).filter(Topic.is_nsfw != True)\
-                        .filter(Question.topics.any(Topic.is_nsfw != True))
-            if not isinstance(args, dict):
-                return send_error(message='Could not parse the params.')
-            title, user_id, fixed_topic_id, created_date, updated_date, from_date, to_date, topic_ids, is_deleted, is_shared = None, None, None, None, None, None, None, None, None, None
-
-            get_my_own = False
-            if args.get('user_id'):
-                try:
-                    user_id = int(args['user_id'])
-                    if current_user:
-                        if user_id == current_user.id:
-                            get_my_own = True
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if not get_my_own:
-                query = query.filter(Question.is_private != True)
-
-            if args.get('title'):
-                title = args['title']
-            if args.get('fixed_topic_id'):
-                try:
-                    fixed_topic_id = int(args['fixed_topic_id'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('created_date'):
-                try:
-                    created_date = dateutil.parser.isoparse(args['created_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('updated_date'):
-                try:
-                    updated_date = dateutil.parser.isoparse(args['updated_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('from_date'):
-                try:
-                    from_date = dateutil.parser.isoparse(args['from_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('to_date'):
-                try:
-                    to_date = dateutil.parser.isoparse(args['to_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('topic_id'):
-                try:
-                    topic_ids = args['topic_id']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('is_deleted'):
-                try:
-                    is_deleted = bool(args['is_deleted'])
-                except Exception as e:
-                    print(e)
-                    pass
-            if args.get('is_shared'):
-                try:
-                    is_shared = bool(args['is_shared'])
-                except Exception as e:
-                    print(e)
-                    pass
-
-            if not is_deleted:
-                query = query.filter(Question.is_deleted != True)
-
-            if title is not None and not str(title).strip().__eq__(''):
-                title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
-                query = query.filter(title_similarity > 50)
-            if user_id is not None:
-                query = query.filter(Question.user_id == user_id)
-            if fixed_topic_id is not None:
-                query = query.filter(Question.fixed_topic_id == fixed_topic_id)
-            if created_date is not None:
-                query = query.filter(Question.created_date == created_date)
-            if updated_date is not None:
-                query = query.filter(Question.updated_date == updated_date)
-            if from_date is not None:
-                query = query.filter(Question.created_date >= from_date)
-            if to_date is not None:
-                query = query.filter(Question.created_date <= to_date)
-            if topic_ids is not None:
-                query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
-            if is_shared and current_user:
-                query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-
-            ordering_fields_desc = args.get('order_by_desc')
-            if ordering_fields_desc:
-                for ordering_field in ordering_fields_desc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Question, ordering_field)
-                        query = query.order_by(db.desc(column_to_sort))
-            ordering_fields_asc = args.get('order_by_asc')
-            if ordering_fields_asc:
-                for ordering_field in ordering_fields_asc:
-                    if ordering_field in self.allowed_ordering_fields:
-                        column_to_sort = getattr(Question, ordering_field)
-                        query = query.order_by(db.asc(column_to_sort))
-
-            page, per_page = args.get('page', 1), args.get('per_page', 10)
-            query = query.paginate(page, per_page, error_out=True)
+            query = self.get_query_results(args)
             res, code = paginated_result(query)
-
-            results = list()
+            current_user = g.current_user
+            results = []
             for question in res.get('data'):
                 result = question._asdict()
                 # get user info

@@ -5,22 +5,22 @@
 from pytz import utc
 
 # third-party modules
-from flask import Flask, request, g
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask import Flask, g, request
 from flask_bcrypt import Bcrypt
+from flask_caching import Cache
 from flask_cors import CORS
 from flask_mail import Mail
-from flask_caching import Cache
-
-from apscheduler.schedulers.background import BackgroundScheduler
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.redis import RedisJobStore
-from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # own modules
 from app.settings.config import config_by_name
-from common.utils.util import get_model, get_model_by_tablename, get_logged_user
 from common.scheduled_jobs import add_jobs
+from common.utils.util import (get_logged_user, get_model,
+                               get_model_by_tablename)
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

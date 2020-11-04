@@ -4,18 +4,18 @@
 # built-in modules
 from datetime import datetime
 
+from flask import current_app, request
 # third-party modules
 from flask_restx import marshal
-from flask import request, current_app
 
 # own modules
-from app import db
-from common.controllers.comment_controller import BaseCommentController
+from app.app import db
 from app.modules.post.comment.comment_dto import CommentDto
+from common.controllers.comment_controller import BaseCommentController
+from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import PermissionType
-from common.utils.permission import has_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

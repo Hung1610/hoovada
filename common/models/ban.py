@@ -6,10 +6,9 @@ import enum
 from datetime import datetime
 
 # own modules
-from app import db
-from common.models.model import Model
+from app.app import db
 from common.enum import BanTypeEnum
-
+from common.models.model import Model
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -6,20 +6,17 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import User
-from common.models import UserFollow
-from app.modules.user.follow.follow_dto import UserFollowDto
-from common.models import User
-from common.models import Reputation
-from common.utils.response import send_error, send_result
+from app.app import db
 from app.constants import messages
+from app.modules.user.follow.follow_dto import UserFollowDto
+from common.controllers.controller import Controller
+from common.models import Reputation, User, UserFollow
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.q_a.answer.comment.comment_controller import CommentController
 # own modules
 # from common.decorator import token_required
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
-from app.modules.q_a.answer.comment.comment_controller import CommentController
 from common.utils.decorator import admin_token_required, token_required
 
 api = CommentDto.api

@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.user.ban.ban_controller import UserBanController
 # own modules
 # from common.decorator import token_required
 from app.modules.user.ban.ban_dto import UserBanDto
-from app.modules.user.ban.ban_controller import UserBanController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

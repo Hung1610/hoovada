@@ -4,9 +4,11 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.user.user_permission.user_permission_controller import \
+    UserPermissionController
 # own modules
-from app.modules.user.user_permission.user_permission_dto import UserPermissionDto
-from app.modules.user.user_permission.user_permission_controller import UserPermissionController
+from app.modules.user.user_permission.user_permission_dto import \
+    UserPermissionDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.types import UserRole
 

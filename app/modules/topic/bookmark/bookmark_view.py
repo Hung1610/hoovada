@@ -4,10 +4,11 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.topic.bookmark.bookmark_controller import \
+    TopicBookmarkController
 # own modules
 # from common.decorator import token_required
 from app.modules.topic.bookmark.bookmark_dto import TopicBookmarkDto
-from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

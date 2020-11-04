@@ -6,18 +6,17 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models import Question
+from app.app import db
 from app.modules.q_a.question.bookmark import constants
-from common.models.bookmark import QuestionBookmark
 from app.modules.q_a.question.bookmark.bookmark_dto import QuestionBookmarkDto
-from common.models import User
+from common.controllers.controller import Controller
+from common.models import Question, User
+from common.models.bookmark import QuestionBookmark
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

@@ -4,9 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.q_a.question.voting.vote_controller import \
+    QuestionVoteController
 # own modules
 from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
-from app.modules.q_a.question.voting.vote_controller import QuestionVoteController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

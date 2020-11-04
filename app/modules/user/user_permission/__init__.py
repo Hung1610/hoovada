@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.user.user_permission.user_permission_view import api as ns_user_permission
+from app.modules.user.user_permission.user_permission_view import \
+    api as ns_user_permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
