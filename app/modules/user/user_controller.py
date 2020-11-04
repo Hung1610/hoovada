@@ -4,25 +4,24 @@
 # build-in modules
 import os
 from datetime import datetime
-import dateutil.parser
 
+import dateutil.parser
 # third-party modules
-from flask import url_for, request, send_file, current_app
+from flask import current_app, request, send_file, url_for
 from flask_restx import marshal
-from sqlalchemy import desc, text, func
+from sqlalchemy import desc, func, text
 
 # own modules
-from app import db
-from common.models import User
+from app.app import db
 from app.modules.user.user_dto import UserDto
-from common.utils.response import send_result, send_error, paginated_result
-from common.controllers.controller import Controller
 from app.settings.config import BaseConfig as Config
+from common.controllers.controller import Controller
+from common.models import Reputation, User
 from common.utils.file_handler import append_id, get_file_name_extension
-from common.utils.util import encode_file_name
+from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
-from common.utils.wasabi import upload_file, delete_file
-from common.models import Reputation
+from common.utils.util import encode_file_name
+from common.utils.wasabi import delete_file, upload_file
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.topic.share.share_controller import ShareController
 # own modules
 # from common.decorator import token_required
 from app.modules.topic.share.share_dto import TopicShareDto
-from app.modules.topic.share.share_controller import ShareController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

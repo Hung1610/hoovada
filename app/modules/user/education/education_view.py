@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from flask import current_app, request
 # third-party modules
 from flask_restx import Resource, reqparse
-from flask import request, current_app
 
+from app.modules.user.education.education_controller import EducationController
 # own modules
 from app.modules.user.education.education_dto import EducationDto
-from app.modules.user.education.education_controller import EducationController
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.response import send_error
 

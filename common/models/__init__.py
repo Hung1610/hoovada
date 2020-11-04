@@ -1,23 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# TODO: MOVE ALL MODELS HERE
-from common.models.user import User, SocialAccount
-from common.models.friend import UserFriend
-from common.models.follow import UserFollow
-from common.models.reputation import Reputation
-from common.models.topic import Topic, TopicUserEndorse
+from common.models.answer import Answer
 from common.models.article import Article
 from common.models.ban import UserBan
 from common.models.bookmark import QuestionBookmark, TopicBookmark
-from common.models.comment import ArticleComment, PostComment, QuestionComment, AnswerComment
-from common.models.favorite import QuestionFavorite, ArticleFavorite, ArticleCommentFavorite, PostFavorite
-from common.models.question import Question, QuestionProposal
-from common.models.report import QuestionReport, ArticleReport, ArticleCommentReport, PostReport
-from common.models.share import QuestionShare, ArticleShare, PostShare
-from common.models.vote import QuestionVote, ArticleVote, ArticleCommentVote, PostVote
-from common.models.post import Post
+from common.models.comment import (AnswerComment, ArticleComment, PostComment,
+                                   QuestionComment)
+from common.models.favorite import (ArticleCommentFavorite, ArticleFavorite,
+                                    PostFavorite, QuestionFavorite)
+from common.models.follow import UserFollow
+from common.models.friend import UserFriend
 from common.models.language import Language
+from common.models.post import Post
+from common.models.question import Question, QuestionProposal
+from common.models.report import (ArticleCommentReport, ArticleReport,
+                                  PostReport, QuestionReport)
+from common.models.reputation import Reputation
+from common.models.share import ArticleShare, PostShare, QuestionShare
+from common.models.topic import Topic, TopicUserEndorse
+from common.models.user import SocialAccount, User
+from common.models.vote import (ArticleCommentVote, ArticleVote, PostVote,
+                                QuestionVote)
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

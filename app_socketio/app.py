@@ -5,9 +5,9 @@
 from flask import Flask
 from flask_socketio import SocketIO
 
+from app_socketio.modules.chat.chat_namespace import ChatNamespace
 # own modules
 from app_socketio.settings.config import config_by_name
-from app_socketio.modules.chat.chat_namespace import ChatNamespace
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

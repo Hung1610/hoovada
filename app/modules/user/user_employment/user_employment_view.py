@@ -4,9 +4,11 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.user.user_employment.user_employment_controller import \
+    UserEmploymentController
 # own modules
-from app.modules.user.user_employment.user_employment_dto import UserEmploymentDto
-from app.modules.user.user_employment.user_employment_controller import UserEmploymentController
+from app.modules.user.user_employment.user_employment_dto import \
+    UserEmploymentDto
 from common.utils.decorator import admin_token_required, token_required
 
 api = UserEmploymentDto.api

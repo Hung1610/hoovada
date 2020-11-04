@@ -3,11 +3,12 @@
 
 # built-in modules
 from abc import ABC, abstractmethod
-from app.app import db
 
+from sqlalchemy import inspect
 # third-party modules
 from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy import inspect
+
+from app.app import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

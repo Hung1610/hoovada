@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 
+from app.modules.file_upload.file_upload_dto import FileUploadDto
 # own modules
 from common.controllers.controller import Controller
-from app.modules.file_upload.file_upload_dto import FileUploadDto
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import send_error, send_result
 from common.utils.util import encode_file_name

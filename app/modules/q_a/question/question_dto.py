@@ -150,10 +150,10 @@ class QuestionDto(Dto):
     get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
     get_parser.add_argument('is_deleted', type=bool, required=False, help='Search questions that are deleted.')
     get_parser.add_argument('is_shared', type=bool, required=False, help='Search questions that are shared.')
-    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )
-    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )
                         

@@ -1,31 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import hashlib
+import hmac
 # built-in modules
 import json
-import hmac
-import hashlib
-import requests
 from datetime import datetime, timedelta
 
 # third-party modules
 import chardet
-from flask import make_response, request, current_app
+import requests
+from flask import current_app, make_response, request
 from flask_restx import marshal
 
+from app.app import db
+from app.constants import messages
+from app.modules.auth.auth_dto import AuthDto
+from app.modules.user.user_dto import UserDto
 # own modules
 from app.settings.config import BaseConfig as Config
-from app import db
-from app.modules.auth.auth_dto import AuthDto
-from common.models.blacklist import BlacklistToken
-from common.models.user import User, SocialAccount
 from common.models.ban import UserBan
-from app.modules.user.user_dto import UserDto
+from common.models.blacklist import BlacklistToken
+from common.models.user import SocialAccount, User
 from common.utils.response import send_error, send_result
-from common.utils.util import send_confirmation_email, confirm_token, decode_auth_token, encode_auth_token, \
-    get_response_message, convert_vietnamese_diacritics, validate_phone_number, is_valid_username, send_verification_sms, \
-    check_verification, check_password, is_valid_email, generate_confirmation_token, send_password_reset_email
-from app.constants import messages
+from common.utils.util import (check_password, check_verification,
+                               confirm_token, convert_vietnamese_diacritics,
+                               decode_auth_token, encode_auth_token,
+                               generate_confirmation_token,
+                               get_response_message, is_valid_email,
+                               is_valid_username, send_confirmation_email,
+                               send_password_reset_email,
+                               send_verification_sms, validate_phone_number)
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

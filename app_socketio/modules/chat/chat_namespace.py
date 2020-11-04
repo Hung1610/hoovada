@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_socketio import Namespace, send, emit, join_room, leave_room
+from flask_socketio import Namespace, emit, join_room, leave_room, send
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.post.report.report_controller import ReportController
 # own modules
 # from common.decorator import token_required
 from app.modules.post.report.report_dto import ReportDto
-from app.modules.post.report.report_controller import ReportController
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

@@ -3,32 +3,26 @@
 
 # built-in modules
 import json
-from slugify import slugify
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app, abort, g
-from flask_restx import marshal
-from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup
+from flask import abort, current_app, g, request
+from flask_restx import marshal
+from slugify import slugify
+from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from app import db
+from app.app import db
 from app.modules.article import constants
-from common.models import Article
 from app.modules.article.article_dto import ArticleDto
-from common.models.vote import ArticleVote, VotingStatusEnum
-from common.models import ArticleFavorite
 from common.controllers.controller import Controller
-from common.models import Topic
-from common.models import User
-from common.utils.response import send_error, send_result, paginated_result
+from common.models import (Article, ArticleFavorite, Topic, TopicBookmark,
+                           User, UserFollow, UserFriend)
+from common.models.vote import ArticleVote, VotingStatusEnum
+from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.models import TopicBookmark
-from common.models import UserFriend
-from common.models import UserFollow
-
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -39,7 +33,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class ArticleController(Controller):
     query_classname = 'Article'
     special_filtering_fields = ['from_date', 'to_date', 'draft', 'topic_id', 'title']
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -140,6 +134,8 @@ class ArticleController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
+            # get current user voting status for this article
+            current_user = g.current_user
             articles = res.get('data')
             results = []
             for article in articles:
@@ -151,8 +147,6 @@ class ArticleController(Controller):
                 result['topics'] = article.topics
                 # get fixed topic name
                 result['fixed_topic'] = article.fixed_topic
-                # get current user voting status for this article
-                current_user, _ = current_app.get_logged_user(request)
                 if current_user:
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:

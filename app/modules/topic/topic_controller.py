@@ -3,23 +3,24 @@
 
 # built-in modules
 import ast
-import dateutil.parser
-from slugify import slugify
 from datetime import datetime
 
+import dateutil.parser
 # third-party modules
-from flask import request, current_app, g
+from flask import current_app, g, request
 from flask_restx import marshal
-from sqlalchemy import or_, and_, func, desc, text
+from slugify import slugify
+from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from app import db
+from app.app import db
 from app.constants import messages
 from app.modules.topic.topic_dto import TopicDto
 from common.controllers.controller import Controller
-from common.utils.response import send_error, send_result, send_paginated_result, paginated_result
-from common.utils.sensitive_words import check_sensitive
 from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.response import (paginated_result, send_error,
+                                   send_paginated_result, send_result)
+from common.utils.sensitive_words import check_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
 

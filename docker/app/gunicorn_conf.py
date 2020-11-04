@@ -69,6 +69,8 @@ backlog = 2048
 
 
 from multiprocessing import cpu_count
+
+
 def max_workers():    
     return cpu_count()
     
@@ -211,7 +213,9 @@ def worker_int(worker):
     worker.log.info("worker received INT or QUIT signal")
 
     ## get traceback info
-    import threading, sys, traceback
+    import sys
+    import threading
+    import traceback
     id2name = {th.ident: th.name for th in threading.enumerate()}
     code = []
     for threadId, stack in sys._current_frames().items():

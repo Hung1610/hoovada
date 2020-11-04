@@ -3,19 +3,16 @@
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules 
-from app import db
-from common.controllers.controller import Controller
+from app.app import db
 from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
-from app.modules.q_a.timeline.timeline import Timeline, Timeline
-from app.modules.q_a.timeline.timeline_dto import TimelineDto
+from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
-
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

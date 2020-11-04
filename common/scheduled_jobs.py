@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import hashlib
 # bulit-in modules
 import re
-import hashlib
 from datetime import datetime, timedelta
 from io import StringIO
 
 # third-party modules
-from flask import url_for, render_template, request, current_app
+from flask import current_app, render_template, request, url_for
 from flask_babel import lazy_gettext as _l
 from flask_mail import Message
 

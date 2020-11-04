@@ -5,10 +5,10 @@
 from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
 
-# own modules
-from common.utils.decorator import token_required
 from app.modules.file_upload.file_upload_controler import FileUploadController
 from app.modules.file_upload.file_upload_dto import FileUploadDto
+# own modules
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

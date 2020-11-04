@@ -3,15 +3,15 @@
 
 #third-party modules
 from flask import request
-from werkzeug.datastructures import FileStorage
 from flask_restx import reqparse
+from werkzeug.datastructures import FileStorage
 
-# own modules
-from common.view import Resource
-from app.modules.user.user_dto import UserDto
 from app.modules.user.user_controller import UserController
+from app.modules.user.user_dto import UserDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.types import UserRole
+# own modules
+from common.view import Resource
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -3,29 +3,25 @@
 
 # built-in modules
 import json
-from slugify import slugify
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app, g
-from flask_restx import marshal
-from sqlalchemy import desc, text, func, and_, or_
 from bs4 import BeautifulSoup
+from flask import current_app, g, request
+from flask_restx import marshal
+from slugify import slugify
+from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from app import db
+from app.app import db
 from app.constants import messages
 from app.modules.post.post_dto import PostDto
-from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.models import Topic
+from common.enum import VotingStatusEnum
+from common.models import Topic, TopicBookmark, UserFollow, UserFriend
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.models import TopicBookmark
-from common.models import UserFriend
-from common.models import UserFollow
-
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

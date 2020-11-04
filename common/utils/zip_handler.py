@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 # built-in
 import zipfile
-import os
-
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

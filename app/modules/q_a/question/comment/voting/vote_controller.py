@@ -6,17 +6,17 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from app import db
+from app.app import db
+from app.modules.q_a.question.comment.voting.vote import (QuestionCommentVote,
+                                                          VotingStatusEnum)
+from app.modules.q_a.question.comment.voting.vote_dto import \
+    QuestionCommentVoteDto
 from common.controllers.controller import Controller
-from common.models import QuestionComment
-from app.modules.q_a.question.comment.voting.vote import QuestionCommentVote, VotingStatusEnum
-from app.modules.q_a.question.comment.voting.vote_dto import QuestionCommentVoteDto
-from common.models import User
-from common.models import Reputation
+from common.models import QuestionComment, Reputation, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"

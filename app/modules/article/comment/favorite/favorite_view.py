@@ -4,10 +4,12 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+from app.modules.article.comment.favorite.favorite_controller import \
+    ArticleCommentFavoriteController
 # own modules
 # from common.decorator import token_required
-from app.modules.article.comment.favorite.favorite_dto import ArticleCommentFavoriteDto
-from app.modules.article.comment.favorite.favorite_controller import ArticleCommentFavoriteController
+from app.modules.article.comment.favorite.favorite_dto import \
+    ArticleCommentFavoriteDto
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"

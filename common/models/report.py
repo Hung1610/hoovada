@@ -4,15 +4,15 @@
 # built-in modules
 from datetime import datetime
 
+from sqlalchemy.ext.declarative import declared_attr
 # third-party modules
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
-from sqlalchemy.ext.declarative import declared_attr
 
 # own modules
-from app import db
-from common.models.model import Model
+from app.app import db
 from common.enum import ReportTypeEnum
+from common.models.model import Model
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -8,10 +8,10 @@ from datetime import datetime
 from flask_restx import Resource, reqparse
 
 # own modules
-from app import cache
-from app.modules.post.post_dto import PostDto
+from app.app import cache
 from app.modules.post.post_controller import PostController
-from common.utils.decorator import token_required, admin_token_required
+from app.modules.post.post_dto import PostDto
+from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

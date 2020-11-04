@@ -1,25 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-import dateutil.parser
 from datetime import datetime
 
+# built-in modules
+import dateutil.parser
 # third-party modules
-from flask import request, current_app
+from flask import current_app, request
 from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app import db
-from common.controllers.controller import Controller
-from common.models.ban import UserBan, BanTypeEnum
-from common.models import User
-from app.modules.user.ban.ban_dto import UserBanDto
-from common.models import User
-from common.models import Reputation
-from common.utils.response import send_error, send_result
+from app.app import db
 from app.constants import messages
+from app.modules.user.ban.ban_dto import UserBanDto
+from common.controllers.controller import Controller
+from common.models import Reputation, User
+from common.models.ban import BanTypeEnum, UserBan
+from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
