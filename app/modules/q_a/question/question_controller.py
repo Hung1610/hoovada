@@ -117,7 +117,7 @@ class QuestionController(Controller):
 
         get_my_own = False
         if params.get('user_id'):
-            user_id = int(args['user_id'])
+            user_id = int(params['user_id'])
             if current_user:
                 if user_id == current_user.id:
                     get_my_own = True
