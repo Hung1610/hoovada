@@ -4,9 +4,9 @@ WORKDIR /opt
 
 COPY ./app/requirements.txt /opt/
 
-RUN apt-get update -y && apt-get install -y enchant && apt-get install -y libenchant-dev && apt-get install -y hunspell-vi
+RUN apt-get update -y && apt-get install -y python-dev python3-dev libevent-dev enchant libmemcached-dev zlib1g-dev libenchant-dev hunspell-vi
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt --ignore-installed
 
 ENV TZ=Asia/Ho_Chi_Minh
 
