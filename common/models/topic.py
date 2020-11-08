@@ -40,11 +40,11 @@ class Topic(Model):
     questions = db.relationship('Question', lazy='dynamic')
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
-        return db.func.count('1')
+        return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
     articles = db.relationship('Article', lazy='dynamic')
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
-        return db.func.count('1')
+        return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
     user_count = db.Column(db.Integer, default=0)  # Number of users who interest this topic
     answer_count = db.Column(db.Integer, default=0)  # how many answers related to this topic
     parent_id = db.Column(db.Integer, db.ForeignKey('topic.id'))  # the ID of parent topic
