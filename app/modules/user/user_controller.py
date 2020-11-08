@@ -31,6 +31,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserController(Controller):
     query_classname = 'User'
+    allowed_ordering_fields = ['question_count', 'answer_count', 'post_count']
 
     def create(self, data):
         if not isinstance(data, dict):
