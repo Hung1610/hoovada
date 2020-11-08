@@ -80,7 +80,7 @@ class Question(Model, BaseQuestion):
     views_count = db.Column(db.Integer, default=0)
     @aggregated('answers', db.Column(db.Integer))
     def answers_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
@@ -96,7 +96,7 @@ class Question(Model, BaseQuestion):
     @aggregated('question_comments', db.Column(db.Integer))
     def comment_count(self):
         return db.func.count('1')
-    topics = db.relationship('Topic', secondary='question_topic', lazy='subquery')
+    topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery')
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
