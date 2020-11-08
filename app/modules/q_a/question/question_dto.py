@@ -145,7 +145,7 @@ class QuestionDto(Dto):
     get_parser.add_argument('title', type=str, required=False, help='Search question by its title')
     get_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
     get_parser.add_argument('fixed_topic_id', type=str, required=False, help='Search all questions related to fixed-topic.')
-    get_parser.add_argument('topic_id', type=str, required=False, help='Search all questions related to topic.')
+    get_parser.add_argument('topic_id', type=str, required=False, action='append', help='Search all questions related to topic.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
     get_parser.add_argument('is_deleted', type=bool, required=False, help='Search questions that are deleted.')
