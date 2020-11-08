@@ -122,7 +122,7 @@ class QuestionController(Controller):
                 if user_id == current_user.id:
                     get_my_own = True
         if not get_my_own:
-            query = query.filter(Question.is_private != True)
+            query = query.filter(db.text('IFNULL(is_deleted, False)') != True)
 
         if params.get('title'):
             title_similarity = db.func.SIMILARITY_STRING(params.get('title'), Question.title).label('title_similarity')
@@ -349,7 +349,7 @@ class QuestionController(Controller):
             query = Topic.query.distinct()\
                 .join(Question, isouter=True)\
                 .with_entities(Topic, title_similarity)\
-                .filter(Question.is_private == False)\
+                .filter(db.text('IFNULL(is_deleted, False)') == False)\
                 .filter(title_similarity > 50)\
                 .order_by(desc(title_similarity))\
                 .limit(limit)

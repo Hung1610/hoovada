@@ -48,6 +48,7 @@ def paginated_result(query=None, message='OK', code=200, status=True):
         'message': message,
         'page': query.page,
         'page_count': query.pages,
+        'total': query.total,
         'data': query.items,
     }
     return res, code

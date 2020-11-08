@@ -37,14 +37,14 @@ class Topic(Model):
     user_id = db.Column(db.Integer)  # who created this topic
     color_code = db.Column(db.String(100))
     file_url = db.Column(db.String(255))
-    questions = db.relationship('Question', lazy='dynamic')
+    fixed_topic_questions = db.relationship('Question', lazy='dynamic')
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
-    articles = db.relationship('Article', lazy='dynamic')
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
+    fixed_topic_articles = db.relationship('Article', lazy='dynamic')
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
     user_count = db.Column(db.Integer, default=0)  # Number of users who interest this topic
     answer_count = db.Column(db.Integer, default=0)  # how many answers related to this topic
     parent_id = db.Column(db.Integer, db.ForeignKey('topic.id'))  # the ID of parent topic

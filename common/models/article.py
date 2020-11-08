@@ -58,7 +58,7 @@ class Article(Model):
     def comment_count(self):
         return db.func.count('1')
 
-    topics = db.relationship('Topic', secondary=article_topics, lazy='subquery')
+    topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery')
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
