@@ -86,26 +86,17 @@ class User(Model):
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    # hoovada_digests_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
     hoovada_digests_frequency_setting = db.Column(db.String(255), default='weekly')
 
     questions_you_asked_or_followed_setting = db.Column(db.Boolean, default=True)
-    # questions_you_asked_or_followed_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
     questions_you_asked_or_followed_frequency_setting = db.Column(db.String(255), default='weekly')
     people_you_follow_setting = db.Column(db.Boolean, default=True)
 
-    # people_you_follow_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
     people_you_follow_frequency_setting = db.Column(db.String(255), default='weekly')
     email_stories_topics_setting = db.Column(db.Boolean, default=True)
-    # email_stories_topics_frequency_setting = db.Column(db.String(255)(6), nullable=False, default='weekly')
     email_stories_topics_frequency_setting = db.Column(db.String(255), default='weekly')
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # count values used for statistics
-    # question_count = db.Column(db.Integer, server_default='0')  # number of questions user created
-    @aggregated('questions', db.Column(db.Integer))
-    def question_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
+    
     question_favorite_count = db.Column(db.Integer, server_default='0')
     question_favorited_count = db.Column(db.Integer, server_default='0')
     question_share_count = db.Column(db.Integer, server_default='0')
@@ -117,10 +108,6 @@ class User(Model):
     question_downvote_count = db.Column(db.Integer, server_default='0')
     question_downvoted_count = db.Column(db.Integer, server_default='0')
 
-    # answer_count = db.Column(db.Integer, server_default='0')  # number answers user created
-    @aggregated('answers', db.Column(db.Integer))
-    def answer_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
     answer_share_count = db.Column(db.Integer, server_default='0')
     answer_shared_count = db.Column(db.Integer, server_default='0')
     answer_favorite_count = db.Column(db.Integer, server_default='0')
@@ -165,8 +152,19 @@ class User(Model):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
 
     answers = db.relationship("Answer", cascade='all,delete-orphan')
+    @aggregated('answers', db.Column(db.Integer))
+    def answer_count(self):
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
     
     questions = db.relationship("Question", cascade='all,delete-orphan')
+    @aggregated('questions', db.Column(db.Integer))
+    def question_count(self):
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
+    
+    posts = db.relationship("Post", cascade='all,delete-orphan')
+    @aggregated('posts', db.Column(db.Integer))
+    def post_count(self):
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
     
     timelines = db.relationship("Timeline", cascade='all,delete-orphan')
     
