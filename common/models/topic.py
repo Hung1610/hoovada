@@ -37,11 +37,11 @@ class Topic(Model):
     user_id = db.Column(db.Integer)  # who created this topic
     color_code = db.Column(db.String(100))
     file_url = db.Column(db.String(255))
-    questions = db.relationship('Question', lazy='dynamic')
+    fixed_topic_questions = db.relationship('Question', lazy='dynamic')
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
-    articles = db.relationship('Article', lazy='dynamic')
+    fixed_topic_articles = db.relationship('Article', lazy='dynamic')
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
