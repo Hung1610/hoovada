@@ -80,7 +80,7 @@ class Question(Model, BaseQuestion):
     views_count = db.Column(db.Integer, default=0)
     @aggregated('answers', db.Column(db.Integer))
     def answers_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> True'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
