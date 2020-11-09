@@ -2,11 +2,11 @@ REGISTRY   		:= registry.gitlab.com/hoovada/hoovada-services
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
 GIT_BRANCH 		:= $$(git rev-parse --abbrev-ref HEAD)
-DATE 			:= $$(date +'%d%b%Y-%Ih%Mm')
+DATE 			:= $$(date +'%d%b%Y')
 
-API_TEST    	:= ${REGISTRY}:api-${GIT_BRANCH}-${DATE}
-SOCKETIO_TEST   := ${REGISTRY}:socketio-${GIT_BRANCH}-${DATE}
-NGINX_TEST		:= ${REGISTRY}:nginx-${GIT_BRANCH}-${DATE}
+API_TEST    	:= ${REGISTRY}:api-${GIT_COMMIT}-${DATE}
+SOCKETIO_TEST   := ${REGISTRY}:socketio-${GIT_COMMIT}-${DATE}
+NGINX_TEST		:= ${REGISTRY}:nginx-${GIT_COMMIT}-${DATE}
 
 VERSION 		:= v0.2.0
 API_LIVE   		:= ${REGISTRY}:api-${VERSION}-${DATE}
