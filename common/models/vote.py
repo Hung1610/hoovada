@@ -41,6 +41,20 @@ class QuestionVote(Model, BaseVote):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
+class AnswerVote(Model, BaseVote):
+    __tablename__ = 'answer_vote'
+    
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
+    answer =  db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
+
+
+class AnswerImprovementVote(Model, BaseVote):
+    __tablename__ = 'answer_improvement_vote'
+    
+    improvement_id = db.Column(db.Integer, db.ForeignKey('answer_improvement.id'))
+    improvement =  db.relationship('AnswerImprovement', lazy=True) # one-to-many relationship with table Answer
+
+
 class ArticleVote(Model, BaseVote):
     __tablename__ = 'article_vote'
 

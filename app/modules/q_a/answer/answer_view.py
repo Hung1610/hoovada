@@ -100,25 +100,3 @@ class Answer(Resource):
 
         controller = AnswerController()
         return controller.delete(object_id=id)
-
-parser = reqparse.RequestParser()
-parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
-parser.add_argument('question_id', type=str, required=False, help='Search all answers by question_id.')
-# parser.add_argument('created_date', type=str, required=False, help='Search answers by created-date.')
-# parser.add_argument('updated_date', type=str, required=False, help='Search answers by updated-date.')
-parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
-parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
-
-
-@api.route('/search')
-@api.expect(parser)
-class AnswerSearch(Resource):
-    @api.response(code=200, model=answer_response, description='Model for answer response.')
-    def get(self):
-        """
-        Search all answers that satisfy conditions.
-        """
-
-        args = parser.parse_args()
-        controller = AnswerController()
-        return controller.search(args=args)

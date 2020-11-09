@@ -13,7 +13,8 @@ from app.modules.language import ns_language
 from app.modules.post import (ns_post, ns_post_comment, ns_post_favorite,
                               ns_post_report, ns_post_share, ns_post_vote)
 from app.modules.q_a import (
-    ns_answer, ns_answer_bookmark, ns_answer_comment,
+    ns_answer, ns_answer_improvement, ns_answer_improvement_voting,
+    ns_answer_bookmark, ns_answer_comment,
     ns_answer_comment_favorite, ns_answer_comment_report,
     ns_answer_comment_vote, ns_answer_favorite, ns_answer_report,
     ns_answer_share, ns_answer_vote, ns_qa_timeline, ns_question,

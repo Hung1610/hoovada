@@ -63,3 +63,22 @@ class Answer(Model):
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
     answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan')
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
+
+class AnswerImprovement(Model):
+    __tablename__ = 'answer_improvement'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    content = db.Column(db.UnicodeText)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=True)
+    answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
+
+    votes = db.relationship("AnswerImprovementVote", cascade='all,delete-orphan')
+
+    @aggregated('votes', db.Column(db.Integer))
+    def vote_score(self):
+        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))\
+            - db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
