@@ -121,6 +121,8 @@ def init_api(mode):
     api.add_namespace(ns_question_comment_vote, '/question/all/comment')
     api.add_namespace(ns_question_comment_favorite, '/question/all/comment')
     api.add_namespace(ns_answer, '/answer')
+    api.add_namespace(ns_answer_improvement, '/answer')
+    api.add_namespace(ns_answer_improvement_voting, '/answer/all/improvement')
     api.add_namespace(ns_answer_bookmark, '/answer')
     api.add_namespace(ns_answer_favorite, '/answer')
     api.add_namespace(ns_answer_report, '/answer')

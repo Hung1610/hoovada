@@ -14,9 +14,9 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class AnswerVoteDto(Dto):
-    name = 'answer_vote'
-    api = Namespace(name, description="Answer voting operations")
+class AnswerImprovementVoteDto(Dto):
+    name = 'answer_improvement_vote'
+    api = Namespace(name, description="Answer improvement voting operations")
 
     model_request_answer = api.model('vote_request_answer_vote', {
         'vote_status': fields.Integer(description='1 - Neutral, 2 - Upvote, 3 - Downvote', default=False)
@@ -25,7 +25,7 @@ class AnswerVoteDto(Dto):
     model_response = api.model('vote_response_answer_vote', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the vote record in database'),
         'user_id': fields.Integer(description='The user ID'),
-        'answer_id': fields.Integer(description='The ID of the answer'), 
+        'improvement_id': fields.Integer(description='The ID of the answer'), 
         'vote_status': fields.String(description='The voting status', attribute='vote_status.name'),
         'created_date': fields.DateTime(description='The date user voted'),
         'updated_date': fields.DateTime(description='The date user modified vote value')

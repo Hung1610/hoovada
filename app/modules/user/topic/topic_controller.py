@@ -157,7 +157,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('endorsed topics', e.__str__))
+            return send_error(message=messages.ERR_GET_FAILED.format('endorsed topics', e))
 
     def _parse_topic(self, data, topic=None):
         if topic is None:

@@ -311,7 +311,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e))
 
     def get_bookmarked_users(self, object_id, args):
         page, per_page = args.get('page', 1), args.get('per_page', 10)
@@ -337,7 +337,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e))
 
     def create_with_file(self, object_id):
         if object_id is None:
