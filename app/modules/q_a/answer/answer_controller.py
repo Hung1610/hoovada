@@ -17,11 +17,8 @@ from werkzeug.utils import secure_filename
 from app.app import db
 from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
-from app.modules.q_a.answer.favorite.favorite import AnswerFavorite
-from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
 from common.controllers.controller import Controller
-from common.enum import FileTypeEnum
-from common.models import Answer, User
+from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
@@ -35,84 +32,15 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+User = db.get_model('User')
+Answer = db.get_model('Answer')
+AnswerFavorite = db.get_model('AnswerFavorite')
+AnswerVote = db.get_model('AnswerVote')
+
+
 class AnswerController(Controller):
     query_classname = 'Answer'
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
-
-    def search(self, args):
-        """
-        Search answers.
-        """
-        
-        if not isinstance(args, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        user_id, question_id, from_date, to_date = None, None, None, None  # , None, None
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'question_id' in args:
-            try:
-                question_id = int(args['question_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'from_date' in args:
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'to_date' in args:
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        # if user_id is None and question_id is None and from_date is None and to_date is None:
-        #     send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
-        query = Answer.query.filter(Answer.is_deleted != True)
-        is_filter = False
-        if user_id is not None:
-            query = query.filter(Answer.user_id == user_id)
-            is_filter = True
-        if question_id is not None:
-            query = query.filter(Answer.question_id == question_id)
-            is_filter = True
-        if from_date is not None:
-            query = query.filter(Answer.created_date >= from_date)
-            is_filter = True
-        if to_date is not None:
-            query = query.filter(Answer.created_date <= to_date)
-            is_filter = True
-        if is_filter:
-            answers = query.all()
-            if answers is not None and len(answers) > 0:
-                # get user information for each answer.
-                results = list()
-                for answer in answers:
-                    result = answer._asdict()
-                    user = User.query.filter_by(id=answer.user_id).first()
-                    result['user'] = user
-                    # lay thong tin up_vote down_vote cho current user
-                    current_user, _ = current_app.get_logged_user(request)
-                    if current_user:
-                        vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-                        if vote is not None:
-                            result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                            result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                        favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
-                                                        AnswerFavorite.answer_id == answer.id).first()
-                        result['is_favorited_by_me'] = True if favorite else False
-                    results.append(result)
-                return send_result(marshal(results, AnswerDto.model_response), message='Success')
-            else:
-                return send_result(message=messages.ERR_NOT_FOUND.format('Answer'))
-        else:
-             return send_error(message=messages.ERR_GET_FAILED)
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -245,7 +173,7 @@ class AnswerController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('Answer'))
+            return send_error(message=messages.ERR_GET_FAILED.format('Answer', e))
 
     def get_by_id(self, object_id):
         if object_id is None:

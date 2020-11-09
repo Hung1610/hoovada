@@ -12,10 +12,9 @@ from flask_restx import marshal
 # own modules
 from app.app import db
 from app.constants import messages
-from app.modules.q_a.answer.voting.vote import AnswerVote, VotingStatusEnum
 from app.modules.q_a.answer.voting.vote_dto import AnswerVoteDto
+from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.models import Reputation, User
 from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole
@@ -24,6 +23,12 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+User = db.get_model('User')
+Reputation = db.get_model('Reputation')
+AnswerVote = db.get_model('AnswerVote')
+
 
 class AnswerVoteController(Controller):
     def get(self, args, answer_id = None):
@@ -102,7 +107,6 @@ class AnswerVoteController(Controller):
                 old_vote_status = vote.vote_status
                 is_insert = False
             vote = self._parse_vote(data=data, vote=vote)
-            vote.created_date = datetime.utcnow()
             vote.updated_date = datetime.utcnow()
             if is_insert:
                 db.session.add(vote)

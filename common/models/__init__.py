@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from common.models.answer import Answer
+from common.models.answer import Answer, AnswerImprovement
 from common.models.article import Article
 from common.models.ban import UserBan
 from common.models.bookmark import QuestionBookmark, TopicBookmark
@@ -20,7 +20,8 @@ from common.models.reputation import Reputation
 from common.models.share import ArticleShare, PostShare, QuestionShare
 from common.models.topic import Topic, TopicUserEndorse
 from common.models.user import SocialAccount, User
-from common.models.vote import (ArticleCommentVote, ArticleVote, PostVote,
+from common.models.vote import (ArticleCommentVote, ArticleVote, AnswerVote,
+                                AnswerImprovementVote, PostVote,
                                 QuestionVote)
 
 __author__ = "hoovada.com team"
