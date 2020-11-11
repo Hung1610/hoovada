@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from logging.config import dictConfig
 from pytz import utc
 
 # third-party modules
@@ -15,7 +16,7 @@ from flask_sqlalchemy import SQLAlchemy
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
-from logging.config import dictConfig
+from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 # own modules
 from app.settings.config import config_by_name
@@ -61,6 +62,13 @@ Flask.get_logged_user = get_logged_user
 app = Flask(__name__, static_folder='static')
 
 scheduler = BackgroundScheduler()
+metrics = GunicornInternalPrometheusMetrics(app)
+metrics.register_default(
+    metrics.counter(
+        'by_path_counter', 'Request count by request paths',
+        labels={'path': lambda: request.path}
+    )
+)
 
 @app.before_request
 def before_request():

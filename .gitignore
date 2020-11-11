@@ -909,3 +909,6 @@ fabric.properties
 venv/
 migrations/versions/*
 app/static
+
+multiproc-tmp/*
+!multiproc-tmp/.gitkeep 
