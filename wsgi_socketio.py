@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from os import environ
+
 # own modules
 from app_socketio import create_app, socketio
 

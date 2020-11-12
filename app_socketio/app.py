@@ -5,8 +5,8 @@
 from flask import Flask
 from flask_socketio import SocketIO
 
-from app_socketio.modules.chat.chat_namespace import ChatNamespace
 # own modules
+from app_socketio.modules.chat.chat_namespace import ChatNamespace
 from app_socketio.settings.config import config_by_name
 
 __author__ = "hoovada.com team"
@@ -22,6 +22,6 @@ def init_app(config_name):
     app.config.from_object(config_by_name[config_name])
 
     socketio.init_app(app, cors_allowed_origins="*")
-    socketio.on_namespace(ChatNamespace(''))
+    socketio.on_namespace(ChatNamespace('/chat'))
 
     return app
