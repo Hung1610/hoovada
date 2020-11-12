@@ -46,7 +46,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
     
     def create(self, data):
@@ -135,6 +135,11 @@ class QuestionController(Controller):
             query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+        if params.get('is_created_by_friend') and current_user:
+            query = query\
+                .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
+                .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id, UserFollow.friend_id==current_user.id))\
+                .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
 
         return query
 
@@ -849,225 +854,6 @@ class QuestionController(Controller):
             return False
         return True
 
-    def get_question_hot(self,args):
-        page = 1
-        page_size = 20
-
-        if args.get('page') and args['page'] > 0:
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        # get current user voting status for this article
-        current_user, _ = current_app.get_logged_user(request)
-        if current_user:
-            query = db.session.query(Question).outerjoin(TopicBookmark,TopicBookmark.id==Question.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Question.created_date))
-        else:
-            query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
-        
-        questions = query.offset(page * page_size).limit(page_size).all()
-
-        if questions is not None and len(questions) > 0:
-            results = list()
-            for question in questions:
-                # kiem tra den topic
-                result = question.__dict__
-                # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
-                # get all topics that question belongs to
-                question_id = question.id
-                result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                if current_user:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
-                                                    QuestionFavorite.question_id == question.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
-                results.append(result)
-            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
-        else:
-            return send_result(message='Could not find any questions')
-
-    def get_question_new(self,args):
-        page = 1
-        page_size = 20
-
-        if args.get('page') and args['page'] > 0:
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        query = db.session.query(Question).order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))
-        questions = query.offset(page * page_size).limit(page_size).all()
-
-        current_user, _ = current_app.get_logged_user(request)
-        if questions is not None and len(questions) > 0:
-            results = list()
-            for question in questions:
-                # kiem tra den topic
-                result = question.__dict__
-                # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
-                # get all topics that question belongs to
-                question_id = question.id
-                result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                if current_user:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
-                                                    QuestionFavorite.question_id == question.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
-                results.append(result)
-            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
-        else:
-            return send_result(message='Could not find any questions')
-
-    def get_question_highlight(self,args):
-        page = 1
-        page_size = 20
-
-        if args.get('page') and args['page'] > 0:
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        query = db.session.query(Question).order_by(desc(Question.upvote_count),desc(Question.created_date))
-        questions = query.offset(page * page_size).limit(page_size).all()
-
-        current_user, _ = current_app.get_logged_user(request)
-        if questions is not None and len(questions) > 0:
-            results = list()
-            for question in questions:
-                # kiem tra den topic
-                result = question.__dict__
-                # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
-                # get all topics that question belongs to
-                question_id = question.id
-                result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                if current_user:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
-                                                    QuestionFavorite.question_id == question.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
-                results.append(result)
-            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
-        else:
-            return send_result(message='Could not find any questions')
-
-    def get_question_many_answers(self,args):
-        page = 1
-        page_size = 20
-        questions = None
-
-        if args.get('page') and args['page'] > 0:
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        query = db.session.query(Question).order_by(desc(Question.answers_count),desc(Question.created_date))
-        questions = query.offset(page * page_size).limit(page_size).all()
-
-        current_user, _ = current_app.get_logged_user(request)
-        if questions is not None and len(questions) > 0:
-            results = list()
-            for question in questions:
-                # kiem tra den topic
-                result = question.__dict__
-                # get user info
-                user = User.query.filter_by(id=question.user_id).first()
-                result['user'] = user
-                # get all topics that question belongs to
-                question_id = question.id
-                result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                if current_user:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
-                                                    QuestionFavorite.question_id == question.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
-                results.append(result)
-            return send_result(marshal(results, QuestionDto.model_question_response), message='Success')
-        else:
-            return send_result(message='Could not find any questions')
-
     def get_question_of_friend(self,args):
         page = 1
         page_size = 20
@@ -1094,7 +880,7 @@ class QuestionController(Controller):
 
         query = db.session.query(Question)\
         .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
-        .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id and UserFollow.friend_id==current_user.id))\
+        .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id, UserFollow.friend_id==current_user.id))\
         .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
         .group_by(Question)\
         .order_by(desc(Question.upvote_count + Question.downvote_count + Question.share_count + Question.favorite_count),desc(Question.created_date))

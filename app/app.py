@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from logging.config import dictConfig
 from pytz import utc
 
 # third-party modules
@@ -15,6 +16,7 @@ from flask_sqlalchemy import SQLAlchemy
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
+from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 # own modules
 from app.settings.config import config_by_name
@@ -26,6 +28,23 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://sys.stdout',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
 
 
 SQLAlchemy.get_model = get_model
@@ -43,6 +62,13 @@ Flask.get_logged_user = get_logged_user
 app = Flask(__name__, static_folder='static')
 
 scheduler = BackgroundScheduler()
+metrics = GunicornInternalPrometheusMetrics(app)
+metrics.register_default(
+    metrics.counter(
+        'by_path_counter', 'Request count by request paths',
+        labels={'path': lambda: request.path}
+    )
+)
 
 @app.before_request
 def before_request():
