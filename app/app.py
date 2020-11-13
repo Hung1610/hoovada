@@ -10,6 +10,7 @@ from flask import Flask, g, request
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
 from flask_cors import CORS
+from flask_dramatiq import Dramatiq
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -54,6 +55,7 @@ migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
 cache = Cache()
+dramatiq = Dramatiq()
 
 Flask.db_context = db
 Flask.mail_context = mail
@@ -69,6 +71,11 @@ metrics.register_default(
         labels={'path': lambda: request.path}
     )
 )
+
+@dramatiq.actor
+def count_words(url):
+    count = len(url.split(" "))
+    print(f"There are {count} words at {url!r}.")
 
 @app.before_request
 def before_request():
@@ -90,6 +97,9 @@ def init_app(config_name):
     flask_bcrypt.init_app(app)
     # Config Flask-Mail
     mail.init_app(app)
+    # Config dramatiq
+    dramatiq.init_app(app)
+    count_words.send("a b c")
     # Config ApScheduler
     jobstores = {
         'default': RedisJobStore(\
