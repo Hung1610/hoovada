@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import current_app, url_for
+# built-in modules
+from os import environ
+
 # third-party modules
+from flask import current_app, url_for, g, request
 from flask_restx import Api, Namespace, Resource
 
 # own modules
@@ -16,14 +19,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-authorizations = {
-    'apikey': {
-        'type': 'apiKey',
-        'in': 'header',
-        'name': 'X-API-KEY'
-    }
-}
-
 class HTTPSApi(Api):
     @property
     def specs_url(self):
@@ -36,7 +31,7 @@ ns_health = Namespace(name='health')
 class HealthCheck(Resource):
     def get(self):
         """ Use for Readiness and Liveness Probes
-        
+
         Args:
             None
 
@@ -52,7 +47,7 @@ ns_cache = Namespace(name='cache')
 class Cache(Resource):
     def post(self):
         """ Use for Clearing cache
-        
+
         Args:
             None
 
@@ -63,15 +58,21 @@ class Cache(Resource):
         return send_result(message="Cache Cleared!", code=200)
 
 
-def init_api(mode):
+def init_api():
 
-    doc = False if mode == "prod" else "/api/v1/openapi"
+    doc = False if environ.get('FLASK_ENV') == "production" else "/api/v1/openapi"
 
     api = HTTPSApi(title='Hoovada APIs',
                 swagger='2.0',
                 version='1.0',
                 description='The Hoovada APIs',
-                authorizations=authorizations,
+                authorizations={
+                    'apikey': {
+                        'type': 'apiKey',
+                        'in': 'header',
+                        'name': 'X-API-KEY'
+                    }
+                },
                 security='apikey',
                 prefix='/api/v1',
                 doc=doc)

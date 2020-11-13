@@ -902,10 +902,6 @@ fabric.properties
 .idea/rSettings.xml
 .idea/vcs.xml
 
-.vscode
-.vscode/
-.vscode/*.*
-
 venv/
 migrations/versions/*
 app/static

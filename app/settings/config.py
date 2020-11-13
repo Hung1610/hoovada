@@ -2,7 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from os import environ, pardir, path
+from os import environ
+
+# third party modules
+from dramatiq.brokers.rabbitmq import RabbitmqBroker
+
+# own modules
+from common.settings.config import CommonBaseConfig
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -10,22 +16,13 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class BaseConfig:
+class BaseConfig(CommonBaseConfig):
     # debug mode is turned off by default
     DEBUG = False
 
-    # The name of the model used as User class
-    USER_MODEL_NAME = environ.get('FLASK_USER_MODEL_NAME', 'User')
-
-    # flask configuration
-    SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
-    SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')
-
-    # Redis configuration
-    REDIS_PORT = environ.get('CACHE_REDIS_PORT', '31930')
-    REDIS_HOST = environ.get('CACHE_REDIS_HOST', '139.59.248.38')
-    REDIS_PASSWORD = environ.get('CACHE_REDIS_PASSWORD', '74HPHt3ewf')
-    REDIS_URL = 'redis://:' + REDIS_PASSWORD + '@' + REDIS_HOST + ':' + REDIS_PORT
+    # Flask-Dramatiq configuration
+    DRAMATIQ_BROKER = RabbitmqBroker
+    DRAMATIQ_BROKER_URL = CommonBaseConfig.RABBITMQ_URL
 
     # Cache configuration   # Flask-Caching related configs
     # Simple cache using Python dictionary
@@ -33,33 +30,14 @@ class BaseConfig:
     # Redis cache using redis database
     CACHE_TYPE = 'redis'
     CACHE_KEY_PREFIX = 'fcache'
-    CACHE_REDIS_PORT = REDIS_PORT
-    CACHE_REDIS_HOST = REDIS_HOST
-    CACHE_REDIS_PASSWORD = REDIS_PASSWORD
-    CACHE_REDIS_URL = REDIS_URL
+    CACHE_REDIS_PORT = CommonBaseConfig.REDIS_PORT
+    CACHE_REDIS_HOST = CommonBaseConfig.REDIS_HOST
+    CACHE_REDIS_PASSWORD = CommonBaseConfig.REDIS_PASSWORD
+    CACHE_REDIS_URL = CommonBaseConfig.REDIS_URL
     CACHE_DEFAULT_TIMEOUT = environ.get('CACHE_DEFAULT_TIMEOUT', 50)
 
     # Flask-SQLAlchemy configurations
     SQLALCHEMY_ECHO = False
-
-    # Email configuration
-    MAIL_SERVER = environ.get('MAIL_SERVER', 'smtp.gmail.com')
-    MAIL_PORT = int(environ.get('MAIL_PORT') or 587)
-    MAIL_USE_TLS = environ.get('MAIL_USE_TLS', True)
-    MAIL_USE_SSL = False
-    MAIL_USERNAME =  environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
-    MAIL_DEFAULT_SENDER = environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
-    MAIL_ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
-
-    # need to set this so that email can be sent
-    MAIL_SUPPRESS_SEND = False
-    TESTING = False
-
-    # Wasabi service
-    S3_BUCKET = environ.get('S3_BUCKET', 'hoovada') # test bucket
-    WASABI_ACCESS_KEY = environ.get('WASABI_ACCESS_KEY', '') # test bucket
-    WASABI_SECRET_ACCESS_KEY = environ.get('WASABI_SECRET_ACCESS_KEY', '')  
 
     # mysql configuration
     DB_USER = environ.get('DB_USER', 'dev')
@@ -68,39 +46,6 @@ class BaseConfig:
     DB_PORT = environ.get('DB_PORT', '3306') 
     DB_NAME = environ.get('DB_NAME', 'hoovada')
     DB_CHARSET = 'utf8mb4'
-
-    # other configurations
-    BCRYPT_LOG_ROUNDS = 13 # Number of times a password is hashed
-    DEBUG_TB_ENABLED = False  # Disable Debug toolbar
-    DEBUG_TB_INTERCEPT_REDIRECTS = False
-    # https://stackoverflow.com/questions/33738467/how-do-i-know-if-i-can-disable-sqlalchemy-track-modifications/33790196#33790196
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # social
-    FACEBOOK_SECRET = environ.get('FACEBOOK_SECRET', '') 
-    GRAPH_API_URL = 'https://graph.facebook.com/me?'
-    FACEBOOK_FIELDS = [
-        'id',
-        'name',
-        'address',
-        'birthday',
-        'email',
-        'first_name',
-        'gender',
-        'last_name',
-        'middle_name',
-        'photos',
-        'picture'
-    ]
-    GOOGLE_PROFILE_URL = 'https://www.googleapis.com/oauth2/v1/userinfo'
-    
-    # Twilio API credentials
-    # (find here https://www.twilio.com/console)
-    TWILIO_ACCOUNT_SID = environ.get('YOUR_TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
-    TWILIO_AUTH_TOKEN = environ.get('YOUR_TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
-    # (create one here https://www.twilio.com/console/verify/services)
-    VERIFICATION_SID = environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
-    LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
 
 
 class DevelopmentConfig(BaseConfig):
@@ -128,6 +73,8 @@ class DevelopmentConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
     """production configuration."""
+
+    DEBUG = False
     
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
@@ -138,11 +85,5 @@ class ProductionConfig(BaseConfig):
          name=BaseConfig.DB_NAME,
          charset=BaseConfig.DB_CHARSET
      )
-
-
-config_by_name = dict(
-    dev=DevelopmentConfig,
-    prod=ProductionConfig
-)
 
 key = BaseConfig.SECRET_KEY

@@ -10,7 +10,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-def create_app(mode):
+def create_app():
     """ Create an app
 
     Args:
@@ -20,6 +20,6 @@ def create_app(mode):
         object - An initialized app
     """
 
-    app = init_app(mode)
+    app = init_app()
     
     return app

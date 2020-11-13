@@ -6,10 +6,11 @@ from logging.config import dictConfig
 from pytz import utc
 
 # third-party modules
-from flask import Flask, g, request
+from flask import Flask, g, request, current_app
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
 from flask_cors import CORS
+from flask_dramatiq import Dramatiq
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -19,7 +20,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 # own modules
-from app.settings.config import config_by_name
+from app.settings import config_by_name
 from common.scheduled_jobs import add_jobs
 from common.utils.util import (get_logged_user, get_model,
                                get_model_by_tablename)
@@ -29,7 +30,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-
+# Config logging output
 dictConfig({
     'version': 1,
     'formatters': {'default': {
@@ -47,6 +48,7 @@ dictConfig({
 })
 
 
+# Flask plugins
 SQLAlchemy.get_model = get_model
 SQLAlchemy.get_model_by_tablename = get_model_by_tablename
 db = SQLAlchemy()
@@ -54,14 +56,19 @@ migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
 cache = Cache()
+dramatiq = Dramatiq()
 
+# Flask app utility functions
 Flask.db_context = db
 Flask.mail_context = mail
 Flask.cache_context = cache
 Flask.get_logged_user = get_logged_user
 app = Flask(__name__, static_folder='static')
 
+# ApScheduler
 scheduler = BackgroundScheduler()
+
+# Prometheus metrics exporter
 metrics = GunicornInternalPrometheusMetrics(app)
 metrics.register_default(
     metrics.counter(
@@ -70,15 +77,15 @@ metrics.register_default(
     )
 )
 
-@app.before_request
-def before_request():
-    g.current_user, _ = app.get_logged_user(request)
-    g.current_user_is_admin = False
-
-def init_app(config_name):
+def init_app():
     # Setup Flask app
     app.config['JSON_AS_ASCII'] = False
-    app.config.from_object(config_by_name[config_name])
+    app.config.from_object(config_by_name[app.config['ENV']])
+    @app.before_request
+    def before_request():
+        g.current_user, _ = app.get_logged_user(request)
+        g.current_user_is_admin = False
+    # Config CORS
     CORS(app)
     # Config Flask-Cache
     cache.init_app(app)
@@ -90,6 +97,8 @@ def init_app(config_name):
     flask_bcrypt.init_app(app)
     # Config Flask-Mail
     mail.init_app(app)
+    # Config dramatiq
+    dramatiq.init_app(app)
     # Config ApScheduler
     jobstores = {
         'default': RedisJobStore(\
@@ -107,7 +116,11 @@ def init_app(config_name):
         'coalesce': False,
         'max_instances': 3
     }
-    scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
+    scheduler.configure(\
+        jobstores=jobstores,\
+        executors=executors,\
+        job_defaults=job_defaults,\
+        timezone=utc)
     add_jobs(scheduler)
     # scheduler.start()
     return app
