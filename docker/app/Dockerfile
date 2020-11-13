@@ -4,8 +4,6 @@ WORKDIR /opt
 
 COPY ./app/requirements.txt /opt/
 
-RUN export prometheus_multiproc_dir=multiproc-tmp
-
 RUN apt-get update -y && apt-get install -y python-dev python3-dev libevent-dev enchant libmemcached-dev zlib1g-dev libenchant-dev hunspell-vi
 
 RUN pip3 install --no-cache-dir -r requirements.txt --ignore-installed
