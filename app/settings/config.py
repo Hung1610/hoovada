@@ -73,6 +73,8 @@ class DevelopmentConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
     """production configuration."""
+
+    DEBUG = False
     
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
@@ -83,11 +85,5 @@ class ProductionConfig(BaseConfig):
          name=BaseConfig.DB_NAME,
          charset=BaseConfig.DB_CHARSET
      )
-
-
-config_by_name = dict(
-    dev=DevelopmentConfig,
-    prod=ProductionConfig
-)
 
 key = BaseConfig.SECRET_KEY

@@ -51,8 +51,8 @@ class ProductionConfig(BaseConfig):
 
 
 config_by_name = dict(
-    dev=DevelopmentConfig,
-    prod=ProductionConfig
+    development=DevelopmentConfig,
+    production=ProductionConfig
 )
 
 key = BaseConfig.SECRET_KEY

@@ -124,6 +124,8 @@ class CommonDevelopmentConfig(CommonBaseConfig):
 
 class CommonProductionConfig(CommonBaseConfig):
     """production configuration."""
+
+    DEBUG = False
     
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
@@ -137,8 +139,8 @@ class CommonProductionConfig(CommonBaseConfig):
 
 
 config_by_name = dict(
-    dev=CommonDevelopmentConfig,
-    prod=CommonProductionConfig
+    development=CommonDevelopmentConfig,
+    production=CommonProductionConfig
 )
 
 key = CommonBaseConfig.SECRET_KEY

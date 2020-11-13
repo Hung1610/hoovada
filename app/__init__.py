@@ -13,21 +13,15 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-def create_app(mode):
+def create_app():
     """ Create an app
-
-    Args:
-        mode (string): mode that the app is running on
 
     Returns:
         object - An initialized app
     """
 
-    app = init_app(mode)
-    api = init_api(mode)
+    app = init_app()
+    api = init_api()
     api.init_app(app)
-    api.app.config['RESTFUL_JSON'] = {
-        'ensure_ascii': False
-    }
     
     return app
