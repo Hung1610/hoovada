@@ -65,9 +65,8 @@ class Post(Model):
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     votes = db.relationship("PostVote", cascade='all,delete-orphan')
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan',
-                    primaryjoin="and_(Post.id == remote(PostComment.answer_id),\
-                        remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)",
-                    viewonly=True)
+                    primaryjoin="and_(Post.id == remote(PostComment.post_id),\
+                        remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
 
     @staticmethod

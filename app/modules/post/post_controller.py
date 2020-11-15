@@ -226,7 +226,7 @@ class PostController(Controller):
                 results.append(result)
             return send_result(marshal(results, PostDto.model_post_response), message='Success')
         except Exception as e:
-            return send_error(message=messages.MSG_CREATE_SUCCESS.format('Post'))
+            return send_error(message=messages.ERR_GET_FAILED.format('Post', e))
 
     def create_with_file(self, object_id):
         if object_id is None:
