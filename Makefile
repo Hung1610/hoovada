@@ -24,7 +24,7 @@ push:
 	@docker push ${NGINX_TEST}
 
 deploy:
-	@kubectl set image deployment/backend-dev backend-dev=${API_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
+	@kubectl set image deployment/backend-dev backend=${API_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
 	@kubectl set image deployment/backend-socketio backend-socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
 
 all: build push deploy

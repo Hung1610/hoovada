@@ -26,17 +26,11 @@ class HTTPSApi(Api):
         return url_for(self.endpoint('specs'), _external=True, _scheme='https')
 
 
-ns_health = Namespace(name='health')
+ns_health = Namespace(name='healthz')
 @ns_health.route('/')
 class HealthCheck(Resource):
     def get(self):
         """ Use for Readiness and Liveness Probes
-
-        Args:
-            None
-
-        Returns
-           None - 200 code for success 
         """
         
         return send_result(message="OK!", code=200)
@@ -47,12 +41,6 @@ ns_cache = Namespace(name='cache')
 class Cache(Resource):
     def post(self):
         """ Use for Clearing cache
-
-        Args:
-            None
-
-        Returns
-           None - 200 code for success 
         """
         current_app.cache_context.clear()
         return send_result(message="Cache Cleared!", code=200)
