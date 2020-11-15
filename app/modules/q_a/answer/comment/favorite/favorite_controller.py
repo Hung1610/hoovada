@@ -12,18 +12,20 @@ from sqlalchemy import and_
 
 # own modules
 from app.app import db
-from app.modules.q_a.answer.comment.favorite.favorite import \
-    AnswerCommentFavorite
 from app.modules.q_a.answer.comment.favorite.favorite_dto import \
     AnswerCommentFavoriteDto
 from common.controllers.controller import Controller
-from common.models import AnswerComment, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+AnswerCommentFavorite = db.get_model('AnswerCommentFavorite')
+AnswerComment = db.get_model('AnswerComment')
+User = db.get_model('User')
 
 
 class AnswerCommentFavoriteController(Controller):

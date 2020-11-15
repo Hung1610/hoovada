@@ -77,10 +77,6 @@ class CommentController(BaseCommentController):
 
     def create(self, question_id, data):
         current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.QUESTION_COMMENT)):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
         if not 'comment' in data:
