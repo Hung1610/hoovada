@@ -5,7 +5,7 @@
 from datetime import datetime
 
 # third-party modules
-from flask import url_for
+from flask import g
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.sql import expression
@@ -185,3 +185,21 @@ class User(Model):
     @property
     def is_super_admin(self):
         return UserRole.is_super_admin(self.admin)
+
+    @property
+    def is_friended_by_me(self):
+        UserFriend = db.get_model('UserFriend')
+        if g.current_user:
+            friend = UserFriend.query.filter(UserFriend.friend_id == g.current_user.id,
+                                             UserFriend.friended_id == self.id).first()
+            return True if friend else False
+        return False
+
+    @property
+    def is_followed_by_me(self):
+        UserFollow = db.get_model('UserFollow')
+        if g.current_user:
+            follow = UserFollow.query.filter(UserFollow.follower_id == g.current_user.id,
+                                            UserFollow.followed_id == self.id).first()
+            return True if follow else False
+        return False

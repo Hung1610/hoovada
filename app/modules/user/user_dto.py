@@ -153,6 +153,9 @@ class UserDto(Dto):
         'is_private': fields.Boolean(default=False, description='The user is private or not'),
         'is_deactivated': fields.Boolean(default=False, description='The user is deactivated or not'),
         'show_nsfw': fields.Boolean(default=True, description='The user wants nsfw topics shown or not'),
+
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()
