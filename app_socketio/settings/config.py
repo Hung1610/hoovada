@@ -17,7 +17,6 @@ class BaseConfig(CommonBaseConfig):
     # debug mode is turned off by default
     DEBUG = False
 
-
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
 
