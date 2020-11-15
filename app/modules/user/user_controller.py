@@ -56,8 +56,8 @@ class UserController(Controller):
 
     def get_query(self):
         query = super().get_query()
-        query = query.filter(User.is_private != True)
-        return query
+        query = query.filter(User.is_deactivated != True)
+        return query    
 
     def get(self, args):
         try:
@@ -85,12 +85,13 @@ class UserController(Controller):
             user = User.query.filter_by(id=object_id).first()
             if user is None:
                 return send_error(data="Could not find user by this id")
-            else:
-                # when call to this function, increase the profile_views
-                if current_user.id != user.id:
-                    user.profile_views += 1
-                    db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response))
+            if user.is_private:
+                return send_error(data="This user info is private")
+            # when call to this function, increase the profile_views
+            if current_user.id != user.id:
+                user.profile_views += 1
+                db.session.commit()
+            return send_result(data=marshal(user, UserDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(object_id))
