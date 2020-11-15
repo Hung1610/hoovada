@@ -29,7 +29,7 @@ _post_get_similar_params = PostDto.get_similar_posts_parser
 class PostList(Resource):
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     @api.expect(_post_get_params)
-    @cache.cached(query_string=True)
+    # @cache.cached(query_string=True)
     def get(self):
         """
         Get all posts that satisfy conditions
@@ -122,23 +122,6 @@ class UpdatePostSlug(Resource):
 
         controller = PostController()
         return controller.update_slug()
-
-parser_post_hot = reqparse.RequestParser()
-parser_post_hot.add_argument('page', type=int, required=False, help='Search posts by page.')
-parser_post_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-
-@api.route('/post_hot')
-@api.expect(parser_post_hot)
-class PostHot(Resource):
-    #@token_required
-    @api.response(code=200, model=_post_dto_response, description='Model for post response.')
-    def get(self):
-        """ get posts hot 
-        """
-
-        args = parser_post_hot.parse_args()
-        controller = PostController()
-        return controller.get_post_hot(args)
 
 parser_post_of_friend = reqparse.RequestParser()
 parser_post_of_friend.add_argument('page', type=int, required=False, help='Search posts by page.')
