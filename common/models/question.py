@@ -100,7 +100,10 @@ class Question(Model, BaseQuestion):
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
-    question_comments = db.relationship("QuestionComment", cascade='all,delete-orphan')
+    question_comments = db.relationship("QuestionComment", cascade='all,delete-orphan',
+                    primaryjoin="and_(Question.id == remote(QuestionComment.answer_id),\
+                        remote(QuestionComment.user_id) == User.id, remote(User.is_deactivated) == False)",
+                    viewonly=True)
     question_shares = db.relationship("QuestionShare", cascade='all,delete-orphan')
     question_reports = db.relationship("QuestionReport", cascade='all,delete-orphan')
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')

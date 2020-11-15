@@ -13,10 +13,8 @@ from sqlalchemy import desc
 # own modules
 from app.app import db
 from app.constants import messages
-from app.modules.q_a.answer.share.share import AnswerShare
 from app.modules.q_a.answer.share.share_dto import AnswerShareDto
 from common.controllers.controller import Controller
-from common.models import Answer, User
 from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole
@@ -25,6 +23,11 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+AnswerShare = db.get_model('AnswerShare')
+Answer = db.get_model('Answer')
+User = db.get_model('User')
 
 
 class ShareController(Controller):

@@ -67,7 +67,10 @@ class Article(Model):
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
-    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan')
+    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan',
+                    primaryjoin="and_(Article.id == remote(ArticleComment.answer_id),\
+                        remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)",
+                    viewonly=True)
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
     @staticmethod

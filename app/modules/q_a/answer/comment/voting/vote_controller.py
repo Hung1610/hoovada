@@ -11,17 +11,23 @@ from flask_restx import marshal
 
 # own modules
 from app.app import db
-from app.modules.q_a.answer.comment.voting.vote import (AnswerCommentVote,
-                                                        VotingStatusEnum)
 from app.modules.q_a.answer.comment.voting.vote_dto import AnswerCommentVoteDto
+from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.models import AnswerComment, Reputation, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+AnswerCommentVote = db.get_model('AnswerCommentVote')
+AnswerComment = db.get_model('AnswerComment')
+Reputation = db.get_model('Reputation')
+User = db.get_model('User')
+
+
 
 class AnswerCommentVoteController(Controller):
     def get(self, args, comment_id = None):

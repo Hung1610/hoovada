@@ -11,17 +11,21 @@ from flask_restx import marshal
 
 # own modules
 from app.app import db
-from app.modules.q_a.answer.comment.report.report import AnswerCommentReport
 from app.modules.q_a.answer.comment.report.report_dto import \
     AnswerCommentReportDto
+from common.enum import ReportTypeEnum
 from common.controllers.controller import Controller
-from common.models import AnswerComment, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+AnswerCommentReport = db.get_model('AnswerCommentReport')
+AnswerComment = db.get_model('AnswerComment')
+User = db.get_model('User')
 
 
 class ReportController(Controller):
@@ -115,10 +119,12 @@ class ReportController(Controller):
                 report.comment_id = int(data['comment_id'])
             except Exception as e:
                 pass
-        if 'inappropriate' in data:
+        if 'report_type' in data:
             try:
-                report.inappropriate = bool(data['inappropriate'])
+                report_type = int(data['report_type'])
+                report.report_type = ReportTypeEnum(report_type).name
             except Exception as e:
+                print(e.__str__())
                 pass
         if 'description' in data:
             report.description = data['description']

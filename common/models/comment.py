@@ -25,6 +25,12 @@ class BaseComment(object):
     allow_favorite = db.Column(db.Boolean, default=True)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @property
+    def is_creator_deactivated(self):
+        if self.user:
+            return True if self.user.is_deactivated else False
+        return False
     
     @declared_attr
     def user_id(cls):

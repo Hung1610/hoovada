@@ -40,6 +40,13 @@ class QuestionBookmark(Model, BaseBookmark):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
+class AnswerBookmark(Model, BaseBookmark):
+    __tablename__ = 'answer_bookmark'
+
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
+    answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
+
+
 class TopicBookmark(Model, BaseBookmark):
     __tablename__ = 'topic_bookmark'
     

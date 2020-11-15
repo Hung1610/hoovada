@@ -19,7 +19,7 @@ from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from common.controllers.controller import Controller
 from common.enum import FileTypeEnum, VotingStatusEnum
-from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import UserRole
