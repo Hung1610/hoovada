@@ -143,6 +143,12 @@ class QuestionController(Controller):
 
         return query
 
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated != True))
+        
+        return query
+
     def get(self, args):
         try:
             query = self.get_query_results(args)
