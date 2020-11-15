@@ -68,9 +68,8 @@ class Article(Model):
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
     article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan',
-                    primaryjoin="and_(Article.id == remote(ArticleComment.answer_id),\
-                        remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)",
-                    viewonly=True)
+                    primaryjoin="and_(Article.id == remote(ArticleComment.article_id),\
+                        remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
     @staticmethod

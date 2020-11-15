@@ -63,8 +63,7 @@ class Answer(Model):
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
     answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan',
                     primaryjoin="and_(Answer.id == remote(AnswerComment.answer_id),\
-                        remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)",
-                    viewonly=True)
+                        remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
 
 class AnswerImprovement(Model):
