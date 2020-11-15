@@ -13,16 +13,19 @@ from sqlalchemy import and_
 # own modules
 from app.app import db
 from app.modules.q_a.answer.bookmark import constants
-from app.modules.q_a.answer.bookmark.bookmark import AnswerBookmark
 from app.modules.q_a.answer.bookmark.bookmark_dto import AnswerBookmarkDto
 from common.controllers.controller import Controller
-from common.models import Answer, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+AnswerBookmark = db.get_model('AnswerBookmark')
+Answer = db.get_model('Answer')
+User = db.get_model('User')
 
 
 class AnswerBookmarkController(Controller):

@@ -42,6 +42,20 @@ class QuestionReport(Model, BaseReport):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
+class AnswerReport(Model, BaseReport):
+    __tablename__ = 'answer_report'
+
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
+    answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
+
+
+class AnswerCommentReport(Model, BaseReport):
+    __tablename__ = 'answer_comment_report'
+
+    comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id'), nullable=False)
+    comment = db.relationship('AnswerComment', lazy=True) # one-to-many relationship with table Comment
+
+
 class ArticleReport(Model, BaseReport):
     __tablename__ = 'article_report'
     
@@ -52,7 +66,6 @@ class ArticleCommentReport(Model, BaseReport):
     __tablename__ = 'article_comment_report'
     comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'), nullable=False)
     comment = db.relationship('ArticleComment', lazy=True) # one-to-many relationship with table Comment
-
 
 
 class PostReport(Model, BaseReport):

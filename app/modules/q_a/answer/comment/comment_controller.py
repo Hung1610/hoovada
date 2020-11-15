@@ -12,10 +12,7 @@ from flask_restx import marshal
 from app.app import db
 from app.constants import messages
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
-from app.modules.q_a.answer.comment.favorite.favorite import \
-    AnswerCommentFavorite
 from common.controllers.comment_controller import BaseCommentController
-from common.models import Answer, AnswerComment, User
 from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
@@ -25,6 +22,12 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+AnswerCommentFavorite = db.get_model('AnswerCommentFavorite')
+Answer = db.get_model('Answer')
+AnswerComment = db.get_model('AnswerComment')
+User = db.get_model('User')
 
 
 class CommentController(BaseCommentController):
@@ -77,10 +80,6 @@ class CommentController(BaseCommentController):
 
     def create(self, answer_id, data):
         current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.ANSWER_COMMENT)):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form.")
