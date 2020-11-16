@@ -38,7 +38,7 @@ TopicBookmark = db.get_model('TopicBookmark')
 
 class TopicController(Controller):
     query_classname = 'Topic'
-    special_filtering_fields = ['from_date']
+    special_filtering_fields = ['from_date', 'hot']
 
     def create_topics(self):
         fixed_topics = ["Những lĩnh vực khác",
@@ -140,6 +140,13 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create topic, please try again!')
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('hot'):
+            query = query.order_by(desc(text("article_count + question_count")))
+
+        return query
 
     def get(self, args):
         try:

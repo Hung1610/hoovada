@@ -17,6 +17,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = TopicDto.api
+parser = TopicDto.model_get_parser
 topic_request = TopicDto.model_topic_request
 topic_response = TopicDto.model_topic_response
 endorsed_user_dto = TopicDto.model_endorsed_user
@@ -38,11 +39,6 @@ class TopicFile(Resource):
         return controller.create_with_file(object_id=topic_id_or_slug)
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=False, help='The name of the topic')
-parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
-parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
-parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed topics in database.')
 @api.route('')
 @api.expect(parser)
 class TopicList(Resource):

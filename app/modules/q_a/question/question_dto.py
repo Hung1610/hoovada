@@ -135,6 +135,7 @@ class QuestionDto(Dto):
     get_similar_questions_parser = reqparse.RequestParser()
     get_similar_questions_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
     get_similar_questions_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
+    get_similar_questions_parser.add_argument('exclude_question_id', type=str, required=False, help='Exclude question with this id')
 
     get_relevant_topics_parser = reqparse.RequestParser()
     get_relevant_topics_parser.add_argument('title', type=str, required=False, help='Title by which to get relevant topics')
@@ -151,6 +152,7 @@ class QuestionDto(Dto):
     get_parser.add_argument('is_deleted', type=bool, required=False, help='Search questions that are deleted.')
     get_parser.add_argument('is_shared', type=bool, required=False, help='Search questions that are shared.')
     get_parser.add_argument('is_created_by_friend', type=bool, required=False, help='Search questions that are created by friend/followee.')
+    get_parser.add_argument('hot', type=bool, required=False, help='Search questions that are hot.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )

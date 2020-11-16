@@ -76,6 +76,19 @@ class TopicDto(Dto):
         'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
     })
 
+    model_get_parser = Dto.paginated_request_parser.copy()
+    model_get_parser.add_argument('name', type=str, required=False, help='The name of the topic')
+    model_get_parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
+    model_get_parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
+    model_get_parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed topics in database.')
+    model_get_parser.add_argument('hot', type=bool, required=False, help='Search topics that are hot.')
+    model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
+                            choices=('created_date', 'updated_date'), action='append',
+                        )
+    model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str,
+                            choices=('created_date', 'updated_date'), action='append',
+                        )
+
     topic_endorse_user_request = api.model('topic_endorse_user_request', {
         'user_id': fields.Integer(required=True, description='User id to endorse'),
     })
