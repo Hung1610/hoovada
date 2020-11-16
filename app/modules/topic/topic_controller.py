@@ -39,6 +39,8 @@ TopicBookmark = db.get_model('TopicBookmark')
 class TopicController(Controller):
     query_classname = 'Topic'
     special_filtering_fields = ['from_date', 'hot']
+    allowed_ordering_fields = ['created_date', 'updated_date']
+    
 
     def create_topics(self):
         fixed_topics = ["Những lĩnh vực khác",
@@ -141,6 +143,9 @@ class TopicController(Controller):
             print(e.__str__())
             return send_error(message='Could not create topic, please try again!')
 
+    def get_query(self):
+        return self.get_model_class().query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác")))
+
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
         if params.get('hot'):
@@ -150,11 +155,10 @@ class TopicController(Controller):
 
     def get(self, args):
         try:
-            query = self.get_query()
-            query = self.apply_filtering(query, args)
-
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
             current_user = g.current_user
-            topics = query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác")))
+            topics = res.get('data')
             results = []
             for topic in topics:
                 result = topic._asdict()
@@ -167,7 +171,9 @@ class TopicController(Controller):
                                                     TopicBookmark.topic_id == topic.id).first()
                     result['is_bookmarked_by_me'] = True if bookmark else False
                 results.append(result)
-            return send_result(marshal(results, TopicDto.model_topic_response), message='Success')
+            
+            res['data'] = marshal(results, TopicDto.model_topic_response)
+            return res, code
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
