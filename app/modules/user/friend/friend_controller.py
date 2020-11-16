@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import current_app, request, g
 from flask_restx import marshal
 from sqlalchemy import and_
 
@@ -35,13 +35,7 @@ class UserFriendController(Controller):
         Returns:
         '''
         
-        friend_id, from_date, to_date = None, None, None
-        if 'friend_id' in args:
-            try:
-                friend_id = int(args['friend_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        from_date, to_date = None, None
         if 'from_date' in args:
             try:
                 from_date = dateutil.parser.isoparse(args['from_date'])
@@ -57,18 +51,14 @@ class UserFriendController(Controller):
 
         query = UserFriend.query
         if object_id is not None:
-            query = query.filter(UserFriend.friended_id == object_id)
-        if friend_id is not None:
-            query = query.filter(UserFriend.friend_id == friend_id)
+            g.friend_belong_to_user_id = object_id
+            query = query.filter(db.or_(UserFriend.friended_id == object_id, UserFriend.friend_id == object_id))
         if from_date is not None:
             query = query.filter(UserFriend.created_date >= from_date)
         if to_date is not None:
             query = query.filter(UserFriend.created_date <= to_date)
-        friends = query.all()
-        if friends is not None and len(friends) > 0:
-            return send_result(data=marshal(friends, UserFriendDto.model_response), message='Success')
-        else:
-            return send_result(message=messages.ERR_NOT_FOUND.format('Friend'))
+
+        return send_result(data=marshal(query.all(), UserFriendDto.model_response), message='Success')
 
     def create(self, object_id):
         data = {}
@@ -76,8 +66,9 @@ class UserFriendController(Controller):
         data['friend_id'] = current_user.id
         data['friended_id'] = object_id
         try:
-            friend = UserFriend.query.filter(UserFriend.friend_id == data['friend_id'],
-                                             UserFriend.friended_id == data['friended_id']).first()
+            friend = UserFriend.query.filter(db.or_(\
+                db.and_(UserFriend.friend_id == data['friend_id'], UserFriend.friended_id == data['friended_id']),\
+                db.and_(UserFriend.friended_id == data['friend_id'], UserFriend.friend_id == data['friended_id']))).first()
             if friend:
                 return send_result(message=messages.ERR_ISSUE.format('Already befriended'))
 

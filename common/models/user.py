@@ -70,7 +70,7 @@ class User(Model):
     email_confirmed_at = db.Column(db.DateTime, nullable=True)
 
     profile_pic_url = db.Column(db.String(255))  # (255), default='')
-    profile_pic_data_url = db.Column(db.String(255))  # (10000), default='')
+    cover_pic_url = db.Column(db.String(255))  # (255), default='')
     admin = db.Column(db.String(255))
     active = db.Column(db.Boolean, default=False)
 

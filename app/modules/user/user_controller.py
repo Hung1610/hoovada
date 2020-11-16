@@ -195,6 +195,41 @@ class UserController(Controller):
             return send_error(message='Please attach or check your photo before uploading.')
 
 
+    def upload_cover(self, args):
+        if not isinstance(args, dict) or not 'cover' in args:
+            return send_error(message='Your request does not contain avatar.')
+        # upload here
+        user, _ = current_app.get_logged_user(request)
+        # user = User.query.filter_by(id=id).first()
+        if user is None:
+            return send_error('You are not logged in')
+
+        photo = args['cover']
+        if photo:
+            filename = photo.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name('user_' + str(user.id) + '_cover') + ext
+            bucket = 'hoovada'
+            sub_folder = 'user' + '/' + encode_file_name(str(user.id))
+            try:
+                if user.cover_pic_url:
+                    delete_file(file_path=user.cover_pic_url)
+                url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your media file.')
+
+            try:
+                user.cover_pic_url = url
+                db.session.commit()
+                return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your avatar.')
+        else:
+            return send_error(message='Please attach or check your photo before uploading.')
+
+
     def get_avatar(self):
         # upload here
         # filename = request.args.get('filename')
@@ -263,8 +298,6 @@ class UserController(Controller):
 
         if 'profile_pic_url' in data:
             user.profile_pic_url = data['profile_pic_url']
-        if 'profile_pic_data_url' in data:
-            user.profile_pic_data_url = data['profile_pic_data_url']
         if 'admin' in data:
             try:
                 user.admin = UserRole.ADMIN if bool(data['admin']) is True else None

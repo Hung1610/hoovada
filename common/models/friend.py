@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# third-party modules
+from flask import g
+
 # own modules
 from app.app import db
 from common.models.model import Model
@@ -22,3 +25,19 @@ class UserFriend(Model):
     is_approved = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime)
     updated_date = db.Column(db.DateTime)
+
+    @property
+    def adaptive_friend(self):
+        if g.friend_belong_to_user_id:
+            return self.friended if self.friended_id != g.friend_belong_to_user_id\
+                else self.friend
+
+        return None
+
+    @property
+    def adaptive_friend_id(self):
+        if g.friend_belong_to_user_id:
+            return self.friended_id if self.friended_id != g.friend_belong_to_user_id\
+                else self.friend_id
+
+        return None
