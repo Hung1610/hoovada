@@ -32,7 +32,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class ArticleController(Controller):
     query_classname = 'Article'
-    special_filtering_fields = ['from_date', 'to_date', 'draft', 'topic_id', 'title']
+    special_filtering_fields = ['from_date', 'to_date', 'draft', 'topic_id', 'title', 'is_created_by_friend', 'hot']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
 
     def create(self, data):
@@ -122,6 +122,20 @@ class ArticleController(Controller):
                 query = query.filter(Article.is_draft == True)
             else:
                 query = query.filter(Article.is_draft != True)
+        if params.get('is_created_by_friend') and g.current_user:
+            query = query\
+                .outerjoin(UserFollow,and_(UserFollow.followed_id==Article.user_id, UserFollow.follower_id==g.current_user.id))\
+                .outerjoin(UserFriend,and_(UserFriend.friended_id==Article.user_id, UserFollow.friend_id==g.current_user.id))\
+                .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
+        if params.get('hot'):
+            if g.current_user:
+                query = query.outerjoin(TopicBookmark, TopicBookmark.id==Article.fixed_topic_id)\
+                    .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
+                        desc(text("upvote_count + downvote_count + share_count + favorite_count")))
+            else:
+                query = query.\
+                    order_by(\
+                        desc(text("upvote_count + downvote_count + share_count + favorite_count")))
 
         return query
 
@@ -409,76 +423,3 @@ class ArticleController(Controller):
                     print(e.__str__())
                     pass
         return article, topic_ids
-
-    def get_article_hot(self,args):
-        page = 1
-        page_size = 20
-
-        if args.get('page') and args['page'] > 0:
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        query = db.session.query(Article).order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
-        # get current user voting status for this article
-        current_user, _ = current_app.get_logged_user(request)
-        if current_user:
-            query = db.session.query(Article).outerjoin(TopicBookmark,TopicBookmark.id==Article.fixed_topic_id).order_by(desc(func.field(TopicBookmark.user_id, current_user.id)),desc(text("upvote_count + downvote_count + share_count + favorite_count")),desc(Article.created_date))
-        else:
-            query = db.session.query(Article).order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
-
-        articles = query.offset(page * page_size).limit(page_size).all()
-
-        if articles is not None and len(articles) > 0:
-            return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
-        else:
-            return send_result(message='Could not find any articles')
-
-    def get_article_of_friend(self,args):
-            page = 1
-            page_size = 20
-
-            if args.get('page') and args['page'] > 0:
-                try:
-                    page = args['page']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if args.get('per_page') and args['per_page'] > 0 :
-                try:
-                    page_size = args['per_page']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if page > 0 :
-                page = page - 1
-
-            current_user, _ = current_app.get_logged_user(request)
-
-            query = db.session.query(Article)\
-            .outerjoin(UserFollow,and_(UserFollow.followed_id==Article.user_id, UserFollow.follower_id==current_user.id))\
-            .outerjoin(UserFriend,and_(UserFriend.friended_id==Article.user_id and UserFollow.friend_id==current_user.id))\
-            .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
-            .group_by(Article)\
-            .order_by(desc(Article.upvote_count + Article.downvote_count + Article.share_count + Article.favorite_count),desc(Article.created_date))
-            articles = query.offset(page * page_size).limit(page_size).all()
-
-            if articles is not None and len(articles) > 0:
-                return send_result(data=marshal(articles, ArticleDto.model_article_response), message='Success')
-            else:
-                return send_result(message='Could not find any articles')
-

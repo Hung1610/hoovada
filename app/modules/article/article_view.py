@@ -127,37 +127,3 @@ class UpdateArticleSlug(Resource):
 
         controller = ArticleController()
         return controller.update_slug()
-
-parser_article_hot = reqparse.RequestParser()
-parser_article_hot.add_argument('page', type=int, required=False, help='Search articles by page.')
-parser_article_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-
-@api.route('/all/hot')
-@api.expect(parser_article_hot)
-class ArticleHot(Resource):
-    #@token_required
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    def get(self):
-        """Get hot articles ranked by total number of votes, likes, etc.
-        """
-
-        args = parser_article_hot.parse_args()
-        controller = ArticleController()
-        return controller.get_article_hot(args)
-
-parser_article_of_friend = reqparse.RequestParser()
-parser_article_of_friend.add_argument('page', type=int, required=False, help='Search articles by page.')
-parser_article_of_friend.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-
-@api.route('/article_of_friend')
-@api.expect(parser_article_of_friend)
-class ArticleOfFriend(Resource):
-    @token_required
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    def get(self):
-        """Get questions published by friends and followees
-        """
-
-        args = parser_article_of_friend.parse_args()
-        controller = ArticleController()
-        return controller.get_article_of_friend(args)
