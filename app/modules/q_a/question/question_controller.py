@@ -46,7 +46,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend', 'hot']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend', 'hot', 'for_me']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
     
     def create(self, data):
@@ -112,8 +112,8 @@ class QuestionController(Controller):
         current_user = g.current_user
         if current_user:
             if not current_user.show_nsfw:
-                query = query.join(Topic, isouter=True).filter(Topic.is_nsfw != True)\
-                    .filter(Question.topics.any(Topic.is_nsfw != True))
+                query = query.join(Topic, isouter=True).filter(db.func.coalesce(Topic.is_nsfw, False) != True)\
+                    .filter(db.or_(~Question.topics.any(), Question.topics.any(Topic.is_nsfw != True)))
 
         get_my_own = False
         if params.get('user_id'):
@@ -133,6 +133,9 @@ class QuestionController(Controller):
             query = query.filter(Question.created_date <= params.get('to_date'))
         if params.get('topic_id'):
             query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
+        if params.get('for_me') and current_user:
+            query = query.outerjoin(QuestionBookmark, QuestionBookmark.question_id==Question.id)\
+                    .order_by(desc(func.field(QuestionBookmark.user_id, g.current_user.id)))
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
         if params.get('is_created_by_friend') and current_user:

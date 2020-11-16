@@ -107,6 +107,7 @@ class Question(Model, BaseQuestion):
     question_reports = db.relationship("QuestionReport", cascade='all,delete-orphan')
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')
     question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
+    bookmarked_users = db.relationship("User", secondary='question_bookmark')
 
 
 class QuestionProposal(Model, BaseQuestion):

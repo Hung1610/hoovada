@@ -30,7 +30,7 @@ class UserDto(Dto):
         'password': fields.String(required=True),
 
         'profile_pic_url': fields.String(required=False, default=''),
-        'profile_pic_data_url': fields.String(required=False, default=''),
+        'cover_pic_url': fields.String(required=False, default=''),
         'admin': fields.Boolean(required=False),
         'active': fields.Boolean(required=False, default=False),
 
@@ -81,7 +81,7 @@ class UserDto(Dto):
         'email_confirmed_at': fields.DateTime(required=False),
 
         'profile_pic_url': fields.String(required=False),
-        'profile_pic_data_url': fields.String(required=False),
+        'cover_pic_url': fields.String(required=False, default=''),
         'admin': fields.String(required=False),
         'permissions': fields.String(required=False),
         'active': fields.Boolean(required=False),

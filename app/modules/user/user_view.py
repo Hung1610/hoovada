@@ -100,22 +100,8 @@ class User(Resource):
 
 avatar_upload = api.parser()
 avatar_upload.add_argument('avatar', location='files',type=FileStorage, required=True, help='The image file to upload')
-avatar_download = api.parser()
-avatar_download.add_argument('filename', type=str, required=True, help='The name of the avatar')
-
-
 @api.route('/avatar')
-class Avatar(Resource):
-    # @token_required
-    @api.expect(avatar_download)
-    def get(self):
-        """
-        Download  avatar.
-        """
-
-        controler = UserController()
-        return controler.get_avatar()
-
+class UserAvatar(Resource):
     @token_required
     @api.expect(avatar_upload)
     def post(self):
@@ -126,6 +112,22 @@ class Avatar(Resource):
         args = avatar_upload.parse_args()
         controller = UserController()
         return controller.upload_avatar(args=args)
+
+
+cover_upload = api.parser()
+cover_upload.add_argument('cover', location='files',type=FileStorage, required=True, help='The image file to upload')
+@api.route('/cover')
+class UserCover(Resource):
+    @token_required
+    @api.expect(cover_upload)
+    def post(self):
+        """
+        Upload avatar.
+        """
+        
+        args = cover_upload.parse_args()
+        controller = UserController()
+        return controller.upload_cover(args=args)
 
 
 parser_user_hot = reqparse.RequestParser()
