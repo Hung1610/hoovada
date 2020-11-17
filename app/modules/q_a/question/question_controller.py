@@ -141,7 +141,7 @@ class QuestionController(Controller):
         if params.get('is_created_by_friend') and current_user:
             query = query\
                 .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
-                .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id, UserFollow.friend_id==current_user.id))\
+                .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id, UserFriend.friend_id==current_user.id))\
                 .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
         if params.get('hot'):
             if g.current_user:
