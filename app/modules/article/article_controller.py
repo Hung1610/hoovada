@@ -3,6 +3,7 @@
 
 # built-in modules
 import json
+import re
 from datetime import datetime
 
 # third-party modules
@@ -55,6 +56,8 @@ class ArticleController(Controller):
             article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
+                article.title = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", article.title)
+                article.title = article.title.trim()
                 is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)

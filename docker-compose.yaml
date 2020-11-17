@@ -39,7 +39,7 @@ services:
       DB_PASSWORD: hoovada
       DB_HOST: db
 
-  backend:
+  socketio:
     image: socketio
     build:
         context: .

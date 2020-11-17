@@ -3,6 +3,7 @@
 
 # built-in modules
 import json
+import re
 from datetime import datetime
 
 # third-party modules
@@ -71,7 +72,9 @@ class QuestionController(Controller):
                 if question.topics.count('1') > 5:
                     return send_error(message='Question cannot have more than 5 topics.')
                 if not question.title.strip().endswith('?'):
-                    return send_error(message='Please end question title with questio mark ("?")')
+                    return send_error(message='Please end question title with question mark ("?")')
+                question.title = s = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", question.title)
+                question.title = question.title.trim()
                 spelling_errors = check_spelling(question.title)
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
@@ -201,11 +204,14 @@ class QuestionController(Controller):
             question = Question.query.filter_by(slug=object_id).first()
         if question is None:
             return send_error(message='Could not find question with the ID {}'.format(object_id))
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if question.is_private:
-            if not current_user == question.user:
-                if not self.is_invited(question, current_user):
-                    return send_error(message='Question is invitations only.')
+            if current_user:
+                if not current_user == question.user:
+                    if not self.is_invited(question, current_user):
+                        return send_error(message='Question is invitations only.')
+            else:
+                return send_error(message='Question is invitations only.') 
         result = question._asdict()
         # get user info
         result['user'] = question.user
