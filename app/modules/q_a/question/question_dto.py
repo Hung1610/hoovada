@@ -28,8 +28,9 @@ class QuestionDto(Dto):
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
         'profile_pic_url': fields.String(required=False),
-        'is_followed_by_me': fields.Boolean(default=False, description='The answer was accepted or not'),
         'profile_views': fields.Integer(default=False, description='User view count'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_answer_request = api.model('answer_question_request', {

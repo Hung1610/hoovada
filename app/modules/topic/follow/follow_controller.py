@@ -13,6 +13,7 @@ from flask_restx import marshal
 from app.app import db
 from app.constants import messages
 from app.modules.topic.follow.follow_dto import TopicFollowDto
+from common.utils.response import paginated_result
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
 
@@ -26,57 +27,35 @@ Topic = db.get_model('Topic')
 TopicFollow = db.get_model('TopicFollow')
 
 class TopicFollowController(Controller):
-    def get(self, args, topic_id=None):
-        '''
-        Get/Search follows.
+    query_classname = 'TopicFollow'
+    special_filtering_fields = ['from_date', 'to_date']
+    allowed_ordering_fields = ['created_date', 'updated_date']
+    
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(TopicFollow.created_date >= params.get('from_date'))
+        if params.get('to_date'):
+            query = query.filter(TopicFollow.created_date <= params.get('to_date'))
 
-        Args:
-             The dictionary-like parameters.
+        return query
 
-        Returns:
-        '''
-        
-        user_id, followed_user_id, from_date, to_date = None, None, None, None
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'followed_user_id' in args:
-            try:
-                followed_user_id = int(args['followed_user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'from_date' in args:
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'to_date' in args:
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+    def get(self, args):
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            follows = res.get('data')
+            results = []
+            for follow in follows:
+                result = follow._asdict()
+                result['topic'] = follow.topic
+                results.append(result)
 
-        query = TopicFollow.query
-        if topic_id is not None:
-            query = query.filter(TopicFollow.topic_id == topic_id)
-        if user_id is not None:
-            query = query.filter(TopicFollow.user_id == user_id)
-        if followed_user_id is not None:
-            query = query.filter(TopicFollow.topic.user_id == followed_user_id)
-        if from_date is not None:
-            query = query.filter(TopicFollow.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(TopicFollow.created_date <= to_date)
-
-        follows = query.all()
-
-        return send_result(data=marshal(follows, TopicFollowDto.model_response), message='Success')
+            res['data'] = marshal(results, TopicFollowDto.model_response)
+            return res, code
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load topics. Contact your administrator for solution.")
 
     def create(self, topic_id):
         data = {}

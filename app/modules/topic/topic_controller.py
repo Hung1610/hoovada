@@ -38,7 +38,7 @@ TopicBookmark = db.get_model('TopicBookmark')
 
 class TopicController(Controller):
     query_classname = 'Topic'
-    special_filtering_fields = ['from_date', 'hot']
+    special_filtering_fields = ['hot']
     allowed_ordering_fields = ['created_date', 'updated_date']
     
 
@@ -107,6 +107,9 @@ class TopicController(Controller):
                 and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
                 and_(Topic.name == data['name'], Topic.name == data['name'], int(data['parent_id'])>0))
                 ).first()
+
+            current_user = g.current_user
+            data['user_id'] = current_user.id
 
             if not topic:  # the topic does not exist
                 topic = self._parse_topic(data=data, topic=None)
@@ -462,33 +465,3 @@ class TopicController(Controller):
                     pass
 
         return topic
-
-    def get_topic_hot(self,args):
-        page = 1
-        page_size = 20
-
-        if args.get('page') and args['page'] > 0 :
-            try:
-                page = args['page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if args.get('per_page') and args['per_page'] > 0 :
-            try:
-                page_size = args['per_page']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if page > 0 :
-            page = page - 1
-
-        query = Topic.query.filter(Topic.is_fixed!=1).order_by(Topic.article_count + Topic.question_count)
-        topics = query.offset(page * page_size).limit(page_size).all()
-
-        if topics is not None and len(topics) > 0:
-            return send_result(data=marshal(topics, TopicDto.model_topic_response),
-                    message='Success')
-        else:
-            return send_result(message='Could not find any topics')
