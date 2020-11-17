@@ -61,9 +61,6 @@ class TopicDto(Dto):
         'color_code': fields.String(description='The color code for topic'),
         'file_url': fields.String(description='The file url for topic'),
         'user_id': fields.Integer(description='The user ID'),
-        'question_count': fields.Integer(description='The amount of questions belong to this topic'),
-        'user_count': fields.Integer(description='The amount of users who interest this topic'),
-        'answer_count': fields.Integer(description='The amount of answers in this topic'),
         'parent_id': fields.Integer(description='The ID of parent (fixed) topic'),
         'is_fixed': fields.Boolean(default=False, description='This topic is fixed or not'),
         'created_date': fields.DateTime(description='The date topic was created'),
@@ -73,7 +70,12 @@ class TopicDto(Dto):
         'children': fields.List(fields.Nested(model_sub_topic), description='List of sub-topic belong to this topic'),
         'parent': fields.Nested(model_parent_topic, description='The parent (fixed) topic'),
         'article_count': fields.Integer(description='The amount of article belong to this topic'),
+        'question_count': fields.Integer(description='The amount of questions belong to this topic'),
+        'endorsers_count': fields.Integer(description='The amount of endorsers belong to this topic'),
+        'bookmarkers_count': fields.Integer(description='The amount of bookmarkers belong to this topic'),
+        'followers_count': fields.Integer(description='The amount of followers belong to this topic'),
         'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()

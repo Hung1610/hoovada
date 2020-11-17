@@ -23,9 +23,10 @@ class TopicBookmarkDto(Dto):
     })
 
     model_bookmark_topic = api.model('bookmark_topic', {
-        'title': fields.String(description='The title of the topic'),
-        'user_id': fields.Integer(description='The user information'),
-        'topics': fields.List(fields.Nested(model_topic_topic_bookmark), description='The list of topics')
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
+        'name': fields.String(description='The name of the topic'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
     })
 
     model_request = api.model('bookmark_topic_request', {

@@ -17,15 +17,11 @@ class TopicFollowDto(Dto):
     name = 'topic_follow'
     api = Namespace(name, description="Topic follow operations")
 
-    model_topic_topic_follow = api.model('topic_topic_follow', {
-        'id': fields.Integer(readonly=True, description='The ID of the topic'),
-        'name': fields.String(description='The name of the topic')
-    })
-
     model_follow_topic = api.model('follow_topic', {
-        'title': fields.String(description='The title of the topic'),
-        'user_id': fields.Integer(description='The user information'),
-        'topics': fields.List(fields.Nested(model_topic_topic_follow), description='The list of topics')
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
+        'name': fields.String(description='The name of the topic'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
     })
 
     model_request = api.model('follow_topic_request', {
