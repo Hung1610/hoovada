@@ -11,16 +11,20 @@ from flask_restx import marshal
 
 # own modules
 from app.app import db
-from app.modules.topic.report.report import TopicReport
 from app.modules.topic.report.report_dto import TopicReportDto
 from common.controllers.controller import Controller
-from common.models import Topic, User
+from common.enum import ReportTypeEnum
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+Topic = db.get_model('Topic')
+User = db.get_model('User')
+TopicReport = db.get_model('TopicReport')
 
 
 class ReportController(Controller):
@@ -114,10 +118,12 @@ class ReportController(Controller):
                 report.topic_id = int(data['topic_id'])
             except Exception as e:
                 pass
-        if 'inappropriate' in data:
+        if 'report_type' in data:
             try:
-                report.inappropriate = bool(data['inappropriate'])
+                report_type = int(data['report_type'])
+                report.report_type = ReportTypeEnum(report_type).name
             except Exception as e:
+                print(e.__str__())
                 pass
         if 'description' in data:
             report.description = data['description']

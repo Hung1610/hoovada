@@ -72,3 +72,10 @@ class PostReport(Model, BaseReport):
     __tablename__ = 'post_report'
     
     post_id = db.Column(db.Integer)
+
+
+class TopicReport(Model, BaseReport):
+    __tablename__ = 'topic_report'
+    
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic

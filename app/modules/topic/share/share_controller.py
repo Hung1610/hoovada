@@ -8,20 +8,22 @@ from datetime import datetime
 import dateutil.parser
 from flask import current_app, request
 from flask_restx import marshal
-from sqlalchemy import desc
 
 # own modules
 from app.app import db
-from app.modules.topic.share.share import TopicShare
 from app.modules.topic.share.share_dto import TopicShareDto
 from common.controllers.controller import Controller
-from common.models import Topic, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+Topic = db.get_model('Topic')
+User = db.get_model('User')
+TopicShare = db.get_model('TopicShare')
 
 
 class ShareController(Controller):

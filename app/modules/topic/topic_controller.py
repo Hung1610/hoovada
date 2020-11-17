@@ -424,24 +424,6 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'question_count' in data:
-            try:
-                topic.question_count = int(data['question_count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'user_count' in data:
-            try:
-                topic.user_count = int(data['user_count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'answer_count' in data:
-            try:
-                topic.answer_count = int(data['answer_count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
         if 'is_fixed' in data:  # we do not parse the value of is_fixed, because the fixed topics already passed
             pass
             # try:

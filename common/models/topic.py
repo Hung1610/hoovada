@@ -3,12 +3,13 @@
 
 # built-in modules
 from datetime import datetime
-
 from slugify import slugify
+
+# third-party modules
+from flask import g
+from sqlalchemy_utils import aggregated
 from sqlalchemy import event
 from sqlalchemy.sql import expression
-# third-party modules
-from sqlalchemy_utils import aggregated
 
 # own modules
 from app.app import db
@@ -45,8 +46,6 @@ class Topic(Model):
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
         return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
-    user_count = db.Column(db.Integer, default=0)  # Number of users who interest this topic
-    answer_count = db.Column(db.Integer, default=0)  # how many answers related to this topic
     parent_id = db.Column(db.Integer, db.ForeignKey('topic.id'))  # the ID of parent topic
     children = db.relationship("Topic", cascade='all,delete-orphan')
     parent = db.relationship("Topic", remote_side=[id], lazy=True)
@@ -55,9 +54,27 @@ class Topic(Model):
     description = db.Column(db.String(255))
     is_nsfw = db.Column(db.Boolean, server_default=expression.false(), default=False)  # is this topic nsfw?
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.endorsed_id, TopicUserEndorse.topic_id], lazy='dynamic')
+    @aggregated('endorsed_users', db.Column(db.Integer))
+    def endorsers_count(self):
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0))
     bookmarked_users = db.relationship('User', secondary='topic_bookmark', lazy='dynamic')
-    fixed_topic_articles = db.relationship("Article", cascade='all,delete-orphan')
+    @aggregated('bookmarked_users', db.Column(db.Integer))
+    def bookmarkers_count(self):
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0))
+    followed_users = db.relationship('User', secondary='topic_follow', lazy='dynamic')
+    @aggregated('followed_users', db.Column(db.Integer))
+    def followers_count(self):
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0))
     allow_follow = db.Column(db.Boolean, server_default=expression.true())  
+
+    @property
+    def is_followed_by_me(self):
+        TopicFollow = db.get_model('TopicFollow')
+        if g.current_user:
+            follow = TopicFollow.query.filter(TopicFollow.user_id == g.current_user.id,
+                                            TopicFollow.topic_id == self.id).first()
+            return True if follow else False
+        return False
 
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):
