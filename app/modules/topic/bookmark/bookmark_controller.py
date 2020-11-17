@@ -72,11 +72,12 @@ class TopicBookmarkController(Controller):
             query = query.filter(TopicBookmark.created_date >= from_date)
         if to_date is not None:
             query = query.filter(TopicBookmark.created_date <= to_date)
-        bookmarks = query.all()
-        if bookmarks is not None and len(bookmarks) > 0:
-            return send_result(data=marshal(bookmarks, TopicBookmarkDto.model_response), message='Success')
-        else:
-            return send_result(message=constants.msg_topic_bookmark_not_found)
+        results = []
+        for bookmark in query:
+            result = bookmark._asdict()
+            result['topic'] = bookmark.topic
+            results.append(result)
+        return send_result(data=marshal(results, TopicBookmarkDto.model_response), message='Success')
 
     def create(self, topic_id):
         data = {}

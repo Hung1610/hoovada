@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from sqlalchemy.ext.declarative import declared_attr
 # third-party modules
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
@@ -74,3 +74,12 @@ class PostShare(Model, BaseShare):
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
     post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post
+
+
+class TopicShare(Model, BaseShare):
+    __tablename__ = 'topic_share'
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+    topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article

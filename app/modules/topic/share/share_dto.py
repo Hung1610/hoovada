@@ -21,18 +21,10 @@ class TopicShareDto(Dto):
     api = Namespace(name, description="Topic-Share operations")
 
     model_topic = api.model('share_topic',{
-        'id': fields.Integer(required=False, readonly=True, description='The ID of the topic'),
-        'created_date': fields.DateTime(default=datetime.utcnow, description='The date topic was created'),
-        'updated_date': fields.DateTime(default=datetime.utcnow, description='The date topic was updated'),
-        'last_activity': fields.DateTime(default=datetime.utcnow, description='The last time topic was updated'),
-
-        'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
-        'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
-        'accepted': fields.Boolean(default=False, description='The topic was accepted or not'),
-        'topic': fields.String(description='The content of the topic'),
-        'topic_id': fields.Integer(default=0, description='The ID of the topic'),
-        'comment_count': fields.Integer(default=0, description='The amount of comments on this topic'),
-        'share_count': fields.Integer(default=0, description='The amount of shares on this topic')
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
+        'name': fields.String(description='The name of the topic'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
     })
 
 
