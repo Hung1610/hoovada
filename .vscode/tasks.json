@@ -14,7 +14,7 @@
         {
             "label": "dramatiq:workers",
             "type": "shell",
-            "command": "source venv/bin/activate; flask worker --processes=1"
+            "command": "source venv/bin/activate; flask worker"
         },
         {
           "label": "build",
