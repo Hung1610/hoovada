@@ -71,7 +71,6 @@ class QuestionController(Controller):
             data['title'] = data['title'] + ' ?'
             title = data['title']
             user_id = data.get('user_id')
-            title = title + ' ?'
             question = Question.query.filter(Question.title == title).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
