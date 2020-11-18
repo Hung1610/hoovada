@@ -3,9 +3,10 @@
 
 # built-in modules
 import ast
+import dateutil.parser
+import random
 from datetime import datetime
 
-import dateutil.parser
 # third-party modules
 from flask import current_app, g, request
 from flask_restx import marshal
@@ -381,6 +382,17 @@ class TopicController(Controller):
                     topic.slug = '{}-{}'.format(slugify(topic.parent.name),slugify(topic.name))
                 else:
                     topic.slug = '{}'.format(slugify(topic.name))
+                db.session.commit()
+            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=e)
+
+    def update_color(self):
+        topics = Topic.query.all()
+        try:
+            for topic in topics:
+                topic.color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
                 db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:

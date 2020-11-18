@@ -197,3 +197,15 @@ class UpdateTopicSlug(Resource):
 
         controller = TopicController()
         return controller.update_slug()
+
+
+@api.route('/update_color')
+class UpdateTopicColor(Resource):
+    # @admin_token_required()
+    def post(self):
+        """
+        Update Slug for articles in DB
+        """
+
+        controller = TopicController()
+        return controller.update_color()
