@@ -3,14 +3,15 @@
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import current_app, request, g
 from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules 
 from app.app import db
-from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
+from common.enum import TimelineActivityEnum
+from common.utils.response import paginated_result
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
 
@@ -20,7 +21,14 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+Timeline = db.get_model('Timeline')
+
+
 class TimelineController(Controller):
+    query_classname = 'Timeline'
+    special_filtering_fields = ['hot']
+    allowed_ordering_fields = ['activity_date']
+    
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form")
@@ -50,88 +58,30 @@ class TimelineController(Controller):
 
         return send_result(data=marshal(timeline, TimelineDto.timeline_model_response), message='Success')
 
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(Timeline.activity_date >= dateutil.parser.isoparse(params.get('from_date')))
+        if params.get('to_date'):
+            query = query.filter(Timeline.activity_date <= dateutil.parser.isoparse(params.get('to_date')))
+
+        return query
+
     def get(self, args):
-        """ Search timeline.
-        """
-        query = Timeline.query
-        current_user, _ = current_app.get_logged_user(request)
-
-        if not isinstance(args, dict):
-            return send_error(message='Could not parse the params.')
-        user_id, question_id, answer_id, comment_id, article_id, article_comment_id, from_date, to_date = None, None, None, None, None, None, None, None
-        if args.get('user_id'):
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('question_id'):
-            try:
-                question_id = int(args['question_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('answer_id'):
-            try:
-                answer_id = int(args['answer_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('comment_id'):
-            try:
-                comment_id = int(args['comment_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('article_id'):
-            try:
-                article_id = int(args['article_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('article_comment_id'):
-            try:
-                article_comment_id = int(args['article_comment_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('from_date'):
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if args.get('to_date'):
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        query = query.filter(Timeline.answer_id == answer_id)
-        query = query.filter(Timeline.question_id == question_id)
-        query = query.filter(Timeline.article_id == article_id)
-        if comment_id is not None:
-            query = query.filter(Timeline.comment_id == comment_id)
-        if article_comment_id is not None:
-            query = query.filter(Timeline.article_comment_id == article_comment_id)
-        if user_id is not None:
-            query = query.filter(Timeline.user_id == user_id)
-        if from_date is not None:
-            query = query.filter(Timeline.activity_date >= from_date)
-        if to_date is not None:
-            query = query.filter(Timeline.activity_date <= to_date)
-
-        timelines = query.order_by(desc(Timeline.activity_date)).all()
-        if timelines is not None and len(timelines) > 0:
-            results = list()
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            timelines = res.get('data')
+            results = []
             for timeline in timelines:
                 result = timeline._asdict()
                 result['user'] = timeline.user
                 results.append(result)
-            return send_result(marshal(results, TimelineDto.timeline_model_response), message='Success')
-        else:
-            return send_error(message='Could not find timelines. Please check your parameters again.')
+            res['data'] = marshal(results, TimelineDto.timeline_model_response)
+            return res, code
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load topics. Contact your administrator for solution.")
 
     def update(self, object_id, data, is_put=False):
         try:
@@ -207,7 +157,7 @@ class TimelineController(Controller):
         if 'activity' in data:
             try:
                 activity = int(data['activity'])
-                timeline.activity = TimelineActivity(activity).name
+                timeline.activity = TimelineActivityEnum(activity).name
             except Exception as e:
                 print(e.__str__())
                 pass

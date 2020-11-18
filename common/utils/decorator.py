@@ -84,6 +84,8 @@ def token_required(f):
         user = g.current_user
         if user is None:
             return send_error(message='You are not logged in.', code=401)
+        if user.is_deactivated:
+            return send_error(message='Your account is deactivated.', code=401)
         return f(*args, **kwargs)
 
     return decorated
