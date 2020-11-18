@@ -75,6 +75,8 @@ class TopicBookmarkController(Controller):
             bookmark.updated_date = datetime.utcnow()
             db.session.add(bookmark)
             db.session.commit()
+            result = bookmark._asdict()
+
             return send_result(message=constants.msg_create_success,
                                data=marshal(bookmark, TopicBookmarkDto.model_response))
         except Exception as e:

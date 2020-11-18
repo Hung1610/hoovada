@@ -4,8 +4,8 @@
 # third-party modules
 from flask_restx import Namespace, fields, reqparse
 
-from app.modules.q_a.timeline.timeline import Timeline, TimelineActivity
 # own modules
+from common.enum import TimelineActivityEnum
 from common.dto import Dto
 
 __author__ = "hoovada.com team"
@@ -17,7 +17,7 @@ class TimelineDto(Dto):
     name = 'timeline'
     api = Namespace(name, description="Question-Timeline operations")
 
-    model_get_parser = reqparse.RequestParser()
+    model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search timeline by user id')
     model_get_parser.add_argument('question_id', type=int, required=False, help='Search all timelines related to question id.')
     model_get_parser.add_argument('answer_id', type=int, required=False, help='Search all timelines related to answer id.')
@@ -26,6 +26,12 @@ class TimelineDto(Dto):
     model_get_parser.add_argument('article_comment_id', type=int, required=False, help='Search all timelines related to article comment id.')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search timelines created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search timelines created before this data.')
+    model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'activity_date'", type=str,
+                            choices=('activity_date'), action='append',
+                        )
+    model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'activity_date'", type=str,
+                            choices=('activity_date'), action='append',
+                        )
     
     model_timeline_user = api.model(name + '_' + 'user', {
         'id': fields.Integer(readonly=True),
@@ -40,7 +46,7 @@ class TimelineDto(Dto):
         'answer_comment_id': fields.Integer(default=0, description='The ID of the answer comment'),
         'article_id': fields.Integer(default=0, description='The ID of the article'),
         'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
-        'activity': fields.Integer(enum=[x.value for x in TimelineActivity], attribute='activity.value', default=False)
+        'activity': fields.Integer(enum=[x.value for x in TimelineActivityEnum], attribute='activity.value', default=False)
     })
     
     timeline_model_response = api.model(name + '_' + 'model_response', {
@@ -52,6 +58,6 @@ class TimelineDto(Dto):
         'answer_comment_id': fields.Integer(default=0, description='The ID of the answer comment'),
         'article_id': fields.Integer(default=0, description='The ID of the article'),
         'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
-        'activity': fields.Integer(enum=[x.value for x in TimelineActivity], attribute='activity.value', default=False),
+        'activity': fields.Integer(enum=[x.value for x in TimelineActivityEnum], attribute='activity.value', default=False),
         'activity_date': fields.DateTime(description='The activity datetime'),
     })

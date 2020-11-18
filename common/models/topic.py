@@ -76,6 +76,15 @@ class Topic(Model):
             return True if follow else False
         return False
 
+    @property
+    def is_bookmarked_by_me(self):
+        TopicBookmark = db.get_model('TopicBookmark')
+        if g.current_user:
+            bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == g.current_user.id,
+                                            TopicBookmark.topic_id == self.id).first()
+            return True if bookmark else False
+        return False
+
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):
         if value and (not target.slug or value != oldvalue):

@@ -25,6 +25,7 @@ from common.models.user import SocialAccount, User
 from common.models.vote import (ArticleCommentVote, ArticleVote, AnswerVote,
                                 AnswerCommentVote, AnswerImprovementVote, PostVote,
                                 QuestionVote)
+from common.models.timeline import Timeline
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

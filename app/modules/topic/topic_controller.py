@@ -168,11 +168,6 @@ class TopicController(Controller):
                 # get user info
                 result['parent'] = topic.parent
                 result['children'] = topic.children
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                if current_user:
-                    bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id,
-                                                    TopicBookmark.topic_id == topic.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
                 results.append(result)
             
             res['data'] = marshal(results, TopicDto.model_topic_response)
@@ -198,14 +193,7 @@ class TopicController(Controller):
             topic = Topic.query.filter_by(slug=object_id).first()
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
-        current_user, _ = current_app.get_logged_user(request)
-        result = topic._asdict()
-        # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-        if current_user:
-            bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id,
-                                            TopicBookmark.topic_id == topic.id).first()
-            result['is_bookmarked_by_me'] = True if bookmark else False
-        return send_result(data=marshal(result, TopicDto.model_topic_response), message='Success')
+        return send_result(data=marshal(topic, TopicDto.model_topic_response), message='Success')
 
     def get_sub_topics(self, object_id):
         if object_id is None:
@@ -318,10 +306,6 @@ class TopicController(Controller):
             results = []
             for user in res.get('data'):
                 result = user._asdict()
-                if current_user:
-                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id,
-                                                    UserFollow.followed_id == user.id).first()
-                    result['is_followed_by_me'] = True if follow else False
                 results.append(result)
             res['data'] = marshal(results, TopicDto.model_endorsed_user)
             return res, code

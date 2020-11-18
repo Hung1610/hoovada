@@ -30,3 +30,11 @@ class BanTypeEnum(enum.Enum):
 class FileTypeEnum(enum.Enum):
     AUDIO = 1
     VIDEO = 2
+
+
+class TimelineActivityEnum(enum.Enum):
+    COMMENTED = 1
+    FAVORITED = 2
+    UPVOTED = 3
+    DOWNVOTED = 4
+    REPORTED = 5
