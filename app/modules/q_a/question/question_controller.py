@@ -74,7 +74,7 @@ class QuestionController(Controller):
                 if not question.title.strip().endswith('?'):
                     return send_error(message='Please end question title with question mark ("?")')
                 question.title = s = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", question.title)
-                question.title = question.title.trim()
+                question.title = question.title.strip()
                 spelling_errors = check_spelling(question.title)
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
