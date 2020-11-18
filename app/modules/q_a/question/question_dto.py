@@ -155,10 +155,10 @@ class QuestionDto(Dto):
     get_parser.add_argument('is_created_by_friend', type=bool, required=False, help='Search questions that are created by friend/followee.')
     get_parser.add_argument('hot', type=bool, required=False, help='Search questions that are hot.')
     get_parser.add_argument('for_me', type=bool, required=False, help='Search questions that relevant for current user.')
-    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'), action='append',
                         )
-    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'), action='append',
                         )
                         

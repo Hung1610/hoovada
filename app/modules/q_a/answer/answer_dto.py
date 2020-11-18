@@ -23,7 +23,9 @@ class AnswerDto(Dto):
     answer_user = api.model('answer_user',{
         'id': fields.Integer(readonly=True, description = 'The user ID'),
         'display_name': fields.String(required=True, description = 'The display name of the user'),
-        'profile_pic_url': fields.String(required=True, description='The avatar address of the user')
+        'profile_pic_url': fields.String(required=True, description='The avatar address of the user'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_comment_request = api.model('comment_answer_request', {

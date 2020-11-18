@@ -57,7 +57,7 @@ class ArticleController(Controller):
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
                 article.title = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", article.title)
-                article.title = article.title.trim()
+                article.title = article.title.strip()
                 is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)

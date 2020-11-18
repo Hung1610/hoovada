@@ -65,10 +65,7 @@ class UserFollowController(Controller):
         if to_date is not None:
             query = query.filter(UserFollow.created_date <= to_date)
         follows = query.all()
-        if follows is not None and len(follows) > 0:
-            return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
-        else:
-            return send_result(message=messages.ERR_NOT_FOUND.format('Follow'))
+        return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
 
     def create(self, object_id):
         data = {}
