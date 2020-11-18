@@ -61,20 +61,21 @@ class QuestionController(Controller):
             data['user_id'] = current_user.id
 
         try:
-            title = data['title']
-            user_id = data.get('user_id')
-            is_sensitive = check_sensitive(title)
+            if not data['title'].strip().endswith('?'):
+                return send_error(message='Please end question title with question mark ("?")')
+            data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
+            data['title'] = data['title'].strip()
+            is_sensitive = check_sensitive(data['title'])
             if is_sensitive:
                 return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
-            question = Question.query.filter(Question.title == title).filter(Question.user_id == user_id).first()
+            data['title'] = data['title'] + ' ?'
+            title = data['title']
+            user_id = data.get('user_id')
+            question = Question.query.filter(Question.title == title).first()
             if not question:  # the topic does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
                 if question.topics.count('1') > 5:
                     return send_error(message='Question cannot have more than 5 topics.')
-                if not question.title.strip().endswith('?'):
-                    return send_error(message='Please end question title with question mark ("?")')
-                question.title = s = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", question.title)
-                question.title = question.title.strip()
                 spelling_errors = check_spelling(question.title)
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
