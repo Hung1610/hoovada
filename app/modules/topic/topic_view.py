@@ -40,10 +40,10 @@ class TopicFile(Resource):
 
 
 @api.route('')
-@api.expect(parser)
 class TopicList(Resource):
     # @admin_token_required()
     # @api.marshal_list_with(topic_response)
+    @api.expect(parser)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
         """ 
@@ -197,20 +197,3 @@ class UpdateTopicSlug(Resource):
 
         controller = TopicController()
         return controller.update_slug()
-
-
-parser_topic_hot = reqparse.RequestParser()
-parser_topic_hot.add_argument('page', type=int, required=False, help='Search topic by page.')
-parser_topic_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-@api.route('/all/hot')
-@api.expect(parser_topic_hot)
-class TopicHot(Resource):
-    #@token_required
-    @api.response(code=200, model=topic_response, description='Model for topic response.')
-    def get(self):
-        """ get topic hot
-        """
-
-        args = parser_topic_hot.parse_args()
-        controller = TopicController()
-        return controller.get_topic_hot(args)

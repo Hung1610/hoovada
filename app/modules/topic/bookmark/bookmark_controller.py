@@ -6,16 +6,15 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import current_app, request, g
 from flask_restx import marshal
-from sqlalchemy import and_
 
 # own modules
 from app.app import db
 from app.modules.topic.bookmark import constants
 from app.modules.topic.bookmark.bookmark_dto import TopicBookmarkDto
+from common.utils.response import paginated_result
 from common.controllers.controller import Controller
-from common.models import Topic, TopicBookmark, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
@@ -24,64 +23,45 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+Topic = db.get_model('Topic')
+TopicBookmark = db.get_model('TopicBookmark')
+User = db.get_model('User')
+
+
 class TopicBookmarkController(Controller):
-    def get(self, args, topic_id=None):
-        '''
-        Get/Search bookmarks.
+    query_classname = 'TopicBookmark'
+    special_filtering_fields = ['from_date', 'to_date']
+    allowed_ordering_fields = ['created_date', 'updated_date']
+    
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(TopicBookmark.created_date >= params.get('from_date'))
+        if params.get('to_date'):
+            query = query.filter(TopicBookmark.created_date <= params.get('to_date'))
 
-        Args:
-             The dictionary-like parameters.
+        return query
 
-        Returns:
-        '''
-        
-        user_id, bookmarkd_user_id, from_date, to_date = None, None, None, None
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'bookmarkd_user_id' in args:
-            try:
-                bookmarkd_user_id = int(args['bookmarkd_user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'from_date' in args:
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'to_date' in args:
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+    def get(self, args):
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            bookmarks = res.get('data')
+            results = []
+            for bookmark in bookmarks:
+                result = bookmark._asdict()
+                result['topic'] = bookmark.topic
+                results.append(result)
 
-        query = TopicBookmark.query
-        if topic_id is not None:
-            query = query.filter(TopicBookmark.topic_id == topic_id)
-        if user_id is not None:
-            query = query.filter(TopicBookmark.user_id == user_id)
-        if bookmarkd_user_id is not None:
-            query = query.filter(TopicBookmark.topic.user_id == bookmarkd_user_id)
-        if from_date is not None:
-            query = query.filter(TopicBookmark.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(TopicBookmark.created_date <= to_date)
-        results = []
-        for bookmark in query:
-            result = bookmark._asdict()
-            result['topic'] = bookmark.topic
-            results.append(result)
-        return send_result(data=marshal(results, TopicBookmarkDto.model_response), message='Success')
+            res['data'] = marshal(results, TopicBookmarkDto.model_response)
+            return res, code
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load topics. Contact your administrator for solution.")
 
     def create(self, topic_id):
         data = {}
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['topic_id'] = topic_id
         try:

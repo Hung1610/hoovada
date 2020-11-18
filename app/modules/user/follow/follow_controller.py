@@ -139,7 +139,7 @@ class UserFollowController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
-            follow = UserFollow.query.filter_by(follow_id=object_id, followed_id=user_id).first()
+            follow = UserFollow.query.filter_by(follower_id=object_id, followed_id=user_id).first()
             if follow is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
             else:
