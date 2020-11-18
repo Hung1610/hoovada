@@ -301,7 +301,7 @@ class TopicController(Controller):
             if not topic:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = current_app.get_logged_user(request)
-            query = topic.endorsed_users.paginate(page, per_page, error_out=True)
+            query = topic.endorsed_users.paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
             results = []
             for user in res.get('data'):
@@ -323,7 +323,7 @@ class TopicController(Controller):
             if not topic:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             current_user, _ = current_app.get_logged_user(request)
-            query = topic.bookmarked_users.paginate(page, per_page, error_out=True)
+            query = topic.bookmarked_users.paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
             results = []
             for user in res.get('data'):

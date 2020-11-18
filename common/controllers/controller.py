@@ -72,7 +72,7 @@ class Controller(ABC):
         return query
     
     def apply_pagination(self, query, page=1, per_page=10):
-        query = query.paginate(page, per_page)
+        query = query.paginate(page, per_page, False)
         return query
 
     @abstractmethod
