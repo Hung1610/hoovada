@@ -49,6 +49,8 @@ class ArticleController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         try:
+            data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
+            data['title'] = data['title'].strip()
             is_sensitive = check_sensitive(data['title'])
             if is_sensitive:
                 return send_error(message=constants.msg_insensitive_title)
@@ -56,8 +58,6 @@ class ArticleController(Controller):
             article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
-                article.title = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", article.title)
-                article.title = article.title.strip()
                 is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
