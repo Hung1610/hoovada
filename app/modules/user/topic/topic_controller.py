@@ -151,7 +151,7 @@ class TopicController(Controller):
                 )\
                 .group_by(Topic,)\
                 .order_by(db.desc('endorse_score'))
-            result = user_endorsed_topics.paginate(page, per_page, error_out=True)
+            result = user_endorsed_topics.paginate(page, per_page, error_out=False)
             res, code = paginated_result(result)
             res['data'] = marshal([{'topic': topic, 'endorse_score': endorse_score} for topic, endorse_score in res.get('data')], TopicDto.model_endorsed_topic)
             return res, code
