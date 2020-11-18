@@ -17,10 +17,30 @@ class TopicFollowDto(Dto):
     name = 'topic_follow'
     api = Namespace(name, description="Topic follow operations")
 
+    model_follow_parent_topic = api.model('topic_topic_bookmark', {
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'name': fields.String(description='The name of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
+        'article_count': fields.Integer(description='The amount of article belong to this topic'),
+        'question_count': fields.Integer(description='The amount of questions belong to this topic'),
+        'endorsers_count': fields.Integer(description='The amount of endorsers belong to this topic'),
+        'bookmarkers_count': fields.Integer(description='The amount of bookmarkers belong to this topic'),
+        'followers_count': fields.Integer(description='The amount of followers belong to this topic'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
+    })
+
     model_follow_topic = api.model('follow_topic', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'slug': fields.String(description='The slug of the topic'),
         'name': fields.String(description='The name of the topic'),
+        'parent': fields.Nested(model_follow_parent_topic, description='The parent (fixed) topic'),
+        'article_count': fields.Integer(description='The amount of article belong to this topic'),
+        'question_count': fields.Integer(description='The amount of questions belong to this topic'),
+        'endorsers_count': fields.Integer(description='The amount of endorsers belong to this topic'),
+        'bookmarkers_count': fields.Integer(description='The amount of bookmarkers belong to this topic'),
+        'followers_count': fields.Integer(description='The amount of followers belong to this topic'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
         'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
     })
 

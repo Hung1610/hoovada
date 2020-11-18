@@ -31,7 +31,7 @@ class FollowTopicAll(Resource):
 
         args = _vote_get_params.parse_args()
         controller = TopicFollowController()
-        return controller.get(topic_id=None, args=args)
+        return controller.get(args=args)
 
 
 @api.route('all/follow/<int:object_id>')
@@ -55,8 +55,9 @@ class FollowTopic(Resource):
         """
 
         args = _vote_get_params.parse_args()
+        args['topic_id'] = topic_id
         controller = TopicFollowController()
-        return controller.get(topic_id=topic_id, args=args)
+        return controller.get(args=args)
 
     @token_required
     @api.response(code=200, model=_follow_response, description='The model for follow.')

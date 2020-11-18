@@ -40,7 +40,6 @@ class TopicDto(Dto):
     model_topic_request = api.model('topic_request', {
         'name': fields.String(required=True, description='The name of the topic'),
         'parent_id': fields.Integer(required=True, description='The ID of the parent topic'),
-        'user_id': fields.Integer(required=True, description='The user ID'),
         'color_code': fields.String(description='The color code for topic'),
         'description': fields.String(description='Description about topic'),
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
@@ -82,7 +81,7 @@ class TopicDto(Dto):
     model_get_parser.add_argument('name', type=str, required=False, help='The name of the topic')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
     model_get_parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
-    model_get_parser.add_argument('is_fixed', type=int, required=False, help='Get all fixed topics in database.')
+    model_get_parser.add_argument('is_fixed', type=bool, required=False, help='Get all fixed topics in database.')
     model_get_parser.add_argument('hot', type=bool, required=False, help='Search topics that are hot.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
                             choices=('created_date', 'updated_date'), action='append',

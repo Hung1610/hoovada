@@ -32,7 +32,7 @@ class BookmarkTopicAll(Resource):
 
         args = _vote_get_params.parse_args()
         controller = TopicBookmarkController()
-        return controller.get(topic_id=None, args=args)
+        return controller.get(args=args)
 
 @api.route('/<int:topic_id>/bookmark')
 class BookmarkTopic(Resource):
@@ -43,8 +43,9 @@ class BookmarkTopic(Resource):
         """
 
         args = _vote_get_params.parse_args()
+        args['topic_id'] = topic_id
         controller = TopicBookmarkController()
-        return controller.get(topic_id=topic_id, args=args)
+        return controller.get(args=args)
 
     @token_required
     @api.response(code=200, model=_bookmark_response, description='The model for bookmark.')
