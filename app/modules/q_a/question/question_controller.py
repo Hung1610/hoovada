@@ -48,7 +48,7 @@ QuestionVote = db.get_model('QuestionVote')
 class QuestionController(Controller):
     query_classname = 'Question'
     special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend', 'hot', 'for_me']
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answers_count']
     
     def create(self, data):
         if not isinstance(data, dict):
@@ -74,7 +74,7 @@ class QuestionController(Controller):
                 if not question.title.strip().endswith('?'):
                     return send_error(message='Please end question title with question mark ("?")')
                 question.title = s = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", question.title)
-                question.title = question.title.trim()
+                question.title = question.title.strip()
                 spelling_errors = check_spelling(question.title)
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
