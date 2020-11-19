@@ -154,6 +154,7 @@ class UserDto(Dto):
         'is_deactivated': fields.Boolean(default=False, description='The user is deactivated or not'),
         'show_nsfw': fields.Boolean(default=True, description='The user wants nsfw topics shown or not'),
 
+        'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
@@ -161,6 +162,7 @@ class UserDto(Dto):
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('display_name', type=str, required=False, help='Search user by display name')
     model_get_parser.add_argument('email', type=str, required=False, help='Search user by email')
+    model_get_parser.add_argument('endorsed_topic_id', type=int, required=False, help='Get user endorsed status by id')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'question_count', 'post_count', 'answer_count'", type=str,
                             choices=('question_count', 'post_count', 'answer_count'), action='append',
                         )

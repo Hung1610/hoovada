@@ -902,9 +902,10 @@ fabric.properties
 .idea/rSettings.xml
 .idea/vcs.xml
 
-venv/
-migrations/versions/*
 app/static
+
+migrations/versions/*
+!migrations/versions/.gitkeep 
 
 multiproc-tmp/*
 !multiproc-tmp/.gitkeep 

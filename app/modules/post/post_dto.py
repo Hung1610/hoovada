@@ -20,6 +20,7 @@ class PostDto(Dto):
     model_topic = api.model('topic_for_post', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'name': fields.String(description='The name of the topic'),
+        'color_code': fields.String(description='The color code for topic'),
         'slug': fields.String(description='The slug of the topic'),
         'description': fields.String(description='Description about topic')
     })
@@ -27,7 +28,10 @@ class PostDto(Dto):
     model_post_user = api.model('post_user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
-        'profile_pic_url': fields.String(required=False)
+        'profile_pic_url': fields.String(required=False),
+        'profile_views': fields.Integer(default=False, description='User view count'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_post_request = api.model('post_request', {

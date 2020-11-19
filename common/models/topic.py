@@ -24,7 +24,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class TopicUserEndorse(Model):
     __tablename__ = 'topic_user_endorse'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    user = db.relationship("User", foreign_keys=[user_id], lazy=True)
     endorsed_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    endorsed = db.relationship("User", foreign_keys=[endorsed_id], lazy=True)
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), primary_key=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
 

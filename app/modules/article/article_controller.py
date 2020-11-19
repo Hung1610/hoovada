@@ -199,10 +199,11 @@ class ArticleController(Controller):
         else:
             article.views_count += 1
             db.session.commit()
-            result = article.__dict__
+            result = article._asdict()
             # get user info
             result['user'] = article.article_by_user
             # get all topics that article belongs to
+            result['fixed_topic'] = article.fixed_topic
             result['topics'] = article.topics
             # upvote/downvote status
             try:

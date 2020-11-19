@@ -84,7 +84,7 @@ def max_workers():
 # we should prioritize memory , so gthread model is used
 #workers = 4
 threads = max_workers() * 2 + 1
-worker_class = 'gthread' #'sync'
+worker_class = 'eventlet' #'sync'
 worker_connections = 1001 #1000
 timeout = 30
 keepalive = 2

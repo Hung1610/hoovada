@@ -161,6 +161,17 @@ class EndorseUserTopic(Resource):
         controller = TopicController()
         return controller.create_endorsed_users(object_id=topic_id_or_slug, data=data)
 
+@api.route('/<string:topic_id_or_slug>/endorsed_users/<int:user_id>')
+class EndorseUserTopicDelete(Resource):
+    @token_required
+    def delete(self, topic_id_or_slug, user_id):
+        """ 
+        Delete endorsed users for topic.
+        """
+        
+        controller = TopicController()
+        return controller.delete_endorsed_users(object_id=topic_id_or_slug, user_id=user_id)
+
 
 @api.route('/<string:topic_id_or_slug>/bookmarked_users')
 class BookmarkUserTopic(Resource):
