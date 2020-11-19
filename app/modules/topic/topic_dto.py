@@ -23,6 +23,7 @@ class TopicDto(Dto):
         'display_name': fields.String(required=False),
         'profile_pic_url': fields.String(required=False),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed by me or not'),
+        'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed by current user or not'),
         'profile_views': fields.Integer(default=False, description='User view count'),
     })
 

@@ -23,6 +23,6 @@ USER app
 
 RUN chmod +x /opt/docker/app/entrypoint-dramatiq.sh
 
-EXPOSE 5000
+EXPOSE 5002
 
 ENTRYPOINT ["/opt/docker/app/entrypoint-dramatiq.sh"]

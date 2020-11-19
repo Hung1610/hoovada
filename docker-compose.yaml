@@ -37,27 +37,15 @@ services:
     env_file:
         - ./app/.env
 
-  backend:
-    image: backend
-    build:
-        context: .
-        dockerfile: ./docker/app/Dockerfile
-    ports:
-        - "5000:5000"
-    depends_on:
-        - db
-    env_file:
-        - ./app/.env
-
   dramatiq:
     image: dramatiq
     build:
         context: .
         dockerfile: ./docker/app/Dockerfile.dramatiq
     ports:
-        - "5000:5000"
+        - "5002:5002"
     depends_on:
-        - db
+        - backend
     env_file:
         - ./app/.env
 
