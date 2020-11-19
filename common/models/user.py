@@ -187,6 +187,18 @@ class User(Model):
         return UserRole.is_super_admin(self.admin)
 
     @property
+    def is_endorsed_by_me(self):
+        TopicUserEndorse = db.get_model('TopicUserEndorse')
+        if g.current_user:
+            if g.endorsed_topic_id:
+                endorsed = TopicUserEndorse.query.filter(TopicUserEndorse.user_id == g.current_user.id,
+                                                TopicUserEndorse.endorsed_id == self.id,
+                                                TopicUserEndorse.topic_id == g.endorsed_topic_id).first()
+                return True if endorsed else False
+            return False
+        return False
+
+    @property
     def is_friended_by_me(self):
         UserFriend = db.get_model('UserFriend')
         if g.current_user:
