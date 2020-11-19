@@ -12,6 +12,7 @@ from flask_restx import Api, Namespace, Resource
 from app.modules import *
 from common.models import *
 from common.utils.response import send_result
+from common.tasks import test
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,7 +24,7 @@ class HTTPSApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        return url_for(self.endpoint('specs'), _external=True, _scheme='https')
+        return url_for(self.endpoint('specs'), _external=True, _scheme='http')
 
 
 ns_health = Namespace(name='health')
@@ -33,6 +34,7 @@ class HealthCheck(Resource):
         """ Use for Readiness and Liveness Probes
         """
         
+        test.send()
         return send_result(message="OK!", code=200)
 
 
