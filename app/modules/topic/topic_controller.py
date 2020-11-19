@@ -275,22 +275,63 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
-            current_user, _ = current_app.get_logged_user(request)
             user_id = data['user_id']
             user = User.query.filter_by(id=user_id).first()
             if not user:
                 return send_error(message=messages.ERR_NOT_FOUND.format('User'))
 
-            endorse = TopicUserEndorse()
-            endorse.user_id = current_user.id
-            endorse.endorsed_id = user.id
-            endorse.topic_id = topic.id
-            db.session.merge(endorse)
-            db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Topic'))
+            g.endorsed_topic_id = object_id
+            current_user = g.current_user
+
+            endorse = TopicUserEndorse.query.\
+                filter(\
+                    TopicUserEndorse.user_id == current_user.id,\
+                    TopicUserEndorse.endorsed_id == user.id,\
+                    TopicUserEndorse.topic_id == topic.id).\
+                first()
+            if not endorse:
+                endorse = TopicUserEndorse()
+                endorse.user_id = current_user.id
+                endorse.endorsed_id = user.id
+                endorse.topic_id = topic.id
+                db.session.add(endorse)
+                db.session.commit()
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('TopicEndorse'), data=marshal(endorse.endorsed, TopicDto.model_endorsed_user))
         except Exception as e:
             print(e)
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('Topic', e.__str__))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('TopicEndorse', e))
+
+    def delete_endorsed_users(self, object_id, user_id):
+        try:
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
+            if not topic:
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
+            user = User.query.filter_by(id=user_id).first()
+            if not user:
+                return send_error(message=messages.ERR_NOT_FOUND.format('User'))
+
+            g.endorsed_topic_id = object_id
+            current_user = g.current_user
+
+            endorse = TopicUserEndorse.query.\
+                filter(\
+                    TopicUserEndorse.user_id == current_user.id,\
+                    TopicUserEndorse.endorsed_id == user.id,\
+                    TopicUserEndorse.topic_id == topic.id).\
+                first()
+            if not endorse:
+                return send_error(message="Topic with ID {} not found".format(object_id))
+
+            db.session.delete(endorse)
+            db.session.commit()
+
+            return send_result(message='TopicEndorse was deleted.')
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.ERR_DELETE_FAILED.format('TopicEndorse', e))
 
     def get_endorsed_users(self, object_id, args):
         page, per_page = args.get('page', 1), args.get('per_page', 10)
@@ -301,8 +342,9 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
-            current_user, _ = current_app.get_logged_user(request)
-            query = topic.endorsed_users.paginate(page, per_page, error_out=False)
+            g.endorsed_topic_id = object_id
+            user_ids = [user.id for user in topic.endorsed_users]
+            query = User.query.filter(User.id.in_(user_ids)).paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
             results = []
             for user in res.get('data'):

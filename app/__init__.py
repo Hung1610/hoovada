@@ -4,7 +4,7 @@
 # third-party modules
 
 # own modules
-from app.app import init_app
+from app.app import init_app, dramatiq
 from app.apis import init_api
 
 __author__ = "hoovada.com team"
@@ -25,3 +25,6 @@ def create_app():
     api.init_app(app)
     
     return app
+
+flask_app = create_app()
+broker = dramatiq.broker

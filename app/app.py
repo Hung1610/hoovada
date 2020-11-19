@@ -3,25 +3,21 @@
 
 # built-in modules
 from logging.config import dictConfig
-from pytz import utc
 
 # third-party modules
 from flask import Flask, g, request, current_app
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
 from flask_cors import CORS
-from flask_dramatiq import Dramatiq
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
-from apscheduler.jobstores.redis import RedisJobStore
-from apscheduler.schedulers.background import BackgroundScheduler
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 # own modules
 from app.settings import config_by_name
-from common.scheduled_jobs import add_jobs
+from common.tasks import dramatiq
+from common.scheduled_jobs import get_scheduler
 from common.utils.util import (get_logged_user, get_model,
                                get_model_by_tablename)
 
@@ -56,7 +52,6 @@ migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
 cache = Cache()
-dramatiq = Dramatiq()
 
 # Flask app utility functions
 Flask.db_context = db
@@ -64,9 +59,6 @@ Flask.mail_context = mail
 Flask.cache_context = cache
 Flask.get_logged_user = get_logged_user
 app = Flask(__name__, static_folder='static')
-
-# ApScheduler
-scheduler = BackgroundScheduler()
 
 # Prometheus metrics exporter
 metrics = GunicornInternalPrometheusMetrics(app)
@@ -100,27 +92,6 @@ def init_app():
     # Config dramatiq
     dramatiq.init_app(app)
     # Config ApScheduler
-    jobstores = {
-        'default': RedisJobStore(\
-            db=1,\
-            port=app.config['REDIS_PORT'],\
-            host=app.config['REDIS_HOST'],\
-            password=app.config['REDIS_PASSWORD']\
-        )
-    }
-    executors = {
-        'default': ThreadPoolExecutor(20),
-        'processpool': ProcessPoolExecutor(5)
-    }
-    job_defaults = {
-        'coalesce': False,
-        'max_instances': 3
-    }
-    scheduler.configure(\
-        jobstores=jobstores,\
-        executors=executors,\
-        job_defaults=job_defaults,\
-        timezone=utc)
-    add_jobs(scheduler)
+    scheduler = get_scheduler(app)
     # scheduler.start()
     return app

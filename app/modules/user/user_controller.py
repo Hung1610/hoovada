@@ -7,7 +7,7 @@ from datetime import datetime
 
 import dateutil.parser
 # third-party modules
-from flask import current_app, request, send_file, url_for
+from flask import current_app, request, send_file, url_for, g
 from flask_restx import marshal
 from sqlalchemy import desc, func, text
 
@@ -31,6 +31,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserController(Controller):
     query_classname = 'User'
+    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id']
     allowed_ordering_fields = ['question_count', 'answer_count', 'post_count']
 
     def create(self, data):
@@ -61,6 +62,7 @@ class UserController(Controller):
 
     def get(self, args):
         try:
+            g.endorsed_topic_id = args.get('endorsed_topic_id')
             query = self.get_query_results(args)
             res, code = paginated_result(query)
             res['data'] = marshal(res['data'], UserDto.model_response)

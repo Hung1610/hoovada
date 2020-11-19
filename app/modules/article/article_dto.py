@@ -20,6 +20,7 @@ class ArticleDto(Dto):
     model_topic = api.model('topic_for_article', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'name': fields.String(description='The name of the topic'),
+        'color_code': fields.String(description='The color code for topic'),
         'slug': fields.String(description='The slug of the topic'),
         'description': fields.String(description='Description about topic')
     })
@@ -27,7 +28,10 @@ class ArticleDto(Dto):
     model_article_user = api.model('article_user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
-        'profile_pic_url': fields.String(required=False)
+        'profile_pic_url': fields.String(required=False),
+        'profile_views': fields.Integer(default=False, description='User view count'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_article_request = api.model('article_request', {
