@@ -11,11 +11,6 @@ services:
     expose:
       - '3306'
     container_name: db
-    environment:
-      MYSQL_ROOT_PASSWORD: hoovada
-      MYSQL_USER: 'dev'
-      MYSQL_PASSWORD: hoovada
-      MYSQL_DATABASE: hoovada
 
   adminer:
     image: adminer
@@ -54,7 +49,3 @@ services:
         - "5001:5001"
     depends_on:
         - db
-    environment:
-      DB_USER: 'dev'
-      DB_PASSWORD: hoovada
-      DB_HOST: db
