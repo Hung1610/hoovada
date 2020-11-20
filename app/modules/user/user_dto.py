@@ -148,6 +148,8 @@ class UserDto(Dto):
 
         'friend_count': fields.Integer(required=False),
 
+        'endorsed_count': fields.Integer(required=False),
+
         'user_report_count': fields.Integer(required=False),
         'user_reported_count': fields.Integer(required=False),
         'is_private': fields.Boolean(default=False, description='The user is private or not'),
