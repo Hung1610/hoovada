@@ -129,7 +129,7 @@ class QuestionController(Controller):
             query = query.filter(db.text('IFNULL(is_private, False)') != True)
 
         if params.get('title'):
-            title_similarity = db.func.SIMILARITY_STRING(params.get('title'), Question.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
             query = query.filter(title_similarity > 50)
         if params.get('from_date'):
             query = query.filter(Question.created_date >= params.get('from_date'))

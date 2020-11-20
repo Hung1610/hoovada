@@ -199,6 +199,15 @@ class User(Model):
         return False
 
     @property
+    def endorsed_count(self):
+        TopicUserEndorse = db.get_model('TopicUserEndorse')
+        if g.endorsed_topic_id:
+            endorsed_count = TopicUserEndorse.query.filter(TopicUserEndorse.endorsed_id == self.id,
+                                            TopicUserEndorse.topic_id == g.endorsed_topic_id).count()
+            return endorsed_count
+        return 0
+
+    @property
     def is_friended_by_me(self):
         UserFriend = db.get_model('UserFriend')
         if g.current_user:
