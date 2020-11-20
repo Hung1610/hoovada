@@ -11,11 +11,6 @@ services:
     expose:
       - '3306'
     container_name: db
-    environment:
-      MYSQL_ROOT_PASSWORD: hoovada
-      MYSQL_USER: 'dev'
-      MYSQL_PASSWORD: hoovada
-      MYSQL_DATABASE: hoovada
 
   adminer:
     image: adminer
@@ -34,8 +29,6 @@ services:
         - "5000:5000"
     depends_on:
         - db
-    env_file:
-        - ./app/.env
 
   dramatiq:
     image: dramatiq
@@ -46,8 +39,6 @@ services:
         - "5002:5002"
     depends_on:
         - backend
-    env_file:
-        - ./app/.env
 
   socketio:
     image: socketio
@@ -58,7 +49,3 @@ services:
         - "5001:5001"
     depends_on:
         - db
-    environment:
-      DB_USER: 'dev'
-      DB_PASSWORD: hoovada
-      DB_HOST: db
