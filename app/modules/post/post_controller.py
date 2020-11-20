@@ -319,7 +319,7 @@ class PostController(Controller):
         try:
             current_user, _ = current_app.get_logged_user(request)
             query = Post.query
-            title_similarity = db.func.SIMILARITY_STRING(title, Post.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Post.title, title).label('title_similarity')
             query = query.with_entities(Post, title_similarity)\
                 .filter(title_similarity > 50)
             if fixed_topic_id:
