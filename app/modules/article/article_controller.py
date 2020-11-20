@@ -239,7 +239,7 @@ class ArticleController(Controller):
         try:
             current_user, _ = current_app.get_logged_user(request)
             query = Article.query
-            title_similarity = db.func.SIMILARITY_STRING(title, Article.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Article.title, title).label('title_similarity')
             query = query.with_entities(Article, title_similarity)\
                 .filter(title_similarity > 50)
             if fixed_topic_id:
