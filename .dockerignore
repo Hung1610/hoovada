@@ -10,6 +10,9 @@ clients
 
 venv/
 
+.vscode/
+.vscode/*
+
 __pycache__
 */__pycache__
 */*/__pycache__

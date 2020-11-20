@@ -301,7 +301,7 @@ class QuestionController(Controller):
             query = Question.query.filter_by(is_private=False)  # query search from view
             if args.get('exclude_question_id'):
                 query = query.filter(Question.id != args.get('exclude_question_id'))
-            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             questions = query.with_entities(Question, title_similarity)\
                 .filter(title_similarity > 50)\
                 .order_by(desc(title_similarity))\
@@ -378,7 +378,7 @@ class QuestionController(Controller):
         
         try:
             current_user, _ = current_app.get_logged_user(request)
-            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             query = Topic.query.distinct()\
                 .join(Question, isouter=True)\
                 .with_entities(Topic, title_similarity)\
