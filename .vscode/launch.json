@@ -28,6 +28,29 @@
             "jinja": true
         },
         {
+            "name": "Python: Dramatiq",
+            "type": "python",
+            "request": "launch",
+            "module": "dramatiq",
+            "env": {
+                "FLASK_APP": "app",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "REDIS_PORT": "31930",
+                "REDIS_HOST": "188.166.212.63",
+                "REDIS_PASSWORD": "74HPHt3ewf",
+                "RABBITMQ_PORT": "32520",
+                "RABBITMQ_HOST": "128.199.80.171",
+                "RABBITMQ_USER": "thPntnLV-00oipgB6VtzN4Cb_CVT4kUL",
+                "RABBITMQ_PASSWORD": "-3x9QHlVJEPjJdPqnGqLzh0clCkRKI12",
+                "prometheus_multiproc_dir": "multiproc-tmp"
+            },
+            "args": [
+                "app:broker"
+            ],
+            "jinja": true
+        },
+        {
             "name": "Python: Flask SocketIO",
             "type": "python",
             "request": "launch",
@@ -37,8 +60,7 @@
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "1"
             },
-            "args": [
-            ],
+            "args": [],
             "jinja": true
         }
     ]
