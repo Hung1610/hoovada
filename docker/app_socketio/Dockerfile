@@ -20,6 +20,6 @@ USER app
 
 RUN chmod +x /opt/docker/app_socketio/entrypoint.sh
 
-EXPOSE 5001
+EXPOSE 5000
 
 ENTRYPOINT ["/opt/docker/app_socketio/entrypoint.sh"]
