@@ -4,15 +4,16 @@
 # built-in modules
 from datetime import datetime
 
-from sqlalchemy.ext.declarative import declared_attr
 # third-party modules
+from flask import g
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
+from sqlalchemy.ext.declarative import declared_attr
 
 # own modules
 from app.app import db
-from common.enum import ReportTypeEnum, VotingStatusEnum
 from common.models.model import Model
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -39,7 +40,7 @@ question_topics = db.Table('question_topic',
 )
 
 # pylint: disable=R0201
-class BaseQuestion(object):
+class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
     slug = db.Column(db.String(255))
@@ -50,8 +51,6 @@ class BaseQuestion(object):
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
     is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     
     @declared_attr
@@ -69,6 +68,7 @@ class BaseQuestion(object):
     @declared_attr
     def user(cls):
         return db.relationship('User', lazy=True)
+
 
 class Question(Model, BaseQuestion):
     __tablename__ = 'question'

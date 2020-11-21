@@ -18,6 +18,7 @@ from sqlalchemy import and_, desc, func, or_, text
 from app.app import db
 from app.modules.article import constants
 from app.modules.article.article_dto import ArticleDto
+from app.constants import messages
 from common.controllers.controller import Controller
 from common.models import (Article, ArticleFavorite, Topic, TopicBookmark,
                            User, UserFollow, UserFriend)
@@ -61,8 +62,8 @@ class ArticleController(Controller):
                 is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
-                article.created_date = datetime.utcnow()
-                article.last_activity = datetime.utcnow()
+                if article.scheduled_date and article.scheduled_date < datetime.now():
+                    return send_error(message=messages.ERR_ISSUE.format('Schedule date is earlier than current time'))
                 db.session.add(article)
                 db.session.commit()
                 # Add topics and get back list of topic for article

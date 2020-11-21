@@ -21,8 +21,8 @@ COPY --chown=app:app . /opt/
 # change to the app user
 USER app
 
-RUN chmod +x /opt/docker/app/entrypoint-dramatiq.sh
+RUN chmod +x /opt/docker/dramatiq/entrypoint-dramatiq.sh
 
 EXPOSE 5002
 
-ENTRYPOINT ["/opt/docker/app/entrypoint-dramatiq.sh"]
+ENTRYPOINT ["/opt/docker/dramatiq/entrypoint-dramatiq.sh"]

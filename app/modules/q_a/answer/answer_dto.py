@@ -39,6 +39,7 @@ class AnswerDto(Dto):
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
@@ -47,13 +48,12 @@ class AnswerDto(Dto):
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date answer was updated'),
         'last_activity': fields.DateTime(default=datetime.utcnow, description='The last time answer was updated'),
-
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
-        # 'user_id': fields.Integer(default=0, description='The user ID'),
-        'user':fields.Nested(answer_user, description='The information of the user'),
+        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
+        'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
@@ -65,6 +65,7 @@ class AnswerDto(Dto):
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 from datetime import datetime
 
 #third-party modules
@@ -18,12 +19,10 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-class Answer(Model):
+class Answer(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'answer'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     accepted = db.Column(db.Boolean, default=False)
     answer = db.Column(db.UnicodeText)
