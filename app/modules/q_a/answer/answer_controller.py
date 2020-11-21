@@ -309,4 +309,11 @@ class AnswerController(Controller):
                 answer.allow_improvement = True
                 print(e.__str__())
                 pass
+        if 'is_anonymous' in data:
+            try:
+                answer.is_anonymous = bool(data['is_anonymous'])
+            except Exception as e:
+                answer.is_anonymous = False
+                print(e.__str__())
+                pass
         return answer

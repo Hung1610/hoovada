@@ -716,18 +716,18 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'allow_video_question' in data:
+        if 'allow_video_answer' in data:
             try:
-                question.allow_video_question = bool(data['allow_video_question'])
+                question.allow_video_answer = bool(data['allow_video_answer'])
             except Exception as e:
-                question.allow_video_question = True
+                question.allow_video_answer = True
                 print(e.__str__())
                 pass
-        if 'allow_audio_question' in data:
+        if 'allow_audio_answer' in data:
             try:
-                question.allow_audio_question = bool(data['allow_audio_question'])
+                question.allow_audio_answer = bool(data['allow_audio_answer'])
             except Exception as e:
-                question.allow_audio_question = True
+                question.allow_audio_answer = True
                 print(e.__str__())
                 pass
         if 'is_deleted' in data:
@@ -742,6 +742,13 @@ class QuestionController(Controller):
                 question.is_private = bool(data['is_private'])
             except Exception as e:
                 question.is_private = False
+                print(e.__str__())
+                pass
+        if 'is_anonymous' in data:
+            try:
+                question.is_anonymous = bool(data['is_anonymous'])
+            except Exception as e:
+                question.is_anonymous = False
                 print(e.__str__())
                 pass
         topic_ids = None
@@ -812,6 +819,13 @@ class QuestionController(Controller):
                 proposal.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 proposal.is_deleted = False
+                print(e.__str__())
+                pass
+        if 'is_anonymous' in data:
+            try:
+                proposal.is_anonymous = bool(data['is_anonymous'])
+            except Exception as e:
+                proposal.is_anonymous = False
                 print(e.__str__())
                 pass
         if 'is_parma_delete' in data:

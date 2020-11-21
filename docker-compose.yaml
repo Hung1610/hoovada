@@ -1,24 +1,32 @@
 version: '3.8'
-
 services:
-
   db:
     image: mysql:5.7
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
-      - '3306:3306'
+      - '${DB_PORT}:${DB_PORT}'
     expose:
-      - '3306'
-    container_name: db
+      - '${DB_PORT}'
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
 
-  adminer:
-    image: adminer
-    restart: always
+  redis:
+    image: redis:5.0.9-alpine
+    command: redis-server --requirepass hoovada
     ports:
-      - 80:8080
-    depends_on:
-      - db
+      - '${REDIS_PORT}:${REDIS_PORT}'
+
+  rabbitmq:
+    image: rabbitmq:3.8.3-management-alpine
+    ports:
+      - '${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}'
+      - '${RABBITMQ_PORT}:${RABBITMQ_PORT}'
+    volumes:
+      - ./common/settings/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
 
   backend:
     image: backend
@@ -28,18 +36,29 @@ services:
     ports:
         - "5000:5000"
     depends_on:
+        - redis
+        - rabbitmq
         - db
+    environment:
+      - FLASK_APP=app
+    env_file: ./.env
 
   dramatiq:
     image: dramatiq
     build:
         context: .
-        dockerfile: ./docker/app/Dockerfile.dramatiq
+        dockerfile: ./docker/dramatiq/Dockerfile
     ports:
         - "5002:5002"
     depends_on:
+        - redis
+        - rabbitmq
+        - db
         - backend
-
+    environment:
+      - FLASK_APP=app
+    env_file: ./.env
+        
   socketio:
     image: socketio
     build:
@@ -48,4 +67,8 @@ services:
     ports:
         - "5001:5001"
     depends_on:
+        - redis
+        - rabbitmq
         - db
+    environment:
+      - FLASK_APP=app_socketio
