@@ -52,6 +52,7 @@ class QuestionDto(Dto):
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         # the list of IDs of topics that question belongs to.
     })
@@ -60,8 +61,8 @@ class QuestionDto(Dto):
         'id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the question'),
         'slug': fields.String(description='The slug of the question'),
-        # 'user_id': fields.Integer(description='The user ID'),
-        'user': fields.Nested(model_question_user, description='The user information'),
+        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
+        'user': fields.Nested(model_question_user, description='The user information', attribute='display_user'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
@@ -86,6 +87,7 @@ class QuestionDto(Dto):
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
@@ -115,6 +117,7 @@ class QuestionDto(Dto):
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
         'is_approved': fields.Boolean(default=False, description='The question proposal is approved or not'),
         'proposal_created_date': fields.DateTime(description='The proposal created date'),

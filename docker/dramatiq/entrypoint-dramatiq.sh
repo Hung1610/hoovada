@@ -2,4 +2,4 @@
 
 set -e
 
-cd /opt; dramatiq app:broker
+cd /opt; dramatiq dramatiq_queue:rabbitmq_broker

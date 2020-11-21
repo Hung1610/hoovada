@@ -13,6 +13,8 @@
                 "FLASK_APP": "app",
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "1",
+                "DB_HOST": "localhost",
+                "DB_PORT": "3306",
                 "REDIS_PORT": "31930",
                 "REDIS_HOST": "188.166.212.63",
                 "REDIS_PASSWORD": "74HPHt3ewf",

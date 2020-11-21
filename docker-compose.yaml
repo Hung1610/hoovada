@@ -47,7 +47,7 @@ services:
     image: dramatiq
     build:
         context: .
-        dockerfile: ./docker/app/Dockerfile.dramatiq
+        dockerfile: ./docker/dramatiq/Dockerfile
     ports:
         - "5002:5002"
     depends_on:
