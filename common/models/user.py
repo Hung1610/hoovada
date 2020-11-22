@@ -119,12 +119,23 @@ class User(Model):
     answer_report_count = db.Column(db.Integer, server_default='0')
     answer_reported_count = db.Column(db.Integer, server_default='0')
 
-    topic_follow_count = db.Column(db.Integer, server_default='0')
-    topic_followed_count = db.Column(db.Integer, server_default='0')
-    topic_created_count = db.Column(db.Integer, server_default='0')
+    followed_topics = db.relationship('Topic', secondary='topic_follow', lazy='dynamic')
+    @aggregated('followed_topics', db.Column(db.Integer))
+    def topic_followed_count(self):
+        return db.func.count('1')
+    created_topics = db.relationship('Topic', lazy='dynamic')
+    @aggregated('following_users', db.Column(db.Integer))
+    def topic_created_count(self):
+        return db.func.count('1')
 
-    user_follow_count = db.Column(db.Integer, server_default='0')
-    user_followed_count = db.Column(db.Integer, server_default='0')
+    following_users = db.relationship('User', secondary='user_follow', foreign_keys='[UserFollow.followed_id]', lazy='dynamic')
+    @aggregated('following_users', db.Column(db.Integer))
+    def user_follow_count(self):
+        return db.func.sum(db.func.if_(db.text('is_deactivated <> 1'), 1, 0))
+    followed_users = db.relationship('User', secondary='user_follow', foreign_keys='[UserFollow.follower_id]', lazy='dynamic')
+    @aggregated('followed_users', db.Column(db.Integer))
+    def user_followed_count(self):
+        return db.func.sum(db.func.if_(db.text('is_deactivated <> 1'), 1, 0))
 
     comment_count = db.Column(db.Integer, server_default='0')
     comment_upvote_count = db.Column(db.Integer, server_default='0')

@@ -36,8 +36,8 @@ class Topic(Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     slug = db.Column(db.String(255), index=True)
-    count = db.Column(db.Integer, default=0) # chua ro truong nay su dung lam gi
-    user_id = db.Column(db.Integer)  # who created this topic
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     color_code = db.Column(db.String(100))
     file_url = db.Column(db.String(255))
     fixed_topic_questions = db.relationship('Question', lazy='dynamic')
