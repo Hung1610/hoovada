@@ -26,15 +26,16 @@ class CommonBaseConfig:
     RABBITMQ_HOST = environ.get('RABBITMQ_HOST', '127.0.0.1')
     RABBITMQ_USER = environ.get('RABBITMQ_USER', '')
     RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD', '')
-    RABBITMQ_URL = 'amqp://' \
-        + RABBITMQ_USER + ':' + RABBITMQ_PASSWORD + '@' + RABBITMQ_HOST + ':' + RABBITMQ_PORT
+    RABBITMQ_URL = 'amqp://' + RABBITMQ_USER + ':' + RABBITMQ_PASSWORD + '@' +\
+        environ.get('RABBITMQ_URL',  RABBITMQ_HOST + ':' + RABBITMQ_PORT)
 
     # Redis configuration
-    REDIS_PORT = environ.get('CACHE_REDIS_PORT', '6379')
-    REDIS_HOST = environ.get('CACHE_REDIS_HOST', '127.0.0.1')
-    REDIS_PASSWORD = environ.get('CACHE_REDIS_PASSWORD', '74HPHt3ewf')
-    REDIS_URL = 'redis://:' \
-        + REDIS_PASSWORD + '@' + REDIS_HOST + ':' + REDIS_PORT
+    REDIS_PORT = environ.get('REDIS_PORT', '6379')
+    REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
+    REDIS_USER = environ.get('REDIS_USER', '')
+    REDIS_PASSWORD = environ.get('REDIS_PASSWORD', '')
+    REDIS_URL = 'redis://:' + REDIS_PASSWORD + '@' +\
+        environ.get('REDIS_URL', REDIS_HOST + ':' + REDIS_PORT)
 
     # Flask-SQLAlchemy configurations
     SQLALCHEMY_ECHO = False

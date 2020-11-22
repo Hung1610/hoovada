@@ -301,7 +301,7 @@ class QuestionController(Controller):
             query = Question.query.filter_by(is_private=False)  # query search from view
             if args.get('exclude_question_id'):
                 query = query.filter(Question.id != args.get('exclude_question_id'))
-            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             questions = query.with_entities(Question, title_similarity)\
                 .filter(title_similarity > 50)\
                 .order_by(desc(title_similarity))\
@@ -378,7 +378,7 @@ class QuestionController(Controller):
         
         try:
             current_user, _ = current_app.get_logged_user(request)
-            title_similarity = db.func.SIMILARITY_STRING(title, Question.title).label('title_similarity')
+            title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             query = Topic.query.distinct()\
                 .join(Question, isouter=True)\
                 .with_entities(Topic, title_similarity)\
@@ -716,18 +716,18 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'allow_video_question' in data:
+        if 'allow_video_answer' in data:
             try:
-                question.allow_video_question = bool(data['allow_video_question'])
+                question.allow_video_answer = bool(data['allow_video_answer'])
             except Exception as e:
-                question.allow_video_question = True
+                question.allow_video_answer = True
                 print(e.__str__())
                 pass
-        if 'allow_audio_question' in data:
+        if 'allow_audio_answer' in data:
             try:
-                question.allow_audio_question = bool(data['allow_audio_question'])
+                question.allow_audio_answer = bool(data['allow_audio_answer'])
             except Exception as e:
-                question.allow_audio_question = True
+                question.allow_audio_answer = True
                 print(e.__str__())
                 pass
         if 'is_deleted' in data:
@@ -742,6 +742,13 @@ class QuestionController(Controller):
                 question.is_private = bool(data['is_private'])
             except Exception as e:
                 question.is_private = False
+                print(e.__str__())
+                pass
+        if 'is_anonymous' in data:
+            try:
+                question.is_anonymous = bool(data['is_anonymous'])
+            except Exception as e:
+                question.is_anonymous = False
                 print(e.__str__())
                 pass
         topic_ids = None
@@ -812,6 +819,13 @@ class QuestionController(Controller):
                 proposal.is_deleted = bool(data['is_deleted'])
             except Exception as e:
                 proposal.is_deleted = False
+                print(e.__str__())
+                pass
+        if 'is_anonymous' in data:
+            try:
+                proposal.is_anonymous = bool(data['is_anonymous'])
+            except Exception as e:
+                proposal.is_anonymous = False
                 print(e.__str__())
                 pass
         if 'is_parma_delete' in data:
