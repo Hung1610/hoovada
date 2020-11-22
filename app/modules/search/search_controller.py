@@ -102,7 +102,7 @@ class SearchController():
                 resultUsers = marshal(resultUsers, SearchDto.model_search_user_res)
 
             # search articles
-            if articles is not None and len(users) > 0:
+            if articles is not None and len(articles) > 0:
                 for article in articles:
                     result = article.__dict__
                     resultArticles.append(result)
