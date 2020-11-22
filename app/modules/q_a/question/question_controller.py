@@ -149,7 +149,7 @@ class QuestionController(Controller):
                 .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
         if params.get('hot'):
             if g.current_user:
-                query = query.outerjoin(TopicBookmark, TopicBookmark.id==Question.fixed_topic_id)\
+                query = query.outerjoin(TopicBookmark, TopicBookmark.topic_id==Question.fixed_topic_id)\
                     .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
                         desc(text("upvote_count + downvote_count + share_count + favorite_count")))
             else:
