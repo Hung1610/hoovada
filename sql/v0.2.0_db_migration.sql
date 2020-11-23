@@ -147,6 +147,7 @@ DELETE FROM article_report WHERE user_id NOT IN (SELECT user.id FROM user);
 DELETE FROM article_vote WHERE user_id NOT IN (SELECT user.id FROM user);
 DELETE FROM post_report WHERE user_id NOT IN (SELECT user.id FROM user);
 DELETE FROM post_vote WHERE user_id NOT IN (SELECT user.id FROM user);
+DELETE FROM topic WHERE user_id NOT IN (SELECT user.id FROM user);
 
 # add_account_super_admin
 ALTER TABLE `user` MODIFY admin VARCHAR(255);

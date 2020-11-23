@@ -23,6 +23,9 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+UserFollow = db.get_model('UserFollow')
+
+
 class SocialAccount(Model):
     """
     Define the SocialAccount model.
@@ -124,18 +127,31 @@ class User(Model):
     def topic_followed_count(self):
         return db.func.count('1')
     created_topics = db.relationship('Topic', lazy='dynamic')
-    @aggregated('following_users', db.Column(db.Integer))
+    @aggregated('created_topics', db.Column(db.Integer))
     def topic_created_count(self):
         return db.func.count('1')
 
-    following_users = db.relationship('User', secondary='user_follow', foreign_keys='[UserFollow.followed_id]', lazy='dynamic')
-    @aggregated('following_users', db.Column(db.Integer))
+    @property
     def user_follow_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deactivated <> 1'), 1, 0))
-    followed_users = db.relationship('User', secondary='user_follow', foreign_keys='[UserFollow.follower_id]', lazy='dynamic')
-    @aggregated('followed_users', db.Column(db.Integer))
+        followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(UserFollow.followed_id == self.id).all()
+        follower_ids = [follower[0] for follower in followers]
+        follower_count = User.query.with_entities(db.func.count(User.id))\
+            .filter(User.id.in_(follower_ids))\
+            .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+            .scalar()
+
+        return follower_count
+
+    @property
     def user_followed_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deactivated <> 1'), 1, 0))
+        followeds = UserFollow.query.with_entities(UserFollow.followed_id).filter(UserFollow.follower_id == self.id).all()
+        followed_ids = [followed[0] for followed in followeds]
+        followed_count = User.query.with_entities(db.func.count(User.id))\
+            .filter(User.id.in_(followed_ids))\
+            .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+            .scalar()
+
+        return followed_count
 
     comment_count = db.Column(db.Integer, server_default='0')
     comment_upvote_count = db.Column(db.Integer, server_default='0')
