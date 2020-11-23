@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
@@ -59,7 +60,7 @@ class TopicDto(Dto):
     model_get_parser = reqparse.RequestParser()
     model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search topic by fixed_topic_id')
     model_get_parser.add_argument('topic_id', type=int, required=False, help='Search topic by topic_id')
-    model_get_parser.add_argument('is_fixed', type=bool, required=False, help='Is topic fixed or not')
+    model_get_parser.add_argument('is_fixed', type=inputs.boolean, required=False, help='Is topic fixed or not')
 
     @classmethod
     def get_endorsed_topics_parser(cls):

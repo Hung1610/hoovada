@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
@@ -154,11 +155,11 @@ class QuestionDto(Dto):
     get_parser.add_argument('topic_id', type=str, required=False, action='append', help='Search all questions related to topic.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
-    get_parser.add_argument('is_deleted', type=bool, required=False, help='Search questions that are deleted.')
-    get_parser.add_argument('is_shared', type=bool, required=False, help='Search questions that are shared.')
-    get_parser.add_argument('is_created_by_friend', type=bool, required=False, help='Search questions that are created by friend/followee.')
-    get_parser.add_argument('hot', type=bool, required=False, help='Search questions that are hot.')
-    get_parser.add_argument('for_me', type=bool, required=False, help='Search questions that relevant for current user.')
+    get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search questions that are deleted.')
+    get_parser.add_argument('is_shared', type=inputs.boolean, required=False, help='Search questions that are shared.')
+    get_parser.add_argument('is_created_by_friend', type=inputs.boolean, required=False, help='Search questions that are created by friend/followee.')
+    get_parser.add_argument('hot', type=inputs.boolean, required=False, help='Search questions that are hot.')
+    get_parser.add_argument('for_me', type=inputs.boolean, required=False, help='Search questions that relevant for current user.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'), action='append',
                         )
