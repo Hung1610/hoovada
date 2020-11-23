@@ -26,3 +26,7 @@ RABBITMQ_URL = 'amqp://' + RABBITMQ_USER + ':' + RABBITMQ_PASSWORD + '@' +\
     environ.get('RABBITMQ_URL',  RABBITMQ_HOST + ':' + RABBITMQ_PORT)
 rabbitmq_broker = RabbitmqBroker(url=RABBITMQ_URL)
 dramatiq.set_broker(rabbitmq_broker)
+
+@dramatiq.actor()
+def test():
+    print('TEST SUCCESS')
