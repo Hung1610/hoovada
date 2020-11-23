@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
@@ -77,8 +78,8 @@ class PostDto(Dto):
     model_get_parser.add_argument('topic_id', type=int, required=False, action='append', help='Search all posts related to topic.')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search posts created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search posts created before this data.')
-    model_get_parser.add_argument('draft', type=bool, required=False, help='Search posts that are drafts.')
-    model_get_parser.add_argument('is_deleted', type=bool, required=False, help='Search posts that are deleted.')
+    model_get_parser.add_argument('draft', type=inputs.boolean, required=False, help='Search posts that are drafts.')
+    model_get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search posts that are deleted.')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search all posts created by user.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count'), action='append',
