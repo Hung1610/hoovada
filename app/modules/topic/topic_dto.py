@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask_restx import inputs
 from flask_restx import Namespace, fields
 # built-in modules
 from werkzeug.datastructures import FileStorage
@@ -85,8 +86,8 @@ class TopicDto(Dto):
     model_get_parser.add_argument('name', type=str, required=False, help='The name of the topic')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
     model_get_parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
-    model_get_parser.add_argument('is_fixed', type=bool, required=False, help='Get all fixed topics in database.')
-    model_get_parser.add_argument('hot', type=bool, required=False, help='Search topics that are hot.')
+    model_get_parser.add_argument('is_fixed', type=inputs.boolean, required=False, help='Get all fixed topics in database.')
+    model_get_parser.add_argument('hot', type=inputs.boolean, required=False, help='Search topics that are hot.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
                             choices=('created_date', 'updated_date'), action='append',
                         )

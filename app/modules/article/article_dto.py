@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
@@ -76,11 +77,11 @@ class ArticleDto(Dto):
     model_get_parser.add_argument('topic_id', type=int, required=False, action='append', help='Search all articles related to topic.')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
-    model_get_parser.add_argument('draft', type=bool, required=False, help='Search articles that are drafts.')
-    model_get_parser.add_argument('is_deleted', type=bool, required=False, help='Search articles that are deleted.')
+    model_get_parser.add_argument('draft', type=inputs.boolean, required=False, help='Search articles that are drafts.')
+    model_get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search articles that are deleted.')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search all articles created by user.')
-    model_get_parser.add_argument('is_created_by_friend', type=bool, required=False, help='Search questions that are created by friend/followee.')
-    model_get_parser.add_argument('hot', type=bool, required=False, help='Search articles that are hot.')
+    model_get_parser.add_argument('is_created_by_friend', type=inputs.boolean, required=False, help='Search questions that are created by friend/followee.')
+    model_get_parser.add_argument('hot', type=inputs.boolean, required=False, help='Search articles that are hot.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
                         )
