@@ -44,7 +44,7 @@ class Controller(ABC):
             for key in params:
                 if not key in self.special_filtering_fields:
                     filter_value = params[key]
-                    if filter_value:
+                    if filter_value is not None:
                         column_to_filter = getattr(self.get_model_class(), key)
                         if key == 'is_deleted':
                             if column_to_filter:
