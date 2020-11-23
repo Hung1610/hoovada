@@ -25,6 +25,7 @@ class SearchDto(Dto):
 
     model_search_topic_res = api.model('search_topic_res', {
         'id': fields.Integer(readonly=True, description=''),
+        'slug': fields.String(description='The slug of the topic'),
         'name': fields.String(description='The name of the topic'),
     })
 
