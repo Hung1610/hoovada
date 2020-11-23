@@ -116,8 +116,8 @@ class QuestionController(Controller):
         current_user = g.current_user
         if current_user:
             if not current_user.show_nsfw:
-                query = query.join(Topic, isouter=True).filter(db.func.coalesce(Topic.is_nsfw, False) != True)\
-                    .filter(db.or_(~Question.topics.any(), Question.topics.any(Topic.is_nsfw != True)))
+                query = query.filter(Question.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) != True))\
+                    .filter(db.or_(db.not_(Question.topics.any()), Question.topics.any(Topic.is_nsfw != True)))
 
         get_my_own = False
         if params.get('user_id'):

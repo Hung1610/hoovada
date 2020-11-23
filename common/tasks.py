@@ -25,4 +25,4 @@ dramatiq = Dramatiq()
 
 @dramatiq.actor()
 def test():
-    print('TEST SUCCESS')
+    print('THIS IS THE DEFAULT TASK MESSAGE')
