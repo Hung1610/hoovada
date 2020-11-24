@@ -42,23 +42,7 @@ services:
     environment:
       - FLASK_APP=app
     env_file: ./.env
-
-  dramatiq:
-    image: dramatiq
-    build:
-        context: .
-        dockerfile: ./docker/dramatiq/Dockerfile
-    ports:
-        - "5002:5002"
-    depends_on:
-        - redis
-        - rabbitmq
-        - db
-        - backend
-    environment:
-      - FLASK_APP=app
-    env_file: ./.env
-        
+    
   socketio:
     image: socketio
     build:

@@ -69,6 +69,7 @@ class ArticleDto(Dto):
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'scheduled_date': fields.DateTime(description='The scheduled date'),
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()
