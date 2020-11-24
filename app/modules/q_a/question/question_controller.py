@@ -348,12 +348,12 @@ class QuestionController(Controller):
             else:
                 return send_error(message='Please provide topics')
             current_user, _ = current_app.get_logged_user(request)
-            top_users_reputation = db.session.query(
+            top_users_reputation = Reputation.query.with_entities(
                     User,
                     db.func.sum(Reputation.score).label('total_score'),
                 )\
                 .filter(Reputation.topic_id.in_(topics))\
-                .group_by(User,)\
+                .group_by(User)\
                 .order_by(desc('total_score'))\
                 .limit(limit).all()
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
