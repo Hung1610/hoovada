@@ -483,9 +483,6 @@ class TopicController(Controller):
         if 'description' in data:
             topic.description = data['description']
 
-        if 'color_code' in data:
-            topic.color_code = data['color_code']
-
         if 'is_nsfw' in data: 
             pass
             try:
@@ -495,6 +492,8 @@ class TopicController(Controller):
                 pass
 
         if g.current_user_is_admin:
+            if 'color_code' in data:
+                topic.color_code = data['color_code']
             if 'allow_follow' in data:
                 try:
                     topic.allow_follow = bool(data['allow_follow'])

@@ -29,6 +29,7 @@ upload_parser = TopicDto.upload_parser
 @api.route('/<string:topic_id_or_slug>/file')
 @api.doc(params={'topic_id_or_slug': 'The topic id or slug'})
 class TopicFile(Resource):
+    @admin_token_required()
     @api.expect(upload_parser)
     @api.response(code=200, model=topic_response, description='Model for answer response.')
     def post(self, topic_id_or_slug):
