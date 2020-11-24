@@ -63,7 +63,7 @@ class ArticleController(Controller):
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
                 if article.scheduled_date and article.scheduled_date < datetime.now():
-                    return send_error(message=messages.ERR_ISSUE.format('Schedule date is earlier than current time'))
+                    return send_error(message=messages.ERR_ISSUE.format('Scheduled date is earlier than current time'))
                 db.session.add(article)
                 db.session.commit()
                 # Add topics and get back list of topic for article
@@ -393,7 +393,7 @@ class ArticleController(Controller):
 
         if 'scheduled_date' in data:
             try:
-                article.scheduled_date = data['scheduled_date']
+                article.scheduled_date = dateutil.parser.isoparse(data.get('scheduled_date'))
             except Exception as e:
                 print(e)
                 pass
