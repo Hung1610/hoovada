@@ -130,6 +130,7 @@ class QuestionDto(Dto):
     top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=True, help='Relevant topics IDs')
 
     top_user_reputation_response = api.model('top_user_reputation_response', {
+        'user_id': fields.Integer(readonly=True, description=''),
         'user': fields.Nested(model_question_user, description='The user information'),
         'total_score': fields.Integer(default=0, description='The total reputation score of user for relevant topics'),
     })
