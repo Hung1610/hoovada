@@ -8,7 +8,6 @@ ALTER TABLE article_report CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  AL
 ALTER TABLE article_share CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.article_share CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
 ALTER TABLE article_vote CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.article_vote CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
 ALTER TABLE blacklist_tokens CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.blacklist_tokens CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
-ALTER TABLE comment CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.comment CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
 ALTER TABLE favorite CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.favorite CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
 ALTER TABLE question CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.question CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
 ALTER TABLE question_topic CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.question_topic CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
@@ -135,7 +134,6 @@ DELIMITER ;
 
 ALTER TABLE `hoovada`.`question` CHANGE COLUMN `id` `id` INT(10) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `hoovada`.`answer` CHANGE `id` `id` INT(10) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `hoovada`.`comment` CHANGE `id` `id` INT(10) NOT NULL AUTO_INCREMENT;
 UPDATE question SET is_private = False;
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM question WHERE user_id NOT IN (SELECT user.id FROM user);
