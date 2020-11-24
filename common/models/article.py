@@ -44,10 +44,10 @@ class Article(Model):
 
     @aggregated('votes', db.Column(db.Integer))
     def upvote_count(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED"), 1, 0))
+        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
     @aggregated('votes', db.Column(db.Integer))
     def downvote_count(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED"), 1, 0))
+        return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
     @aggregated('article_shares', db.Column(db.Integer))
     def share_count(self):
         return db.func.count('1')

@@ -347,22 +347,17 @@ class QuestionController(Controller):
                 topics = args['topic']
             else:
                 return send_error(message='Please provide topics')
-            current_user, _ = current_app.get_logged_user(request)
             top_users_reputation = Reputation.query.with_entities(
+                    Reputation.user_id,
                     User,
                     db.func.sum(Reputation.score).label('total_score'),
                 )\
+                .join(Reputation.user)\
+                .group_by(Reputation.user_id, User)\
                 .filter(Reputation.topic_id.in_(topics))\
-                .group_by(User)\
                 .order_by(desc('total_score'))\
                 .limit(limit).all()
-            results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
-            for result in results:
-                user = result['user']
-                if current_user:
-                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id,
-                                                    UserFollow.followed_id == user['id']).first()
-                    user['is_followed_by_me'] = True if follow else False
+            results = [{'user_id': user_id, 'user': user._asdict(), 'total_score': total_score} for user_id, user, total_score in top_users_reputation]
             return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
         except Exception as e:
             print(e)
