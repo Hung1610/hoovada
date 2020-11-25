@@ -113,14 +113,13 @@ class ArticleController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
-        get_my_own = False
         if params.get('user_id'):
+            get_my_own = False
             if g.current_user:
                 if params.get('user_id') == g.current_user.id:
                     get_my_own = True
-        if not get_my_own:
-            query = query.filter(db.text('IFNULL(is_anonymous, False)') != True)\
-                .filter(db.text('IFNULL(is_private, False)') != True)
+            if not get_my_own:
+                query = query.filter(db.func.coalesce(Article.is_anonymous, False) != True)
         if params.get('title'):
             query = query.filter(Article.title.like(params.get('title')))
         if params.get('from_date'):

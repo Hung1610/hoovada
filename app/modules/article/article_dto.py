@@ -43,6 +43,7 @@ class ArticleDto(Dto):
         'topic_ids': fields.List(fields.Integer, description='The list of topics'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
@@ -68,6 +69,7 @@ class ArticleDto(Dto):
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
+        'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
     })
