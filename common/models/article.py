@@ -5,13 +5,15 @@ from datetime import datetime
 
 # built-in modules
 from slugify import slugify
-from sqlalchemy import event
+
 # third-party modules
+from sqlalchemy import event
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
 from app.app import db
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 from common.models.model import Model
 
 __author__ = "hoovada.com team"
@@ -25,7 +27,7 @@ article_topics = db.Table('topic_article',
     extend_existing=True
 )
 
-class Article(Model):
+class Article(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'article'
     __table_args__ = (
         db.Index("idx_article_title", "title", mysql_length=255),
