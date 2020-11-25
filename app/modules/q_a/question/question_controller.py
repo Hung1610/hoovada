@@ -126,7 +126,8 @@ class QuestionController(Controller):
                 if user_id == current_user.id:
                     get_my_own = True
         if not get_my_own:
-            query = query.filter(db.text('IFNULL(is_private, False)') != True)
+            query = query.filter(db.text('IFNULL(is_anonymous, False)') != True)\
+                .filter(db.text('IFNULL(is_private, False)') != True)
 
         if params.get('title'):
             title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
