@@ -40,7 +40,7 @@ class AnswerDto(Dto):
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
-        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The answer is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 

@@ -26,11 +26,11 @@ class AnswerImprovementDto(Dto):
         'profile_pic_url': fields.String(required=True, description='The avatar address of the user')
     })
 
-    model_request = api.model('answer_request', {
+    model_request = api.model('answer_improvement_request', {
         'content': fields.String(description='The content of the answer'),
     })
 
-    model_response = api.model('answer_response', {
+    model_response = api.model('answer_improvement_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the answer'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date answer was updated'),
