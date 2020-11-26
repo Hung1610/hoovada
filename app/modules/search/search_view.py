@@ -18,8 +18,7 @@ api = SearchDto.api
 search_response = SearchDto.search_response
 
 parser = reqparse.RequestParser()
-parser.add_argument('value', type=str, required=True, help='The value of the search')
-
+parser.add_argument('value', type=str, required=False, help='The value of the search')
 
 @api.route('/event_search')
 @api.expect(parser)

@@ -31,88 +31,56 @@ class SearchController():
     def search(self, args):
         """ Search questions.
         """
-
-        if not isinstance(args, dict):
-            return send_error(message='Could not parse the params.')
-        value = None
-        if 'value' in args:
-            try:
-                valueSearch = args['value']
+        valueSearch = args.get('value')
+        
+        if not valueSearch:
+            return send_result(data={}, message='Search value not provided')
                 
-                if any(ext in valueSearch for ext in extensionsToCheck) == True:
-                    emailSearch = True
-                else:
-                    emailSearch = False
-            except Exception as e:
-                print(e.__str__())
-                pass
+        if any(ext in valueSearch for ext in extensionsToCheck) == True:
+            emailSearch = True
+        else:
+            emailSearch = False
         
         queryQuestion = db.session.query(Question)  # query search from view question
         queryTopic = db.session.query(Topic)  # query search from view topic
         queryUser = db.session.query(User)  # query search from view user
         queryArticle = db.session.query(Article)  # query search from view user
 
-        is_filter = False
+        valueSearch = '%' + valueSearch.strip() + '%'
+        queryQuestion = queryQuestion.filter(Question.title.like(valueSearch))
+        queryTopic = queryTopic.filter(Topic.name.like(valueSearch))
+        queryArticle = queryArticle.filter(Article.title.like(valueSearch))
 
-        if valueSearch is not None and not str(valueSearch).strip().__eq__(''):
-            valueSearch = '%' + valueSearch.strip() + '%'
-            queryQuestion = queryQuestion.filter(Question.title.like(valueSearch))
-            queryTopic = queryTopic.filter(Topic.name.like(valueSearch))
-            queryArticle = queryArticle.filter(Article.title.like(valueSearch))
-
-            if emailSearch == False:
-                queryUser = queryUser.filter(or_(User.email.like(valueSearch), User.display_name.like(valueSearch)))
-            else:
-                queryUser = queryUser.filter(User.display_name.like(valueSearch))
-            is_filter = True
-        
-        if is_filter:
-            questions = queryQuestion.all()
-            topics = queryTopic.all()
-            users = queryUser.all()
-            articles = queryArticle.all()
-
-            resultQuestions = list()
-            resultTopics = list()
-            resultUsers = list()
-            resultArticles = list()
-
-            # search questions
-            if questions is not None and len(questions) > 0:
-                for question in questions:
-                    result = question.__dict__
-                    resultQuestions.append(result)
-
-                resultQuestions = marshal(resultQuestions, SearchDto.model_search_question_res)
-
-            # search topics
-            if topics is not None and len(topics) > 0:
-                for topic in topics:
-                    result = topic.__dict__
-                    resultTopics.append(result)
-
-                resultTopics = marshal(resultTopics, SearchDto.model_search_topic_res)
-
-            # search users
-            if users is not None and len(users) > 0:
-                for user in users:
-                    result = user.__dict__
-                    resultUsers.append(result)
-
-                resultUsers = marshal(resultUsers, SearchDto.model_search_user_res)
-
-            # search articles
-            if articles is not None and len(articles) > 0:
-                for article in articles:
-                    result = article.__dict__
-                    resultArticles.append(result)
-
-                resultArticles = marshal(resultArticles, SearchDto.model_search_article_res)
-            
-            if resultQuestions == [] and resultTopics == [] and resultUsers == [] and resultArticles == []:
-                return send_result(message='Could not find any result')
-
-            data = {'question': resultQuestions, 'topic': resultTopics, 'user': resultUsers, 'article': resultArticles}
-            return send_result(data, message='Success')
+        if emailSearch == False:
+            queryUser = queryUser.filter(or_(User.email.like(valueSearch), User.display_name.like(valueSearch)))
         else:
-            return send_error(message='Could not find data. Please check your parameters again.')
+            queryUser = queryUser.filter(User.display_name.like(valueSearch))
+        
+        questions = queryQuestion.all()
+        topics = queryTopic.all()
+        users = queryUser.all()
+        articles = queryArticle.all()
+
+        resultQuestions = list()
+        resultTopics = list()
+        resultUsers = list()
+        resultArticles = list()
+
+        # search questions
+        if questions is not None and len(questions) > 0:
+            resultQuestions = marshal(questions, SearchDto.model_search_question_res)
+
+        # search topics
+        if topics is not None and len(topics) > 0:
+            resultTopics = marshal(topics, SearchDto.model_search_topic_res)
+
+        # search users
+        if users is not None and len(users) > 0:
+            resultUsers = marshal(users, SearchDto.model_search_user_res)
+
+        # search articles
+        if articles is not None and len(articles) > 0:
+            resultArticles = marshal(articles, SearchDto.model_search_article_res)
+
+        data = {'question': resultQuestions, 'topic': resultTopics, 'user': resultUsers, 'article': resultArticles}
+        return send_result(data, message='Success')
