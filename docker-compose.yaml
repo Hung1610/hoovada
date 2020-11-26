@@ -41,8 +41,8 @@ services:
         - db
     environment:
       - FLASK_APP=app
-    env_file: ./.env
-    
+    env_file: ./docker.env
+
   socketio:
     image: socketio
     build:
@@ -56,3 +56,4 @@ services:
         - db
     environment:
       - FLASK_APP=app_socketio
+    env_file: ./docker.env
