@@ -62,6 +62,17 @@ class ReputationController(Controller):
             print(e.__str__())
             pass
 
+    def update_all(self):
+        reps = Reputation.query.all()
+        try:
+            for rep in reps:
+                rep.updated_date = datetime.now
+                db.session.commit()
+            return send_result(marshal(reps, ReputationDto.model_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=e)
+
     def delete(self, object_id):
         pass
 
