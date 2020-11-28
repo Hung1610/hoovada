@@ -133,8 +133,8 @@ class QuestionCommentVoteController(Controller):
                             reputation_voter.topic_id = topic.id
                             db.session.add(reputation_voter)
                         # Set reputation score
-                        reputation_creator.updated_date = datetime.now
-                        reputation_voter.updated_date = datetime.now
+                        reputation_creator.updated_date = datetime.now()
+                        reputation_voter.updated_date = datetime.now()
                         db.session.commit()
                 except Exception as e:
                     print(e)
