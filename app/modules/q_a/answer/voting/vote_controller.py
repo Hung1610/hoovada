@@ -125,23 +125,18 @@ class AnswerVoteController(Controller):
                             reputation_creator = Reputation()
                             reputation_creator.user_id = user_voted.id
                             reputation_creator.topic_id = topic.id
-                            reputation_creator.score = 0
                             db.session.add(reputation_creator)
                         # Answer voter rep
                         reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
                             Reputation.topic_id == topic.id).first()
                         if reputation_voter is None:
                             reputation_voter = Reputation()
-                            reputation_voter.user_id = user_voted.id
+                            reputation_voter.user_id = current_user.id
                             reputation_voter.topic_id = topic.id
-                            reputation_voter.score = 0
                             db.session.add(reputation_voter)
                         # Set reputation score
-                        if vote.vote_status == VotingStatusEnum.UPVOTED:
-                            reputation_creator.score += 10
-                        elif vote.vote_status == VotingStatusEnum.DOWNVOTED:
-                            reputation_creator.score -= 2
-                            reputation_voter.score -= 2
+                        reputation_creator.updated_date = datetime.now
+                        reputation_voter.updated_date = datetime.now
                         db.session.commit()
                 except Exception as e:
                     print(e)

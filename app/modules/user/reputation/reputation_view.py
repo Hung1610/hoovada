@@ -37,3 +37,15 @@ class UserReputationSearch(Resource):
         args = parser.parse_args()
         controller = ReputationController()
         return controller.search(args=args)
+
+
+@api.route('/update_all')
+class UpdateAllReputation(Resource):
+    # @admin_token_required()
+    def post(self):
+        """
+        Update Slug for articles in DB
+        """
+
+        controller = ReputationController()
+        return controller.update_all()

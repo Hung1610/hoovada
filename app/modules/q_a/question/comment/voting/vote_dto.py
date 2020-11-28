@@ -5,7 +5,6 @@
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
-from app.modules.q_a.question.comment.voting.vote import VotingStatusEnum
 from common.dto import Dto
 
 __author__ = "hoovada.com team"

@@ -17,15 +17,14 @@ class UserFriendDto(Dto):
     name = 'user_friend'
     api = Namespace(name, description="User friend operations")
 
-    model_topic_user_friend = api.model('topic_user_friend', {
-        'id': fields.Integer(readonly=True, description='The ID of the topic'),
-        'name': fields.String(description='The name of the topic')
-    })
-
     model_friend_user = api.model('friend_user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
-        'profile_pic_url': fields.String(required=False)
+        'profile_pic_url': fields.String(required=False),
+
+        'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed or not'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_request = api.model('friend_user_request', {
@@ -45,7 +44,7 @@ class UserFriendDto(Dto):
     top_user_friend_args_parser.add_argument('topic', type=int, action='append', required=True, help='Relevant topics IDs')
 
     top_user_friend_response = api.model('top_user_friend_response', {
-        'user': fields.Nested(model_topic_user_friend, description='The user information'),
+        'user': fields.Nested(model_friend_user, description='The user information'),
         'total_score': fields.Integer(default=0, description='The total reputation score of user for relevant topics'),
     })
 
