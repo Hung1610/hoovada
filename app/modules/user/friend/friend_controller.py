@@ -144,13 +144,12 @@ class UserFriendController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
-            friend = UserFriend.query.filter_by(friend_id=object_id, friended_id=user_id).first()
-            if friend is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
-            else:
-                db.session.delete(friend)
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
+            UserFriend.query.filter(\
+                    (UserFriend.friend_id == object_id & UserFriend.friended_id == user_id) |\
+                    (UserFriend.friended_id == object_id & UserFriend.friend_id == user_id) \
+                ).delete(synchronize_session=False)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format('Friend', e))
