@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from app.modules.topic.topic_controller import UserFollow
 from datetime import datetime
 
 # third-party modules
@@ -19,6 +20,8 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+
+Topic = db.get_model('Topic')
 
 class ReputationController(Controller):
 
@@ -63,12 +66,21 @@ class ReputationController(Controller):
             pass
 
     def update_all(self):
-        reps = Reputation.query.all()
+        users = User.query.all()
+        topics = Topic.query.all()
         try:
-            for rep in reps:
-                rep.updated_date = datetime.now
-                db.session.commit()
-            return send_result(marshal(reps, ReputationDto.model_response), message='Success')
+            for user in users:
+                for topic in topics:
+                    reputation_creator = Reputation.query.filter(Reputation.user_id == user.id, \
+                        Reputation.topic_id == topic.id).first()
+                    if reputation_creator is None:
+                        reputation_creator = Reputation()
+                        reputation_creator.user_id = user.id
+                        reputation_creator.topic_id = topic.id
+                        db.session.add(reputation_creator)
+                    reputation_creator.updated_date = datetime.now()
+                    db.session.commit()
+            return send_result(marshal(Reputation.query.all(), ReputationDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
             return send_error(message=e)
