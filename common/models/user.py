@@ -200,8 +200,18 @@ class User(Model):
     
     languages = db.relationship("Language", secondary='user_language')
     @aggregated('friends', db.Column(db.Integer))
-    def friend_count(self):
+    def friends_sent_count(self):
         return db.func.count('1')
+    @aggregated('friend_requests', db.Column(db.Integer))
+    def friend_received_count(self):
+        return db.func.count('1')
+
+    @property
+    def friend_count(self):
+        try:
+            return self.friends_sent_count + self.friend_received_count
+        except:
+            return 0
         
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
