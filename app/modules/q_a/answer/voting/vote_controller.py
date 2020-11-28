@@ -111,36 +111,30 @@ class AnswerVoteController(Controller):
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
-            if is_insert or (old_vote_status and old_vote_status != vote.vote_status):
-                # update answer vote count in answer and user
-                try:
-                    answer = vote.voted_answer
-                    # get user who was created answer and was voted
-                    user_voted = answer.answer_by_user
-                    for topic in answer.topics:
-                        # Answer creator rep
-                        reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
-                            Reputation.topic_id == topic.id).first()
-                        if reputation_creator is None:
-                            reputation_creator = Reputation()
-                            reputation_creator.user_id = user_voted.id
-                            reputation_creator.topic_id = topic.id
-                            db.session.add(reputation_creator)
-                        # Answer voter rep
-                        reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
-                            Reputation.topic_id == topic.id).first()
-                        if reputation_voter is None:
-                            reputation_voter = Reputation()
-                            reputation_voter.user_id = current_user.id
-                            reputation_voter.topic_id = topic.id
-                            db.session.add(reputation_voter)
-                        # Set reputation score
-                        reputation_creator.updated_date = datetime.now()
-                        reputation_voter.updated_date = datetime.now()
-                        db.session.commit()
-                except Exception as e:
-                    print(e)
-                    pass
+            answer = vote.voted_answer
+            # get user who was created answer and was voted
+            user_voted = answer.answer_by_user
+            for topic in answer.topics:
+                # Answer creator rep
+                reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
+                    Reputation.topic_id == topic.id).first()
+                if reputation_creator is None:
+                    reputation_creator = Reputation()
+                    reputation_creator.user_id = user_voted.id
+                    reputation_creator.topic_id = topic.id
+                    db.session.add(reputation_creator)
+                # Answer voter rep
+                reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
+                    Reputation.topic_id == topic.id).first()
+                if reputation_voter is None:
+                    reputation_voter = Reputation()
+                    reputation_voter.user_id = current_user.id
+                    reputation_voter.topic_id = topic.id
+                    db.session.add(reputation_voter)
+                # Set reputation score
+                reputation_creator.updated_date = datetime.now()
+                reputation_voter.updated_date = datetime.now()
+            db.session.commit()
             return send_result(data=marshal(vote, AnswerVoteDto.model_response), message='Success')
         except Exception as e:
             db.session.rollback()
