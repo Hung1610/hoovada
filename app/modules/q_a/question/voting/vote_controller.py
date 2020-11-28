@@ -13,9 +13,8 @@ from flask_restx import marshal
 from app.app import db
 from app.constants import messages
 from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
+from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.models import Answer, User
-from common.models.vote import QuestionVote, VotingStatusEnum
 from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole
@@ -24,6 +23,10 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+QuestionVote = db.get_model('QuestionVote')
+Reputation = db.get_model('Reputation')
 
 class QuestionVoteController(Controller):
     def get(self, args, question_id = None):
@@ -106,6 +109,30 @@ class QuestionVoteController(Controller):
             vote.updated_date = datetime.utcnow()
             if is_insert:
                 db.session.add(vote)
+            db.session.commit()
+            question = vote.question
+            # get user who was created answer and was voted
+            user_voted = question.user
+            for topic in question.topics:
+                # Answer creator rep
+                reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
+                    Reputation.topic_id == topic.id).first()
+                if reputation_creator is None:
+                    reputation_creator = Reputation()
+                    reputation_creator.user_id = user_voted.id
+                    reputation_creator.topic_id = topic.id
+                    db.session.add(reputation_creator)
+                # Answer voter rep
+                reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
+                    Reputation.topic_id == topic.id).first()
+                if reputation_voter is None:
+                    reputation_voter = Reputation()
+                    reputation_voter.user_id = current_user.id
+                    reputation_voter.topic_id = topic.id
+                    db.session.add(reputation_voter)
+                # Set reputation score
+                reputation_creator.updated_date = datetime.now()
+                reputation_voter.updated_date = datetime.now()
             db.session.commit()
             return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
         except Exception as e:
