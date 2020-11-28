@@ -206,12 +206,6 @@ class User(Model):
     def friend_received_count(self):
         return db.func.count('1')
 
-    @property
-    def friend_count(self):
-        try:
-            return self.friends_sent_count + self.friend_received_count
-        except:
-            return 0
         
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -224,11 +218,19 @@ class User(Model):
         return UserRole.is_super_admin(self.admin)
 
     @property
+    def friend_count(self):
+        UserFriend = db.get_model('UserFriend')
+        friend_count = UserFriend.query.with_entities(UserFriend.id).filter(\
+                                            (UserFriend.friend_id == self.id) |
+                                            (UserFriend.friended_id == self.id)).count()
+        return friend_count
+
+    @property
     def is_endorsed_by_me(self):
         TopicUserEndorse = db.get_model('TopicUserEndorse')
         if g.current_user:
             if g.endorsed_topic_id:
-                endorsed = TopicUserEndorse.query.filter(TopicUserEndorse.user_id == g.current_user.id,
+                endorsed = TopicUserEndorse.query.with_entities(TopicUserEndorse.id).filter(TopicUserEndorse.user_id == g.current_user.id,
                                                 TopicUserEndorse.endorsed_id == self.id,
                                                 TopicUserEndorse.topic_id == g.endorsed_topic_id).first()
                 return True if endorsed else False
@@ -239,7 +241,7 @@ class User(Model):
     def endorsed_count(self):
         TopicUserEndorse = db.get_model('TopicUserEndorse')
         if g.endorsed_topic_id:
-            endorsed_count = TopicUserEndorse.query.filter(TopicUserEndorse.endorsed_id == self.id,
+            endorsed_count = TopicUserEndorse.query.with_entities(TopicUserEndorse.id).filter(TopicUserEndorse.endorsed_id == self.id,
                                             TopicUserEndorse.topic_id == g.endorsed_topic_id).count()
             return endorsed_count
         return 0
@@ -248,7 +250,7 @@ class User(Model):
     def is_friended_by_me(self):
         UserFriend = db.get_model('UserFriend')
         if g.current_user:
-            friend = UserFriend.query.filter(UserFriend.friend_id == g.current_user.id,
+            friend = UserFriend.query.with_entities(UserFriend.id).filter(UserFriend.friend_id == g.current_user.id,
                                              UserFriend.friended_id == self.id).first()
             return True if friend else False
         return False
@@ -257,7 +259,7 @@ class User(Model):
     def is_followed_by_me(self):
         UserFollow = db.get_model('UserFollow')
         if g.current_user:
-            follow = UserFollow.query.filter(UserFollow.follower_id == g.current_user.id,
+            follow = UserFollow.query.with_entities(UserFollow.id).filter(UserFollow.follower_id == g.current_user.id,
                                             UserFollow.followed_id == self.id).first()
             return True if follow else False
         return False
