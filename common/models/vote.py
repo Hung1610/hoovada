@@ -4,10 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from sqlalchemy.ext.declarative import declared_attr
 # third-party modules
-from sqlalchemy.sql import expression
-from sqlalchemy_utils import aggregated
+from sqlalchemy.ext.declarative import declared_attr
 
 # own modules
 from app.app import db
@@ -39,6 +37,13 @@ class QuestionVote(Model, BaseVote):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+
+
+class QuestionCommentVote(Model, BaseVote):
+    __tablename__ = 'question_comment_vote'
+    
+    comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'))
+    comment = db.relationship('QuestionComment', lazy=True) # one-to-many relationship with table Comment
 
 
 class AnswerVote(Model, BaseVote):

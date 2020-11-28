@@ -10,6 +10,9 @@ clients
 
 venv/
 
+multiproc-tmp/*
+!multiproc-tmp/.gitkeep 
+
 .vscode/
 .vscode/*
 

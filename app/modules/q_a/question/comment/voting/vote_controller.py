@@ -11,18 +11,20 @@ from flask_restx import marshal
 
 # own modules
 from app.app import db
-from app.modules.q_a.question.comment.voting.vote import (QuestionCommentVote,
-                                                          VotingStatusEnum)
 from app.modules.q_a.question.comment.voting.vote_dto import \
     QuestionCommentVoteDto
+from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.models import QuestionComment, Reputation, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+QuestionCommentVote = db.get_model('QuestionCommentVote')
+Reputation = db.get_model('Reputation')
+QuestionComment = db.get_model('QuestionComment')
 
 class QuestionCommentVoteController(Controller):
     def get(self, args, comment_id = None):
@@ -121,23 +123,18 @@ class QuestionCommentVoteController(Controller):
                             reputation_creator = Reputation()
                             reputation_creator.user_id = user_voted.id
                             reputation_creator.topic_id = topic.id
-                            reputation_creator.score = 0
                             db.session.add(reputation_creator)
                         # QuestionComment voter rep
                         reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
                             Reputation.topic_id == topic.id).first()
                         if reputation_voter is None:
                             reputation_voter = Reputation()
-                            reputation_voter.user_id = user_voted.id
+                            reputation_voter.user_id = current_user.id
                             reputation_voter.topic_id = topic.id
-                            reputation_voter.score = 0
                             db.session.add(reputation_voter)
                         # Set reputation score
-                        if vote.vote_status == VotingStatusEnum.UPVOTED:
-                            reputation_creator.score += 10
-                        elif vote.vote_status == VotingStatusEnum.DOWNVOTED:
-                            reputation_creator.score -= 2
-                            reputation_voter.score -= 2
+                        reputation_creator.updated_date = datetime.now
+                        reputation_voter.updated_date = datetime.now
                         db.session.commit()
                 except Exception as e:
                     print(e)
