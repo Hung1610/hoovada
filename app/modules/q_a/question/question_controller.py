@@ -140,14 +140,13 @@ class QuestionController(Controller):
         if params.get('topic_id'):
             query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
         if params.get('for_me') and current_user:
-            query = query.outerjoin(QuestionBookmark, QuestionBookmark.question_id==Question.id)\
-                    .order_by(desc(func.field(QuestionBookmark.user_id, g.current_user.id)))
+            query = query.filter((Question.invited_users.any(User.id==current_user.id)) | (Question.bookmarked_users.any(User.id==current_user.id)))
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
         if params.get('is_created_by_friend') and current_user:
             query = query\
                 .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
-                .outerjoin(UserFriend,and_(UserFriend.friended_id==Question.user_id, UserFriend.friend_id==current_user.id))\
+                .outerjoin(UserFriend,or_(UserFriend.friended_id==Question.user_id, UserFriend.friend_id==Question.user_id))\
                 .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
         if params.get('hot'):
             if g.current_user:
@@ -305,7 +304,7 @@ class QuestionController(Controller):
                 query = query.filter(Question.id != args.get('exclude_question_id'))
             title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             questions = query.with_entities(Question, title_similarity)\
-                .filter(title_similarity > 50)\
+                .filter(title_similarity > args.get('similarity_rate'))\
                 .order_by(desc(title_similarity))\
                 .limit(limit)\
                 .all()
