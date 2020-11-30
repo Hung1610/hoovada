@@ -128,7 +128,11 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` FUNCTION `SIMILARITY_STRING`(a text, b text) RETURNS double
 BEGIN
-RETURN ABS(((COMPARE_STRING(a, b) / length(b)) * 100) - 100);
+IF length(b) > length(a) THEN
+	RETURN ABS(((COMPARE_STRING(a, b) / length(b)) * 100) - 100);
+ELSE
+	RETURN ABS(((COMPARE_STRING(a, b) / length(a)) * 100) - 100);
+END IF;
 END$$
 DELIMITER ;
 
