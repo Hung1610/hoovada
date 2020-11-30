@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from datetime import datetime
 from logging.config import dictConfig
 
 # third-party modules
@@ -77,6 +78,9 @@ def init_app():
     def before_request():
         g.current_user, _ = app.get_logged_user(request)
         g.current_user_is_admin = False
+        if g.current_user:
+            g.current_user.last_seen = datetime.now()
+            db.session.commit()
     # Config CORS
     CORS(app)
     # Config Flask-Cache
@@ -93,5 +97,5 @@ def init_app():
     dramatiq.init_app(app)
     # Config ApScheduler
     scheduler = get_scheduler(app)
-    # scheduler.start()
+    scheduler.start()
     return app

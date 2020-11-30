@@ -214,6 +214,10 @@ class User(Model):
         return check_password_hash(self.password_hash, password)
 
     @property
+    def is_online(self):
+        return abs(self.last_seen-datetime.now()).total_seconds() < 60
+
+    @property
     def is_super_admin(self):
         return UserRole.is_super_admin(self.admin)
 
