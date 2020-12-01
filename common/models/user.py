@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.enum import FrequencySettingEnum
 from datetime import datetime
 
 # third-party modules
 from flask import g
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -89,15 +88,15 @@ class User(Model):
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    hoovada_digests_frequency_setting = db.Column(db.String(255), default='weekly')
+    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
 
     questions_you_asked_or_followed_setting = db.Column(db.Boolean, default=True)
-    questions_you_asked_or_followed_frequency_setting = db.Column(db.String(255), default='weekly')
+    questions_you_asked_or_followed_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
     people_you_follow_setting = db.Column(db.Boolean, default=True)
 
-    people_you_follow_frequency_setting = db.Column(db.String(255), default='weekly')
+    people_you_follow_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
     email_stories_topics_setting = db.Column(db.Boolean, default=True)
-    email_stories_topics_frequency_setting = db.Column(db.String(255), default='weekly')
+    email_stories_topics_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
     
     question_favorite_count = db.Column(db.Integer, server_default='0')
