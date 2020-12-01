@@ -65,12 +65,12 @@ def save_social_account(provider, extra_data):
             raise Exception('This is email is banned.')
         user, _ = current_app.get_logged_user(request)
         if not user:
-            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
             user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
             user_name = AuthController.create_user_name(user_name)
             first_name = extra_data.get('first_name', '')
             last_name = extra_data.get('last_name', '')
             middle_name = extra_data.get('middle_name', '')
+            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
             user.set_password(password=provider + '_' + str(user_name))
             try:
                 db.session.add(user)
