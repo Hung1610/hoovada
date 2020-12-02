@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from datetime import datetime
 from logging.config import dictConfig
 
 # third-party modules
-from flask import Flask, g, request, current_app
+from flask import Flask, g, request
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
 from flask_cors import CORS
@@ -16,7 +17,7 @@ from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMet
 
 # own modules
 from app.settings import config_by_name
-from common.tasks import dramatiq
+from app.tasks import dramatiq
 from common.scheduled_jobs import get_scheduler
 from common.utils.util import (get_logged_user, get_model,
                                get_model_by_tablename)
@@ -77,6 +78,9 @@ def init_app():
     def before_request():
         g.current_user, _ = app.get_logged_user(request)
         g.current_user_is_admin = False
+        if g.current_user:
+            g.current_user.last_seen = datetime.now()
+            db.session.commit()
     # Config CORS
     CORS(app)
     # Config Flask-Cache
@@ -93,5 +97,5 @@ def init_app():
     dramatiq.init_app(app)
     # Config ApScheduler
     scheduler = get_scheduler(app)
-    # scheduler.start()
+    scheduler.start()
     return app

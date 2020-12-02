@@ -14,7 +14,6 @@ from dramatiq import GenericActor
 
 # own modules
 from common.utils.util import send_email
-from dramatiq_queue import rabbitmq_broker
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

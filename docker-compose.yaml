@@ -16,7 +16,7 @@ services:
 
   redis:
     image: redis:5.0.9-alpine
-    command: redis-server --requirepass hoovada
+    command: redis-server --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
     ports:
       - '${REDIS_PORT}:${REDIS_PORT}'
 
