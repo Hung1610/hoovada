@@ -11,8 +11,8 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.app import db
 # own modules
+from app.app import db
 from common.models.model import Model
 from common.utils.types import UserRole
 
@@ -266,3 +266,29 @@ class User(Model):
                                             UserFollow.followed_id == self.id).first()
             return True if follow else False
         return False
+
+
+class UserSeenQuestion(Model):
+    """
+    Define the question that the user has seen.
+    """
+    __tablename__ = 'user_seen_question'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
+    question = db.relationship('Question', lazy=True) # one-to-many relationship with table Post
+
+
+class UserSeenArticle(Model):
+    """
+    Define the question that the user has seen.
+    """
+    __tablename__ = 'user_seen_article'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
+    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Post

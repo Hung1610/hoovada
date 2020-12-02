@@ -21,7 +21,7 @@ from common.models.reputation import Reputation
 from common.models.share import (ArticleShare, AnswerShare, PostShare, QuestionShare,
                                     TopicShare)
 from common.models.topic import Topic, TopicUserEndorse
-from common.models.user import SocialAccount, User
+from common.models.user import SocialAccount, User, UserSeenQuestion, UserSeenArticle
 from common.models.vote import (ArticleCommentVote, ArticleVote, AnswerVote,
                                 AnswerCommentVote, AnswerImprovementVote, PostVote,
                                 QuestionVote)

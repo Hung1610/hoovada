@@ -6,7 +6,7 @@ from datetime import datetime
 from logging.config import dictConfig
 
 # third-party modules
-from flask import Flask, g, request, current_app
+from flask import Flask, g, request
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
 from flask_cors import CORS
@@ -17,7 +17,7 @@ from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMet
 
 # own modules
 from app.settings import config_by_name
-from common.tasks import dramatiq
+from app.tasks import dramatiq
 from common.scheduled_jobs import get_scheduler
 from common.utils.util import (get_logged_user, get_model,
                                get_model_by_tablename)
