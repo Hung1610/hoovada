@@ -145,8 +145,8 @@ class UserFriendController(Controller):
         user_id = current_user.id
         try:
             UserFriend.query.filter(\
-                    (UserFriend.friend_id == object_id & UserFriend.friended_id == user_id) |\
-                    (UserFriend.friended_id == object_id & UserFriend.friend_id == user_id) \
+                    ((UserFriend.friend_id == object_id) & (UserFriend.friended_id == user_id)) |\
+                    ((UserFriend.friended_id == object_id) & (UserFriend.friend_id == user_id)) \
                 ).delete(synchronize_session=False)
             db.session.commit()
             return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
