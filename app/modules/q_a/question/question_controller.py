@@ -147,7 +147,7 @@ class QuestionController(Controller):
             query = query\
                 .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
                 .outerjoin(UserFriend,or_(UserFriend.friended_id==Question.user_id, UserFriend.friend_id==Question.user_id))\
-                .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
+                .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0,Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id)))
         if params.get('hot'):
             if g.current_user:
                 query = query.outerjoin(TopicBookmark, TopicBookmark.topic_id==Question.fixed_topic_id)\

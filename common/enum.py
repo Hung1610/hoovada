@@ -38,3 +38,7 @@ class TimelineActivityEnum(enum.Enum):
     UPVOTED = 3
     DOWNVOTED = 4
     REPORTED = 5
+
+class FrequencySettingEnum(enum.Enum):
+    weekly = 1
+    daily = 2

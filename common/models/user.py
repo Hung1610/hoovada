@@ -2,18 +2,17 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.enum import FrequencySettingEnum
 from datetime import datetime
 
 # third-party modules
 from flask import g
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.app import db
 # own modules
+from app.app import db
 from common.models.model import Model
 from common.utils.types import UserRole
 
@@ -89,15 +88,15 @@ class User(Model):
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    hoovada_digests_frequency_setting = db.Column(db.String(255), default='weekly')
+    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
 
     questions_you_asked_or_followed_setting = db.Column(db.Boolean, default=True)
-    questions_you_asked_or_followed_frequency_setting = db.Column(db.String(255), default='weekly')
+    questions_you_asked_or_followed_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
     people_you_follow_setting = db.Column(db.Boolean, default=True)
 
-    people_you_follow_frequency_setting = db.Column(db.String(255), default='weekly')
+    people_you_follow_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
     email_stories_topics_setting = db.Column(db.Boolean, default=True)
-    email_stories_topics_frequency_setting = db.Column(db.String(255), default='weekly')
+    email_stories_topics_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
     
     question_favorite_count = db.Column(db.Integer, server_default='0')
@@ -214,6 +213,10 @@ class User(Model):
         return check_password_hash(self.password_hash, password)
 
     @property
+    def is_online(self):
+        return abs(self.last_seen-datetime.now()).total_seconds() < 60
+
+    @property
     def is_super_admin(self):
         return UserRole.is_super_admin(self.admin)
 
@@ -263,3 +266,29 @@ class User(Model):
                                             UserFollow.followed_id == self.id).first()
             return True if follow else False
         return False
+
+
+class UserSeenQuestion(Model):
+    """
+    Define the question that the user has seen.
+    """
+    __tablename__ = 'user_seen_question'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
+    question = db.relationship('Question', lazy=True) # one-to-many relationship with table Post
+
+
+class UserSeenArticle(Model):
+    """
+    Define the question that the user has seen.
+    """
+    __tablename__ = 'user_seen_article'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
+    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Post

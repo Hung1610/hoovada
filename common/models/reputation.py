@@ -89,39 +89,39 @@ class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
 
         # Calculate downvote score
         question_votes_count = QuestionVote.query.with_entities(db.func.count(QuestionVote.id))\
-            .filter((QuestionVote.question.has(Question.user_id == target.user_id) | QuestionVote.user_id == target.user_id) \
+            .filter((QuestionVote.question.has(Question.user_id == target.user_id) | (QuestionVote.user_id == target.user_id)) \
                 & QuestionVote.question.has(\
                     Question.topics.any(Topic.id == target.topic_id)) \
                 & (QuestionVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
             .scalar()
         question_comment_votes_count = QuestionCommentVote.query.with_entities(db.func.count(QuestionCommentVote.id))\
-            .filter((QuestionCommentVote.comment.has(QuestionComment.user_id == target.user_id) | QuestionCommentVote.user_id == target.user_id) \
+            .filter((QuestionCommentVote.comment.has(QuestionComment.user_id == target.user_id) | (QuestionCommentVote.user_id == target.user_id)) \
                 & QuestionCommentVote.comment.has(\
                     QuestionComment.question.has(\
                         Question.topics.any(Topic.id == target.topic_id))) \
                 & (QuestionCommentVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
             .scalar()
         answer_votes_count = AnswerVote.query.with_entities(db.func.count(AnswerVote.id))\
-            .filter((AnswerVote.answer.has(Answer.user_id == target.user_id) | AnswerVote.user_id == target.user_id) \
+            .filter((AnswerVote.answer.has(Answer.user_id == target.user_id) | (AnswerVote.user_id == target.user_id)) \
                 & AnswerVote.answer.has(\
                     Answer.question.has(Question.topics.any(Topic.id == target.topic_id))) \
                 & (AnswerVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
             .scalar()
         answer_comment_votes_count = AnswerCommentVote.query.with_entities(db.func.count(AnswerCommentVote.id))\
-            .filter((AnswerCommentVote.comment.has(AnswerComment.user_id == target.user_id) | AnswerCommentVote.user_id == target.user_id) \
+            .filter((AnswerCommentVote.comment.has(AnswerComment.user_id == target.user_id) | (AnswerCommentVote.user_id == target.user_id)) \
                 & AnswerCommentVote.comment.has(\
                     AnswerComment.answer.has(\
                         Answer.question.has(Question.topics.any(Topic.id == target.topic_id)))) \
                 & (AnswerCommentVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
             .scalar()
         article_votes_count = ArticleVote.query.with_entities(db.func.count(ArticleVote.id))\
-            .filter((ArticleVote.article.has(Article.user_id == target.user_id) | ArticleVote.user_id == target.user_id) \
+            .filter((ArticleVote.article.has(Article.user_id == target.user_id) | (ArticleVote.user_id == target.user_id)) \
                 & ArticleVote.article.has(\
                     Article.topics.any(Topic.id == target.topic_id)) \
                 & (ArticleVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
             .scalar()
         article_comment_votes_count = ArticleCommentVote.query.with_entities(db.func.count(ArticleCommentVote.id))\
-            .filter((ArticleCommentVote.comment.has(ArticleComment.user_id == target.user_id) | ArticleCommentVote.user_id == target.user_id) \
+            .filter((ArticleCommentVote.comment.has(ArticleComment.user_id == target.user_id) | (ArticleCommentVote.user_id == target.user_id)) \
                 & ArticleCommentVote.comment.has(\
                     ArticleComment.article.has(\
                         Article.topics.any(Topic.id == target.topic_id))) \
