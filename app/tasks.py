@@ -25,3 +25,21 @@ dramatiq = Dramatiq()
 @dramatiq.actor()
 def test():
     print('THIS IS THE DEFAULT TASK MESSAGE')
+
+@dramatiq.actor()
+def update_seen_questions(question_id):
+    db = current_app.db_context
+    current_user = g.current_user
+    UserSeenQuestion = db.get_model('UserSeenQuestion')
+
+    seen_count = UserSeenQuestion.query.with_entities(db.func.count(UserSeenQuestion.id)).filter(UserSeenQuestion.user_id == current_user.id\
+        & UserSeenQuestion.question_id == question_id).scalar()
+
+@dramatiq.actor()
+def update_seen_articles(article_id):
+    db = current_app.db_context
+    current_user = g.current_user
+    UserSeenArticle = db.get_model('UserSeenArticle')
+
+    seen_count = UserSeenArticle.query.with_entities(db.func.count(UserSeenArticle.id)).filter(UserSeenArticle.user_id == current_user.id\
+        & UserSeenArticle.article_id == article_id).scalar()
