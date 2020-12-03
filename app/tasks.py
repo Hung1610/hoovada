@@ -34,6 +34,7 @@ def update_seen_questions(question_id):
 
     seen_count = UserSeenQuestion.query.with_entities(db.func.count(UserSeenQuestion.id)).filter(UserSeenQuestion.user_id == current_user.id\
         & UserSeenQuestion.question_id == question_id).scalar()
+    
 
 @dramatiq.actor()
 def update_seen_articles(article_id):
