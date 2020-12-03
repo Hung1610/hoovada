@@ -10,7 +10,7 @@ from flask_restx import Api, Namespace, Resource
 
 # own modules
 from app.modules import *
-from app.tasks import test
+from common.dramatiq_producers import test
 from common.models import *
 from common.utils.response import send_result
 

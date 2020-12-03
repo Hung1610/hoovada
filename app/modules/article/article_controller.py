@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.dramatiq_producers import update_seen_articles
 import json
 import re
 from datetime import datetime
@@ -196,15 +197,16 @@ class ArticleController(Controller):
             return send_error("Could not load topics. Contact your administrator for solution.")
 
     def get_by_id(self, object_id):
-        if object_id is None:
-            return send_error(message=constants.msg_lacking_id)
-        if object_id.isdigit():
-            article = Article.query.filter_by(id=object_id).first()
-        else:
-            article = Article.query.filter_by(slug=object_id).first()
-        if article is None:
-            return send_error(message=constants.msg_not_found_with_id.format(object_id))
-        else:
+        try:
+            if object_id is None:
+                return send_error(message=constants.msg_lacking_id)
+            if object_id.isdigit():
+                article = Article.query.filter_by(id=object_id).first()
+            else:
+                article = Article.query.filter_by(slug=object_id).first()
+            if article is None:
+                return send_error(message=constants.msg_not_found_with_id.format(object_id))
+            
             article.views_count += 1
             db.session.commit()
             result = article._asdict()
@@ -214,20 +216,20 @@ class ArticleController(Controller):
             result['fixed_topic'] = article.fixed_topic
             result['topics'] = article.topics
             # upvote/downvote status
-            try:
-                current_user, _ = current_app.get_logged_user(request)
-                if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-            except Exception as e:
-                print(e)
-                pass
+            current_user = g.current_user
+            if current_user:
+                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                if vote is not None:
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                ArticleFavorite.article_id == article.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
+                update_seen_articles.send(article.id, current_user.id)
             return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
+        except Exception as e:
+            print(e)
+            pass
     
     def get_similar(self, args):
         if not 'title' in args:
