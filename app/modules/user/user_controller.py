@@ -14,10 +14,8 @@ from sqlalchemy import desc, func, text
 # own modules
 from app.app import db
 from app.modules.user.user_dto import UserDto
-from app.settings.config import BaseConfig as Config
 from common.controllers.controller import Controller
-from common.models import Reputation, User
-from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
@@ -29,9 +27,14 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+User = db.get_model('User')
+Reputation = db.get_model('Reputation')
+Topic = db.get_model('Topic')
+
+
 class UserController(Controller):
     query_classname = 'User'
-    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id']
+    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name']
     allowed_ordering_fields = ['question_count', 'answer_count', 'post_count']
 
     def create(self, data):
@@ -59,6 +62,17 @@ class UserController(Controller):
         query = super().get_query()
         query = query.filter(User.is_deactivated != True)
         return query    
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('email_or_name'):
+            query = query.filter((User.display_name == params.get('email_or_name')) | (User.email == params.get('email_or_name')))
+        if params.get('is_endorsed') and g.endorsed_topic_id:
+            topic = Topic.query.get(g.endorsed_topic_id)
+            user_ids = [user.id for user in topic.endorsed_users]
+            query = query.filter(User.id.in_(user_ids))
+
+        return query
 
     def get(self, args):
         try:

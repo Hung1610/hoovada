@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Namespace, fields, reqparse
+from flask_restx import inputs
+from flask_restx import Namespace, fields
 
 # own module
 from common.dto import Dto
@@ -165,7 +166,9 @@ class UserDto(Dto):
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('display_name', type=str, required=False, help='Search user by display name')
     model_get_parser.add_argument('email', type=str, required=False, help='Search user by email')
+    model_get_parser.add_argument('email_or_name', type=str, required=False, help='Search user by email')
     model_get_parser.add_argument('endorsed_topic_id', type=int, required=False, help='Get user endorsed status by id')
+    model_get_parser.add_argument('is_endorsed', type=inputs.boolean, required=False, help='Get all endorsed users in database.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'question_count', 'post_count', 'answer_count'", type=str,
                             choices=('question_count', 'post_count', 'answer_count'), action='append',
                         )

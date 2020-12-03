@@ -89,13 +89,13 @@ def send_weekly_recommendation_emails_job():
 def get_scheduler(app):
     # ApScheduler
     scheduler = BackgroundScheduler()
-    jobstores = {
-        'default': RedisJobStore(\
-            db=1,\
-            port=app.config['REDIS_PORT'],\
+    
+    redis_job_store = RedisJobStore(db=1,\
             host=app.config['REDIS_HOST'],\
-            password=app.config['REDIS_PASSWORD']\
-        )
+            port=app.config['REDIS_PORT'],\
+            password=app.config['REDIS_PASSWORD'])
+    jobstores = {
+        'default': redis_job_store
     }
     executors = {
         'default': ThreadPoolExecutor(20),
