@@ -13,7 +13,7 @@ import requests
 from flask import current_app, make_response, request
 from flask_restx import marshal
 
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.user_dto import UserDto

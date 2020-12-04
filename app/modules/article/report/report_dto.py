@@ -28,7 +28,7 @@ class ReportDto(Dto):
         'article_id': fields.Integer(description=''),
         'description': fields.String(description=''),
         'created_date': fields.DateTime(description=''),
-        'report_type': fields.Integer(description='1 - General, 2 - Inapproriate, 3 - Duplicate', default=False),
+        'report_type': fields.String(description='The report type', attribute='report_type.name'),
     })
 
     get_parser = reqparse.RequestParser()

@@ -8,7 +8,7 @@ from functools import wraps
 from flask import current_app, g
 
 # own modules
-from app.app import db
+from common.models.model import db
 from common.utils.response import send_error
 from common.utils.types import UserRole
 

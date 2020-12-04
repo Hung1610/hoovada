@@ -11,7 +11,7 @@ from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.article.comment.favorite.favorite_dto import \
     ArticleCommentFavoriteDto
 from common.controllers.controller import Controller

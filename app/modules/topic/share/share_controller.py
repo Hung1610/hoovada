@@ -10,7 +10,7 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.topic.share.share_dto import TopicShareDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result

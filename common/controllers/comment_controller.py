@@ -9,7 +9,7 @@ from flask import g
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from common.controllers.controller import Controller
 from common.utils.permission import has_permission

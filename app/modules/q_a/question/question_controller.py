@@ -14,7 +14,7 @@ from slugify import slugify
 from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question_dto import QuestionDto
@@ -23,6 +23,7 @@ from common.enum import VotingStatusEnum
 from common.utils.checker import check_spelling
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
+from common.dramatiq_producers import update_seen_questions
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -231,6 +232,7 @@ class QuestionController(Controller):
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
                                             QuestionBookmark.question_id == question.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
+            update_seen_questions.send(question.id, current_user.id)
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
 
     def invite(self, object_id, data):

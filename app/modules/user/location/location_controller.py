@@ -9,7 +9,7 @@ from flask import request
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.location.location import UserLocation
 from app.modules.user.location.location_dto import LocationDto

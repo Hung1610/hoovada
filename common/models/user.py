@@ -12,7 +12,7 @@ from sqlalchemy_utils import aggregated
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # own modules
-from app.app import db
+from common.models.model import db
 from common.models.model import Model
 from common.utils.types import UserRole
 
@@ -270,7 +270,7 @@ class User(Model):
 
 class UserSeenQuestion(Model):
     """
-    Define the question that the user has seen.
+    Define the questions that the user has seen.
     """
     __tablename__ = 'user_seen_question'
 
@@ -283,7 +283,7 @@ class UserSeenQuestion(Model):
 
 class UserSeenArticle(Model):
     """
-    Define the question that the user has seen.
+    Define the articles that the user has seen.
     """
     __tablename__ = 'user_seen_article'
 

@@ -17,8 +17,9 @@ from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMet
 
 # own modules
 from app.settings import config_by_name
-from app.tasks import dramatiq
-from common.scheduled_jobs import get_scheduler
+from app.dramatiq_consumers import dramatiq
+from common.models.model import db
+from common.scheduled_jobs import scheduler
 from common.utils.util import (get_logged_user, get_model,
                                get_model_by_tablename)
 
@@ -46,9 +47,6 @@ dictConfig({
 
 
 # Flask plugins
-SQLAlchemy.get_model = get_model
-SQLAlchemy.get_model_by_tablename = get_model_by_tablename
-db = SQLAlchemy()
 migrate = Migrate()
 flask_bcrypt = Bcrypt()
 mail = Mail()
@@ -96,6 +94,6 @@ def init_app():
     # Config dramatiq
     dramatiq.init_app(app)
     # Config ApScheduler
-    scheduler = get_scheduler(app)
+    scheduler.init_app(app)
     scheduler.start()
     return app

@@ -99,6 +99,9 @@ class CommonBaseConfig:
     VERIFICATION_SID = environ.get('YOUR_VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
     LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
 
+    # The maximum number of questions/articles seen by user that will be stored on the database
+    MAX_SEEN_CACHE = 10
+
 
 class CommonDevelopmentConfig(CommonBaseConfig):
     """Development configuration."""
