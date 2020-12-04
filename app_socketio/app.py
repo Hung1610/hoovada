@@ -18,7 +18,6 @@ socketio = SocketIO()
 
 def init_app():
     app = Flask(__name__, static_folder='static')
-    app.config['JSON_AS_ASCII'] = False
     app.config.from_object(config_by_name[app.config['ENV']])
 
     socketio.init_app(app, cors_allowed_origins="*")
