@@ -8,7 +8,7 @@ from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules 
-from app.app import db
+from common.models.model import db
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
 from common.enum import TimelineActivityEnum
 from common.utils.response import paginated_result
@@ -124,9 +124,15 @@ class TimelineController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'timeline_id' in data:
+        if 'question_id' in data:
              try:
-                timeline.timeline_id = int(data['timeline_id'])
+                timeline.question_id = int(data['question_id'])
+             except Exception as e:
+                print(e.__str__())
+                pass
+        if 'question_comment_id' in data:
+             try:
+                timeline.question_comment_id = int(data['question_comment_id'])
              except Exception as e:
                 print(e.__str__())
                 pass
@@ -136,9 +142,9 @@ class TimelineController(Controller):
              except Exception as e:
                 print(e.__str__())
                 pass
-        if 'comment_id' in data:
+        if 'answer_comment_id' in data:
              try:
-                timeline.comment_id = int(data['comment_id'])
+                timeline.answer_comment_id = int(data['answer_comment_id'])
              except Exception as e:
                 print(e.__str__())
                 pass

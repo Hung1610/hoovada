@@ -3,17 +3,22 @@
 
 # built-in modules
 from abc import ABC, abstractmethod
+from common.utils.util import get_model, get_model_by_tablename
+from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy import inspect
 # third-party modules
 from sqlalchemy.ext.declarative import as_declarative
 
-from app.app import db
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+SQLAlchemy.get_model = get_model
+SQLAlchemy.get_model_by_tablename = get_model_by_tablename
+db = SQLAlchemy()
 
 
 def catch(func, *args, **kwargs):

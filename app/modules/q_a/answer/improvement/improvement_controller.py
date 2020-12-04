@@ -14,7 +14,7 @@ from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from app.modules.q_a.answer.improvement.improvement_dto import AnswerImprovementDto
 from common.enum import VotingStatusEnum, FileTypeEnum

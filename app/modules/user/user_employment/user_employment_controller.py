@@ -9,7 +9,7 @@ import dateutil.parser
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.user.user_employment.user_employment import UserEmployment
 from app.modules.user.user_employment.user_employment_dto import \
     UserEmploymentDto
