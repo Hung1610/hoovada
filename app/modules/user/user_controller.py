@@ -12,7 +12,7 @@ from flask_restx import marshal
 from sqlalchemy import desc, func, text
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension

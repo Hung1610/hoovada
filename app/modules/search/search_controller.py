@@ -13,7 +13,7 @@ from flask_restx import marshal
 # third-party modules
 from sqlalchemy import or_
 
-from app.app import db
+from common.models.model import db
 from app.modules.search.search_dto import SearchDto
 # own modules
 from common.models import Article, Question, Topic, User

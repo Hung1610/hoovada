@@ -6,6 +6,8 @@ from os import environ
 
 # third party modules
 from dramatiq.brokers.rabbitmq import RabbitmqBroker
+from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
+from apscheduler.jobstores.redis import RedisJobStore
 
 # own modules
 from common.settings.config import CommonBaseConfig
@@ -19,6 +21,26 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class BaseConfig(CommonBaseConfig):
     # debug mode is turned off by default
     DEBUG = False
+
+    # Flask-Apscheduler configurations
+    SCHEDULER_JOBSTORES = {
+        'default':  RedisJobStore(db=1,\
+            host=CommonBaseConfig.REDIS_HOST,\
+            port=CommonBaseConfig.REDIS_PORT,\
+            password=CommonBaseConfig.REDIS_PASSWORD)
+    }
+
+    SCHEDULER_EXECUTORS = {
+        'default': ThreadPoolExecutor(20),
+        'processpool': ProcessPoolExecutor(5)
+    }
+
+    SCHEDULER_JOB_DEFAULTS = {
+        'coalesce': False,
+        'max_instances': 3
+    }
+
+    SCHEDULER_API_ENABLED = True
 
     # Flask-Dramatiq configuration
     DRAMATIQ_BROKER = RabbitmqBroker

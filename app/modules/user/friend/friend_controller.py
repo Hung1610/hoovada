@@ -11,7 +11,7 @@ from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from app.modules.user.friend.friend_dto import UserFriendDto
 from common.controllers.controller import Controller

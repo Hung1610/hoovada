@@ -4,7 +4,7 @@
 # built-in modules
 from datetime import datetime
 
-from app.app import db
+from common.models.model import db
 # own modules
 from common.models.model import Model
 

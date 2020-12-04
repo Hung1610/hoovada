@@ -10,7 +10,7 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.article.voting import constants
 from app.modules.article.voting.vote_dto import VoteDto
 from common.controllers.controller import Controller

@@ -11,7 +11,7 @@ from sqlalchemy_utils import aggregated
 from sqlalchemy.ext.declarative import declared_attr
 
 # own modules
-from app.app import db
+from common.models.model import db
 from common.models.model import Model
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 
