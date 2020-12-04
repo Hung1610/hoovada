@@ -9,7 +9,7 @@ from datetime import datetime
 from flask_restx import marshal
 
 # own modules   
-from app.app import db
+from common.models.model import db
 from app.modules.user.reputation.reputation_dto import ReputationDto
 from common.controllers.controller import Controller
 from common.models import Reputation, User

@@ -11,7 +11,7 @@ from flask import request, send_file, url_for
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from app.modules.user.permission.permission import Permission
 from app.modules.user.user_permission.user_permission import UserPermission

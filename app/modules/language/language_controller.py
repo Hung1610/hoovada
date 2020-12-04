@@ -7,7 +7,7 @@ from datetime import datetime
 # third-party modules
 from flask_restx import marshal
 
-from app.app import db
+from common.models.model import db
 from app.modules.language.language_dto import LanguageDto
 # own modules
 from common.controllers.controller import Controller

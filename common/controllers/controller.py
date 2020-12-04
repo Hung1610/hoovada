@@ -4,7 +4,7 @@
 from abc import ABC, abstractmethod
 
 # built-in modules
-from app.app import db
+from common.models.model import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

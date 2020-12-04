@@ -5,7 +5,7 @@
 from sqlalchemy import event
 
 # own modules
-from app.app import db
+from common.models.model import db
 from common.enum import VotingStatusEnum
 from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
 from common.models.model import Model

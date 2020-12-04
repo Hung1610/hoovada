@@ -10,7 +10,7 @@ from flask import current_app, request, g
 from flask_restx import marshal
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.modules.topic.bookmark import constants
 from app.modules.topic.bookmark.bookmark_dto import TopicBookmarkDto
 from common.utils.response import paginated_result

@@ -14,7 +14,7 @@ from slugify import slugify
 from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from app.app import db
+from common.models.model import db
 from app.constants import messages
 from app.modules.post.post_dto import PostDto
 from common.controllers.controller import Controller
