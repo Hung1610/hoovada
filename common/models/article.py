@@ -12,7 +12,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 from common.models.model import Model
 

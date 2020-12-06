@@ -10,7 +10,7 @@ from flask import current_app, g, request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.constants import messages
 from app.modules.topic.follow.follow_dto import TopicFollowDto
 from common.utils.response import paginated_result
