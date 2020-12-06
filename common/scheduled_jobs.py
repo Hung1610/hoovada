@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
+from common.dramatiq_producers import send_recommendation_mail, send_similar_mail
 from datetime import datetime, timedelta
 from pytz import utc
 
@@ -25,6 +26,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 scheduler = APScheduler()
 
+
 @scheduler.task('cron', id='send_registered_user_emails_job', day='*')
 def send_registered_user_emails_job():
     """ Send email notification to admin. Contains list of newly registered users
@@ -42,6 +44,7 @@ def send_registered_user_emails_job():
         for admin_email in scheduler.app.config['MAIL_ADMINS']:
             send_email(admin_email, 'User Registered On Hoovada', html)
 
+
 @scheduler.task('cron', id='send_daily_recommendation_emails_job', minute='0', hour='0')
 def send_daily_recommendation_emails_job():
     """ Send daily emails to users. Contain recommendations.
@@ -51,22 +54,13 @@ def send_daily_recommendation_emails_job():
     """
     with scheduler.app.app_context():
         User = db.get_model('User')
-        Topic = db.get_model('Topic')
-        TopicFollow = db.get_model('TopicFollow')
-        Question = db.get_model('Question')
-        Article = db.get_model('Article')
 
         users = User.query\
             .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
         for user in users:
-            if user.email:
-                followed_topic_ids = TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()
-                recommended_questions = Question.query.filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
-                recommended_articles = Article.query.filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
-                html = render_template('recommendation_for_user.html', \
-                    user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
-                send_email(user.email, 'Recommended Questions and Articles On Hoovada', html)
+            send_recommendation_mail.send(user)
+
 
 @scheduler.task('cron', id='send_weekly_recommendation_emails_job', week='*', day_of_week='sun')
 def send_weekly_recommendation_emails_job():
@@ -77,19 +71,43 @@ def send_weekly_recommendation_emails_job():
     """
     with scheduler.app.app_context():
         User = db.get_model('User')
-        Topic = db.get_model('Topic')
-        TopicFollow = db.get_model('TopicFollow')
-        Question = db.get_model('Question')
-        Article = db.get_model('Article')
 
         users = User.query\
             .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
         for user in users:
-            if user.email:
-                followed_topic_ids = TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()
-                recommended_questions = Question.query.filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
-                recommended_articles = Article.query.filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
-                html = render_template('recommendation_for_user.html', \
-                    user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
-                send_email(user.email, 'Recommended Questions and Articles On Hoovada', html)
+            send_recommendation_mail.send(user)
+
+
+@scheduler.task('cron', id='send_daily_similar', minute='0', hour='0')
+def send_daily_similar():
+    """ Send daily emails to users. Contain similar articles/questions.
+
+    Returns:
+        None
+    """
+    with scheduler.app.app_context():
+        User = db.get_model('User')
+
+        users = User.query\
+            .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
+
+        for user in users:
+            send_similar_mail.send(user)
+
+
+@scheduler.task('cron', id='send_weekly_similar', week='*', day_of_week='sun')
+def send_weekly_similar():
+    """ Send daily emails to users. Contain recommendations.
+
+    Returns:
+        None
+    """
+    with scheduler.app.app_context():
+        User = db.get_model('User')
+
+        users = User.query\
+            .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
+
+        for user in users:
+            send_similar_mail.send(user)

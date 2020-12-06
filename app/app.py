@@ -70,7 +70,6 @@ metrics.register_default(
 
 def init_app():
     # Setup Flask app
-    app.config['JSON_AS_ASCII'] = False
     app.config.from_object(config_by_name[app.config['ENV']])
     @app.before_request
     def before_request():
