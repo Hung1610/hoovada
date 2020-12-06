@@ -268,6 +268,86 @@ class User(Model):
         return False
 
 
+class UserLocation(Model):
+    __tablename__ = 'user_location'
+
+    id = db.Column(db.Integer, primary_key=True)
+    location_detail = db.Column(db.UnicodeText)
+    is_current = db.Column(db.Boolean, default=False)
+    start_year = db.Column(db.Integer)
+    end_year = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserLanguage(Model):
+    __tablename__ = 'user_language'
+
+    id = db.Column(db.Integer, primary_key=True)
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'), nullable=False)
+    language = db.relationship('Language', lazy=True) # one-to-many relationship with table Article
+    level = db.Column(db.UnicodeText)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    is_default = db.Column(db.Boolean, default=False)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserEducation(Model):
+    __tablename__ = 'user_education'
+
+    id = db.Column(db.Integer, primary_key=True)
+    school = db.Column(db.UnicodeText)
+    primary_major = db.Column(db.UnicodeText)
+    secondary_major = db.Column(db.UnicodeText)
+    is_current = db.Column(db.Boolean, default=False)
+    start_year = db.Column(db.Integer)
+    end_year = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserEmployment(Model):
+    __tablename__ = 'user_employment'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    position = db.Column(db.String(255))
+    company = db.Column(db.String(255))
+    start_year = db.Column(db.Integer)
+    end_year = db.Column(db.Integer)
+    is_current = db.Column(db.Integer)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserPermission(Model):
+    __tablename__ = 'user_permission'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.ForeignKey('user.id'), index=True)
+    permission_id = db.Column(db.ForeignKey('permission.id'), index=True)
+    allow = db.Column(db.Boolean, default=False)
+
+
+class UserTopic(Model):
+    __tablename__ = 'user_topic'
+
+    id = db.Column(db.Integer, primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic = db.relationship('Topic', foreign_keys=[topic_id], lazy=True) # one-to-many relationship with table Article
+    description = db.Column(db.UnicodeText)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
+    is_default = db.Column(db.Boolean, default=False)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class UserSeenQuestion(Model):
     """
     Define the questions that the user has seen.
@@ -279,6 +359,7 @@ class UserSeenQuestion(Model):
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Post
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class UserSeenArticle(Model):
@@ -292,3 +373,4 @@ class UserSeenArticle(Model):
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Post
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)

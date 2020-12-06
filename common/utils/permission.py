@@ -2,18 +2,15 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from datetime import datetime
 
 # third-party modules
-from flask import url_for
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
-from werkzeug.security import check_password_hash, generate_password_hash
 
-from common.db import db
 # own modules
-from app.modules.user.permission.permission import Permission
-from app.modules.user.user_permission.user_permission import UserPermission
+from common.db import db
+
+
+Permission = db.get_model('Permission')
+UserPermission = db.get_model('UserPermission')
 
 
 def has_permission(user_id, permission_name):

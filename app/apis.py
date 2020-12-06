@@ -5,13 +5,13 @@
 from os import environ
 
 # third-party modules
-from flask import current_app, url_for, g, request
+from flask import url_for
 from flask_restx import Api, Namespace, Resource
 
 # own modules
 from app.modules import *
-from common.models import *
 from common.utils.response import send_result
+from common.cache import cache
 from common.dramatiq_producers import test
 
 __author__ = "hoovada.com team"
@@ -44,7 +44,7 @@ class Cache(Resource):
     def post(self):
         """ Use for Clearing cache
         """
-        current_app.cache_context.clear()
+        cache.clear()
         return send_result(message="Cache Cleared!", code=200)
 
 

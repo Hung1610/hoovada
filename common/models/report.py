@@ -42,6 +42,13 @@ class QuestionReport(Model, BaseReport):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
+class QuestionCommentReport(Model, BaseReport):
+    __tablename__ = 'question_comment_report'
+
+    comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'), nullable=False)
+    comment = db.relationship('QuestionComment', lazy=True) # one-to-many relationship with table Comment
+
+
 class AnswerReport(Model, BaseReport):
     __tablename__ = 'answer_report'
 

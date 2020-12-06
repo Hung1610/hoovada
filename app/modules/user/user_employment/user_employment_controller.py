@@ -10,7 +10,6 @@ from flask_restx import marshal
 
 # own modules
 from common.db import db
-from app.modules.user.user_employment.user_employment import UserEmployment
 from app.modules.user.user_employment.user_employment_dto import \
     UserEmploymentDto
 from common.controllers.controller import Controller
@@ -20,6 +19,9 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+UserEmployment = db.get_model('UserEmployment')
 
 
 class UserEmploymentController(Controller):

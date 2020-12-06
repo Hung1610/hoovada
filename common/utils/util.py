@@ -23,7 +23,9 @@ from password_strength import PasswordPolicy
 from twilio.rest import Client
 
 # own modules
-from app.settings.config import BaseConfig
+from common.settings.config import CommonBaseConfig
+from common.db import db
+from common.mail import mail
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -31,7 +33,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-client = Client(username=BaseConfig.TWILIO_ACCOUNT_SID, password=BaseConfig.TWILIO_AUTH_TOKEN)
+client = Client(username=CommonBaseConfig.TWILIO_ACCOUNT_SID, password=CommonBaseConfig.TWILIO_AUTH_TOKEN)
 
 
 def encode_file_name(filename):
@@ -58,8 +60,8 @@ def generate_confirmation_token(email):
         string
 
     """
-    serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
-    return serializer.dumps(email, salt=BaseConfig.SECURITY_SALT)
+    serializer = URLSafeTimedSerializer(CommonBaseConfig.SECRET_KEY)
+    return serializer.dumps(email, salt=CommonBaseConfig.SECURITY_SALT)
 
 
 def confirm_token(token, expirations=3600):
@@ -73,9 +75,9 @@ def confirm_token(token, expirations=3600):
          email if success and None vice versa.
     """
 
-    serializer = URLSafeTimedSerializer(BaseConfig.SECRET_KEY)
+    serializer = URLSafeTimedSerializer(CommonBaseConfig.SECRET_KEY)
     try:
-        email = serializer.loads(token, salt=BaseConfig.SECURITY_SALT, max_age=expirations)
+        email = serializer.loads(token, salt=CommonBaseConfig.SECURITY_SALT, max_age=expirations)
         return email
     except Exception as e:
         print(e.__str__())
@@ -94,8 +96,8 @@ def send_email(to, subject, template):
         None
     """
     
-    msg = Message(subject, sender=BaseConfig.MAIL_USERNAME, recipients=[to], html=template)
-    current_app.mail_context.send(msg)
+    msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template)
+    mail.send(msg)
 
 
 def send_confirmation_email(to):
@@ -162,7 +164,7 @@ def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
         }
         return jwt.encode(
             payload,
-            BaseConfig.SECRET_KEY,
+            CommonBaseConfig.SECRET_KEY,
             algorithm='HS256'
         )
     except Exception as e:
@@ -181,7 +183,7 @@ def decode_auth_token(auth_token):
     """
 
     try:
-        payload = jwt.decode(auth_token, BaseConfig.SECRET_KEY)
+        payload = jwt.decode(auth_token, CommonBaseConfig.SECRET_KEY)
         return payload['sub'], ''  # return the user_id
     except jwt.ExpiredSignatureError:
         return None, 'Signature expired. Please log in again.'
@@ -288,8 +290,8 @@ def send_verification_sms(to=''):
     """ Send verification code to that phone number
     """
     
-    user = current_app.db_context.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=to).first()
-    service = BaseConfig.VERIFICATION_SID
+    user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=to).first()
+    service = CommonBaseConfig.VERIFICATION_SID
     verification = client.verify \
         .services(service) \
         .verifications \
@@ -297,7 +299,7 @@ def send_verification_sms(to=''):
 
     if verification and verification.sid and user:
         user.verification_sms_time = datetime.utcnow()
-        current_app.db_context.session.commit()
+        db.session.commit()
     
     return verification.sid
 
@@ -338,8 +340,8 @@ def check_verification(phone, code):
     """ Verify code sent to that phone number
     """
     
-    user = current_app.db_context.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=phone).first()
-    service = BaseConfig.VERIFICATION_SID
+    user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=phone).first()
+    service = CommonBaseConfig.VERIFICATION_SID
     
     try:
         verification_check = client.verify \
@@ -350,7 +352,7 @@ def check_verification(phone, code):
         if verification_check.status == "approved":
             current_time = datetime.utcnow()
             difference = current_time - user.verification_sms_time
-            return difference.seconds <= BaseConfig.LIMIT_VERIFY_SMS_TIME
+            return difference.seconds <= CommonBaseConfig.LIMIT_VERIFY_SMS_TIME
         return False
     
     except Exception as e:
@@ -404,7 +406,7 @@ def get_logged_user(self, req):
     if user_id is None:
         return None, message
     try:
-        user = current_app.db_context.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(id=user_id).first()
+        user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(id=user_id).first()
         return user, None
     except Exception as e:
         print(e.__str__())
