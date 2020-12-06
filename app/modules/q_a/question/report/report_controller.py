@@ -15,7 +15,7 @@ from app.constants import messages
 from app.modules.q_a.question.report.report_dto import QuestionReportDto
 from common.controllers.controller import Controller
 from common.enum import ReportTypeEnum
-from common.models import Question, QuestionReport, User
+from common.models import QuestionReport
 from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole

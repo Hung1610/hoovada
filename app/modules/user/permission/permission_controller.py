@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
 import dateutil.parser
+
 # third-party modules
 from flask_restx import marshal
 from sqlalchemy import and_, desc, func, or_
 
-from common.db import db
-from app.modules.user.permission.permission import Permission
-from app.modules.user.permission.permission_dto import PermissionDto
 # own modules
+from common.db import db
+from app.modules.user.permission.permission_dto import PermissionDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType
+
+
+Permission = db.get_model('Permission')
 
 
 class PermissionController(Controller):

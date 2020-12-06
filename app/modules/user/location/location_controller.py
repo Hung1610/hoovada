@@ -10,18 +10,17 @@ from flask_restx import marshal
 
 # own modules
 from common.db import db
-from app.modules.auth.auth_controller import AuthController
-from app.modules.user.location.location import UserLocation
 from app.modules.user.location.location_dto import LocationDto
 from common.controllers.controller import Controller
-from common.models import User
 from common.utils.response import send_error, send_result
-from common.utils.sensitive_words import check_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+UserLocation = db.get_model('UserLocation')
 
 
 class LocationController(Controller):
