@@ -8,7 +8,7 @@ from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules 
-from common.models.model import db
+from common.db import db
 from app.modules.q_a.timeline.timeline_dto import TimelineDto
 from common.enum import TimelineActivityEnum
 from common.utils.response import paginated_result

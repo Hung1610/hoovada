@@ -15,6 +15,5 @@
             "server": "localhost",
             "username": "root"
         }
-    ],
-    "python.pythonPath": "venv/bin/python"
+    ]
 }

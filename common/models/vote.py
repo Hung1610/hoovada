@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.ext.declarative import declared_attr
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.enum import VotingStatusEnum
 from common.models.model import Model
 
@@ -39,13 +39,6 @@ class QuestionVote(Model, BaseVote):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
-class QuestionCommentVote(Model, BaseVote):
-    __tablename__ = 'question_comment_vote'
-    
-    comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'))
-    comment = db.relationship('QuestionComment', lazy=True) # one-to-many relationship with table Comment
-
-
 class AnswerVote(Model, BaseVote):
     __tablename__ = 'answer_vote'
     
@@ -59,25 +52,11 @@ class AnswerImprovementVote(Model, BaseVote):
     improvement_id = db.Column(db.Integer, db.ForeignKey('answer_improvement.id'))
     improvement =  db.relationship('AnswerImprovement', lazy=True) # one-to-many relationship with table Answer
 
-
-class AnswerCommentVote(Model, BaseVote):
-    __tablename__ = 'answer_comment_vote'
-    
-    comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id'))
-    comment = db.relationship('AnswerComment', lazy=True) # one-to-many relationship with table Comment
-
 class ArticleVote(Model, BaseVote):
     __tablename__ = 'article_vote'
 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
-
-
-class ArticleCommentVote(Model, BaseVote):
-    __tablename__ = 'article_comment_vote'
-    
-    comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'))
-    comment = db.relationship('ArticleComment', lazy=True) # one-to-many relationship with table Comment
 
 
 class PostVote(Model, BaseVote):

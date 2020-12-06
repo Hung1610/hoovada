@@ -12,7 +12,7 @@ from sqlalchemy_utils import aggregated
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.models.model import Model
 from common.utils.types import UserRole
 

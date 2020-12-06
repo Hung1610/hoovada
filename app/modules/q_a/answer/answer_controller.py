@@ -14,7 +14,7 @@ from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from common.controllers.controller import Controller

@@ -40,7 +40,7 @@ services:
         - rabbitmq
         - db
     environment:
-      - FLASK_APP=app
+      - FLASK_APP=app.manage:create_app
     env_file: ./docker.env
 
   socketio:

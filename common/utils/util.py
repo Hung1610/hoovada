@@ -383,16 +383,6 @@ def is_valid_email(email):
 
     regex = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.search(regex, email) is not None
-    
-
-def get_model(self, name):
-    return self.Model._decl_class_registry.get(name, None)
-
-
-def get_model_by_tablename(self, tablename):
-    for c in self.Model._decl_class_registry.values():
-        if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
-            return c
 
 
 def get_logged_user(self, req):

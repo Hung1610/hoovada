@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.modules.topic.user_topic.user_topic import UserTopic
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
 from common.controllers.controller import Controller

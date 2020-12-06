@@ -11,7 +11,7 @@ from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.share.share_dto import AnswerShareDto
 from common.controllers.controller import Controller
