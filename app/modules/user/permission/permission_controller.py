@@ -6,7 +6,7 @@ import dateutil.parser
 from flask_restx import marshal
 from sqlalchemy import and_, desc, func, or_
 
-from common.models.model import db
+from common.db import db
 from app.modules.user.permission.permission import Permission
 from app.modules.user.permission.permission_dto import PermissionDto
 # own modules

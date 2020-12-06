@@ -7,21 +7,18 @@ from logging.config import dictConfig
 
 # third-party modules
 from flask import Flask, g, request
-from flask_bcrypt import Bcrypt
-from flask_caching import Cache
 from flask_cors import CORS
-from flask_mail import Mail
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 # own modules
 from app.settings import config_by_name
-from app.dramatiq_consumers import dramatiq
-from common.models.model import db
-from common.scheduled_jobs import scheduler
-from common.utils.util import (get_logged_user, get_model,
-                               get_model_by_tablename)
+
+# Flask plugins
+from common.utils.util import get_logged_user
+from common.bcrypt import bcrypt
+from common.cache import cache
+from common.mail import mail
+from common.db import db, migrate
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -45,22 +42,27 @@ dictConfig({
     }
 })
 
+def init_basic_app():
+    # Flask initilization
+    Flask.db_context = db
+    Flask.mail_context = mail
+    Flask.cache_context = cache
+    Flask.get_logged_user = get_logged_user
+    app = Flask(__name__, static_folder='static')
+    app.config.from_object(config_by_name[app.config['ENV']])
+    # Setup Flask app
+    @app.before_request
+    def before_request():
+        g.current_user, _ = app.get_logged_user(request)
+        g.current_user_is_admin = False
+        if g.current_user:
+            g.current_user.last_seen = datetime.now()
+            db.session.commit()
+    return app
 
-# Flask plugins
-migrate = Migrate()
-flask_bcrypt = Bcrypt()
-mail = Mail()
-cache = Cache()
-
-# Flask app utility functions
-Flask.db_context = db
-Flask.mail_context = mail
-Flask.cache_context = cache
-Flask.get_logged_user = get_logged_user
-app = Flask(__name__, static_folder='static')
 
 # Prometheus metrics exporter
-metrics = GunicornInternalPrometheusMetrics(app)
+metrics = GunicornInternalPrometheusMetrics(init_basic_app())
 metrics.register_default(
     metrics.counter(
         'by_path_counter', 'Request count by request paths',
@@ -69,15 +71,7 @@ metrics.register_default(
 )
 
 def init_app():
-    # Setup Flask app
-    app.config.from_object(config_by_name[app.config['ENV']])
-    @app.before_request
-    def before_request():
-        g.current_user, _ = app.get_logged_user(request)
-        g.current_user_is_admin = False
-        if g.current_user:
-            g.current_user.last_seen = datetime.now()
-            db.session.commit()
+    app = init_basic_app()
     # Config CORS
     CORS(app)
     # Config Flask-Cache
@@ -87,12 +81,7 @@ def init_app():
     # Config Flask-Migrate
     migrate.init_app(app, db)
     # Config Flask-Bycrypt
-    flask_bcrypt.init_app(app)
+    bcrypt.init_app(app)
     # Config Flask-Mail
     mail.init_app(app)
-    # Config dramatiq
-    dramatiq.init_app(app)
-    # Config ApScheduler
-    scheduler.init_app(app)
-    scheduler.start()
     return app

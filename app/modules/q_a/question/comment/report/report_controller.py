@@ -10,7 +10,7 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.modules.q_a.question.comment.report.report import \
     QuestionCommentReport
 from app.modules.q_a.question.comment.report.report_dto import \

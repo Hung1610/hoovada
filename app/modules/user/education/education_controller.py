@@ -9,7 +9,7 @@ from flask import request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.education.education import UserEducation
 from app.modules.user.education.education_dto import EducationDto

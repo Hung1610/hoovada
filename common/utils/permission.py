@@ -10,7 +10,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from common.models.model import db
+from common.db import db
 # own modules
 from app.modules.user.permission.permission import Permission
 from app.modules.user.user_permission.user_permission import UserPermission

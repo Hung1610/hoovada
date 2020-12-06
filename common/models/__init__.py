@@ -22,8 +22,8 @@ from common.models.share import (ArticleShare, AnswerShare, PostShare, QuestionS
                                     TopicShare)
 from common.models.topic import Topic, TopicUserEndorse
 from common.models.user import SocialAccount, User, UserSeenQuestion, UserSeenArticle
-from common.models.vote import (ArticleCommentVote, ArticleVote, AnswerVote,
-                                AnswerCommentVote, AnswerImprovementVote, PostVote,
+from common.models.vote import (ArticleVote, AnswerVote,
+                                AnswerImprovementVote, PostVote,
                                 QuestionVote)
 from common.models.timeline import Timeline
 
