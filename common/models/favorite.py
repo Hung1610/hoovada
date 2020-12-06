@@ -40,6 +40,13 @@ class QuestionFavorite(Model, BaseFavorite):
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
+class QuestionCommentFavorite(Model, BaseFavorite):
+    __tablename__ = 'question_comment_favorite'
+
+    question_comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'), nullable=False)
+    question_comment = db.relationship('QuestionComment', lazy=True) # one-to-many relationship with table QuestionComment
+
+
 class AnswerFavorite(Model, BaseFavorite):
     __tablename__ = 'answer_favorite'
 

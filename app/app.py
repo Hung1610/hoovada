@@ -14,6 +14,7 @@ from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMet
 from app.settings import config_by_name
 
 # Flask plugins
+from common.models import *
 from common.utils.util import get_logged_user
 from common.bcrypt import bcrypt
 from common.cache import cache
@@ -44,9 +45,6 @@ dictConfig({
 
 def init_basic_app():
     # Flask initilization
-    Flask.db_context = db
-    Flask.mail_context = mail
-    Flask.cache_context = cache
     Flask.get_logged_user = get_logged_user
     app = Flask(__name__, static_folder='static')
     app.config.from_object(config_by_name[app.config['ENV']])

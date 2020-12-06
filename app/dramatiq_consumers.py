@@ -2,19 +2,15 @@
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
-import hashlib
-import re
-from datetime import datetime, timedelta
-from io import StringIO
-from flask.templating import render_template
 
 # third-party modules
 from flask_dramatiq import Dramatiq
 from flask import current_app, g
-from dramatiq import GenericActor
+from flask.templating import render_template
 
 # own modules
 from common.utils.util import send_email
+from common.db import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -32,18 +28,15 @@ def test():
 
 @dramatiq.actor()
 def update_seen_questions(question_id, user_id):
-    db = current_app.db_context
     UserSeenQuestion = db.get_model('UserSeenQuestion')
 
     seen_count = UserSeenQuestion.query.with_entities(db.func.count(UserSeenQuestion.id))\
-        .filter((UserSeenQuestion.user_id == user_id)\
-            & (UserSeenQuestion.question_id == question_id))\
+        .filter(UserSeenQuestion.user_id == user_id)\
         .scalar()
     
     if seen_count > current_app.config['MAX_SEEN_CACHE']:
         oldest_cache = UserSeenQuestion.query\
-            .filter((UserSeenQuestion.user_id == user_id)\
-                & (UserSeenQuestion.question_id == question_id))\
+            .filter(UserSeenQuestion.user_id == user_id)\
             .order_by(db.asc(UserSeenQuestion.created_date))\
             .first()
         db.session.delete(oldest_cache)
@@ -57,18 +50,15 @@ def update_seen_questions(question_id, user_id):
         
 @dramatiq.actor()
 def update_seen_articles(article_id, user_id):
-    db = current_app.db_context
     UserSeenArticle = db.get_model('UserSeenArticle')
 
     seen_count = UserSeenArticle.query.with_entities(db.func.count(UserSeenArticle.id))\
-        .filter((UserSeenArticle.user_id == user_id)\
-            & (UserSeenArticle.article_id == article_id))\
+        .filter(UserSeenArticle.user_id == user_id)\
         .scalar()
     
     if seen_count > current_app.config['MAX_SEEN_CACHE']:
         oldest_cache = UserSeenArticle.query\
-            .filter((UserSeenArticle.user_id == user_id)\
-                & (UserSeenArticle.article_id == article_id))\
+            .filter(UserSeenArticle.user_id == user_id)\
             .order_by(db.asc(UserSeenArticle.created_date))\
             .first()
         db.session.delete(oldest_cache)
@@ -81,7 +71,6 @@ def update_seen_articles(article_id, user_id):
 
 @dramatiq.actor()
 def send_recommendation_mail(user):
-    db = current_app.db_context
     Topic = db.get_model('Topic')
     TopicFollow = db.get_model('TopicFollow')
     Question = db.get_model('Question')
@@ -96,7 +85,6 @@ def send_recommendation_mail(user):
 
 @dramatiq.actor()
 def send_similar_mail(user):
-    db = current_app.db_context
     UserSeenQuestion = db.get_model('UserSeenQuestion')
     UserSeenArticle = db.get_model('UserSeenArticle')
     Question = db.get_model('Question')

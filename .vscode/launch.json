@@ -52,7 +52,7 @@
                 "prometheus_multiproc_dir": "./multiproc-tmp"
             },
             "args": [
-                "app.dramatiq_broker:broker"
+                "app.manage_dramatiq:broker"
             ],
             "jinja": true
         },

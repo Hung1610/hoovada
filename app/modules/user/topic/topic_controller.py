@@ -11,19 +11,21 @@ from flask_restx import marshal
 # own modules
 from common.db import db
 from app.constants import messages
-from app.modules.auth.auth_controller import AuthController
-from app.modules.user.topic.topic import UserTopic
 from app.modules.user.topic.topic_dto import TopicDto
 from common.controllers.controller import Controller
-from common.models import Topic, TopicUserEndorse, User
 from common.utils.response import (paginated_result, send_error,
-                                   send_paginated_result, send_result)
-from common.utils.sensitive_words import check_sensitive
+                                   send_result)
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+UserTopic = db.get_model('UserTopic')
+Topic = db.get_model('Topic')
+TopicUserEndorse = db.get_model('TopicUserEndorse')
+User = db.get_model('User')
 
 
 class TopicController(Controller):
