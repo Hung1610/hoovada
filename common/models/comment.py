@@ -46,6 +46,10 @@ class ArticleComment(Model, BaseComment):
 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
     article = db.relationship('Article', lazy=True)
+    favorites = db.relationship("ArticleCommentFavorite", cascade='all,delete-orphan')
+    @aggregated('favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')
 
 
 class PostComment(Model, BaseComment):
@@ -53,7 +57,7 @@ class PostComment(Model, BaseComment):
     
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
     post = db.relationship('Post', lazy=True) 
-
+    
 
 class AnswerComment(Model, BaseComment):
     __tablename__ = 'answer_comment'
