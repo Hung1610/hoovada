@@ -12,6 +12,11 @@ from sqlalchemy import and_
 
 # own modules
 from common.db import db
+<<<<<<< HEAD
+=======
+from app.modules.q_a.question.comment.favorite.favorite import \
+    QuestionCommentFavorite
+>>>>>>> 847916896f76e0ff5d103cd505c156f3819a9fd2
 from app.modules.q_a.question.comment.favorite.favorite_dto import \
     QuestionCommentFavoriteDto
 from common.controllers.controller import Controller
