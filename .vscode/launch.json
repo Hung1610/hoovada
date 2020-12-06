@@ -57,28 +57,6 @@
             "jinja": true
         },
         {
-            "name": "Python: Scheduler",
-            "type": "python",
-            "request": "launch",
-            "module": "app.scheduler",
-            "env": {
-                "WEB_PROTOCOL": "http",
-                "FLASK_APP": "app",
-                "FLASK_ENV": "development",
-                "FLASK_DEBUG": "1",
-                "DB_HOST": "localhost",
-                "DB_PORT": "3306",
-                "REDIS_PORT": "6380",
-                "REDIS_HOST": "localhost",
-                "REDIS_PASSWORD": "hoovada",
-                "RABBITMQ_PORT": "5673",
-                "RABBITMQ_HOST": "localhost",
-                "RABBITMQ_USER": "dev",
-                "RABBITMQ_PASSWORD": "hoovada",
-                "prometheus_multiproc_dir": "./multiproc-tmp"
-            }
-        },
-        {
             "name": "Python: Flask SocketIO",
             "type": "python",
             "request": "launch",
