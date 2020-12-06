@@ -11,7 +11,7 @@ from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.modules.q_a.answer.favorite.favorite_dto import AnswerFavoriteDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result

@@ -10,7 +10,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.models.model import Model
 
 __author__ = "hoovada.com team"
@@ -64,7 +64,6 @@ class AnswerComment(Model, BaseComment):
     
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
     answer = db.relationship('Answer', lazy=True)
-    votes = db.relationship("AnswerCommentVote", cascade='all,delete-orphan')
     favorites = db.relationship("AnswerCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):
@@ -76,7 +75,6 @@ class QuestionComment(Model, BaseComment):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     question = db.relationship('Question', lazy=True)
-    votes = db.relationship("QuestionCommentVote", cascade='all,delete-orphan')
     favorites = db.relationship("QuestionCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):

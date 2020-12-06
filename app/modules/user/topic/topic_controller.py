@@ -9,7 +9,7 @@ from flask import request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.constants import messages
 from app.modules.auth.auth_controller import AuthController
 from app.modules.user.topic.topic import UserTopic

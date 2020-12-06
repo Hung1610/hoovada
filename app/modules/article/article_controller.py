@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.dramatiq_producers import update_seen_articles
 import json
 import re
 from datetime import datetime
@@ -16,10 +15,11 @@ from slugify import slugify
 from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
-from common.models.model import db
 from app.modules.article import constants
 from app.modules.article.article_dto import ArticleDto
 from app.constants import messages
+from common.db import db
+from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller
 from common.models import (Article, ArticleFavorite, Topic, TopicBookmark,
                            User, UserFollow, UserFriend)

@@ -10,7 +10,7 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.modules.article import constants
 from app.modules.article.report.report_dto import ReportDto
 from common.controllers.controller import Controller

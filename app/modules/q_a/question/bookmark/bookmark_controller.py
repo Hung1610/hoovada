@@ -11,7 +11,7 @@ from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.modules.q_a.question.bookmark import constants
 from app.modules.q_a.question.bookmark.bookmark_dto import QuestionBookmarkDto
 from common.controllers.controller import Controller

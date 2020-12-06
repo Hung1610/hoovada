@@ -9,7 +9,7 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
