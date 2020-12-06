@@ -34,7 +34,7 @@ class CommentDto(Dto):
         'allow_favorite': fields.Boolean(default=True, description='Allow voting for comment'),
         'article_id': fields.Integer(required=True, description='The ID of the answer'),
         'user': fields.Nested(comment_user, description='The information of the user'),
-        # 'user_id': fields.Integer(required=True, description='The user ID'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'updated_date': fields.DateTime(description='The date comment was updated'),
         'created_date': fields.DateTime(required=True, description='The date comment was created')
     })
