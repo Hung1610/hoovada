@@ -102,6 +102,8 @@ class CommonBaseConfig:
     # The maximum number of questions/articles seen by user that will be stored on the database
     MAX_SEEN_CACHE = 10
 
+    JSON_AS_ASCII = False
+
 
 class CommonDevelopmentConfig(CommonBaseConfig):
     """Development configuration."""
