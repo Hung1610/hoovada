@@ -44,3 +44,10 @@ def update_seen_questions(question_id, user_id):
 def update_seen_articles(article_id, user_id):
     pass
 
+@dramatiq.actor()
+def send_recommendation_mail(user):
+    pass
+
+@dramatiq.actor()
+def send_similar_mail(user):
+    pass
