@@ -5,14 +5,14 @@
 from os import environ
 
 # third-party modules
-from flask import current_app, url_for, g, request
+from flask import url_for
 from flask_restx import Api, Namespace, Resource
 
 # own modules
 from app.modules import *
-from common.dramatiq_producers import test
-from common.models import *
 from common.utils.response import send_result
+from common.cache import cache
+from common.dramatiq_producers import test
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -44,7 +44,7 @@ class Cache(Resource):
     def post(self):
         """ Use for Clearing cache
         """
-        current_app.cache_context.clear()
+        cache.clear()
         return send_result(message="Cache Cleared!", code=200)
 
 
@@ -99,7 +99,6 @@ def init_api():
     api.add_namespace(ns_article_share, '/article')
     api.add_namespace(ns_article_comment, '/article')
     api.add_namespace(ns_article_comment_report, '/article/all/comment')
-    api.add_namespace(ns_article_comment_vote, '/article/all/comment')
     api.add_namespace(ns_article_comment_favorite, '/article/all/comment')
     api.add_namespace(ns_question, '/question')
     api.add_namespace(ns_question_favorite, '/question')
@@ -109,7 +108,6 @@ def init_api():
     api.add_namespace(ns_question_report, '/question')
     api.add_namespace(ns_question_comment, '/question')
     api.add_namespace(ns_question_comment_report, '/question/all/comment')
-    api.add_namespace(ns_question_comment_vote, '/question/all/comment')
     api.add_namespace(ns_question_comment_favorite, '/question/all/comment')
     api.add_namespace(ns_answer, '/answer')
     api.add_namespace(ns_answer_improvement, '/answer')
@@ -121,7 +119,6 @@ def init_api():
     api.add_namespace(ns_answer_vote, '/answer')
     api.add_namespace(ns_answer_comment, '/answer')
     api.add_namespace(ns_answer_comment_report, '/answer/all/comment')
-    api.add_namespace(ns_answer_comment_vote, '/answer/all/comment')
     api.add_namespace(ns_answer_comment_favorite, '/answer/all/comment')
     api.add_namespace(ns_upload, '/file_upload')
     api.add_namespace(ns_search, '/search')

@@ -10,7 +10,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.enum import ReportTypeEnum
 from common.models.model import Model
 
@@ -40,6 +40,13 @@ class QuestionReport(Model, BaseReport):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+
+
+class QuestionCommentReport(Model, BaseReport):
+    __tablename__ = 'question_comment_report'
+
+    comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'), nullable=False)
+    comment = db.relationship('QuestionComment', lazy=True) # one-to-many relationship with table Comment
 
 
 class AnswerReport(Model, BaseReport):

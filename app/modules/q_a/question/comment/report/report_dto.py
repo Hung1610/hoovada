@@ -18,17 +18,17 @@ class QuestionCommentReportDto(Dto):
     api = Namespace(name, description="Question comment report operations")
 
     model_request = api.model('question_comment_report_request', {
-        'inappropriate': fields.Boolean(description=''),
-        'description': fields.String(description='')
+        'report_type': fields.String(description='The report type', attribute='report_type.name'),
+        'description': fields.String(description=''),
     })
 
     model_response = api.model('question_comment_report_response', {
         'id': fields.Integer(description=''),
         'user_id': fields.Integer(description=''),
         'comment_id': fields.Integer(description=''),
-        'inappropriate': fields.Boolean(description=''),
+        'report_type': fields.String(description='The report type', attribute='report_type.name'),
         'description': fields.String(description=''),
-        'created_date': fields.DateTime(description='')
+        'created_date': fields.DateTime(description=''),
     })
 
     get_parser = reqparse.RequestParser()

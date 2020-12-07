@@ -2,27 +2,28 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+import dateutil.parser
 from datetime import datetime
 
 # third-party modules
-import dateutil.parser
 from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
-from app.modules.q_a.question.comment.report.report import \
-    QuestionCommentReport
 from app.modules.q_a.question.comment.report.report_dto import \
     QuestionCommentReportDto
+from common.db import db
+from common.enum import ReportTypeEnum
 from common.controllers.controller import Controller
-from common.models import QuestionComment, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+QuestionCommentReport = db.get_model('QuestionCommentReport')
 
 
 class ReportController(Controller):
@@ -116,10 +117,12 @@ class ReportController(Controller):
                 report.comment_id = int(data['comment_id'])
             except Exception as e:
                 pass
-        if 'inappropriate' in data:
+        if 'report_type' in data:
             try:
-                report.inappropriate = bool(data['inappropriate'])
+                report_type = int(data['report_type'])
+                report.report_type = ReportTypeEnum(report_type).name
             except Exception as e:
+                print(e.__str__())
                 pass
         if 'description' in data:
             report.description = data['description']

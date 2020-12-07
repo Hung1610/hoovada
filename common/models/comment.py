@@ -10,7 +10,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.models.model import Model
 
 __author__ = "hoovada.com team"
@@ -46,6 +46,10 @@ class ArticleComment(Model, BaseComment):
 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
     article = db.relationship('Article', lazy=True)
+    favorites = db.relationship("ArticleCommentFavorite", cascade='all,delete-orphan')
+    @aggregated('favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')
 
 
 class PostComment(Model, BaseComment):
@@ -53,14 +57,13 @@ class PostComment(Model, BaseComment):
     
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
     post = db.relationship('Post', lazy=True) 
-
+    
 
 class AnswerComment(Model, BaseComment):
     __tablename__ = 'answer_comment'
     
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
     answer = db.relationship('Answer', lazy=True)
-    votes = db.relationship("AnswerCommentVote", cascade='all,delete-orphan')
     favorites = db.relationship("AnswerCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):
@@ -72,7 +75,6 @@ class QuestionComment(Model, BaseComment):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     question = db.relationship('Question', lazy=True)
-    votes = db.relationship("QuestionCommentVote", cascade='all,delete-orphan')
     favorites = db.relationship("QuestionCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):

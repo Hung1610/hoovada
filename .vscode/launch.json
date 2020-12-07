@@ -11,7 +11,7 @@
             "module": "flask",
             "env": {
                 "WEB_PROTOCOL": "http",
-                "FLASK_APP": "app",
+                "FLASK_APP": "app.manage:create_app",
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "1",
                 "DB_HOST": "localhost",
@@ -52,7 +52,7 @@
                 "prometheus_multiproc_dir": "./multiproc-tmp"
             },
             "args": [
-                "app:broker"
+                "app.manage_dramatiq:broker"
             ],
             "jinja": true
         },

@@ -47,8 +47,6 @@ class CommentList(Resource):
 
     # @token_required
     @api.expect(comment_request)
-    @is_not_owner(table_name='article', object_id_arg_name='article_id', creator_field_name='article_by_user')
-    # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self, article_id):
         """
@@ -64,7 +62,6 @@ class CommentList(Resource):
 @api.route('/all/comment/<int:id>')
 class Comment(Resource):
     @token_required
-    # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, id):
         """

@@ -5,7 +5,7 @@
 from datetime import datetime
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.enum import TimelineActivityEnum
 from common.models.model import Model
 

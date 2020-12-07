@@ -9,22 +9,23 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
+from common.db import db
 from app.constants import messages
 from app.modules.q_a.question.comment.comment_dto import CommentDto
-from app.modules.q_a.question.comment.favorite.favorite import \
-    QuestionCommentFavorite
 from common.controllers.comment_controller import BaseCommentController
-from common.models import Question, QuestionComment, User
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+QuestionCommentFavorite = db.get_model('QuestionCommentFavorite')
+Question = db.get_model('Question')
+QuestionComment = db.get_model('QuestionComment')
+User = db.get_model('User')
 
 
 class CommentController(BaseCommentController):

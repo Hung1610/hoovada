@@ -11,19 +11,20 @@ from flask_restx import marshal
 from sqlalchemy import and_
 
 # own modules
-from common.models.model import db
-from app.modules.q_a.question.comment.favorite.favorite import \
-    QuestionCommentFavorite
+from common.db import db
 from app.modules.q_a.question.comment.favorite.favorite_dto import \
     QuestionCommentFavoriteDto
 from common.controllers.controller import Controller
-from common.models import QuestionComment, User
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+QuestionComment = db.get_model('QuestionComment')
+QuestionCommentFavorite = db.get_model('QuestionCommentFavorite')
 
 
 class QuestionCommentFavoriteController(Controller):

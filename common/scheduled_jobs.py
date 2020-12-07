@@ -4,19 +4,16 @@
 # bulit-in modules
 from common.dramatiq_producers import send_recommendation_mail, send_similar_mail
 from datetime import datetime, timedelta
-from pytz import utc
 
 # third-party modules
 from flask import render_template
 from flask_apscheduler import APScheduler
-from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
-from apscheduler.jobstores.redis import RedisJobStore
-from apscheduler.schedulers.background import BackgroundScheduler
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.enum import FrequencySettingEnum
 from common.utils.util import send_email
+from common.dramatiq_producers import send_recommendation_mail, send_similar_mail
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

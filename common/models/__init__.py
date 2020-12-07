@@ -7,9 +7,10 @@ from common.models.ban import UserBan
 from common.models.bookmark import QuestionBookmark, AnswerBookmark, TopicBookmark
 from common.models.comment import (AnswerComment, ArticleComment, PostComment,
                                    QuestionComment)
-from common.models.favorite import (ArticleCommentFavorite, ArticleFavorite,
-                                    AnswerFavorite, AnswerCommentFavorite, PostFavorite,
-                                    QuestionFavorite)
+from common.models.favorite import (ArticleFavorite, ArticleCommentFavorite,
+                                    AnswerFavorite, AnswerCommentFavorite, 
+                                    PostFavorite,
+                                    QuestionFavorite, QuestionCommentFavorite)
 from common.models.follow import (UserFollow, TopicFollow)
 from common.models.friend import UserFriend
 from common.models.language import Language
@@ -21,11 +22,14 @@ from common.models.reputation import Reputation
 from common.models.share import (ArticleShare, AnswerShare, PostShare, QuestionShare,
                                     TopicShare)
 from common.models.topic import Topic, TopicUserEndorse
-from common.models.user import SocialAccount, User, UserSeenQuestion, UserSeenArticle
-from common.models.vote import (ArticleCommentVote, ArticleVote, AnswerVote,
-                                AnswerCommentVote, AnswerImprovementVote, PostVote,
+from common.models.user import (User, SocialAccount, UserEducation, UserLanguage, UserLocation,
+                                    UserTopic, UserEmployment, UserPermission,
+                                    UserSeenQuestion, UserSeenArticle)
+from common.models.vote import (ArticleVote, AnswerVote,
+                                AnswerImprovementVote, PostVote,
                                 QuestionVote)
 from common.models.timeline import Timeline
+from common.models.permission import Permission
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

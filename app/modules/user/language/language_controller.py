@@ -9,19 +9,18 @@ from flask import request
 from flask_restx import marshal
 
 # own modules
-from common.models.model import db
-from app.modules.auth.auth_controller import AuthController
-from app.modules.user.language.language import UserLanguage
+from common.db import db
 from app.modules.user.language.language_dto import LanguageDto
 from common.controllers.controller import Controller
-from common.models import User
 from common.utils.response import send_error, send_result
-from common.utils.sensitive_words import check_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+UserLanguage = db.get_model('UserLanguage')
 
 
 class LanguageController(Controller):

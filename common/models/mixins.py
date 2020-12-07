@@ -9,7 +9,7 @@ from flask import g
 from sqlalchemy.sql import expression
 
 # own modules
-from common.models.model import db
+from common.db import db
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

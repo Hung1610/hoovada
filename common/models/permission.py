@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from common.models.model import db
+from common.db import db
 from common.models.model import Model
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 class Permission(Model):
     __tablename__ = 'permission'
