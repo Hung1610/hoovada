@@ -166,7 +166,7 @@ worker_tmp_dir = '/dev/shm'
 #
 
 errorlog = '-'
-loglevel = 'info'
+loglevel = 'debug'
 accesslog = '-'
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
