@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
+from common.dramatiq_producers import send_recommendation_mail, send_similar_mail
 from datetime import datetime, timedelta
 
 # third-party modules

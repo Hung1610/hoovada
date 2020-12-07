@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
         {
             "name": "Python: Flask",
             "type": "python",
@@ -29,6 +30,34 @@
                 "run"
             ],
             "jinja": true
+        },
+        {
+            "name": "Python: Flask Gunicorn",
+            "type": "python",
+            "request": "launch",
+            "env": {
+                "WEB_PROTOCOL": "http",
+                "FLASK_APP": "app.manage:create_app",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "DB_HOST": "localhost",
+                "DB_PORT": "3306",
+                "REDIS_PORT": "6380",
+                "REDIS_HOST": "localhost",
+                "REDIS_PASSWORD": "hoovada",
+                "RABBITMQ_PORT": "5673",
+                "RABBITMQ_HOST": "localhost",
+                "RABBITMQ_USER": "dev",
+                "RABBITMQ_PASSWORD": "hoovada",
+                "prometheus_multiproc_dir": "./multiproc-tmp"
+            },
+            "gevent": true,
+            "program": "venv/bin/gunicorn",
+            "args": [
+                "-c",
+                "docker/app/gunicorn_conf.py",
+                "app.manage:flask_app"
+            ]
         },
         {
             "name": "Python: Dramatiq",
