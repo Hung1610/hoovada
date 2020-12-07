@@ -42,6 +42,8 @@ services:
     environment:
       - FLASK_APP=app.manage:create_app
     env_file: ./docker.env
+    volumes:
+      - ./migrations/versions:/opt/migrations/versions
 
   socketio:
     image: socketio
