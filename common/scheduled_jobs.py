@@ -51,11 +51,11 @@ def send_daily_recommendation_emails_job():
     with scheduler.app.app_context():
         User = db.get_model('User')
 
-        users = User.query\
+        users = User.query.with_entities(User.id)\
             .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
-        for user in users:
-            send_recommendation_mail.send(user)
+        for user_id in users:
+            send_recommendation_mail.send(user_id)
 
 
 @scheduler.task('cron', id='send_weekly_recommendation_emails_job', week='*', day_of_week='sun')
@@ -68,11 +68,11 @@ def send_weekly_recommendation_emails_job():
     with scheduler.app.app_context():
         User = db.get_model('User')
 
-        users = User.query\
+        users = User.query.with_entities(User.id)\
             .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
-        for user in users:
-            send_recommendation_mail.send(user)
+        for user_id in users:
+            send_recommendation_mail.send(user_id)
 
 
 @scheduler.task('cron', id='send_daily_similar', minute='0', hour='0')
@@ -85,11 +85,11 @@ def send_daily_similar():
     with scheduler.app.app_context():
         User = db.get_model('User')
 
-        users = User.query\
+        users = User.query.with_entities(User.id)\
             .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
-        for user in users:
-            send_similar_mail.send(user)
+        for user_id in users:
+            send_similar_mail.send(user_id)
 
 
 @scheduler.task('cron', id='send_weekly_similar', week='*', day_of_week='sun')
@@ -102,8 +102,8 @@ def send_weekly_similar():
     with scheduler.app.app_context():
         User = db.get_model('User')
 
-        users = User.query\
+        users = User.query.with_entities(User.id)\
             .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
-        for user in users:
-            send_similar_mail.send(user)
+        for user_id in users:
+            send_similar_mail.send(user_id)

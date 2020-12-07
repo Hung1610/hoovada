@@ -45,9 +45,9 @@ def update_seen_articles(article_id, user_id):
     pass
 
 @dramatiq.actor()
-def send_recommendation_mail(user):
+def send_recommendation_mail(user_id):
     pass
 
 @dramatiq.actor()
-def send_similar_mail(user):
+def send_similar_mail(user_id):
     pass
