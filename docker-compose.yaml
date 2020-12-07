@@ -40,7 +40,7 @@ services:
         - rabbitmq
         - db
     environment:
-      - FLASK_APP=app.manage:create_app
+      - FLASK_APP=app.manage:flask_app
     env_file: ./docker.env
     volumes:
       - ./migrations/versions:/opt/migrations/versions
