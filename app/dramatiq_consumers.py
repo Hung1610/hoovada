@@ -70,11 +70,13 @@ def update_seen_articles(article_id, user_id):
     db.session.commit()
 
 @dramatiq.actor()
-def send_recommendation_mail(user):
+def send_recommendation_mail(user_id):
     Topic = db.get_model('Topic')
     TopicFollow = db.get_model('TopicFollow')
     Question = db.get_model('Question')
     Article = db.get_model('Article')
+    User = db.get_model('User')
+    user = User.query.get(user_id)
     if user.email:
         followed_topic_ids = TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()
         recommended_questions = Question.query.filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
@@ -84,11 +86,13 @@ def send_recommendation_mail(user):
         send_email(user.email, 'Recommended Questions and Articles On Hoovada', html)
 
 @dramatiq.actor()
-def send_similar_mail(user):
+def send_similar_mail(user_id):
     UserSeenQuestion = db.get_model('UserSeenQuestion')
     UserSeenArticle = db.get_model('UserSeenArticle')
     Question = db.get_model('Question')
     Article = db.get_model('Article')
+    User = db.get_model('User')
+    user = User.query.get(user_id)
     if user.email:
         seen_question_ids = UserSeenQuestion.query\
             .with_entities(UserSeenQuestion.question_id)\
