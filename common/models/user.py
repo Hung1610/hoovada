@@ -64,6 +64,7 @@ class User(Model):
 
     gender = db.Column(db.String(255))  # (10), default='')
     age = db.Column(db.String(255))  # (3), default='')
+    birthday = db.Column(db.DateTime)
     email = db.Column(db.String(255))  # (255), unique=True)
     password_hash = db.Column(db.String(255))  # (128), default='')
 
