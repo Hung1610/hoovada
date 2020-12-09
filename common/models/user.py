@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+import enum
 from common.enum import FrequencySettingEnum
 from datetime import datetime
 
@@ -242,12 +243,15 @@ class User(Model):
 
     @property
     def endorsed_count(self):
-        TopicUserEndorse = db.get_model('TopicUserEndorse')
-        if g.endorsed_topic_id:
-            endorsed_count = TopicUserEndorse.query.with_entities(TopicUserEndorse.id).filter(TopicUserEndorse.endorsed_id == self.id,
-                                            TopicUserEndorse.topic_id == g.endorsed_topic_id).count()
-            return endorsed_count
-        return 0
+        try:
+            TopicUserEndorse = db.get_model('TopicUserEndorse')
+            if g.endorsed_topic_id:
+                endorsed_count = TopicUserEndorse.query.with_entities(TopicUserEndorse.id).filter(TopicUserEndorse.endorsed_id == self.id,
+                                                TopicUserEndorse.topic_id == g.endorsed_topic_id).count()
+                return endorsed_count
+            return 0
+        except Exception as e:
+            print(e)
 
     @property
     def is_friended_by_me(self):
