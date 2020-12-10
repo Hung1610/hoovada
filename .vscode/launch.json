@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "Python: Flask",
             "type": "python",
@@ -84,6 +83,12 @@
                 "app.manage_dramatiq:broker"
             ],
             "jinja": true
+        },
+        {
+            "name": "Python: APScheduler",
+            "type": "python",
+            "request": "launch",
+            "module": "scheduled_jobs.manage"
         },
         {
             "name": "Python: Flask SocketIO",

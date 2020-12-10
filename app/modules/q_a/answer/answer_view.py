@@ -66,7 +66,6 @@ class AnswerList(Resource):
 
 @api.route('/<int:id>')
 class Answer(Resource):
-    @token_required
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def get(self, id):
@@ -90,7 +89,7 @@ class Answer(Resource):
         controller = AnswerController()
         return controller.update(object_id=id, data=data)
 
-    @admin_token_required()
+    @token_required
     def delete(self, id):
         """
         Delete existing answer by its ID.

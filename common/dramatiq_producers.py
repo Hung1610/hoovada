@@ -7,7 +7,6 @@ from os import environ
 # third-party modules
 import dramatiq
 from dramatiq.brokers.rabbitmq import RabbitmqBroker
-from flask import current_app, g
 
 # own modules
 
@@ -36,12 +35,32 @@ def test():
     pass
 
 @dramatiq.actor()
+def send_weekly_registered_users():
+    pass
+
+@dramatiq.actor()
 def update_seen_questions(question_id, user_id):
     pass
     
 
 @dramatiq.actor()
 def update_seen_articles(article_id, user_id):
+    pass
+
+@dramatiq.actor()
+def send_weekly_recommendation_mails():
+    pass
+
+@dramatiq.actor()
+def send_daily_recommendation_mails():
+    pass
+
+@dramatiq.actor()
+def send_daily_similar_mails():
+    pass
+
+@dramatiq.actor()
+def send_weekly_similar_mails():
     pass
 
 @dramatiq.actor()
