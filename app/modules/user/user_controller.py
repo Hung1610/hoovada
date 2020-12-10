@@ -276,6 +276,8 @@ class UserController(Controller):
         if 'last_name' in data:
             user.last_name = data['last_name']
 
+        if 'birthday' in data:
+            user.birthday = dateutil.parser.isoparse(data['birthday'])
         if 'gender' in data:
             user.gender = data['gender']
         if 'age' in data:

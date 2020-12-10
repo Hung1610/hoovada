@@ -45,6 +45,30 @@ services:
     volumes:
       - ./migrations/versions:/opt/migrations/versions
 
+  backend_dramatiq:
+    image: backend_dramatiq
+    build:
+        context: .
+        dockerfile: ./docker/app_dramatiq/Dockerfile
+    depends_on:
+        - redis
+        - rabbitmq
+        - db
+    environment:
+      - FLASK_APP=app.manage:flask_app
+    env_file: ./docker.env
+
+  scheduled_jobs:
+    image: scheduled_jobs
+    build:
+        context: .
+        dockerfile: ./docker/scheduled_jobs/Dockerfile
+    depends_on:
+        - redis
+        - rabbitmq
+        - db
+    env_file: ./docker.env
+
   socketio:
     image: socketio
     build:
