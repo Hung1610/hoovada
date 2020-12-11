@@ -29,7 +29,6 @@ services:
       - ./common/settings/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
 
   backend:
-    image: backend
     build:
         context: .
         dockerfile: ./docker/app/Dockerfile
@@ -46,7 +45,6 @@ services:
       - ./migrations/versions:/opt/migrations/versions
 
   backend_dramatiq:
-    image: backend_dramatiq
     build:
         context: .
         dockerfile: ./docker/app_dramatiq/Dockerfile
@@ -59,7 +57,6 @@ services:
     env_file: ./docker.env
 
   scheduled_jobs:
-    image: scheduled_jobs
     build:
         context: .
         dockerfile: ./docker/scheduled_jobs/Dockerfile
@@ -70,7 +67,6 @@ services:
     env_file: ./docker.env
 
   socketio:
-    image: socketio
     build:
         context: .
         dockerfile: ./docker/app_socketio/Dockerfile
