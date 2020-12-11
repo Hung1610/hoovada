@@ -101,6 +101,11 @@ class CommonBaseConfig:
 
     # The maximum number of questions/articles seen by user that will be stored on the database
     MAX_SEEN_CACHE = 10
+    
+    # OneSignal Client Configurations
+    ONESIGNAL_APP_ID = environ.get('ONESIGNAL_APP_ID', '')
+    ONESIGNAL_REST_API_KEY = environ.get('ONESIGNAL_REST_API_KEY', '')
+    ONESIGNAL_USER_AUTH_KEY = environ.get('ONESIGNAL_USER_AUTH_KEY', '')
 
     JSON_AS_ASCII = False
 
