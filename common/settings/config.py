@@ -90,16 +90,17 @@ class CommonBaseConfig:
     GOOGLE_PROFILE_URL = 'https://www.googleapis.com/oauth2/v1/userinfo'
     
     # Twilio API credentials  (https://www.twilio.com/console)
-    TWILIO_ACCOUNT_SID = environ.get('TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
-    TWILIO_AUTH_TOKEN = environ.get('TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
+    TWILIO_ACCOUNT_SID = environ.get('TWILIO_ACCOUNT_SID', '')
+    TWILIO_AUTH_TOKEN = environ.get('TWILIO_AUTH_TOKEN', '')
     #  https://www.twilio.com/console/verify/services
-    VERIFICATION_SID = environ.get('VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
-    LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
+    VERIFICATION_SID = environ.get('VERIFICATION_SID', '')
+    LIMIT_VERIFY_SMS_TIME = 60
     
     # OneSignal Client Configurations
     ONESIGNAL_APP_ID = environ.get('ONESIGNAL_APP_ID', '')
     ONESIGNAL_REST_API_KEY = environ.get('ONESIGNAL_REST_API_KEY', '')
     ONESIGNAL_USER_AUTH_KEY = environ.get('ONESIGNAL_USER_AUTH_KEY', '')
+
 
 class CommonDevelopmentConfig(CommonBaseConfig):
     """Development configuration."""

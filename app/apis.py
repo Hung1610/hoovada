@@ -27,7 +27,7 @@ class HTTPSApi(Api):
         return url_for(self.endpoint('specs'), _external=True, _scheme=environ.get('WEB_PROTOCOL', 'https'))
 
 
-ns_health = Namespace(name='health')
+ns_health = Namespace(name='healthz')
 @ns_health.route('/')
 class HealthCheck(Resource):
     def get(self):
