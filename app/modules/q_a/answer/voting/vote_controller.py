@@ -100,21 +100,19 @@ class AnswerVoteController(Controller):
         try:
             # add or update vote
             is_insert = True
-            old_vote_status = None
             vote = AnswerVote.query.filter(AnswerVote.user_id == data['user_id'], \
                 AnswerVote.answer_id == data['answer_id']).first()
             if vote:
-                old_vote_status = vote.vote_status
                 is_insert = False
             vote = self._parse_vote(data=data, vote=vote)
             vote.updated_date = datetime.utcnow()
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
-            answer = vote.voted_answer
+            answer = vote.answer
             # get user who was created answer and was voted
-            user_voted = answer.answer_by_user
-            for topic in answer.topics:
+            user_voted = answer.user
+            for topic in answer.question.topics:
                 # Answer creator rep
                 reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
                     Reputation.topic_id == topic.id).first()
