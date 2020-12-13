@@ -10,9 +10,9 @@ RUN pip3 install -r requirements.txt --ignore-installed
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
-RUN addgroup app && groupmod -g 1003 app
+RUN addgroup app && groupmod -g 1000 app
 
-RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app && usermod -u 1003 app
+RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app && usermod -u 1000 app
 
 COPY --chown=app:app . /opt/
 
