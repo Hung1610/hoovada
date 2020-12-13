@@ -17,6 +17,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 #COPY --chown=app:app . /opt/
 #USER app
 
+COPY . /opt/
 RUN chmod +x /opt/docker/app/entrypoint.sh
 
 EXPOSE 5000
