@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
+import datetime
 from os import environ
 
 # third-party modules
@@ -22,6 +23,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 REDIS_PORT = environ.get('REDIS_PORT', '6380')
 REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PASSWORD = environ.get('REDIS_PASSWORD', 'hoovada')
+
+timeRan = 1
 
 def send_registered_user_emails_job():
     """ Send email notification to admin. Contains list of newly registered users
@@ -64,7 +67,7 @@ def send_weekly_similar_emails_job():
     send_weekly_similar_mails.send()
 
 def health_check():
-    print('BACKGROUND JOB WORKING')
+    print('BACKGROUND JOB WORKING ', datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
 
 def get_scheduler():
     # ApScheduler
@@ -74,6 +77,7 @@ def get_scheduler():
             host=REDIS_HOST,\
             port=REDIS_PORT,\
             password=REDIS_PASSWORD)
+    redis_job_store.remove_all_jobs()
     jobstores = {
         'default': redis_job_store
     }
@@ -90,14 +94,19 @@ def get_scheduler():
         executors=executors,\
         job_defaults=job_defaults,\
         timezone=environ.get('TZ','Asia/Ho_Chi_Minh'))
-    scheduler.add_job(health_check, 'interval', seconds=5)
-    scheduler.add_job(send_registered_user_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0)
-    scheduler.add_job(send_daily_recommendation_emails_job, 'cron', minute=0, hour=0)
-    scheduler.add_job(send_weekly_recommendation_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0)
-    scheduler.add_job(send_daily_similar_emails_job, 'cron', minute=0, hour=0)
-    scheduler.add_job(send_weekly_similar_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0)
+    scheduler.add_job(health_check, 'interval', minutes=1, id='health_check', replace_existing=True)
+    scheduler.add_job(send_registered_user_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0, id='send_registered_user_emails_job', replace_existing=True)
+    scheduler.add_job(send_daily_recommendation_emails_job, 'cron', minute=0, hour=0, id='send_daily_recommendation_emails_job', replace_existing=True)
+    scheduler.add_job(send_weekly_recommendation_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0, id='send_weekly_recommendation_emails_job', replace_existing=True)
+    scheduler.add_job(send_daily_similar_emails_job, 'cron', minute=0, hour=0, id='send_daily_similar_emails_job', replace_existing=True)
+    scheduler.add_job(send_weekly_similar_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0, id='send_weekly_similar_emails_job', replace_existing=True)
     return scheduler
 
 if __name__ == "__main__":
     apscheduler = get_scheduler()
+    apscheduler.print_jobs()
+    try:
+        apscheduler.shutdown(wait=False)
+    except Exception as e: 
+        pass
     apscheduler.start()
