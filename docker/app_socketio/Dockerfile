@@ -10,13 +10,10 @@ ENV TZ=Asia/Ho_Chi_Minh
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
-RUN addgroup app
-
-RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app
-
-COPY --chown=app:app . /opt/
-
-USER app
+#RUN addgroup app
+#RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app
+#COPY --chown=app:app . /opt/
+#USER app
 
 RUN chmod +x /opt/docker/app_socketio/entrypoint.sh
 

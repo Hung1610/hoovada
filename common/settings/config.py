@@ -14,31 +14,14 @@ class CommonBaseConfig:
     # debug mode is turned off by default
     DEBUG = False
 
+    JSON_AS_ASCII = False
+
     # The name of the model used as User class
     USER_MODEL_NAME = environ.get('FLASK_USER_MODEL_NAME', 'User')
 
     # flask configuration
     SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
     SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')
-
-    # RabbitMQ configuration
-    RABBITMQ_PORT = environ.get('RABBITMQ_PORT', '32520')
-    RABBITMQ_HOST = environ.get('RABBITMQ_HOST', '127.0.0.1')
-    RABBITMQ_USER = environ.get('RABBITMQ_USER', '')
-    RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD', '')
-    RABBITMQ_URL = 'amqp://' + RABBITMQ_USER + ':' + RABBITMQ_PASSWORD + '@' +\
-        environ.get('RABBITMQ_URL',  RABBITMQ_HOST + ':' + RABBITMQ_PORT)
-
-    # Redis configuration
-    REDIS_PORT = environ.get('REDIS_PORT', '6379')
-    REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
-    REDIS_USER = environ.get('REDIS_USER', '')
-    REDIS_PASSWORD = environ.get('REDIS_PASSWORD', '')
-    REDIS_URL = 'redis://:' + REDIS_PASSWORD + '@' +\
-        environ.get('REDIS_URL', REDIS_HOST + ':' + REDIS_PORT)
-
-    # Flask-SQLAlchemy configurations
-    SQLALCHEMY_ECHO = False
 
     # Email configuration
     MAIL_SERVER = environ.get('MAIL_SERVER', 'smtp.gmail.com')
@@ -47,17 +30,11 @@ class CommonBaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME =  environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
     MAIL_DEFAULT_SENDER = environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
-    MAIL_PASSWORD = environ.get('MAIL_PASSWORD', 'xrkajeadxbexdell')
+    MAIL_PASSWORD = environ.get('MAIL_PASSWORD', '')
     MAIL_ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
-
     # need to set this so that email can be sent
     MAIL_SUPPRESS_SEND = False
     TESTING = False
-
-    # Wasabi service
-    S3_BUCKET = environ.get('S3_BUCKET', 'hoovada') # test bucket
-    WASABI_ACCESS_KEY = environ.get('WASABI_ACCESS_KEY', '') # test bucket
-    WASABI_SECRET_ACCESS_KEY = environ.get('WASABI_SECRET_ACCESS_KEY', '')  
 
     # mysql configuration
     DB_USER = environ.get('DB_USER', 'dev')
@@ -66,12 +43,33 @@ class CommonBaseConfig:
     DB_PORT = environ.get('DB_PORT', '3306')
     DB_NAME = environ.get('DB_NAME', 'hoovada')
     DB_CHARSET = 'utf8mb4'
-
-    # other configurations
     BCRYPT_LOG_ROUNDS = 13 # Number of times a password is hashed
     DEBUG_TB_ENABLED = False  # Disable Debug toolbar
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ECHO = False
+
+    # Redis configuration
+    REDIS_PORT = environ.get('REDIS_PORT', '6379')
+    REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
+    REDIS_USER = environ.get('REDIS_USER', '')
+    REDIS_PASSWORD = environ.get('REDIS_PASSWORD', '')
+    REDIS_URL = 'redis://:' + REDIS_PASSWORD + '@' + environ.get('REDIS_URL', REDIS_HOST + ':' + REDIS_PORT)
+    # The maximum number of questions/articles seen by user that will be stored on the database
+    MAX_SEEN_CACHE = 10
+
+    # Wasabi service
+    S3_BUCKET = environ.get('S3_BUCKET', '') # test bucket
+    WASABI_ACCESS_KEY = environ.get('WASABI_ACCESS_KEY', '') # test bucket
+    WASABI_SECRET_ACCESS_KEY = environ.get('WASABI_SECRET_ACCESS_KEY', '')  
+
+
+    # RabbitMQ configuration
+    RABBITMQ_PORT = environ.get('RABBITMQ_PORT', '32520')
+    RABBITMQ_HOST = environ.get('RABBITMQ_HOST', '127.0.0.1')
+    RABBITMQ_USER = environ.get('RABBITMQ_USER', '')
+    RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD', '')
+    RABBITMQ_URL = 'amqp://' + RABBITMQ_USER + ':' + RABBITMQ_PASSWORD + '@' + environ.get('RABBITMQ_URL',  RABBITMQ_HOST + ':' + RABBITMQ_PORT)
 
     # social
     FACEBOOK_SECRET = environ.get('FACEBOOK_SECRET', '') 
@@ -91,24 +89,17 @@ class CommonBaseConfig:
     ]
     GOOGLE_PROFILE_URL = 'https://www.googleapis.com/oauth2/v1/userinfo'
     
-    # Twilio API credentials
-    # (find here https://www.twilio.com/console)
+    # Twilio API credentials  (https://www.twilio.com/console)
     TWILIO_ACCOUNT_SID = environ.get('TWILIO_ACCOUNT_SID', 'AC3bc87a9ca0dc5bcc55c263b00bd583c1')
     TWILIO_AUTH_TOKEN = environ.get('TWILIO_AUTH_TOKEN', 'b2e699d59ef37fb757260178cdf1e3bb') # TEST Credentials
-    # (create one here https://www.twilio.com/console/verify/services)
+    #  https://www.twilio.com/console/verify/services
     VERIFICATION_SID = environ.get('VERIFICATION_SID', 'VAc2d0ecc3630b615db53742c8ef825fbd')
     LIMIT_VERIFY_SMS_TIME = 60 # 60seconds
-
-    # The maximum number of questions/articles seen by user that will be stored on the database
-    MAX_SEEN_CACHE = 10
     
     # OneSignal Client Configurations
     ONESIGNAL_APP_ID = environ.get('ONESIGNAL_APP_ID', '')
     ONESIGNAL_REST_API_KEY = environ.get('ONESIGNAL_REST_API_KEY', '')
     ONESIGNAL_USER_AUTH_KEY = environ.get('ONESIGNAL_USER_AUTH_KEY', '')
-
-    JSON_AS_ASCII = False
-
 
 class CommonDevelopmentConfig(CommonBaseConfig):
     """Development configuration."""
