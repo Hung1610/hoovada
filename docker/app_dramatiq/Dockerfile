@@ -12,9 +12,14 @@ ENV TZ=Asia/Ho_Chi_Minh
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
 
-RUN addgroup app && groupmod -g 1002 app
+RUN addgroup app && groupmod -g 1000 app
 
 RUN adduser --ingroup app --home /dev/null --shell /usr/sbin/nologin app
+<<<<<<< HEAD
+=======
+
+RUN RUN usermod -u 1000 app
+>>>>>>> ff681c599cb0491530b39bceb6dd859f9f42bff7
 
 COPY --chown=app:app . /opt/
 
