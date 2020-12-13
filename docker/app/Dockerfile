@@ -14,7 +14,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN addgroup app && groupmod -g 1000 app
 
-RUN useradd -g app -d /dev/null -s /usr/sbin/nologin app && usermod -u 1000 app
+RUN adduser --ingroup app --home /dev/null --shell /usr/sbin/nologin app
 
 COPY --chown=app:app . /opt/
 
