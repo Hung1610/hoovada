@@ -16,7 +16,7 @@ from app.constants import messages
 from app.modules.user.friend.friend_dto import UserFriendDto
 from common.controllers.controller import Controller
 from common.models import Reputation, User, UserFriend
-from common.utils.response import send_error, send_result
+from common.utils.response import paginated_result, send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -25,40 +25,31 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class UserFriendController(Controller):
-    def get(self, object_id, args):
-        '''
-        Get/Search friends.
+    query_classname = 'UserFriend'
+    special_filtering_fields = ['from_date', 'to_date', 'user_id']
+    allowed_ordering_fields = ['created_date', 'updated_date']
 
-        Args:
-             The dictionary-like parameters.
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(UserFriend.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        if params.get('to_date'):
+            query = query.filter(UserFriend.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+        if params.get('user_id'):
+            g.friend_belong_to_user_id = params.get('user_id')
+            query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
 
-        Returns:
-        '''
-        
-        from_date, to_date = None, None
-        if 'from_date' in args:
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'to_date' in args:
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        return query
 
-        query = UserFriend.query
-        if object_id is not None:
-            g.friend_belong_to_user_id = object_id
-            query = query.filter(db.or_(UserFriend.friended_id == object_id, UserFriend.friend_id == object_id))
-        if from_date is not None:
-            query = query.filter(UserFriend.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(UserFriend.created_date <= to_date)
-
-        return send_result(data=marshal(query.all(), UserFriendDto.model_response), message='Success')
+    def get(self, args):
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            res['data'] = marshal(res['data'], UserFriendDto.model_response)
+            return res, code
+        except Exception as e:
+            print(e.__str__())
+            return send_error("Could not load error, please try again later.")
 
     def create(self, object_id):
         data = {}
