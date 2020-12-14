@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 # third-party modules
 import chardet
+from flask.templating import render_template
 import requests
 from flask import current_app, make_response, request
 from flask_restx import marshal
@@ -28,7 +29,7 @@ from common.utils.util import (check_password, check_verification,
                                decode_auth_token, encode_auth_token,
                                generate_confirmation_token,
                                get_response_message, is_valid_email,
-                               is_valid_username, send_confirmation_email,
+                               is_valid_username, send_confirmation_email, send_email,
                                send_password_reset_email,
                                send_verification_sms, validate_phone_number)
 
@@ -318,6 +319,9 @@ class AuthController:
                 if check_verification(phone_number, code):
                     user.confirmed = True
                     db.session.commit()
+                    html = render_template('welcome.html', \
+                        user=user)
+                    send_email(user.email, 'Welcome to Hoovada', html)
                     return send_result(message='Tài khoản của bạn đã được kích hoạt. vui lòng đăng nhập!')
                 return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
         else:
@@ -778,8 +782,10 @@ class AuthController:
             # user.email_confirmed = True
             user.email_confirmed_at = datetime.now()
             db.session.commit()
-            # response = {'message': "Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập."}
-            message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
+            html = render_template('welcome.html', \
+                user=user)
+            send_email(user.email, 'Welcome to Hoovada', html)
+            message = 'Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập.'
             return send_result(message=message)  # send_result(data=marshal(response, AuthDto.message_response))  # 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
         else:
             # message = 'Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a href="http://hoovada.com">hoovada.com</a> để yêu cầu mã xác thực mới.'
