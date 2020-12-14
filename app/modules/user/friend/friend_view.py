@@ -33,7 +33,7 @@ class FriendUserAll(Resource):
 
         args = _vote_get_params.parse_args()
         controller = UserFriendController()
-        return controller.get(object_id=None, args=args)
+        return controller.get(args=args)
 
 @api.route('/all/friend/<int:object_id>/approve')
 class FriendUserApprove(Resource):
@@ -64,8 +64,9 @@ class FriendUser(Resource):
         """
 
         args = _vote_get_params.parse_args()
+        args['user_id'] = user_id
         controller = UserFriendController()
-        return controller.get(object_id=user_id, args=args)
+        return controller.get(args=args)
 
     @token_required
     @api.response(code=200, model=_friend_response, description='The model for friend.')
