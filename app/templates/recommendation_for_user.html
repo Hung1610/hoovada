@@ -1,43 +1,300 @@
-<p>Xin chào, {{user.display_name}}!</p>
-<br>
-<p>Đây là danh sách câu hỏi và bài viết dành cho bạn.</p>
-<p>
-    <table>
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Username</th>
-          <th>Ngày đăng ký</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for question in recommended_questions %}
-        <tr>
-          <td>{{question.id}}</td>
-          <td>{{question.title}}</td>
-          <td>{{question.created_date}}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    <table>
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Username</th>
-          <th>Ngày đăng ký</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for article in recommended_articles %}
-        <tr>
-          <td>{{article.id}}</td>
-          <td>{{article.title}}</td>
-          <td>{{article.created_date}}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-</p>
-<br>
-<p>Trân trọng!</p>
+<div
+    style="font-family:roboto,sans-serif;border:1px solid #e0e0e0;background-color:white;max-width:600px;margin:0 auto">
+    <div style="background-color:#B92B27;padding:24px">
+        <div style="color:white;font-weight: 700;font-size: 20;padding-bottom:5px">HOOVADA</div>
+
+        <div style="color:white;font-size: 16;">Nền tảng chia sẻ kiến thức hàng đầu Việt Nam</div>
+    </div>
+
+
+    <div style="margin-bottom:24px;padding:20px 24px">
+        <div style="color: #333333;font-weight: 700;font-size: 20;padding-bottom:5px">
+            Hoovada - Câu hỏi và bài viết dành cho bạn
+        </div>
+        <div style="padding:20px 0px; ">
+            <div>Xin chào <span style="font-weight: 700">{{user.display_name}}</span>
+            </div>
+
+        </div>
+        <div>
+            <div>
+                <table style="border-collapse:collapse;border:0;width:100%" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="border-collapse:collapse"></td>
+                            <td style="border-collapse:collapse;border-bottom:1px solid #eee;height:1px;width:140px"
+                                width="140" height="1"></td>
+                            <td style="border-collapse:collapse"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table cellspacing="0" border="0" style="border-collapse:collapse;width:100%" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="border-collapse:collapse;padding:20px 0;border-bottom:0">
+                                <table cellpadding="0" cellspacing="0" border="0"
+                                    style="border-collapse:collapse;width:100%" width="100%">
+                                    <tbody>
+                                        {% for question in recommended_questions %}
+                                        <tr>
+                                            <td style="border-collapse:collapse;padding-bottom:4px">
+                                                <table cellpadding="0" cellspacing="0" border="0"
+                                                    style="border-collapse:collapse">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td valign="top" style="border-collapse:collapse"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-collapse:collapse"><a
+                                                    href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                    style="text-decoration:none;display:block;font-size:19px;letter-spacing:-0.5px;font-weight:bold;color:#333;line-height:1.4"
+                                                    target="_blank"><span class="m_2168602734928602428rendered_qtext"
+                                                        style="word-break:break-word">{{question.title}}
+                                                        ?</span></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-collapse:collapse">
+                                                <table cellpadding="0" cellspacing="0" border="0"
+                                                    style="border-collapse:collapse;width:100%" width="100%">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="border-collapse:collapse;padding:8px 0">
+                                                                <table cellpadding="0" cellspacing="0" border="0"
+                                                                    style="border-collapse:collapse">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td style="border-collapse:collapse;vertical-align:top"
+                                                                                valign="top"><a
+                                                                                    href="https://staging.hoovada.com/profile/{{question.user.display_name}}"
+                                                                                    style="text-decoration:none;color:#2b6dad"
+                                                                                    target="_blank">
+                                                                                    <div>
+                                                                                        <div>
+                                                                                            <div> </div>
+                                                                                        </div><span><img
+                                                                                                src="https://s3.wasabisys.com/hoovada/{{question.user.profile_pic_url}}"
+                                                                                                alt="Thanh"
+                                                                                                style="outline:0;text-decoration:none;border:0;display:block;height:40px;width:40px;border-radius:100px;border-style:none"
+                                                                                                height="40"
+                                                                                                width="40"></span>
+                                                                                    </div>
+                                                                                </a></td>
+                                                                            <td
+                                                                                style="border-collapse:collapse;padding-left:8px;color:#333">
+                                                                                <table cellpadding="0" cellspacing="0"
+                                                                                    border="0"
+                                                                                    style="border-collapse:collapse">
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style="border-collapse:collapse">
+                                                                                                <a href="https://staging.hoovada.com/profile/{{question.user.display_name}}"
+                                                                                                    style="text-decoration:none;color:#333;font-weight:bold;font-size:15px;line-height:1.4"
+                                                                                                    target="_blank">{{question.user.display_name}}</a><span
+                                                                                                    style="font-size:15px;line-height:1.4"></span>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style="border-collapse:collapse;color:#999;font-size:13px">
+                                                                                                <a href="https://staging.hoovada.com/profile/{{question.user.display_name}}"
+                                                                                                    style="text-decoration:none;color:#999"
+                                                                                                    target="_blank">Cập
+                                                                                                    nhật lúc: {{question.updated_date}}</a></td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td
+                                                                style="border-collapse:collapse;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;color:#333;font-size:15px;line-height:1.4">
+                                                                <a href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                    style="text-decoration:none;color:#333333"
+                                                                    target="_blank"></a>
+                                                                <div><a href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                        style="text-decoration:none;color:#333333"
+                                                                        target="_blank"></a>
+                                                                    <div style="display:inline;line-height:1.6"><a
+                                                                            href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                            style="text-decoration:none;color:#333333"
+                                                                            target="_blank"><span
+                                                                                style="word-break:break-word">
+
+                                                                                <p
+                                                                                    style="margin:1em 0;display:inline;line-height:1.6">
+                                                                                    {{question.question}}
+                                                                                </p>
+                                                                            </span> </a><a
+                                                                            href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                            style="text-decoration:none;color:#168de9"
+                                                                            target="_blank">Read
+                                                                            More »</a></div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table cellspacing="0" border="0" style="border-collapse:collapse;width:100%" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="border-collapse:collapse;padding:20px 0;border-bottom:0">
+                                <table cellpadding="0" cellspacing="0" border="0"
+                                    style="border-collapse:collapse;width:100%" width="100%">
+                                    <tbody>
+                                        {% for article in recommended_articles %}
+                                        <tr>
+                                            <td style="border-collapse:collapse;padding-bottom:4px">
+                                                <table cellpadding="0" cellspacing="0" border="0"
+                                                    style="border-collapse:collapse">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td valign="top" style="border-collapse:collapse"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-collapse:collapse"><a
+                                                    href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                    style="text-decoration:none;display:block;font-size:19px;letter-spacing:-0.5px;font-weight:bold;color:#333;line-height:1.4"
+                                                    target="_blank"><span class="m_2168602734928602428rendered_qtext"
+                                                        style="word-break:break-word">{{article.title}}
+                                                        ?</span></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-collapse:collapse">
+                                                <table cellpadding="0" cellspacing="0" border="0"
+                                                    style="border-collapse:collapse;width:100%" width="100%">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="border-collapse:collapse;padding:8px 0">
+                                                                <table cellpadding="0" cellspacing="0" border="0"
+                                                                    style="border-collapse:collapse">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td style="border-collapse:collapse;vertical-align:top"
+                                                                                valign="top"><a
+                                                                                    href="https://staging.hoovada.com/profile/{{article.article_by_user.display_name}}"
+                                                                                    style="text-decoration:none;color:#2b6dad"
+                                                                                    target="_blank">
+                                                                                    <div>
+                                                                                        <div>
+                                                                                            <div> </div>
+                                                                                        </div><span><img
+                                                                                                src="https://s3.wasabisys.com/hoovada/{{article.article_by_user.profile_pic_url}}"
+                                                                                                alt="Thanh"
+                                                                                                style="outline:0;text-decoration:none;border:0;display:block;height:40px;width:40px;border-radius:100px;border-style:none"
+                                                                                                height="40"
+                                                                                                width="40"></span>
+                                                                                    </div>
+                                                                                </a></td>
+                                                                            <td
+                                                                                style="border-collapse:collapse;padding-left:8px;color:#333">
+                                                                                <table cellpadding="0" cellspacing="0"
+                                                                                    border="0"
+                                                                                    style="border-collapse:collapse">
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style="border-collapse:collapse">
+                                                                                                <a href="https://staging.hoovada.com/profile/{{article.article_by_user.display_name}}"
+                                                                                                    style="text-decoration:none;color:#333;font-weight:bold;font-size:15px;line-height:1.4"
+                                                                                                    target="_blank">{{article.article_by_user.display_name}}</a><span
+                                                                                                    style="font-size:15px;line-height:1.4"></span>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style="border-collapse:collapse;color:#999;font-size:13px">
+                                                                                                <a href="https://staging.hoovada.com/profile/{{article.article_by_user.display_name}}"
+                                                                                                    style="text-decoration:none;color:#999"
+                                                                                                    target="_blank">Cập
+                                                                                                    nhật lúc: {{article.updated_date}}</a></td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td
+                                                                style="border-collapse:collapse;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;color:#333;font-size:15px;line-height:1.4">
+                                                                <a href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                    style="text-decoration:none;color:#333333"
+                                                                    target="_blank"></a>
+                                                                <div><a href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                        style="text-decoration:none;color:#333333"
+                                                                        target="_blank"></a>
+                                                                    <div style="display:inline;line-height:1.6"><a
+                                                                            href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                            style="text-decoration:none;color:#333333"
+                                                                            target="_blank"><span
+                                                                                style="word-break:break-word">
+
+                                                                                <p
+                                                                                    style="margin:1em 0;display:inline;line-height:1.6">
+                                                                                    {{article.html}}
+                                                                                </p>
+                                                                            </span> </a><a
+                                                                            href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                            style="text-decoration:none;color:#168de9"
+                                                                            target="_blank">Read
+                                                                            More »</a></div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+
+
+
+            <div style="background-color:#eceff1;padding:24px;font-size:12px;line-height:16px">
+                <div style="color:#757575;text-align:center">Tin nhắn đã được gửi đi từ Hoovada.com tới
+                    {{user.email}}.</div>
+                <div style="margin-top:20px">
+                    <div style="color:#757575;text-align:center">Nếu bạn không muốn nhận những email này từ Hoovada.com
+                        trong tương lai, vui lòng nhấp vào <a
+                            href="https://console.firebase.google.com/subscriptions/project/sales-guns-v2"
+                            style="text-decoration:none;color:#B92B27;font-weight: 700;" target="_blank"
+                            data-saferedirecturl="https://www.google.com/url?q=https://console.firebase.google.com/subscriptions/project/sales-guns-v2&amp;source=gmail&amp;ust=1607880740734000&amp;usg=AFQjCNFzpTNrP4WiaeNlD8CSdNYcvHkwlg">hủy
+                            đăng ký</a></div>
+                </div>
+            </div>
+        </div>
+
+    </div>

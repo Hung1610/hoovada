@@ -29,6 +29,28 @@ class AnswerDto(Dto):
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
+    model_topic = api.model('topic_for_question', {
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
+        'color_code': fields.String(description='The color code for topic'),
+        'name': fields.String(description='The name of the topic'),
+        'description': fields.String(description='Description about topic')
+    })
+
+    answer_question = api.model('answer_question', {
+        'id': fields.Integer(readonly=True, description=''),
+        'title': fields.String(description='The title of the question'),
+        'slug': fields.String(description='The slug of the question'),
+        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
+        'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
+        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
+        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
+        'created_date': fields.DateTime(description='The created date'),
+        'updated_date': fields.DateTime(description='The updated date'),
+        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+    })
+
+
     model_comment_request = api.model('comment_answer_request', {
         'comment': fields.String(required=True, description='The content of the comment'),
         # 'question_id': fields.Integer(required=False),
@@ -56,6 +78,7 @@ class AnswerDto(Dto):
         'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
         'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
+        'question': fields.Nested(answer_question, description='The user information'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),

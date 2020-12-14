@@ -58,7 +58,6 @@ def update_seen_questions(question_id, user_id):
     new_cache.question_id = question_id
     db.session.add(new_cache)
     db.session.commit()
-
         
 @dramatiq.actor()
 def update_seen_articles(article_id, user_id):
@@ -80,27 +79,26 @@ def update_seen_articles(article_id, user_id):
     new_cache.article_id = article_id
     db.session.add(new_cache)
     db.session.commit()
-    pass
 
 @dramatiq.actor()
 def send_weekly_recommendation_mails():
     User = db.get_model('User')
 
-    users = User.query\
+    users = User.query.with_entities(User.id)\
         .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
-    for user in users:
-        send_recommendation_mail(user.id)
+    for user_id in users:
+        send_recommendation_mail(user_id[0])
 
 @dramatiq.actor()
 def send_daily_recommendation_mails():
     User = db.get_model('User')
 
-    users = User.query\
+    users = User.query.with_entities(User.id)\
         .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
-    for user in users:
-        send_recommendation_mail(user.id)
+    for user_id in users:
+        send_recommendation_mail(user_id[0])
 
 @dramatiq.actor()
 def send_daily_similar_mails():
@@ -110,7 +108,7 @@ def send_daily_similar_mails():
         .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
     for user_id in users:
-        send_similar_mail.send(user_id)
+        send_similar_mail.send(user_id[0])
 
 @dramatiq.actor()
 def send_weekly_similar_mails():
@@ -120,7 +118,7 @@ def send_weekly_similar_mails():
         .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
     for user_id in users:
-        send_similar_mail.send(user_id)
+        send_similar_mail.send(user_id[0])
 
 @dramatiq.actor()
 def send_recommendation_mail(user_id):
@@ -131,7 +129,7 @@ def send_recommendation_mail(user_id):
     User = db.get_model('User')
     user = User.query.get(user_id)
     if user.email:
-        followed_topic_ids = TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()
+        followed_topic_ids = [topic_id[0] for topic_id in TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()]
         recommended_questions = Question.query.filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
         recommended_articles = Article.query.filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
         html = render_template('recommendation_for_user.html', \
@@ -152,18 +150,18 @@ def send_similar_mail(user_id):
             .filter(UserSeenQuestion.user_id == user.id)\
             .order_by(db.asc(UserSeenQuestion.created_date))\
             .distinct()
-        recommended_question_ids = {}
+        recommended_question_ids = set()
         for seen_question_id in seen_question_ids:
-            seen_question = Question.query.get(seen_question_id)
+            seen_question = Question.query.get(seen_question_id[0])
             title_similarity = db.func.SIMILARITY_STRING(db.text('title'), seen_question.title).label('title_similarity')
             questions = Question.query.with_entities(Question.id)\
-                .filter(Question.id != seen_question_id)\
+                .filter(Question.id != seen_question_id[0])\
                 .filter(Question.is_private == False)\
                 .filter(title_similarity > 75)\
                 .order_by(db.desc(title_similarity))\
                 .limit(10)\
                 .all()
-            recommended_question_ids.update(questions)
+            recommended_question_ids.update([question[0] for question in questions])
         recommended_questions = Question.query.filter(Question.id.in_(recommended_question_ids))
 
         seen_article_ids = UserSeenArticle.query\
@@ -171,17 +169,17 @@ def send_similar_mail(user_id):
             .filter(UserSeenArticle.user_id == user.id)\
             .order_by(db.asc(UserSeenArticle.created_date))\
             .distinct()
-        recommended_article_ids = {}
+        recommended_article_ids = set()
         for seen_article_id in seen_article_ids:
-            seen_article = Article.query.get(seen_article_id)
+            seen_article = Article.query.get(seen_article_id[0])
             title_similarity = db.func.SIMILARITY_STRING(db.text('title'), seen_article.title).label('title_similarity')
             articles = Article.query.with_entities(Article.id)\
-                .filter(Article.id != seen_article_id)\
+                .filter(Article.id != seen_article_id[0])\
                 .filter(title_similarity > 75)\
                 .order_by(db.desc(title_similarity))\
                 .limit(10)\
                 .all()
-            recommended_article_ids.update(articles)
+            recommended_article_ids.update([article[0] for article in articles])
         recommended_articles = Article.query.filter(Article.id.in_(recommended_article_ids))
         
 

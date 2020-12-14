@@ -127,9 +127,8 @@ def send_password_reset_email(to):
     """
     
     token = generate_confirmation_token(email=to)
-    confirm_url = request.url_root + 'auth/password-reset-email-confirm/' + token
-    html = render_template('reset_password.html', confirm_url=confirm_url)
-    send_email(to, 'Yêu cầu thay đổi mật khẩu', html)
+    html = render_template('reset_password.html', token=token)
+    send_email(to, 'Hoovada Password Reset', html)
 
 
 def get_response_message(message):
