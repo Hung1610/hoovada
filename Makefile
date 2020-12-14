@@ -30,7 +30,7 @@ push:
 deploy:
 	@kubectl set image deployment/app app=${API_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
 	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-staging --record
 
 all: build push deploy
 
@@ -48,7 +48,7 @@ push-live:
 deploy-live:
 	@kubectl set image deployment/api api=${API_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
 	@kubectl set image deployment/socketio socketio=${API_TEST} nginx=${NGINX_LIVE} -n hoovada-live --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_LIVE} nginx=${NGINX_TEST} -n hoovada-staging --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_LIVE} -n hoovada-staging --record
 
 all-live: build-live push-live deploy-live
 
