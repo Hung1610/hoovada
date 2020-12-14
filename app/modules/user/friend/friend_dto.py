@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse
 
 # own modules
@@ -51,3 +52,6 @@ class UserFriendDto(Dto):
     model_get_parser = reqparse.RequestParser()
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search all friends by start voting date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search all friends by finish voting date.')
+    model_get_parser.add_argument('is_approved', type=inputs.boolean, required=False, help='Get all approved friends in database.')
+    model_get_parser.add_argument('friend_id', type=int, required=False, help='Search all friends by requested by user id.')
+    model_get_parser.add_argument('friended_id', type=int, required=False, help='Search all friends by requested to user id.')

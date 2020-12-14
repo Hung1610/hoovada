@@ -81,6 +81,20 @@ def update_seen_articles(article_id, user_id):
     db.session.commit()
 
 @dramatiq.actor()
+def update_reputation(topic_id, voter_id):
+    Reputation = db.get_model('Reputation')
+    # Find reputation
+    reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, \
+        Reputation.topic_id == topic_id).first()
+    if reputation_creator is None:
+        reputation_creator = Reputation()
+        reputation_creator.user_id = voter_id
+        reputation_creator.topic_id = topic_id
+        db.session.add(reputation_creator)
+    # Set reputation score
+    reputation_creator.updated_date = datetime.datetime.now()
+
+@dramatiq.actor()
 def send_weekly_recommendation_mails():
     User = db.get_model('User')
 
@@ -88,7 +102,7 @@ def send_weekly_recommendation_mails():
         .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
     for user_id in users:
-        send_recommendation_mail(user_id[0])
+        send_recommendation_mail.send(user_id[0])
 
 @dramatiq.actor()
 def send_daily_recommendation_mails():
@@ -98,7 +112,7 @@ def send_daily_recommendation_mails():
         .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
     for user_id in users:
-        send_recommendation_mail(user_id[0])
+        send_recommendation_mail.send(user_id[0])
 
 @dramatiq.actor()
 def send_daily_similar_mails():
@@ -186,3 +200,37 @@ def send_similar_mail(user_id):
         html = render_template('similar_for_user.html', \
             user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
         send_email(user.email, 'Similar Questions and Articles On Hoovada', html)
+
+@dramatiq.actor()
+def send_daily_new_topics():
+    User = db.get_model('User')
+
+    users = User.query.with_entities(User.id)\
+        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
+
+    for user_id in users:
+        send_new_topics.send(user_id[0])
+
+@dramatiq.actor()
+def send_weekly_new_topics():
+    User = db.get_model('User')
+
+    users = User.query.with_entities(User.id)\
+        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
+
+    for user_id in users:
+        send_new_topics.send(user_id[0])
+
+@dramatiq.actor()
+def send_new_topics(user_id):
+    Topic = db.get_model('Topic')
+    User = db.get_model('User')
+
+    user = User.query.get(user_id)
+
+    today_minus_one_week = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    topics = Topic.query.filter(Topic.created_date > today_minus_one_week).all()
+
+    html = render_template('new_topics.html', user=user, topics=topics)
+    if user.email:
+        send_email(user.email, 'New Topics On Hoovada', html)

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.dramatiq_producers import update_reputation
 from datetime import datetime
 
 # third-party modules
@@ -114,24 +115,9 @@ class AnswerVoteController(Controller):
             user_voted = answer.user
             for topic in answer.question.topics:
                 # Answer creator rep
-                reputation_creator = Reputation.query.filter(Reputation.user_id == user_voted.id, \
-                    Reputation.topic_id == topic.id).first()
-                if reputation_creator is None:
-                    reputation_creator = Reputation()
-                    reputation_creator.user_id = user_voted.id
-                    reputation_creator.topic_id = topic.id
-                    db.session.add(reputation_creator)
+                update_reputation.send(topic.id, user_voted.id)
                 # Answer voter rep
-                reputation_voter = Reputation.query.filter(Reputation.user_id == current_user.id, \
-                    Reputation.topic_id == topic.id).first()
-                if reputation_voter is None:
-                    reputation_voter = Reputation()
-                    reputation_voter.user_id = current_user.id
-                    reputation_voter.topic_id = topic.id
-                    db.session.add(reputation_voter)
-                # Set reputation score
-                reputation_creator.updated_date = datetime.now()
-                reputation_voter.updated_date = datetime.now()
+                update_reputation.send(topic.id, current_user.id)
             db.session.commit()
             return send_result(data=marshal(vote, AnswerVoteDto.model_response), message='Success')
         except Exception as e:

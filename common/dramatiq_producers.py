@@ -48,6 +48,10 @@ def update_seen_articles(article_id, user_id):
     pass
 
 @dramatiq.actor()
+def update_reputation(topic_id, voter_id):
+    pass
+
+@dramatiq.actor()
 def send_weekly_recommendation_mails():
     pass
 
@@ -69,4 +73,16 @@ def send_recommendation_mail(user_id):
 
 @dramatiq.actor()
 def send_similar_mail(user_id):
+    pass
+
+@dramatiq.actor()
+def send_daily_new_topics():
+    pass
+
+@dramatiq.actor()
+def send_weekly_new_topics():
+    pass
+
+@dramatiq.actor()
+def send_new_topics(user_id):
     pass
