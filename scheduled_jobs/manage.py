@@ -13,7 +13,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 # own modules
-from common.dramatiq_producers import send_daily_recommendation_mails, send_daily_similar_mails, send_weekly_recommendation_mails, send_weekly_registered_users, send_weekly_similar_mails
+from common.dramatiq_producers import send_daily_new_topics, send_daily_recommendation_mails, send_daily_similar_mails, send_weekly_new_topics, send_weekly_recommendation_mails, send_weekly_registered_users, send_weekly_similar_mails
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,8 +23,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 REDIS_PORT = environ.get('REDIS_PORT', '6380')
 REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PASSWORD = environ.get('REDIS_PASSWORD', 'hoovada')
-
-timeRan = 1
 
 def send_registered_user_emails_job():
     """ Send email notification to admin. Contains list of newly registered users
@@ -65,6 +63,22 @@ def send_weekly_similar_emails_job():
         None
     """
     send_weekly_similar_mails.send()
+
+def send_daily_new_topics_job():
+    """ Send daily emails to users. Contain new topics.
+
+    Returns:
+        None
+    """
+    send_daily_new_topics.send()
+
+def send_weekly_new_topics_job():
+    """ Send weekly emails to users. Contain new topics.
+
+    Returns:
+        None
+    """
+    send_weekly_new_topics.send()
 
 def health_check():
     print('BACKGROUND JOB WORKING ', datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
