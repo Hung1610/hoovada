@@ -18,7 +18,7 @@ NGINX_LIVE				:= ${REGISTRY}:nginx-${VERSION}-${DATE}
 build:
 	@docker build -t ${API_TEST} -f ./docker/app/Dockerfile .
 	@docker build -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
-	@docker build -t ${SCHEDULED_JOBS_TEST} -f ./docker/schduduled_jobs/Dockerfile .
+	@docker build -t ${SCHEDULED_JOBS_TEST} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX_TEST} -f ./docker/nginx/Dockerfile .
 
 push:
@@ -37,7 +37,7 @@ all: build push deploy
 build-live:
 	@docker build -t ${API_LIVE} -f ./docker/app/Dockerfile .
 	@docker build -t ${SOCKETIO_LIVE} -f ./docker/app_socketio/Dockerfile .
-	@docker build -t ${SCHEDULED_JOBS_LIVE} -f ./docker/schduduled_jobs/Dockerfile .
+	@docker build -t ${SCHEDULED_JOBS_LIVE} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX_LIVE} -f ./docker/nginx/Dockerfile .
 
 push-live:
