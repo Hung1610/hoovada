@@ -1,29 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
 # built-in modules
-import os
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, g, request, url_for
+from flask import current_app, g, request
 from flask_restx import marshal
-from sqlalchemy import desc
-from werkzeug.utils import secure_filename
 
 # own modules
 from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from common.controllers.controller import Controller
+from common.utils.onesignal_notif import push_basic_notification, push_notif_to_specific_users
 from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import UserRole
-from common.utils.util import encode_file_name
+from common.utils.util import encode_file_name, send_answer_notif_email
 from common.utils.wasabi import upload_file
 
 __author__ = "hoovada.com team"
@@ -73,6 +70,13 @@ class AnswerController(Controller):
             db.session.add(answer)
             db.session.commit()
             result = answer._asdict()
+            if answer.question.user:
+                if answer.question.user.is_online:
+                    display_name = answer.user.display_name if answer.user else 'Khách'
+                    message = '[Thông báo] ' + display_name + ' đã trả lời câu hỏi của bạn!'
+                    push_notif_to_specific_users(message, [answer.question.user_id])
+                else:
+                    send_answer_notif_email(answer.question.user, answer, answer.question)
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
