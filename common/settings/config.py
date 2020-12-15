@@ -101,9 +101,9 @@ class CommonBaseConfig:
     MAX_SEEN_CACHE = 10
     
     # OneSignal Client Configurations
-    ONESIGNAL_APP_ID = environ.get('ONESIGNAL_APP_ID', '')
-    ONESIGNAL_REST_API_KEY = environ.get('ONESIGNAL_REST_API_KEY', '')
-    ONESIGNAL_USER_AUTH_KEY = environ.get('ONESIGNAL_USER_AUTH_KEY', '')
+    ONESIGNAL_APP_ID = environ.get('ONESIGNAL_APP_ID', '63d2ac15-58eb-49b0-b81e-a8b4582bd386')
+    ONESIGNAL_REST_API_KEY = environ.get('ONESIGNAL_REST_API_KEY', 'YWI1YTE4ZWUtNDU4Yi00MTdlLThjMzItMDE3YjA0ZDI0MjQ3')
+    ONESIGNAL_USER_AUTH_KEY = environ.get('ONESIGNAL_USER_AUTH_KEY', 'MGYxMDk1NmItYzRhMS00NGZkLWEyNmItZmY2MjdjZGJjZDA1')
 
     JSON_AS_ASCII = False
 
