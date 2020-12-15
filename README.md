@@ -30,10 +30,10 @@ Project Overview
 ### Services
 
 - Storage provider: wasabi
-- Email delivery service: sendgrid
 - SMS service: twilio
 - Infrastructure provider: digital ocean
 - Hostname provider: namecheap
+- notification: onesignal
 
 
 ### Future consideration
