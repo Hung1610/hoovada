@@ -36,7 +36,7 @@ def send_weekly_registered_users():
 
     html = render_template('admin_registered_users_notification.html', users=users)
     for admin_email in current_app.config['MAIL_ADMINS']:
-        send_email(admin_email, 'User Registered On Hoovada', html)
+        send_email(admin_email, 'Người dùng mới đăng ký -Hoovada', html)
 
 @dramatiq.actor()
 def update_seen_questions(question_id, user_id):
@@ -146,9 +146,10 @@ def send_recommendation_mail(user_id):
         followed_topic_ids = [topic_id[0] for topic_id in TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()]
         recommended_questions = Question.query.filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
         recommended_articles = Article.query.filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
-        html = render_template('recommendation_for_user.html', \
-            user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
-        send_email(user.email, 'Recommended Questions and Articles On Hoovada', html)
+        if (recommended_articles.count() + recommended_questions.count()) > 0:
+            html = render_template('recommendation_for_user.html', \
+                user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
+            send_email(user.email, 'Câu hỏi và bài viết dành cho bạn - Hoovada', html)
 
 @dramatiq.actor()
 def send_similar_mail(user_id):
@@ -196,10 +197,11 @@ def send_similar_mail(user_id):
             recommended_article_ids.update([article[0] for article in articles])
         recommended_articles = Article.query.filter(Article.id.in_(recommended_article_ids))
         
-
-        html = render_template('similar_for_user.html', \
-            user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
-        send_email(user.email, 'Similar Questions and Articles On Hoovada', html)
+        
+        if (recommended_articles.count() + recommended_questions.count()) > 0:
+            html = render_template('similar_for_user.html', \
+                user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
+            send_email(user.email, 'Câu hỏi và bài viết liên quan - Hoovada', html)
 
 @dramatiq.actor()
 def send_daily_new_topics():
@@ -231,6 +233,7 @@ def send_new_topics(user_id):
     today_minus_one_week = datetime.datetime.now() - datetime.timedelta(weeks=1)
     topics = Topic.query.filter(Topic.created_date > today_minus_one_week).all()
 
-    html = render_template('new_topics.html', user=user, topics=topics)
-    if user.email:
-        send_email(user.email, 'New Topics On Hoovada', html)
+    if topics.count() > 0:
+        html = render_template('new_topics.html', user=user, topics=topics)
+        if user.email:
+            send_email(user.email, 'Chủ đề mới - Hoovada', html)

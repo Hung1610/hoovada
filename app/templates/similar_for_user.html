@@ -131,7 +131,7 @@
 
                                                                                 <p
                                                                                     style="margin:1em 0;display:inline;line-height:1.6">
-                                                                                    {{question.question}}
+                                                                                    {{question.question|safe}}
                                                                                 </p>
                                                                             </span> </a><a
                                                                             href="https://staging.hoovada.com/question/{{question.slug}}"
@@ -255,7 +255,7 @@
 
                                                                                 <p
                                                                                     style="margin:1em 0;display:inline;line-height:1.6">
-                                                                                    {{article.html}}
+                                                                                    {{article.html|safe}}
                                                                                 </p>
                                                                             </span> </a><a
                                                                             href="https://staging.hoovada.com/article/{{article.slug}}"
