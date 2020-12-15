@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
 import datetime
 from os import environ
+import time
 
 # third-party modules
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
@@ -85,7 +86,7 @@ def health_check():
 
 def get_scheduler():
     # ApScheduler
-    scheduler = BlockingScheduler()
+    scheduler = BackgroundScheduler()
     
     redis_job_store = RedisJobStore(db=1,\
             host=REDIS_HOST,\
@@ -124,3 +125,5 @@ if __name__ == "__main__":
     except Exception as e: 
         pass
     apscheduler.start()
+    while True:
+        time.sleep(1)
