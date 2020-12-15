@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.utils.onesignal_notif import push_notif_to_specific_users
-from common.utils.util import send_answer_notif_email, send_article_comment_notif_email
 from datetime import datetime
 
 from flask import current_app, request
@@ -13,6 +11,8 @@ from flask_restx import marshal
 # own modules
 from common.db import db
 from app.modules.article.comment.comment_dto import CommentDto
+from common.utils.onesignal_notif import push_notif_to_specific_users
+from common.utils.util import send_article_comment_notif_email
 from common.controllers.comment_controller import BaseCommentController
 from common.models import Article, ArticleComment, User
 from common.utils.permission import has_permission
