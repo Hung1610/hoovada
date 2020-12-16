@@ -131,6 +131,18 @@ def send_password_reset_email(to):
     send_email(to, 'Hoovada Password Reset', html)
 
 
+def send_answer_notif_email(user, answer, question):
+    if user:
+        html = render_template('notif_answer.html', user=user, answer=answer, question=question)
+        send_email(user.email, 'Hoovada - Có người trả lời cẩu hỏi', html)
+
+
+def send_article_comment_notif_email(user, comment, article):
+    if user:
+        html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
+        send_email(user.email, 'Hoovada - Có người trả lời cẩu hỏi', html)
+
+
 def get_response_message(message):
     """ Get HTML message to return to user.
 
