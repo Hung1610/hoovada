@@ -249,7 +249,7 @@ class AuthController:
             try:
                 db.session.add(user)
                 db.session.commit()
-                return send_result(message=messages.MSG_PHONE_ACTIVATION_CODE_SENT.format(phone_number))
+                return send_result(message=messages.MSG_PHONE_CODE_SENT.format(phone_number))
             
             except Exception as e:
                 print(e.__str__())
@@ -278,7 +278,7 @@ class AuthController:
         
         if user:
             if user.confirmed:
-                return send_error(message='Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập!')
+                return send_error(message=messages.MSG_ACC_ALREADY_ACTIVATED)
 
             else:
                 if check_verification(phone_number, code):
@@ -286,7 +286,7 @@ class AuthController:
                     db.session.commit()
                     html = render_template('welcome.html', user=user)
                     send_email(user.email, 'Welcome to Hoovada', html)
-                    return send_result(message='Tài khoản của bạn đã được kích hoạt. vui lòng đăng nhập!')
+                    return send_result(message=messages.MSG_ACC_ALREADY_ACTIVATED)
 
                 return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
         else:
@@ -583,7 +583,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_CONFIMED_PASSWORD)
             
         if len(check_password(password)) > 0:
-            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt!')
+            return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
 
         user, _ = current_app.get_logged_user(request)
         if user and user.check_password(old_password):
@@ -659,10 +659,10 @@ class AuthController:
             return send_error(message='Vui lòng cung cấp token!') 
 
         if not 'token_type' in data or str(data['token_type']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp token type!')  # Pleases provide a token type. (email/phone)
+            return send_error(message='Vui lòng cung cấp token type!')
         
         if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)  # Pleases provide the old password.
+            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
             return send_error(message='Vui lòng cung cấp mật khẩu!') 
@@ -676,7 +676,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_CONFIMED_PASSWORD)
             
         if len(check_password(password)) > 0:
-            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt!')
+            return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
 
         if token_type == 'email':
             email = confirm_token(token)
@@ -725,32 +725,29 @@ class AuthController:
         if user:
             if user.confirmed:
                 message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
-                return send_result(message=message)  # send_result(data=marshal(response, AuthDto.message_response))
+                return send_result(message=message)
 
             user.confirmed = True
-            # user.active = True
-            # user.email_confirmed = True
             user.email_confirmed_at = datetime.now()
             db.session.commit()
-            html = render_template('welcome.html', \
-                user=user)
+            html = render_template('welcome.html', user=user)
             send_email(user.email, 'Welcome to Hoovada', html)
             message = 'Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập.'
-            return send_result(message=message)  # send_result(data=marshal(response, AuthDto.message_response))  # 'Your email has been activated. Please login.'  # send_result(message='Account confirmation was successfully.')
+            return send_result(message=message)
         
         else:
-            # message = 'Mã kích hoạt của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang Web <a href="http://hoovada.com">hoovada.com</a> để yêu cầu mã xác thực mới.'
             message = 'Ma kich hoat của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_result(message=message) 
 
     # @staticmethod
     def login_user(self, data):
-        """ Login user handling.
-        """
+        """ Login user handling."""
+
         try:
             banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
             if banned:
                 raise send_error(message=messages.ERR_BANNED_EMAIL)
+
             user = User.query.filter_by(email=data['email']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:
@@ -758,18 +755,16 @@ class AuthController:
                     return send_error( message='Tai khoan email cua ban chua duoc xac nhan. Vui long dang nhap hop thu cua ban de tien hanh xac thuc.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
                 
                 auth_token = encode_auth_token(user_id=user.id)
-                # if user.blocked:
-                #     return None  # error(message='User has been blocked')
+
                 if auth_token:
                     return send_result(data={'access_token': auth_token.decode('utf8')})
-                    # return send_result(message=auth_token)  # user
-            
+
             else:
-                return send_error(message='Email hoặc mật khẩu không đúng, vui lòng thử lại!')  # Email or Password does not match')
+                return send_error(message='Email hoặc mật khẩu không đúng, vui lòng thử lại!')
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Không thể đăng nhập, vui lòng thử lại!')  # Could not login, please try again later. Error {}'.format(e.__str__()))
+            return send_error(message='Không thể đăng nhập, vui lòng thử lại!')
 
     # @staticmethod
     def logout_user(self, req):
@@ -777,28 +772,22 @@ class AuthController:
 
         auth_token = None
         api_key = None
-        # auth = False
         if 'X-API-KEY' in req.headers:
             api_key = req.headers['X-API-KEY']
         if 'Authorization' in req.headers:
             auth_token = req.headers.get('Authorization')
         if not auth_token and not api_key:
-            # auth = False
             return None
         if api_key is not None:
             auth_token = api_key
         if auth_token:
-            # get user information, check user exist
             user_id, _ = decode_auth_token(auth_token=auth_token)
             user = User.query.filter_by(id=user_id).first()
             if user is not None:
                 user.active = False
                 user.last_seen = datetime.now()
                 db.session.commit()
-            # save token to backlist.
-            # save_token(token=auth_token)
             return send_result(message='You are logged out.')
-            # return redirect('') # to logout page
         else:
             return send_error(message='Provide a valid auth token')
 
@@ -809,22 +798,3 @@ class AuthController:
         if user is None:
             return send_error(message='You are not logged in.')
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
-
-        # auth_token = new_request.headers.get('Authorization')
-        # if auth_token:
-        #     auth_token = auth_token.split(' ')[1]
-        #     resp = User.decode_auth_token(auth_token)
-        #     if not isinstance(resp, str):
-        #         user = User.query.filter_by(user_id=resp).first()
-        #         return user  # tra lai JSON tương ứng về các roles đang thực hiện và các orders.
-        #         # # print(user)
-        #         # res = {
-        #         #         'user_id': user.user_id,
-        #         #         'email': user.email,
-        #         #         'role': user.role,
-        #         #         'name': user.name
-        #         #         }
-        #         # return result(data=res)
-        #     return None  # error(message=resp)
-        # else:
-        #     return None  # error(message='Provide a valid auth token')
