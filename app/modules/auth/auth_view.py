@@ -43,9 +43,8 @@ class SmsRegister(Resource):
 
     @api.expect(_auth_sms_register)
     def post(self):
-        """ 
-        Register new user with mobile.
-        """
+        """ Register new user with mobile."""
+        
         post_data = request.json
         controller = AuthController()
         return controller.sms_register(post_data)
@@ -56,9 +55,7 @@ class SmsConfirm(Resource):
 
     @api.expect(_auth_confirm_sms)
     def post(self):
-        """ 
-        Check confirmation sms code.
-        """
+        """ Check confirmation sms code"""
 
         post_data = request.json
         controller = AuthController()
@@ -70,9 +67,7 @@ class SmsResendConfirm(Resource):
 
     @api.expect(_auth_resend_confirm_sms)
     def post(self):
-        """ 
-        Resend confirmation sms code.
-        """
+        """ Resend confirmation sms code."""
 
         post_data = request.json
         controller = AuthController()

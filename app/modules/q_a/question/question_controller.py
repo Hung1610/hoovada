@@ -140,11 +140,11 @@ class QuestionController(Controller):
             query = query.filter(Question.created_date <= params.get('to_date'))
         if params.get('topic_id'):
             query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
-        if params.get('for_me') is True and current_user:
+        if params.get('for_me') and current_user:
             query = query.filter((Question.invited_users.any(User.id==current_user.id)) | (Question.bookmarked_users.any(User.id==current_user.id)))
-        if params.get('is_shared') is True and current_user:
+        if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-        if params.get('is_created_by_friend') is True and current_user:
+        if params.get('is_created_by_friend') and current_user:
             query = query\
                 .outerjoin(UserFollow,and_(UserFollow.followed_id==Question.user_id, UserFollow.follower_id==current_user.id))\
                 .outerjoin(UserFriend,or_(UserFriend.friended_id==Question.user_id, UserFriend.friend_id==Question.user_id))\
