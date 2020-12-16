@@ -84,8 +84,8 @@ def update_seen_articles(article_id, user_id):
 def update_reputation(topic_id, voter_id):
     Reputation = db.get_model('Reputation')
     # Find reputation
-    reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, \
-        Reputation.topic_id == topic_id).first()
+    reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, Reputation.topic_id == topic_id).first()
+
     if reputation_creator is None:
         reputation_creator = Reputation()
         reputation_creator.user_id = voter_id
@@ -149,7 +149,7 @@ def send_recommendation_mail(user_id):
         if (recommended_articles.count() + recommended_questions.count()) > 0:
             html = render_template('recommendation_for_user.html', \
                 user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
-            send_email(user.email, 'Câu hỏi và bài viết dành cho bạn - Hoovada', html)
+            send_email(user.email, 'Món quà từ cộng đồng hoovada.com', html)
 
 @dramatiq.actor()
 def send_similar_mail(user_id):
@@ -201,7 +201,7 @@ def send_similar_mail(user_id):
         if (recommended_articles.count() + recommended_questions.count()) > 0:
             html = render_template('similar_for_user.html', \
                 user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
-            send_email(user.email, 'Câu hỏi và bài viết liên quan - Hoovada', html)
+            send_email(user.email, 'Nội dung mà bạn quan tâm từ cộng đồng hoovada.com', html)
 
 @dramatiq.actor()
 def send_daily_new_topics():
@@ -236,4 +236,4 @@ def send_new_topics(user_id):
     if topics.count() > 0:
         html = render_template('new_topics.html', user=user, topics=topics)
         if user.email:
-            send_email(user.email, 'Chủ đề mới - Hoovada', html)
+            send_email(user.email, 'Chủ đề mới từ cộng đồng hoovada.com', html)
