@@ -132,15 +132,45 @@ def send_password_reset_email(to):
 
 
 def send_answer_notif_email(user, answer, question):
-    if user:
+    if user and not (user.is_deactivated):
         html = render_template('notif_answer.html', user=user, answer=answer, question=question)
         send_email(user.email, 'Hoovada - Có người trả lời cẩu hỏi', html)
 
 
 def send_article_comment_notif_email(user, comment, article):
-    if user:
+    if user and not (user.is_deactivated):
         html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
-        send_email(user.email, 'Hoovada - Có người trả lời cẩu hỏi', html)
+        send_email(user.email, 'Hoovada - Có người bình luận trên bài viết', html)
+
+
+def send_question_comment_notif_email(user, comment, question):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
+        send_email(user.email, 'Hoovada - Có người bình luận trên cẩu hỏi', html)
+
+
+def send_answer_comment_notif_email(user, comment, answer):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
+        send_email(user.email, 'Hoovada - Có người bình luận trên cẩu trả lời', html)
+
+
+def send_question_invite_notif_email(user, inviter, question):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_question_invite.html', inviter=inviter, user=user, question=question)
+        send_email(user.email, 'Hoovada - Bạn được mời trả lời câu hỏi', html)
+
+
+def send_friend_request_notif_email(user, requester):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_friend_request.html', requester=requester, user=user)
+        send_email(user.email, 'Hoovada - Bạn được nhận yêu cầu làm bạn', html)
+
+
+def send_follow_request_notif_email(user, requester):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_follow_request.html', requester=requester, user=user)
+        send_email(user.email, 'Hoovada - Bạn được nhận yêu cầu theo dõi', html)
 
 
 def get_response_message(message):

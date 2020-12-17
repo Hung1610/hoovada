@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.utils.util import send_question_comment_notif_email
 from datetime import datetime
 
 from flask import current_app, request
@@ -12,6 +13,7 @@ from flask_restx import marshal
 from common.db import db
 from app.constants import messages
 from app.modules.q_a.question.comment.comment_dto import CommentDto
+from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.controllers.comment_controller import BaseCommentController
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
@@ -113,6 +115,13 @@ class CommentController(BaseCommentController):
             try:
                 result = comment.__dict__
                 result['user'] = comment.user
+                if comment.question.user:
+                    if comment.question.user.is_online:
+                        display_name =  comment.user.display_name if comment.user else 'Khách'
+                        message = '[Thông báo] ' + display_name + ' đã bình luận trên câu hỏi!'
+                        push_notif_to_specific_users(message, [comment.question.user_id])
+                    else:
+                        send_question_comment_notif_email(comment.question.user, comment, comment.question)
                 return send_result(message='QuestionComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:

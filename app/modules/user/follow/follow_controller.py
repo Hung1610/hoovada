@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.utils.util import send_follow_request_notif_email
+from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
 
 # third-party modules
@@ -81,6 +83,14 @@ class UserFollowController(Controller):
             follow = self._parse_follow(data=data, follow=None)
             db.session.add(follow)
             db.session.commit()
+                        
+            if follow.followed:
+                if follow.followed.is_online:
+                    display_name =  current_user.display_name if current_user else 'Khách'
+                    message = '[Thông báo] ' + display_name + ' đã theo dõi bạn!'
+                    push_notif_to_specific_users(message, [follow.followed.id])
+                else:
+                    send_follow_request_notif_email(follow.followed, current_user)
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'),
                                data=marshal(follow, UserFollowDto.model_response))
         except Exception as e:
