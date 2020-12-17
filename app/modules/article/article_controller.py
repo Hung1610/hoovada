@@ -21,8 +21,6 @@ from app.constants import messages
 from common.db import db
 from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller
-from common.models import (Article, ArticleFavorite, Topic, TopicBookmark,
-                           User, UserFollow, UserFriend)
 from common.models.vote import ArticleVote, VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
@@ -31,6 +29,16 @@ __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+
+Article = db.get_model('Article')
+ArticleFavorite = db.get_model('ArticleFavorite')
+ArticleShare = db.get_model('ArticleShare')
+Topic = db.get_model('Topic')
+TopicBookmark = db.get_model('TopicBookmark')
+User = db.get_model('User')
+UserFollow = db.get_model('UserFollow')
+UserFriend = db.get_model('UserFriend')
 
 
 class ArticleController(Controller):
@@ -136,12 +144,17 @@ class ArticleController(Controller):
                 query = query.filter(Article.is_draft != True)
         if params.get('is_created_by_friend') and g.current_user:
             query = query\
-                .outerjoin(UserFollow,and_(UserFollow.followed_id==Article.user_id, UserFollow.follower_id==g.current_user.id))\
-                .outerjoin(UserFriend,and_(UserFriend.friended_id==Article.user_id, UserFriend.friend_id==g.current_user.id))\
-                .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))
+                .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
+                .join(UserFriend,(UserFriend.friended_id==Article.user_id | UserFriend.friend_id==Article.user_id), isouter=True)\
+                .filter(
+                    (UserFollow.follower_id == g.current_user.id) |
+                    ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
+                    (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
+                )
         if params.get('hot'):
             if g.current_user:
-                query = query.outerjoin(TopicBookmark, TopicBookmark.id==Article.fixed_topic_id)\
+                query = query.join(TopicBookmark, TopicBookmark.topic_id==Article.fixed_topic_id, isouter=True)\
+                    .filter(TopicBookmark.user_id == g.current_user.id)\
                     .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
                         desc(text("upvote_count + downvote_count + share_count + favorite_count")))
             else:
