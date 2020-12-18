@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.utils.onesignal_notif import push_notif_to_specific_users
 import json
 import re
 from datetime import datetime
@@ -19,7 +20,7 @@ from app.modules.article import constants
 from app.modules.article.article_dto import ArticleDto
 from app.constants import messages
 from common.db import db
-from common.dramatiq_producers import update_seen_articles
+from common.dramatiq_producers import new_article_notify_user_list, update_seen_articles
 from common.controllers.controller import Controller
 from common.models.vote import ArticleVote, VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
@@ -102,6 +103,20 @@ class ArticleController(Controller):
                     favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
                                                     ArticleFavorite.article_id == article.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
+                    if article.user:
+                        followers = UserFollow.query.with_entities(UserFollow.follower_id)\
+                            .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                            .filter(UserFollow.followed_id == article.user.id).all()
+                        follower_ids = [follower[0] for follower in followers]
+                        new_article_notify_user_list.send(article.id, follower_ids)
+                        friends = UserFriend.query.with_entities(UserFriend.follower_id)\
+                            .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                            .filter(\
+                                (UserFriend.friended_id == article.user.id) | \
+                                (UserFriend.friend_id == article.user.id))\
+                            .all()
+                        friend_ids = [friend[0] for friend in friends]
+                        new_article_notify_user_list.send(article.id, friend_ids)
                     return send_result(message=constants.msg_create_success,
                                        data=marshal(result, ArticleDto.model_article_response))
                 except Exception as e:

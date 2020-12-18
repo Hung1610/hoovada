@@ -171,6 +171,18 @@ def send_follow_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_follow_request.html', requester=requester, user=user)
         send_email(user.email, 'Hoovada - Bạn được nhận yêu cầu theo dõi', html)
+    
+
+def send_article_notif_email(user, article):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_article.html', article=article, user=user)
+        send_email(user.email, 'Hoovada - Có bài viết mới', html)
+    
+
+def send_question_notif_email(user, question):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_question.html', question=question, user=user)
+        send_email(user.email, 'Hoovada - Có câu hỏi mới', html)
 
 
 def get_response_message(message):
