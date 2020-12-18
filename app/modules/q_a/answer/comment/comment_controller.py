@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.utils.util import send_answer_comment_notif_email
+from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
 
 from flask import current_app, request
@@ -120,6 +122,13 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 # get thong tin user
                 result['user'] = comment.user
+                if comment.answer.user:
+                    if comment.answer.user.is_online:
+                        display_name =  comment.user.display_name if comment.user else 'Khách'
+                        message = '[Thông báo] ' + display_name + ' đã bình luận trên câu trả lời!'
+                        push_notif_to_specific_users(message, [comment.answer.user_id])
+                    else:
+                        send_answer_comment_notif_email(comment.answer.user, comment, comment.answer)
                 return send_result(message='AnswerComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:

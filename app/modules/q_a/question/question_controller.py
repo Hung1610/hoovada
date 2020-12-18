@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.utils.util import send_question_invite_notif_email
+from common.utils.onesignal_notif import push_notif_to_specific_users
 import json
 import re
 from datetime import datetime
@@ -259,6 +261,14 @@ class QuestionController(Controller):
                     user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
                     if user:
                         question.invited_users.append(user)
+                        
+                        if user:
+                            if user.is_online:
+                                display_name =  question.user.display_name if question.user else 'Khách'
+                                message = '[Thông báo] ' + display_name + ' đã mời bạn trả lời!'
+                                push_notif_to_specific_users(message, [user.id])
+                            else:
+                                send_question_invite_notif_email(user, current_user, question)
                 except Exception as e:
                     print(e)
                     pass

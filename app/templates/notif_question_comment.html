@@ -9,14 +9,14 @@
 
     <div style="margin-bottom:24px;padding:20px 24px">
         <div style="color: #333333;font-weight: 700;font-size: 20;padding-bottom:5px">
-            [Thông báo] {{answer.user.display_name if answer.user else 'Khách'}} đã trả lời câu hỏi của bạn
+            [Thông báo] {{comment.user.display_name if comment.user else 'Khách'}} đã bình luận trên câu hỏi của bạn
         </div>
         <div style="padding:20px 0px; ">
             <div>Xin chào <span style="font-weight: 700">{{user.display_name}}</span>
             </div>
 
         </div>
-        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{answer.user.display_name if answer.user else 'Khách'}}</span> đã trả lời cho câu hỏi:
+        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{comment.user.display_name if comment.user else 'Khách'}}</span> bình luận trên câu hỏi:
             <span style="font-weight: 700">“{{question.title}}”</span> của bạn như sau:
         </div>
 
@@ -27,15 +27,15 @@
                     style="width:40px;margin-right:10px;" />
             </div>
             <div>
-                <div> <span style="font-weight: 700">{{answer.user.display_name if answer.user else 'Khách'}}</span> <span
-                        style="color:#B92B27;    font-style: italic;font-size: 14px;"> đã trả lời</span>
+                <div> <span style="font-weight: 700">{{comment.user.display_name if comment.user else 'Khách'}}</span> <span
+                        style="color:#B92B27;    font-style: italic;font-size: 14px;"> đã bình luận</span>
                 </div>
                 <div style="padding:10px 0px;color: #828282;font-size: 12px;">12:30 22/4/2020</div>
-                <div>{{answer.answer}}</div>
+                <div>{{comment.comment}}</div>
                 <div style="margin:0;outline:none;padding:0;text-align:center; padding-top:20px"> <a
                         href="https://staging.hoovada.com/question/{{question.slug}}" style="background: #B92B27;
                     border-radius: 99px;color:white;padding:8px 20px;border:#B92B27;text-decoration: none;">Xem chi
-                        tiết câu trả lời</a></div>
+                        tiết bình luận</a></div>
             </div>
             </table>
         </div>
