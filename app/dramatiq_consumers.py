@@ -4,6 +4,8 @@
 # bulit-in modules
 
 # third-party modules
+from app.modules.q_a.question.question_controller import Question
+from common.utils.onesignal_notif import push_notif_to_specific_users
 import datetime
 from common.enum import FrequencySettingEnum
 from flask_dramatiq import Dramatiq
@@ -11,7 +13,7 @@ from flask import current_app, g
 from flask.templating import render_template
 
 # own modules
-from common.utils.util import send_email
+from common.utils.util import send_answer_notif_email, send_article_notif_email, send_email, send_question_notif_email
 from common.db import db
 
 __author__ = "hoovada.com team"
@@ -237,3 +239,60 @@ def send_new_topics(user_id):
         html = render_template('new_topics.html', user=user, topics=topics)
         if user.email:
             send_email(user.email, 'Chủ đề mới từ cộng đồng hoovada.com', html)
+
+@dramatiq.actor()
+def new_article_notify_user_list(article_id, user_ids):
+    User = db.get_model('User')
+    Article = db.get_model('Article')
+
+    users = User.query.with_entities(db.func.count(User.id))\
+        .filter(User.id.in_(user_ids))\
+        .scalar()
+
+    article = Article.query.get(article_id)
+    
+    for user in users:
+        if user.is_online:
+            display_name =  article.user.display_name if article.user else 'Khách'
+            message = '[Thông báo] ' + display_name + ' đã có bài viết mới!'
+            push_notif_to_specific_users(message, [user.id])
+        else:
+            send_article_notif_email(user, article)
+
+@dramatiq.actor()
+def new_question_notify_user_list(question_id, user_ids):
+    User = db.get_model('User')
+    Question = db.get_model('Question')
+
+    users = User.query.with_entities(db.func.count(User.id))\
+        .filter(User.id.in_(user_ids))\
+        .scalar()
+
+    question = Question.query.get(question_id)
+    
+    for user in users:
+        if user.is_online:
+            display_name =  question.user.display_name if question.user else 'Khách'
+            message = '[Thông báo] ' + display_name + ' đã có câu hỏi mới!'
+            push_notif_to_specific_users(message, [user.id])
+        else:
+            send_question_notif_email(user, question)
+
+@dramatiq.actor()
+def new_answer_notify_user_list(answer_id, user_ids):
+    User = db.get_model('User')
+    Answer = db.get_model('Answer')
+
+    users = User.query.with_entities(db.func.count(User.id))\
+        .filter(User.id.in_(user_ids))\
+        .scalar()
+
+    answer = Answer.query.get(answer_id)
+    
+    for user in users:
+        if user.is_online:
+            display_name =  answer.user.display_name if answer.user else 'Khách'
+            message = '[Thông báo] ' + display_name + ' đã có câu trả lời mới!'
+            push_notif_to_specific_users(message, [user.id])
+        else:
+            send_answer_notif_email(user, answer, answer.question)

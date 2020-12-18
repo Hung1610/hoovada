@@ -25,7 +25,7 @@ from common.enum import VotingStatusEnum
 from common.utils.checker import check_spelling
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.dramatiq_producers import update_seen_questions
+from common.dramatiq_producers import new_question_notify_user_list, update_seen_questions
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -101,6 +101,19 @@ class QuestionController(Controller):
                     # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     result['up_vote'] = False
                     result['down_vote'] = False
+                    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
+                        .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                        .filter(UserFollow.followed_id == question.user.id).all()
+                    follower_ids = [follower[0] for follower in followers]
+                    new_question_notify_user_list.send(question.id, follower_ids)
+                    friends = UserFriend.query.with_entities(UserFriend.follower_id)\
+                        .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                        .filter(\
+                            (UserFriend.friended_id == question.user.id) | \
+                            (UserFriend.friend_id == question.user.id))\
+                        .all()
+                    friend_ids = [friend[0] for friend in friends]
+                    new_question_notify_user_list.send(question.id, friend_ids)
                     return send_result(message='Question was created successfully.',
                                        data=marshal(result, QuestionDto.model_question_response))
                 except Exception as e:
