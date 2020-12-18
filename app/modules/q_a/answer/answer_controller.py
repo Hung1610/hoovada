@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.dramatiq_producers import new_answer_notify_user_list
 from datetime import datetime
 
 # third-party modules
@@ -33,6 +34,8 @@ User = db.get_model('User')
 Answer = db.get_model('Answer')
 AnswerFavorite = db.get_model('AnswerFavorite')
 AnswerVote = db.get_model('AnswerVote')
+UserFriend = db.get_model('UserFriend')
+UserFollow = db.get_model('UserFollow')
 
 
 class AnswerController(Controller):
@@ -80,6 +83,20 @@ class AnswerController(Controller):
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
+            if answer.user:
+                followers = UserFollow.query.with_entities(UserFollow.follower_id)\
+                    .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                    .filter(UserFollow.followed_id == answer.user.id).all()
+                follower_ids = [follower[0] for follower in followers]
+                new_answer_notify_user_list.send(answer.id, follower_ids)
+                friends = UserFriend.query.with_entities(UserFriend.follower_id)\
+                    .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                    .filter(\
+                        (UserFriend.friended_id == answer.user.id) | \
+                        (UserFriend.friend_id == answer.user.id))\
+                    .all()
+                friend_ids = [friend[0] for friend in friends]
+                new_answer_notify_user_list.send(answer.id, friend_ids)
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         except Exception as e:
             print(e.__str__())
