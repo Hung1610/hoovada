@@ -65,5 +65,6 @@ services:
         - rabbitmq
         - db
     environment:
+      - PORT=5001
       - FLASK_APP=app_socketio
     env_file: ./docker.env

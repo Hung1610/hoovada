@@ -132,7 +132,7 @@ class ArticleController(Controller):
 
     def get_query(self):
         query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
-        query = query.filter(db.or_(Article.article_by_user == None, User.is_deactivated != True))
+        query = query.filter(db.or_(Article.user == None, User.is_deactivated != True))
         return query
 
     def apply_filtering(self, query, params):
@@ -239,7 +239,7 @@ class ArticleController(Controller):
             db.session.commit()
             result = article._asdict()
             # get user info
-            result['user'] = article.article_by_user
+            result['user'] = article.user
             # get all topics that article belongs to
             result['fixed_topic'] = article.fixed_topic
             result['topics'] = article.topics
@@ -293,7 +293,7 @@ class ArticleController(Controller):
                 article = article[0]
                 result = article._asdict()
                 # get user info
-                result['user'] = article.article_by_user
+                result['user'] = article.user
                 result['topics'] = article.topics
                 # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                 if current_user:
@@ -354,7 +354,7 @@ class ArticleController(Controller):
             
             result = article.__dict__
             # get user info
-            result['user'] = article.article_by_user
+            result['user'] = article.user
             # get all topics that article belongs to
             result['topics'] = article.topics
             # upvote/downvote status
