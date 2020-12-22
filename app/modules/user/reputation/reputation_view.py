@@ -22,7 +22,8 @@ user_reputation_response = ReputationDto.user_reputation_response
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('topic_id', type=int, required=True, help='Search reputation by topic_id')
+parser.add_argument('topic_id', type=int, required=False, help='Search reputation by topic_id')
+parser.add_argument('user_id', type=int, required=False, help='Search reputation by topic_id')
 
 @api.route('/search')
 @api.expect(parser)
