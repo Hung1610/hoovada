@@ -116,11 +116,14 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 result['user'] = comment.user
                 if comment.question.user:
-                    if comment.question.user.is_online:
+                    if comment.question.user.is_online\
+                        and comment.question.user.my_question_notify_settings\
+                        and comment.question.user.new_question_comment_notify_settings:
                         display_name =  comment.user.display_name if comment.user else 'Khách'
                         message = '[Thông báo] ' + display_name + ' đã bình luận trên câu hỏi!'
                         push_notif_to_specific_users(message, [comment.question.user_id])
-                    else:
+                    elif comment.question.user.my_question_email_settings\
+                        and comment.question.user.new_question_comment_email_settings:
                         send_question_comment_notif_email(comment.question.user, comment, comment.question)
                 return send_result(message='QuestionComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))

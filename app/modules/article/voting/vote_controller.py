@@ -113,7 +113,7 @@ class VoteController(Controller):
             db.session.commit()
             article = vote.article
             # get user who was created article and was voted
-            user_voted = article.article_by_user
+            user_voted = article.user
             for topic in article.topics:
                 # Article creator rep
                 update_reputation.send(topic.id, user_voted.id)

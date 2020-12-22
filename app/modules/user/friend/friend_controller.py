@@ -58,6 +58,8 @@ class UserFriendController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         data['friend_id'] = current_user.id
         data['friended_id'] = object_id
+        if data['friend_id'] == data['friended_id']:
+            return send_result(message=messages.ERR_ISSUE.format('Cannot befriend self'))
         try:
             friend = UserFriend.query.filter(db.or_(\
                 db.and_(UserFriend.friend_id == data['friend_id'], UserFriend.friended_id == data['friended_id']),\
@@ -70,11 +72,12 @@ class UserFriendController(Controller):
             db.session.commit()
                         
             if friend.friended:
-                if friend.friended.is_online:
+                if friend.friended.is_online\
+                    and friend.friended.friend_request_notify_settings:
                     display_name =  current_user.display_name if current_user else 'Khách'
                     message = '[Thông báo] ' + display_name + ' đã yêu cầu làm bạn!'
                     push_notif_to_specific_users(message, [friend.friended.id])
-                else:
+                elif friend.friended.friend_request_email_settings:
                     send_friend_request_notif_email(friend.friended, current_user)
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Friend'),
                                data=marshal(friend, UserFriendDto.model_response))

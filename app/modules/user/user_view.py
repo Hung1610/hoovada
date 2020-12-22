@@ -20,6 +20,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = UserDto.api
 user_get_parser = UserDto.model_get_parser
+user_get_social_parser = UserDto.model_get_social_account_parser
 user_request = UserDto.model_request
 user_response = UserDto.model_response
 
@@ -61,6 +62,20 @@ class UserListCount(Resource):
         args = user_get_parser.parse_args()
         controller = UserController()
         return controller.get_count(args=args)
+
+
+@api.route('/<string:user_name>/social')
+class UserSocialAccount(Resource):
+    @api.expect(user_get_social_parser)
+    @api.response(code=200, model=user_response, description='Model for user response.')
+    def get(self, user_name):
+        """
+        Get all information for specific user with ID `id`
+        """
+
+        controller = UserController()
+        args = user_get_social_parser.parse_args()
+        return controller.get_social_account(user_name, args)
 
 
 #@api.route('/<int:id>')
@@ -122,12 +137,28 @@ class UserCover(Resource):
     @api.expect(cover_upload)
     def post(self):
         """
-        Upload avatar.
+        Upload cover.
         """
         
         args = cover_upload.parse_args()
         controller = UserController()
         return controller.upload_cover(args=args)
+
+
+doc_upload = api.parser()
+doc_upload.add_argument('doc', location='files',type=FileStorage, required=True, help='The image file to upload')
+@api.route('/doc')
+class UserDoc(Resource):
+    @token_required
+    @api.expect(doc_upload)
+    def post(self):
+        """
+        Upload doc.
+        """
+        
+        args = doc_upload.parse_args()
+        controller = UserController()
+        return controller.upload_document(args=args)
 
 
 parser_user_hot = reqparse.RequestParser()
