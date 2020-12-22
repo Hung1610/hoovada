@@ -102,17 +102,16 @@ class QuestionController(Controller):
                     result['up_vote'] = False
                     result['down_vote'] = False
                     followers = UserFollow.query.with_entities(UserFollow.follower_id)\
-                        .filter(db.text('IFNULL(is_deactivated, False) = False'))\
                         .filter(UserFollow.followed_id == question.user.id).all()
                     follower_ids = [follower[0] for follower in followers]
                     new_question_notify_user_list.send(question.id, follower_ids)
-                    friends = UserFriend.query.with_entities(UserFriend.follower_id)\
-                        .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                    g.friend_belong_to_user_id = question.user.id
+                    friends = UserFriend.query\
                         .filter(\
                             (UserFriend.friended_id == question.user.id) | \
                             (UserFriend.friend_id == question.user.id))\
                         .all()
-                    friend_ids = [friend[0] for friend in friends]
+                    friend_ids = [friend.adaptive_friend_id for friend in friends]
                     new_question_notify_user_list.send(question.id, friend_ids)
                     return send_result(message='Question was created successfully.',
                                        data=marshal(result, QuestionDto.model_question_response))
@@ -276,11 +275,12 @@ class QuestionController(Controller):
                         question.invited_users.append(user)
                         
                         if user:
-                            if user.is_online:
+                            if user.is_online\
+                                and user.question_invite_notify_settings:
                                 display_name =  question.user.display_name if question.user else 'Khách'
                                 message = '[Thông báo] ' + display_name + ' đã mời bạn trả lời!'
                                 push_notif_to_specific_users(message, [user.id])
-                            else:
+                            elif user.question_invite_email_settings:
                                 send_question_invite_notif_email(user, current_user, question)
                 except Exception as e:
                     print(e)

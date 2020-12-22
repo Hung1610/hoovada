@@ -74,28 +74,30 @@ class AnswerController(Controller):
             db.session.commit()
             result = answer._asdict()
             if answer.question.user:
-                if answer.question.user.is_online:
+                if answer.question.user.is_online \
+                    and answer.question.user.my_question_notify_settings\
+                    and answer.question.user.new_answer_notify_settings:
                     display_name = answer.user.display_name if answer.user else 'Khách'
                     message = '[Thông báo] ' + display_name + ' đã trả lời câu hỏi của bạn!'
                     push_notif_to_specific_users(message, [answer.question.user_id])
-                else:
+                elif answer.question.user.my_question_email_settings\
+                    and answer.question.user.new_answer_email_settings:
                     send_answer_notif_email(answer.question.user, answer, answer.question)
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
             if answer.user:
                 followers = UserFollow.query.with_entities(UserFollow.follower_id)\
-                    .filter(db.text('IFNULL(is_deactivated, False) = False'))\
                     .filter(UserFollow.followed_id == answer.user.id).all()
                 follower_ids = [follower[0] for follower in followers]
                 new_answer_notify_user_list.send(answer.id, follower_ids)
-                friends = UserFriend.query.with_entities(UserFriend.follower_id)\
-                    .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                g.friend_belong_to_user_id = answer.user.id
+                friends = UserFriend.query\
                     .filter(\
                         (UserFriend.friended_id == answer.user.id) | \
                         (UserFriend.friend_id == answer.user.id))\
                     .all()
-                friend_ids = [friend[0] for friend in friends]
+                friend_ids = [friend.adaptive_friend_id for friend in friends]
                 new_answer_notify_user_list.send(answer.id, friend_ids)
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         except Exception as e:

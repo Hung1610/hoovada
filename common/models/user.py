@@ -48,14 +48,9 @@ class User(Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    # display_name = db.Column(db.String(255)(128), unique=True)
     display_name = db.Column(db.String(255), unique=True, nullable=False)  # , default='')
-    # title = db.Column(db.String(255)(10), default='')
     title = db.Column(db.String(255))  # , default='')
-
-    # user_name = db.Column(db.String(255), unique=True, nullable=False)
     phone_number = db.Column(db.String(255), unique=True, nullable=True)
-    # verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     first_name = db.Column(db.String(255))  # (128), default='')
@@ -81,24 +76,46 @@ class User(Model):
     reputation = db.Column(db.Integer, server_default='0')
     profile_views = db.Column(db.Integer, server_default='0')
 
-    # about_me = db.Column(db.String(255)(3000))
     about_me = db.Column(db.Text, default='')
-    about_me_markdown = db.Column(db.Text, default='')
-    about_me_html = db.Column(db.Text, default='')
 
-    people_reached = db.Column(db.Integer, server_default='0')
+    document_pic_url = db.Column(db.String(255)) 
+    verified_document = db.Column(db.Boolean, default=False) 
+    
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
     hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
 
-    questions_you_asked_or_followed_setting = db.Column(db.Boolean, default=True)
-    questions_you_asked_or_followed_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
-    people_you_follow_setting = db.Column(db.Boolean, default=True)
+    new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_answer_email_settings = db.Column(db.Boolean, server_default=expression.true())
 
-    people_you_follow_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
-    email_stories_topics_setting = db.Column(db.Boolean, default=True)
-    email_stories_topics_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
+    my_question_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    my_question_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    
+    new_question_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_question_comment_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    new_answer_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_answer_comment_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    new_article_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_article_comment_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    question_invite_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    question_invite_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    friend_request_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    friend_request_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    follow_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    follow_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    followed_new_publication_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    followed_new_publication_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
+    admin_interaction_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    admin_interaction_email_settings = db.Column(db.Boolean, server_default=expression.true())
+
     last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
     
     question_favorite_count = db.Column(db.Integer, server_default='0')

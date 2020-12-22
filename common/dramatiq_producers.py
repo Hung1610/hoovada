@@ -98,14 +98,3 @@ def new_question_notify_user_list(question_id, user_ids):
 @dramatiq.actor()
 def new_answer_notify_user_list(answer_id, user_ids):
     pass
-@dramatiq.actor()
-def new_article_notify_user_list(article_id, user_ids):
-    pass
-
-@dramatiq.actor()
-def new_question_notify_user_list(question_id, user_ids):
-    pass
-
-@dramatiq.actor()
-def new_answer_notify_user_list(answer_id, user_ids):
-    pass
