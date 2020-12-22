@@ -150,7 +150,7 @@ def send_recommendation_mail(user_id):
         recommended_articles = Article.query.filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
         if (recommended_articles.count() + recommended_questions.count()) > 0:
             html = render_template('recommendation_for_user.html', \
-                user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
+                user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
             send_email(user.email, 'Món quà từ cộng đồng hoovada.com', html)
 
 @dramatiq.actor()
@@ -202,7 +202,7 @@ def send_similar_mail(user_id):
         
         if (recommended_articles.count() + recommended_questions.count()) > 0:
             html = render_template('similar_for_user.html', \
-                user=user, recommended_articles=recommended_articles, recommended_question=recommended_questions)
+                user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
             send_email(user.email, 'Nội dung mà bạn quan tâm từ cộng đồng hoovada.com', html)
 
 @dramatiq.actor()
@@ -252,11 +252,11 @@ def new_article_notify_user_list(article_id, user_ids):
     article = Article.query.get(article_id)
     
     for user in users:
-        if user.is_online:
+        if user.is_online and user.followed_new_publication_notify_settings:
             display_name =  article.user.display_name if article.user else 'Khách'
             message = '[Thông báo] ' + display_name + ' đã có bài viết mới!'
             push_notif_to_specific_users(message, [user.id])
-        else:
+        elif  user.followed_new_publication_email_settings:
             send_article_notif_email(user, article)
 
 @dramatiq.actor()
@@ -271,11 +271,11 @@ def new_question_notify_user_list(question_id, user_ids):
     question = Question.query.get(question_id)
     
     for user in users:
-        if user.is_online:
+        if user.is_online and user.followed_new_publication_notify_settings:
             display_name =  question.user.display_name if question.user else 'Khách'
             message = '[Thông báo] ' + display_name + ' đã có câu hỏi mới!'
             push_notif_to_specific_users(message, [user.id])
-        else:
+        elif  user.followed_new_publication_email_settings:
             send_question_notif_email(user, question)
 
 @dramatiq.actor()
@@ -290,9 +290,9 @@ def new_answer_notify_user_list(answer_id, user_ids):
     answer = Answer.query.get(answer_id)
     
     for user in users:
-        if user.is_online:
+        if user.is_online and user.followed_new_publication_notify_settings:
             display_name =  answer.user.display_name if answer.user else 'Khách'
             message = '[Thông báo] ' + display_name + ' đã có câu trả lời mới!'
             push_notif_to_specific_users(message, [user.id])
-        else:
+        elif  user.followed_new_publication_email_settings:
             send_answer_notif_email(user, answer, answer.question)

@@ -4,12 +4,12 @@
 # build-in modules
 import os
 from datetime import datetime
-
 import dateutil.parser
+
 # third-party modules
-from flask import current_app, request, send_file, url_for, g
+from flask import current_app, request, g
 from flask_restx import marshal
-from sqlalchemy import desc, func, text
+from sqlalchemy import desc, func
 
 # own modules
 from common.db import db
@@ -28,6 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 User = db.get_model('User')
+SocialAccount = db.get_model('SocialAccount')
 Reputation = db.get_model('Reputation')
 Topic = db.get_model('Topic')
 
@@ -129,6 +130,23 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(user_name))
 
+
+    def get_social_account(self, user_name, args):
+        if user_name is None:
+            return send_error(message="The user_name must not be null.")
+        try:
+            user = User.query.filter_by(display_name=user_name).first()
+            if user is None:
+                return send_error(data="Could not find user by this user name")
+            social_accounts_query = SocialAccount.query.filter(SocialAccount.user_id == user.id)
+            if args.get('provider'):
+                social_accounts_query.filter(SocialAccount.provider == args.get('provider'))
+            
+            return send_result(data=marshal(social_accounts_query, UserDto.model_social_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message='Could not get user by ID {}.'.format(user_name))
+
     def update(self, user_name, data):
         """
         Doest now allow to update `id`, `email`, `password`, `profile_views`.
@@ -207,6 +225,39 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 return send_error(message='Could not save your avatar.')
+        else:
+            return send_error(message='Please attach or check your photo before uploading.')
+
+
+    def upload_document(self, args):
+        if not isinstance(args, dict) or not 'doc' in args:
+            return send_error(message='Your request does not contain doc.')
+        # upload here
+        user, _ = current_app.get_logged_user(request)
+        if user is None:
+            return send_error('You are not logged in')
+
+        photo = args['doc']
+        if photo:
+            filename = photo.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name('user_' + str(user.id) + '_doc') + ext
+            sub_folder = 'user' + '/' + encode_file_name(str(user.id))
+            try:
+                if user.document_pic_url:
+                    delete_file(file_path=user.document_pic_url)
+                url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your media file.')
+
+            try:
+                user.document_pic_url = url
+                db.session.commit()
+                return send_result(data=marshal(user, UserDto.model_response), message='Upload doc successfully.')
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message='Could not save your doc.')
         else:
             return send_error(message='Please attach or check your photo before uploading.')
 
@@ -374,33 +425,66 @@ class UserController(Controller):
         if 'hoovada_digests_frequency_setting' in data:
             user.hoovada_digests_frequency_setting = data['hoovada_digests_frequency_setting']
 
-        if 'questions_you_asked_or_followed_setting' in data:
-            try:
-                user.questions_you_asked_or_followed_setting = bool(data['questions_you_asked_or_followed_setting'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'questions_you_asked_or_followed_frequency_setting' in data:
-            user.questions_you_asked_or_followed_frequency_setting = data[
-                'questions_you_asked_or_followed_frequency_setting']
+        if 'new_answer_notify_settings' in data:
+            user.new_answer_notify_settings = data.get('new_answer_notify_settings')
 
-        if 'people_you_follow_setting' in data:
-            try:
-                user.people_you_follow_setting = bool(data['people_you_follow_setting'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'people_you_follow_frequency_setting' in data:
-            user.people_you_follow_frequency_setting = data['people_you_follow_frequency_setting']
+        if 'new_answer_email_settings' in data:
+            user.new_answer_email_settings = data.get('new_answer_email_settings')
 
-        if 'email_stories_topics_setting' in data:
-            try:
-                user.email_stories_topics_setting = bool(data['email_stories_topics_setting'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'email_stories_topics_frequency_setting' in data:
-            user.email_stories_topics_frequency_setting = data['email_stories_topics_frequency_setting']
+        if 'my_question_notify_settings' in data:
+            user.my_question_notify_settings = data.get('my_question_notify_settings')
+
+        if 'my_question_email_settings' in data:
+            user.my_question_email_settings = data.get('my_question_email_settings')
+
+        if 'new_question_comment_notify_settings' in data:
+            user.new_question_comment_notify_settings = data.get('new_question_comment_notify_settings')
+
+        if 'new_question_comment_email_settings' in data:
+            user.new_question_comment_email_settings = data.get('new_question_comment_email_settings')
+
+        if 'new_answer_comment_notify_settings' in data:
+            user.new_answer_comment_notify_settings = data.get('new_answer_comment_notify_settings')
+
+        if 'new_answer_comment_email_settings' in data:
+            user.new_answer_comment_email_settings = data.get('new_answer_comment_email_settings')
+
+        if 'new_article_comment_notify_settings' in data:
+            user.new_article_comment_notify_settings = data.get('new_article_comment_notify_settings')
+
+        if 'new_article_comment_email_settings' in data:
+            user.new_article_comment_email_settings = data.get('new_article_comment_email_settings')
+
+        if 'question_invite_notify_settings' in data:
+            user.question_invite_notify_settings = data.get('question_invite_notify_settings')
+
+        if 'question_invite_email_settings' in data:
+            user.question_invite_email_settings = data.get('question_invite_email_settings')
+
+        if 'friend_request_notify_settings' in data:
+            user.friend_request_notify_settings = data.get('friend_request_notify_settings')
+
+        if 'friend_request_email_settings' in data:
+            user.friend_request_email_settings = data.get('friend_request_email_settings')
+
+        if 'follow_notify_settings' in data:
+            user.follow_notify_settings = data.get('follow_notify_settings')
+
+        if 'follow_email_settings' in data:
+            user.follow_email_settings = data.get('follow_email_settings')
+
+        if 'followed_new_publication_notify_settings' in data:
+            user.followed_new_publication_notify_settings = data.get('followed_new_publication_notify_settings')
+
+        if 'followed_new_publication_email_settings' in data:
+            user.followed_new_publication_email_settings = data.get('followed_new_publication_email_settings')
+
+        if 'admin_interaction_notify_settings' in data:
+            user.admin_interaction_notify_settings = data.get('admin_interaction_notify_settings')
+
+        if 'admin_interaction_email_settings' in data:
+            user.admin_interaction_email_settings = data.get('admin_interaction_email_settings')
+
         if 'last_message_read_time' in data:
             try:
                 user.last_message_read_time = dateutil.parser.isoparse(data['last_message_read_time'])
@@ -419,6 +503,13 @@ class UserController(Controller):
                 user.is_deactivated = bool(data['is_deactivated'])
             except Exception as e:
                 user.is_deactivated = False
+                print(e.__str__())
+                pass
+        if 'verified_document' in data:
+            try:
+                user.verified_document = bool(data['verified_document'])
+            except Exception as e:
+                user.verified_document = False
                 print(e.__str__())
                 pass
         if 'show_nsfw' in data:

@@ -105,17 +105,16 @@ class ArticleController(Controller):
                     result['is_favorited_by_me'] = True if favorite else False
                     if article.user:
                         followers = UserFollow.query.with_entities(UserFollow.follower_id)\
-                            .filter(db.text('IFNULL(is_deactivated, False) = False'))\
                             .filter(UserFollow.followed_id == article.user.id).all()
                         follower_ids = [follower[0] for follower in followers]
                         new_article_notify_user_list.send(article.id, follower_ids)
-                        friends = UserFriend.query.with_entities(UserFriend.follower_id)\
-                            .filter(db.text('IFNULL(is_deactivated, False) = False'))\
+                        g.friend_belong_to_user_id = article.user.id
+                        friends = UserFriend.query\
                             .filter(\
                                 (UserFriend.friended_id == article.user.id) | \
                                 (UserFriend.friend_id == article.user.id))\
                             .all()
-                        friend_ids = [friend[0] for friend in friends]
+                        friend_ids = [friend.adaptive_friend_id for friend in friends]
                         new_article_notify_user_list.send(article.id, friend_ids)
                     return send_result(message=constants.msg_create_success,
                                        data=marshal(result, ArticleDto.model_article_response))
