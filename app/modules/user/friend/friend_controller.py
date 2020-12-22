@@ -58,6 +58,8 @@ class UserFriendController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         data['friend_id'] = current_user.id
         data['friended_id'] = object_id
+        if data['friend_id'] == data['friended_id']:
+            return send_result(message=messages.ERR_ISSUE.format('Cannot befriend self'))
         try:
             friend = UserFriend.query.filter(db.or_(\
                 db.and_(UserFriend.friend_id == data['friend_id'], UserFriend.friended_id == data['friended_id']),\
