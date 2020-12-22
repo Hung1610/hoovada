@@ -3,17 +3,18 @@
 
 # built-in modules
 import enum
-from common.enum import FrequencySettingEnum
 from datetime import datetime
 
 # third-party modules
 from flask import g
+from sqlalchemy.orm import backref
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # own modules
 from common.db import db
+from common.enum import FrequencySettingEnum
 from common.models.model import Model
 from common.utils.types import UserRole
 
@@ -378,9 +379,9 @@ class UserSeenQuestion(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("seen_question_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
-    question = db.relationship('Question', lazy=True) # one-to-many relationship with table Post
+    question = db.relationship('Question', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -392,7 +393,7 @@ class UserSeenArticle(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("seen_article_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
-    article = db.relationship('Article', lazy=True) # one-to-many relationship with table Post
+    article = db.relationship('Article', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
