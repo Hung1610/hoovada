@@ -82,7 +82,7 @@ def send_weekly_new_topics_job():
     send_weekly_new_topics.send()
 
 def health_check():
-    print('BACKGROUND JOB WORKING ', datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+    print('BACKGROUND JOB WORKING ', datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), flush=True)
 
 def get_scheduler():
     # ApScheduler
