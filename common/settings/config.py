@@ -14,6 +14,10 @@ class CommonBaseConfig:
     # debug mode is turned off by default
     DEBUG = False
 
+    WEB_PROTOCOL = environ.get('WEB_PROTOCOL', 'https')
+
+    DOMAIN_URL = WEB_PROTOCOL + '://' + environ.get('DOMAIN_ENDPOINT', 'localhost:5000')
+
     JSON_AS_ASCII = False
 
     # The name of the model used as User class
