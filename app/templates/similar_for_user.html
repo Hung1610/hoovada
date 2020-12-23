@@ -18,6 +18,7 @@
         </div>
         <div>
             <div>
+                {% for question in recommended_questions %}
                 <table style="border-collapse:collapse;border:0;width:100%" width="100%">
                     <tbody>
                         <tr>
@@ -35,7 +36,6 @@
                                 <table cellpadding="0" cellspacing="0" border="0"
                                     style="border-collapse:collapse;width:100%" width="100%">
                                     <tbody>
-                                        {% for question in recommended_questions %}
                                         <tr>
                                             <td style="border-collapse:collapse;padding-bottom:4px">
                                                 <table cellpadding="0" cellspacing="0" border="0"
@@ -50,7 +50,7 @@
                                         </tr>
                                         <tr>
                                             <td style="border-collapse:collapse"><a
-                                                    href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                    href="{{config.DOMAIN_URL}}/question/{{question.slug}}"
                                                     style="text-decoration:none;display:block;font-size:19px;letter-spacing:-0.5px;font-weight:bold;color:#333;line-height:1.4"
                                                     target="_blank"><span class="m_2168602734928602428rendered_qtext"
                                                         style="word-break:break-word">{{question.title}}
@@ -69,14 +69,14 @@
                                                                         <tr>
                                                                             <td style="border-collapse:collapse;vertical-align:top"
                                                                                 valign="top"><a
-                                                                                    href="https://staging.hoovada.com/profile/{{question.user.display_name}}"
+                                                                                    href="{{config.DOMAIN_URL}}/profile/{{question.user.display_name}}"
                                                                                     style="text-decoration:none;color:#2b6dad"
                                                                                     target="_blank">
                                                                                     <div>
                                                                                         <div>
                                                                                             <div> </div>
                                                                                         </div><span><img
-                                                                                                src="{{'https://s3.wasabisys.com/hoovada/' + question.user.profile_pic_url if question.user.profile_pic_url else 'https://staging.hoovada.com/images/default/avatar.png'}}"
+                                                                                                src="{{'https://s3.wasabisys.com/hoovada/' + question.user.profile_pic_url if question.user.profile_pic_url else '{{config.DOMAIN_URL}}/images/default/avatar.png'}}"
                                                                                                 alt="Thanh"
                                                                                                 style="outline:0;text-decoration:none;border:0;display:block;height:40px;width:40px;border-radius:100px;border-style:none"
                                                                                                 height="40"
@@ -92,7 +92,7 @@
                                                                                         <tr>
                                                                                             <td
                                                                                                 style="border-collapse:collapse">
-                                                                                                <a href="https://staging.hoovada.com/profile/{{question.user.display_name}}"
+                                                                                                <a href="{{config.DOMAIN_URL}}/profile/{{question.user.display_name}}"
                                                                                                     style="text-decoration:none;color:#333;font-weight:bold;font-size:15px;line-height:1.4"
                                                                                                     target="_blank">{{question.user.display_name}}</a><span
                                                                                                     style="font-size:15px;line-height:1.4"></span>
@@ -101,7 +101,7 @@
                                                                                         <tr>
                                                                                             <td
                                                                                                 style="border-collapse:collapse;color:#999;font-size:13px">
-                                                                                                <a href="https://staging.hoovada.com/profile/{{question.user.display_name}}"
+                                                                                                <a href="{{config.DOMAIN_URL}}/profile/{{question.user.display_name}}"
                                                                                                     style="text-decoration:none;color:#999"
                                                                                                     target="_blank">Cập
                                                                                                     nhật lúc: {{question.updated_date}}</a></td>
@@ -117,14 +117,14 @@
                                                         <tr>
                                                             <td
                                                                 style="border-collapse:collapse;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;color:#333;font-size:15px;line-height:1.4">
-                                                                <a href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                <a href="{{config.DOMAIN_URL}}/question/{{question.slug}}"
                                                                     style="text-decoration:none;color:#333333"
                                                                     target="_blank"></a>
-                                                                <div><a href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                <div><a href="{{config.DOMAIN_URL}}/question/{{question.slug}}"
                                                                         style="text-decoration:none;color:#333333"
                                                                         target="_blank"></a>
                                                                     <div style="display:inline;line-height:1.6"><a
-                                                                            href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                            href="{{config.DOMAIN_URL}}/question/{{question.slug}}"
                                                                             style="text-decoration:none;color:#333333"
                                                                             target="_blank"><span
                                                                                 style="word-break:break-word">
@@ -134,7 +134,7 @@
                                                                                     {{question.question|safe}}
                                                                                 </p>
                                                                             </span> </a><a
-                                                                            href="https://staging.hoovada.com/question/{{question.slug}}"
+                                                                            href="{{config.DOMAIN_URL}}/question/{{question.slug}}"
                                                                             style="text-decoration:none;color:#168de9"
                                                                             target="_blank">Read
                                                                             More »</a></div>
@@ -145,10 +145,21 @@
                                                 </table>
                                             </td>
                                         </tr>
-                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% endfor %}
+                {% for article in recommended_articles %}
+                <table style="border-collapse:collapse;border:0;width:100%" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="border-collapse:collapse"></td>
+                            <td style="border-collapse:collapse;border-bottom:1px solid #eee;height:1px;width:140px"
+                                width="140" height="1"></td>
+                            <td style="border-collapse:collapse"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -159,7 +170,6 @@
                                 <table cellpadding="0" cellspacing="0" border="0"
                                     style="border-collapse:collapse;width:100%" width="100%">
                                     <tbody>
-                                        {% for article in recommended_articles %}
                                         <tr>
                                             <td style="border-collapse:collapse;padding-bottom:4px">
                                                 <table cellpadding="0" cellspacing="0" border="0"
@@ -174,7 +184,7 @@
                                         </tr>
                                         <tr>
                                             <td style="border-collapse:collapse"><a
-                                                    href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                    href="{{config.DOMAIN_URL}}/article/{{article.slug}}"
                                                     style="text-decoration:none;display:block;font-size:19px;letter-spacing:-0.5px;font-weight:bold;color:#333;line-height:1.4"
                                                     target="_blank"><span class="m_2168602734928602428rendered_qtext"
                                                         style="word-break:break-word">{{article.title}}
@@ -193,14 +203,14 @@
                                                                         <tr>
                                                                             <td style="border-collapse:collapse;vertical-align:top"
                                                                                 valign="top"><a
-                                                                                    href="https://staging.hoovada.com/profile/{{article.user.display_name}}"
+                                                                                    href="{{config.DOMAIN_URL}}/profile/{{article.user.display_name}}"
                                                                                     style="text-decoration:none;color:#2b6dad"
                                                                                     target="_blank">
                                                                                     <div>
                                                                                         <div>
                                                                                             <div> </div>
                                                                                         </div><span><img
-                                                                                                src="{{'https://s3.wasabisys.com/hoovada/' + article.user.profile_pic_url if article.user.profile_pic_url else 'https://staging.hoovada.com/images/default/avatar.png'}}"
+                                                                                                src="{{'https://s3.wasabisys.com/hoovada/' + article.user.profile_pic_url if article.user.profile_pic_url else '{{config.DOMAIN_URL}}/images/default/avatar.png'}}"
                                                                                                 alt="avatar"
                                                                                                 style="outline:0;text-decoration:none;border:0;display:block;height:40px;width:40px;border-radius:100px;border-style:none"
                                                                                                 height="40"
@@ -216,7 +226,7 @@
                                                                                         <tr>
                                                                                             <td
                                                                                                 style="border-collapse:collapse">
-                                                                                                <a href="https://staging.hoovada.com/profile/{{article.user.display_name}}"
+                                                                                                <a href="{{config.DOMAIN_URL}}/profile/{{article.user.display_name}}"
                                                                                                     style="text-decoration:none;color:#333;font-weight:bold;font-size:15px;line-height:1.4"
                                                                                                     target="_blank">{{article.user.display_name}}</a><span
                                                                                                     style="font-size:15px;line-height:1.4"></span>
@@ -225,7 +235,7 @@
                                                                                         <tr>
                                                                                             <td
                                                                                                 style="border-collapse:collapse;color:#999;font-size:13px">
-                                                                                                <a href="https://staging.hoovada.com/profile/{{article.user.display_name}}"
+                                                                                                <a href="{{config.DOMAIN_URL}}/profile/{{article.user.display_name}}"
                                                                                                     style="text-decoration:none;color:#999"
                                                                                                     target="_blank">Cập
                                                                                                     nhật lúc: {{article.updated_date}}</a></td>
@@ -241,14 +251,14 @@
                                                         <tr>
                                                             <td
                                                                 style="border-collapse:collapse;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;color:#333;font-size:15px;line-height:1.4">
-                                                                <a href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                <a href="{{config.DOMAIN_URL}}/article/{{article.slug}}"
                                                                     style="text-decoration:none;color:#333333"
                                                                     target="_blank"></a>
-                                                                <div><a href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                <div><a href="{{config.DOMAIN_URL}}/article/{{article.slug}}"
                                                                         style="text-decoration:none;color:#333333"
                                                                         target="_blank"></a>
                                                                     <div style="display:inline;line-height:1.6"><a
-                                                                            href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                            href="{{config.DOMAIN_URL}}/article/{{article.slug}}"
                                                                             style="text-decoration:none;color:#333333"
                                                                             target="_blank"><span
                                                                                 style="word-break:break-word">
@@ -258,7 +268,7 @@
                                                                                     {{article.html|safe}}
                                                                                 </p>
                                                                             </span> </a><a
-                                                                            href="https://staging.hoovada.com/article/{{article.slug}}"
+                                                                            href="{{config.DOMAIN_URL}}/article/{{article.slug}}"
                                                                             style="text-decoration:none;color:#168de9"
                                                                             target="_blank">Read
                                                                             More »</a></div>
@@ -269,13 +279,13 @@
                                                 </table>
                                             </td>
                                         </tr>
-                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                {% endfor %}
             </div>
         </div>
 
@@ -289,9 +299,9 @@
                 <div style="margin-top:20px">
                     <div style="color:#757575;text-align:center">Nếu bạn không muốn nhận những email này từ Hoovada.com
                         trong tương lai, vui lòng nhấp vào <a
-                            href="https://console.firebase.google.com/subscriptions/project/sales-guns-v2"
+                            href="{{config.DOMAIN_URL}}/profile/{{user.display_name}}"
                             style="text-decoration:none;color:#B92B27;font-weight: 700;" target="_blank"
-                            data-saferedirecturl="https://www.google.com/url?q=https://console.firebase.google.com/subscriptions/project/sales-guns-v2&amp;source=gmail&amp;ust=1607880740734000&amp;usg=AFQjCNFzpTNrP4WiaeNlD8CSdNYcvHkwlg">hủy
+                            >hủy
                             đăng ký</a></div>
                 </div>
             </div>
