@@ -34,7 +34,7 @@ class HealthCheck(Resource):
         """ Use for Readiness and Liveness Probes
         """
         
-        test.send()
+        test()
         return send_result(message="OK!", code=200)
 
 
