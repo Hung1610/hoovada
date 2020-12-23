@@ -22,7 +22,7 @@
         <div
             style="display:flex; background: #FFFFFF; border-radius: 8px;border: 1px solid #d8e8f2;padding:20px;margin-bottom:20px">
             <div>
-                <img src="https://staging.hoovada.com/images/default/avatar.png"
+                <img src="{{config.DOMAIN_URL}}/images/default/avatar.png"
                     style="width:40px;margin-right:10px;" />
             </div>
             <div>
@@ -32,7 +32,7 @@
                 <div style="padding:10px 0px;color: #828282;font-size: 12px;">12:30 22/4/2020</div>
                 <div>{{requester.about_me}}</div>
                 <div style="margin:0;outline:none;padding:0;text-align:center; padding-top:20px"> <a
-                        href="https://staging.hoovada.com/profile/{{requester.display_name}}" style="background: #B92B27;
+                        href="{{config.DOMAIN_URL}}/profile/{{requester.display_name}}" style="background: #B92B27;
                     border-radius: 99px;color:white;padding:8px 20px;border:#B92B27;text-decoration: none;">Xem chi
                         tiết người dùng</a></div>
             </div>
@@ -49,7 +49,7 @@
                 <div style="margin-top:20px">
                     <div style="color:#757575;text-align:center">Nếu bạn không muốn nhận những email này từ Hoovada.com
                         trong tương lai, vui lòng nhấp vào <a
-                            href="https://staging.hoovada.com/profile/{{user.display_name}}"
+                            href="{{config.DOMAIN_URL}}/profile/{{user.display_name}}"
                             style="text-decoration:none;color:#B92B27;font-weight: 700;" target="_blank"
                             >hủy
                             đăng ký</a></div>
