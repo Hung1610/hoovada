@@ -102,6 +102,8 @@ class UserDto(Dto):
 
         'profile_pic_url': fields.String(required=False),
         'cover_pic_url': fields.String(required=False, default=''),
+        'document_pic_url': fields.String(required=False, default=''),
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
         'admin': fields.String(required=False),
         'permissions': fields.String(required=False),
         'active': fields.Boolean(required=False),
@@ -119,13 +121,36 @@ class UserDto(Dto):
         'hoovada_digests_setting': fields.Boolean(required=False),
         'hoovada_digests_frequency_setting': fields.String(required=False),
 
-        'questions_you_asked_or_followed_setting': fields.Boolean(required=False),
-        'questions_you_asked_or_followed_frequency_setting': fields.String(required=False),
-        'people_you_follow_setting': fields.Boolean(required=False),
-        'people_you_follow_frequency_setting': fields.String(required=False),
+        'new_answer_notify_settings': fields.Boolean(required=False, default=True),
+        'new_answer_email_settings': fields.Boolean(required=False, default=True),
 
-        'email_stories_topics_setting': fields.Boolean(required=False),
-        'email_stories_topics_frequency_setting': fields.String(required=False),
+        'my_question_notify_settings': fields.Boolean(required=False, default=True),
+        'my_question_email_settings': fields.Boolean(required=False, default=True),
+
+        'new_question_comment_notify_settings': fields.Boolean(required=False, default=True),
+        'new_question_comment_email_settings': fields.Boolean(required=False, default=True),
+
+        'new_answer_comment_notify_settings': fields.Boolean(required=False, default=True),
+        'new_answer_comment_email_settings': fields.Boolean(required=False, default=True),
+
+        'new_article_comment_notify_settings': fields.Boolean(required=False, default=True),
+        'new_article_comment_email_settings': fields.Boolean(required=False, default=True),
+
+        'question_invite_notify_settings': fields.Boolean(required=False, default=True),
+        'question_invite_email_settings': fields.Boolean(required=False, default=True),
+
+        'friend_request_notify_settings': fields.Boolean(required=False, default=True),
+        'friend_request_email_settings': fields.Boolean(required=False, default=True),
+
+        'follow_notify_settings': fields.Boolean(required=False, default=True),
+        'follow_email_settings': fields.Boolean(required=False, default=True),
+
+        'followed_new_publication_notify_settings': fields.Boolean(required=False, default=True),
+        'followed_new_publication_email_settings': fields.Boolean(required=False, default=True),
+
+        'admin_interaction_notify_settings': fields.Boolean(required=False, default=True),
+        'admin_interaction_email_settings': fields.Boolean(required=False, default=True),
+
         'last_message_read_time': fields.DateTime(required=False),
 
         # count region
