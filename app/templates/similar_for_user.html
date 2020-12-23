@@ -18,6 +18,7 @@
         </div>
         <div>
             <div>
+                {% for question in recommended_questions %}
                 <table style="border-collapse:collapse;border:0;width:100%" width="100%">
                     <tbody>
                         <tr>
@@ -35,7 +36,6 @@
                                 <table cellpadding="0" cellspacing="0" border="0"
                                     style="border-collapse:collapse;width:100%" width="100%">
                                     <tbody>
-                                        {% for question in recommended_questions %}
                                         <tr>
                                             <td style="border-collapse:collapse;padding-bottom:4px">
                                                 <table cellpadding="0" cellspacing="0" border="0"
@@ -145,10 +145,21 @@
                                                 </table>
                                             </td>
                                         </tr>
-                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% endfor %}
+                {% for article in recommended_articles %}
+                <table style="border-collapse:collapse;border:0;width:100%" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="border-collapse:collapse"></td>
+                            <td style="border-collapse:collapse;border-bottom:1px solid #eee;height:1px;width:140px"
+                                width="140" height="1"></td>
+                            <td style="border-collapse:collapse"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -159,7 +170,6 @@
                                 <table cellpadding="0" cellspacing="0" border="0"
                                     style="border-collapse:collapse;width:100%" width="100%">
                                     <tbody>
-                                        {% for article in recommended_articles %}
                                         <tr>
                                             <td style="border-collapse:collapse;padding-bottom:4px">
                                                 <table cellpadding="0" cellspacing="0" border="0"
@@ -269,13 +279,13 @@
                                                 </table>
                                             </td>
                                         </tr>
-                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                {% endfor %}
             </div>
         </div>
 
@@ -289,9 +299,9 @@
                 <div style="margin-top:20px">
                     <div style="color:#757575;text-align:center">Nếu bạn không muốn nhận những email này từ Hoovada.com
                         trong tương lai, vui lòng nhấp vào <a
-                            href="https://console.firebase.google.com/subscriptions/project/sales-guns-v2"
+                            href="https://staging.hoovada.com/profile/{{user.display_name}}"
                             style="text-decoration:none;color:#B92B27;font-weight: 700;" target="_blank"
-                            data-saferedirecturl="https://www.google.com/url?q=https://console.firebase.google.com/subscriptions/project/sales-guns-v2&amp;source=gmail&amp;ust=1607880740734000&amp;usg=AFQjCNFzpTNrP4WiaeNlD8CSdNYcvHkwlg">hủy
+                            >hủy
                             đăng ký</a></div>
                 </div>
             </div>
