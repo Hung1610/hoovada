@@ -7,6 +7,7 @@ from os import environ
 # third-party modules
 import dramatiq
 from dramatiq.brokers.rabbitmq import RabbitmqBroker
+from dramatiq.message import Message
 
 # own modules
 
@@ -30,9 +31,8 @@ dramatiq.set_broker(rabbitmq_broker)
 # Define dramatiq actor here.
 # Call these methods from common. tasks.py in each app will act as listenner for events (aka consumer).
 
-@dramatiq.actor()
 def test():
-    pass
+    rabbitmq_broker.enqueue(Message(queue_name='app_queue', actor_name='test', args=(), kwargs={}, options={}))
 
 @dramatiq.actor()
 def send_weekly_registered_users():

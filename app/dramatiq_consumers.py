@@ -25,9 +25,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 dramatiq = Dramatiq()
 
 
-@dramatiq.actor()
+@dramatiq.actor(actor_name='test', queue_name='app_queue')
 def test():
-    print('THIS IS THE DEFAULT TASK MESSAGE')
+    print('THIS IS THE DEFAULT TASK MESSAGE', flush=True)
 
 @dramatiq.actor()
 def send_weekly_registered_users():
