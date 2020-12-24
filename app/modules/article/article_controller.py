@@ -159,7 +159,7 @@ class ArticleController(Controller):
         if params.get('is_created_by_friend') and g.current_user:
             query = query\
                 .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
-                .join(UserFriend,(UserFriend.friended_id==Article.user_id | UserFriend.friend_id==Article.user_id), isouter=True)\
+                .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
                 .filter(
                     (UserFollow.follower_id == g.current_user.id) |
                     ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
@@ -167,8 +167,10 @@ class ArticleController(Controller):
                 )
         if params.get('hot'):
             if g.current_user:
-                query = query.join(TopicBookmark, TopicBookmark.topic_id==Article.fixed_topic_id, isouter=True)\
-                    .filter(TopicBookmark.user_id == g.current_user.id)\
+                query = query.join(TopicBookmark, \
+                            ((TopicBookmark.topic_id==Article.fixed_topic_id) &\
+                                (TopicBookmark.user_id == g.current_user.id))\
+                        , isouter=True)\
                     .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
                         desc(text("upvote_count + downvote_count + share_count + favorite_count")))
             else:
