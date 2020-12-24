@@ -161,7 +161,7 @@ class QuestionController(Controller):
         if params.get('is_created_by_friend') and current_user:
             query = query\
                 .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
-                .join(UserFriend,(UserFriend.friended_id==Question.user_id | UserFriend.friend_id==Question.user_id), isouter=True)\
+                .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
                 .filter(
                     (UserFollow.follower_id == current_user.id) |
                     ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
@@ -169,8 +169,10 @@ class QuestionController(Controller):
                 )
         if params.get('hot'):
             if g.current_user:
-                query = query.join(TopicBookmark, TopicBookmark.topic_id==Question.fixed_topic_id, isouter=True)\
-                    .filter(TopicBookmark.user_id == current_user.id)\
+                query = query.join(TopicBookmark, \
+                        ((TopicBookmark.topic_id==Question.fixed_topic_id) &\
+                            TopicBookmark.user_id == current_user.id), \
+                        isouter=True)\
                     .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
                         desc(text("upvote_count + downvote_count + share_count + favorite_count")))
             else:
