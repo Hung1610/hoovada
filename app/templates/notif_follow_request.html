@@ -22,8 +22,13 @@
         <div
             style="display:flex; background: #FFFFFF; border-radius: 8px;border: 1px solid #d8e8f2;padding:20px;margin-bottom:20px">
             <div>
-                <img src="{{config.DOMAIN_URL}}/images/default/avatar.png"
+                {% if requester %}
+                <img src="{{'https://s3.wasabisys.com/hoovada/' + requester.profile_pic_url if requester.profile_pic_url else config.DOMAIN_URL + '/images/default/avatar.png'}}"
                     style="width:40px;margin-right:10px;" />
+                {% else %}
+                <img src="{{config.DOMAIN_URL + '/images/default/avatar.png'}}"
+                    style="width:40px;margin-right:10px;" />
+                {% endif %}
             </div>
             <div>
                 <div> <span style="font-weight: 700">{{requester.display_name if requester else 'Khách'}}</span> <span
