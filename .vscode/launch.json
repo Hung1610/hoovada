@@ -23,6 +23,8 @@
                 "RABBITMQ_HOST": "localhost",
                 "RABBITMQ_USER": "dev",
                 "RABBITMQ_PASSWORD": "hoovada",
+                "MAIL_PASSWORD": "xrkajeadxbexdell",
+                "DOMAIN_ENDPOINT": "staging.hoovada.com",
                 "prometheus_multiproc_dir": "./multiproc-tmp"
             },
             "args": [
