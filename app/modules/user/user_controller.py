@@ -226,7 +226,9 @@ class UserController(Controller):
                 print(e.__str__())
                 return send_error(message='Could not save your avatar.')
         else:
-            return send_error(message='Please attach or check your photo before uploading.')
+            user.profile_pic_url = None
+            db.session.commit()
+            return send_result(data=marshal(user, UserDto.model_response), message='Deleted avatar successfully.')
 
 
     def upload_document(self, args):
@@ -259,7 +261,9 @@ class UserController(Controller):
                 print(e.__str__())
                 return send_error(message='Could not save your doc.')
         else:
-            return send_error(message='Please attach or check your photo before uploading.')
+            user.document_pic_url = None
+            db.session.commit()
+            return send_result(data=marshal(user, UserDto.model_response), message='Deleted doc successfully.')
 
 
     def upload_cover(self, args):
@@ -289,12 +293,14 @@ class UserController(Controller):
             try:
                 user.cover_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
+                return send_result(data=marshal(user, UserDto.model_response), message='Upload cover successfully.')
             except Exception as e:
                 print(e.__str__())
                 return send_error(message='Could not save your avatar.')
         else:
-            return send_error(message='Please attach or check your photo before uploading.')
+            user.cover_pic_url = None
+            db.session.commit()
+            return send_result(data=marshal(user, UserDto.model_response), message='Deleted cover successfully.')
 
 
     def get_avatar(self):
