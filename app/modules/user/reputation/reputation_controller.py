@@ -129,8 +129,6 @@ class ReputationController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if topic_id is None :
-            return send_error(message='Vui lòng nhập từ khoá tìm kiếm.')
         query = db.session.query(Reputation)
         is_filter = False
         if topic_id is not None:
