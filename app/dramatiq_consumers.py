@@ -2,19 +2,17 @@
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
+import datetime
 
 # third-party modules
-from app.modules.q_a.question.question_controller import Question
-from common.utils.onesignal_notif import push_notif_to_specific_users
-import datetime
-from common.enum import FrequencySettingEnum
+from flask import current_app, render_template
 from flask_dramatiq import Dramatiq
-from flask import current_app, g
-from flask.templating import render_template
 
 # own modules
-from common.utils.util import send_answer_notif_email, send_article_notif_email, send_email, send_question_notif_email
 from common.db import db
+from common.enum import FrequencySettingEnum
+from common.utils.onesignal_notif import push_notif_to_specific_users
+from common.utils.util import send_answer_notif_email, send_article_notif_email, send_email, send_question_notif_email
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -138,6 +136,8 @@ def send_weekly_similar_mails():
 
 @dramatiq.actor()
 def send_recommendation_mail(user_id):
+    UserMailedQuestion = db.get_model('UserMailedQuestion')
+    UserMailedArticle = db.get_model('UserMailedArticle')
     Topic = db.get_model('Topic')
     TopicFollow = db.get_model('TopicFollow')
     Question = db.get_model('Question')
@@ -145,16 +145,40 @@ def send_recommendation_mail(user_id):
     User = db.get_model('User')
     user = User.query.get(user_id)
     if user.email:
-        followed_topic_ids = [topic_id[0] for topic_id in TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()]
-        recommended_questions = Question.query.filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
-        recommended_articles = Article.query.filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
+        today_minus_one_month = datetime.datetime.now() - datetime.timedelta(weeks=4)
+        mailed_question_ids = [question[0] for question in UserMailedQuestion.query\
+            .with_entities(UserMailedQuestion.question_id)\
+            .distinct()\
+            .filter(UserMailedQuestion.created_date > today_minus_one_month)]
+        mailed_article_ids = [article[0] for article in UserMailedArticle.query\
+            .with_entities(UserMailedArticle.article_id)\
+            .distinct()\
+            .filter(UserMailedArticle.created_date > today_minus_one_month)]
+        
+        followed_topic_ids = [topic_id[0] for topic_id in \
+            TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()]
+
+        recommended_questions = Question.query\
+            .filter(~Question.id.in_(mailed_question_ids))\
+            .filter(Question.topics.any(Topic.id.in_(followed_topic_ids)))
+        recommended_articles = Article.query\
+            .filter(~Article.id.in_(mailed_article_ids))\
+            .filter(Article.topics.any(Topic.id.in_(followed_topic_ids)))
+
         if (recommended_articles.count() + recommended_questions.count()) > 0:
+            db.session.add_all([\
+                UserMailedQuestion(user_id=user.id, question_id=question.id) for question in recommended_questions])
+            db.session.add_all([\
+                UserMailedArticle(user_id=user.id, article_id=article.id) for article in recommended_articles])
+            db.session.commit()
             html = render_template('recommendation_for_user.html', \
                 user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
             send_email(user.email, 'Món quà từ cộng đồng hoovada.com', html)
 
 @dramatiq.actor()
 def send_similar_mail(user_id):
+    UserMailedQuestion = db.get_model('UserMailedQuestion')
+    UserMailedArticle = db.get_model('UserMailedArticle')
     UserSeenQuestion = db.get_model('UserSeenQuestion')
     UserSeenArticle = db.get_model('UserSeenArticle')
     Question = db.get_model('Question')
@@ -162,6 +186,16 @@ def send_similar_mail(user_id):
     User = db.get_model('User')
     user = User.query.get(user_id)
     if user.email:
+        today_minus_one_month = datetime.datetime.now() - datetime.timedelta(weeks=4)
+        mailed_question_ids = [question[0] for question in UserMailedQuestion.query\
+            .with_entities(UserMailedQuestion.question_id)\
+            .distinct()\
+            .filter(UserMailedQuestion.created_date > today_minus_one_month)]
+        mailed_article_ids = [article[0] for article in UserMailedArticle.query\
+            .with_entities(UserMailedArticle.article_id)\
+            .distinct()\
+            .filter(UserMailedArticle.created_date > today_minus_one_month)]
+
         seen_question_ids = UserSeenQuestion.query\
             .with_entities(UserSeenQuestion.question_id)\
             .filter(UserSeenQuestion.user_id == user.id)\
@@ -179,7 +213,9 @@ def send_similar_mail(user_id):
                 .limit(10)\
                 .all()
             recommended_question_ids.update([question[0] for question in questions])
-        recommended_questions = Question.query.filter(Question.id.in_(recommended_question_ids))
+        recommended_questions = Question.query\
+            .filter(~Question.id.in_(mailed_question_ids))\
+            .filter(Question.id.in_(recommended_question_ids))
 
         seen_article_ids = UserSeenArticle.query\
             .with_entities(UserSeenArticle.article_id)\
@@ -197,10 +233,17 @@ def send_similar_mail(user_id):
                 .limit(10)\
                 .all()
             recommended_article_ids.update([article[0] for article in articles])
-        recommended_articles = Article.query.filter(Article.id.in_(recommended_article_ids))
+        recommended_articles = Article.query\
+            .filter(~Article.id.in_(mailed_article_ids))\
+            .filter(Article.id.in_(recommended_article_ids))
         
         
         if (recommended_articles.count() + recommended_questions.count()) > 0:
+            db.session.add_all([\
+                UserMailedQuestion(user_id=user.id, question_id=question.id) for question in recommended_questions])
+            db.session.add_all([\
+                UserMailedArticle(user_id=user.id, article_id=article.id) for article in recommended_articles])
+            db.session.commit()
             html = render_template('similar_for_user.html', \
                 user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
             send_email(user.email, 'Nội dung mà bạn quan tâm từ cộng đồng hoovada.com', html)

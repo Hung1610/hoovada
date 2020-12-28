@@ -431,3 +431,41 @@ class UserSeenArticle(Model):
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
     article = db.relationship('Article', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserMailedQuestion(Model):
+    """
+    Define the questions that the user has been mailed.
+    Used to keep track of recommendation mailing tasks.
+    """
+    __tablename__ = 'user_mailed_question'
+
+    def __init__(self, user_id, question_id):
+        self.user_id = user_id
+        self.question_id = question_id
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=backref("mailed_question_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
+    question = db.relationship('Question', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserMailedArticle(Model):
+    """
+    Define the articles that the user has been mailed.
+    Used to keep track of recommendation mailing tasks.
+    """
+    __tablename__ = 'user_mailed_article'
+
+    def __init__(self, user_id, article_id):
+        self.user_id = user_id
+        self.article_id = article_id
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=backref("mailed_article_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
+    article = db.relationship('Article', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
