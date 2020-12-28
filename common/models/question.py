@@ -42,7 +42,7 @@ question_topics = db.Table('question_topic',
 # pylint: disable=R0201
 class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.UnicodeText)
+    title = db.Column(db.Unicode(255))
     slug = db.Column(db.String(255))
     question = db.Column(db.UnicodeText)
     accepted_answer_id = db.Column(db.Integer)
@@ -73,7 +73,6 @@ class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
 class Question(Model, BaseQuestion):
     __tablename__ = 'question'
     __table_args__ = (
-        db.Index("idx_question_title", "title", mysql_length=255),
         db.Index("idx_question_slug", "slug", mysql_length=255),
     )
     
