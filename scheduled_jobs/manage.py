@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 
 # bulit-in modules
-import datetime
 from os import environ
+import sys
+import datetime
 import time
+import signal
 
 # third-party modules
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.triggers.cron import CronTrigger
 
 # own modules
 from common.dramatiq_producers import send_daily_new_topics, send_daily_recommendation_mails, send_daily_similar_mails, send_weekly_new_topics, send_weekly_recommendation_mails, send_weekly_registered_users, send_weekly_similar_mails
@@ -117,13 +117,19 @@ def get_scheduler():
     scheduler.add_job(send_weekly_similar_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0, id='send_weekly_similar_emails_job', replace_existing=True)
     return scheduler
 
+def gracefully_shutdown_scheduler(scheduler):
+    try:
+        print('Shutting down job scheduler', flush=True)
+        scheduler.shutdown(wait=False)
+    except Exception as e: 
+        print(e, flush=True)
+        pass
+    sys.exit(0)
+
 if __name__ == "__main__":
     apscheduler = get_scheduler()
+    signal.signal(signal.SIGTERM, lambda num, frame: gracefully_shutdown_scheduler(apscheduler))
     apscheduler.print_jobs()
-    try:
-        apscheduler.shutdown(wait=False)
-    except Exception as e: 
-        pass
     apscheduler.start()
     while True:
         time.sleep(1)

@@ -2,4 +2,4 @@
 
 set -e
 
-pypy3 -m scheduled_jobs.manage
+exec pypy3 -m scheduled_jobs.manage

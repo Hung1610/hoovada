@@ -169,27 +169,24 @@ class AuthController:
                 return send_error(message=messages.ERR_NO_TOKEN)
 
             access_token = str(data['access_token'])
-            key = Config.FACEBOOK_SECRET.encode('utf-8')
-            msg = access_token.encode('utf-8')
-            appsecret_proof = hmac.new(key, msg, hashlib.sha256).hexdigest()
+            # key = current_app.config['FACEBOOK_SECRET'].encode('utf-8')
+            # msg = access_token.encode('utf-8')
+            # appsecret_proof = hmac.new(key, msg, hashlib.sha256).hexdigest()
             resp = requests.get(
                 Config.GRAPH_API_URL,
                 params={
                     'fields': ','.join(Config.FACEBOOK_FIELDS),
                     'access_token': access_token,
-                    'appsecret_proof': appsecret_proof
+                    # 'appsecret_proof': appsecret_proof
                 })
 
-            if (resp.status_code != 200):
-                return send_error(message=messages.ERR_RESET_PASS_INCORRECT)
-            
             resp.raise_for_status()
             extra_data = resp.json()
             user = save_social_account('facebook', extra_data)
             auth_token = encode_auth_token(user_id=user.id)
             if auth_token:
                 return send_result(data={'access_token': auth_token.decode('utf8')})
-        except Exception:
+        except Exception as e:
             return send_error(message=messages.ERR_ISSUE.format(e))
 
 

@@ -48,14 +48,13 @@ class User(Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    display_name = db.Column(db.String(255), unique=True, nullable=False)  # , default='')
-    title = db.Column(db.String(255))  # , default='')
+    display_name = db.Column(db.Unicode(255), unique=True, nullable=False)  # , default='')
     phone_number = db.Column(db.String(255), unique=True, nullable=True)
     verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
 
-    first_name = db.Column(db.String(255))  # (128), default='')
-    middle_name = db.Column(db.String(255))  # (128), default='')
-    last_name = db.Column(db.String(255))  # (128), default='')
+    first_name = db.Column(db.Unicode(255))  # (128), default='')
+    middle_name = db.Column(db.Unicode(255))  # (128), default='')
+    last_name = db.Column(db.Unicode(255))  # (128), default='')
 
     gender = db.Column(db.String(255))  # (10), default='')
     age = db.Column(db.String(255))  # (3), default='')
@@ -84,7 +83,7 @@ class User(Model):
     # Settings
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default="weekly")
+    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default='weekly')
 
     new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.true())
     new_answer_email_settings = db.Column(db.Boolean, server_default=expression.true())
