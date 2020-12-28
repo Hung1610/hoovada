@@ -22,8 +22,12 @@ class UserFriendDto(Dto):
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
         'profile_pic_url': fields.String(required=False),
+        
+        'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
+        'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
 
         'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed or not'),
+        'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })

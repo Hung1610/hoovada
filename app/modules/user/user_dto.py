@@ -201,8 +201,12 @@ class UserDto(Dto):
         'is_deactivated': fields.Boolean(default=False, description='The user is deactivated or not'),
         'show_nsfw': fields.Boolean(default=True, description='The user wants nsfw topics shown or not'),
         'is_online': fields.Boolean(default=False, description='The user is online or not'),
+        
+        'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
+        'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
 
         'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed or not'),
+        'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })

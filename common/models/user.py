@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import enum
 from datetime import datetime
 
 # third-party modules
@@ -218,10 +217,10 @@ class User(Model):
     user_locations = db.relationship("UserLocation", cascade='all,delete-orphan')
     
     languages = db.relationship("Language", secondary='user_language')
-    @aggregated('friends', db.Column(db.Integer))
+    @aggregated('sent_friend_requests', db.Column(db.Integer))
     def friends_sent_count(self):
         return db.func.count('1')
-    @aggregated('friend_requests', db.Column(db.Integer))
+    @aggregated('received_friend_requests', db.Column(db.Integer))
     def friend_received_count(self):
         return db.func.count('1')
 
@@ -273,6 +272,26 @@ class User(Model):
             print(e)
 
     @property
+    def is_approved_friend(self):
+        UserFriend = db.get_model('UserFriend')
+        if g.current_user:
+            friend = UserFriend.query.with_entities(UserFriend.id).filter(\
+                                                ((UserFriend.friended_id ==g.current_user.id) & (UserFriend.friend_id == self.id)) |
+                                                ((UserFriend.friend_id ==g.current_user.id) & (UserFriend.friended_id == self.id))
+                                            ).first()
+            return True if friend else False
+        return False
+
+    @property
+    def is_friend_requested(self):
+        UserFriend = db.get_model('UserFriend')
+        if g.current_user:
+            friend = UserFriend.query.with_entities(UserFriend.id).filter(UserFriend.friend_id == self.id,
+                                             UserFriend.friended_id == g.current_user.id).first()
+            return True if friend else False
+        return False
+
+    @property
     def is_friended_by_me(self):
         UserFriend = db.get_model('UserFriend')
         if g.current_user:
@@ -290,6 +309,21 @@ class User(Model):
             return True if follow else False
         return False
 
+    @property
+    def is_facebook_linked(self):
+        SocialAccount = db.get_model('SocialAccount')
+        social_account = SocialAccount.query.with_entities(SocialAccount.id).filter(
+                (SocialAccount.user_id == self.id) & (SocialAccount.provider == 'facebook')
+            ).first()
+        return True if social_account else False
+
+    @property
+    def is_google_linked(self):
+        SocialAccount = db.get_model('SocialAccount')
+        social_account = SocialAccount.query.with_entities(SocialAccount.id).filter(
+                (SocialAccount.user_id == self.id) & (SocialAccount.provider == 'google')
+            ).first()
+        return True if social_account else False
 
 class UserLocation(Model):
     __tablename__ = 'user_location'
