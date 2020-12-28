@@ -31,9 +31,7 @@ ns_health = Namespace(name='healthz')
 @ns_health.route('/')
 class HealthCheck(Resource):
     def get(self):
-        """ Use for Readiness and Liveness Probes
-        """
-        
+        """ Use for Readiness and Liveness Probes"""   
         test()
         return send_result(message="OK!", code=200)
 
@@ -42,8 +40,7 @@ ns_cache = Namespace(name='cache')
 @ns_cache.route('/flush')
 class Cache(Resource):
     def post(self):
-        """ Use for Clearing cache
-        """
+        """ Use for Clearing cache"""
         cache.clear()
         return send_result(message="Cache Cleared!", code=200)
 

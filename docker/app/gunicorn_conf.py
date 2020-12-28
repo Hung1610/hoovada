@@ -86,8 +86,8 @@ def max_workers():
 threads = max_workers() * 2 + 1
 worker_class = 'eventlet' #'sync'
 worker_connections = 1001 #1000
-timeout = 30
-keepalive = 2
+timeout = 120
+keepalive = 4
 
 #
 #   spew - Install a trace function that spews every line of Python

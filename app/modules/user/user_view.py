@@ -114,7 +114,7 @@ class User(Resource):
 
 
 avatar_upload = api.parser()
-avatar_upload.add_argument('avatar', location='files',type=FileStorage, required=True, help='The image file to upload')
+avatar_upload.add_argument('avatar', location='files',type=FileStorage, required=False, help='The image file to upload')
 @api.route('/avatar')
 class UserAvatar(Resource):
     @token_required
@@ -130,7 +130,7 @@ class UserAvatar(Resource):
 
 
 cover_upload = api.parser()
-cover_upload.add_argument('cover', location='files',type=FileStorage, required=True, help='The image file to upload')
+cover_upload.add_argument('cover', location='files',type=FileStorage, required=False, help='The image file to upload')
 @api.route('/cover')
 class UserCover(Resource):
     @token_required
@@ -146,7 +146,7 @@ class UserCover(Resource):
 
 
 doc_upload = api.parser()
-doc_upload.add_argument('doc', location='files',type=FileStorage, required=True, help='The image file to upload')
+doc_upload.add_argument('doc', location='files',type=FileStorage, required=False, help='The image file to upload')
 @api.route('/doc')
 class UserDoc(Resource):
     @token_required
