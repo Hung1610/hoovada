@@ -43,7 +43,7 @@ question_topics = db.Table('question_topic',
 class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255))
-    slug = db.Column(db.String(255))
+    slug = db.Column(db.String(255), index=True)
     question = db.Column(db.UnicodeText)
     accepted_answer_id = db.Column(db.Integer)
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
@@ -72,9 +72,6 @@ class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
 
 class Question(Model, BaseQuestion):
     __tablename__ = 'question'
-    __table_args__ = (
-        db.Index("idx_question_slug", "slug", mysql_length=255),
-    )
     
     views_count = db.Column(db.Integer, default=0)
     @aggregated('answers', db.Column(db.Integer))
