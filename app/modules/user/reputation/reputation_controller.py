@@ -44,8 +44,34 @@ class ReputationController(Controller):
         except Exception as e:
             return False
 
-    def get(self):
-        pass
+    def get(self, args):
+        topic_id, user_id = None, None
+        if 'topic_id' in args:
+            try:
+                topic_id = int(args['topic_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'user_id' in args:
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        query = Reputation.query
+        if topic_id is not None:
+            query = query.filter(Reputation.topic_id == topic_id)
+        if user_id is not None:
+            query = query.filter(Reputation.user_id == user_id)
+        reputations = query.all()
+        results = list()
+        for reputation in reputations:
+            # get user info
+            user = reputation.user
+            result = user._asdict()
+            result['reputation'] = reputation._asdict()
+            results.append(result)
+        return send_result(marshal(results, ReputationDto.user_reputation_response), message='Success')
 
     def get_by_user_id(self, user_id):
         if user_id is None:
@@ -112,44 +138,3 @@ class ReputationController(Controller):
 
     def get_by_id(self, user_id):
         pass
-
-    def search(self, args):
-        if not isinstance(args, dict):
-            return send_error(message='Từ khoá truyền vào không đúng định dạng.')
-        topic_id, user_id = None, None
-        if 'topic_id' in args:
-            try:
-                topic_id = int(args['topic_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        query = db.session.query(Reputation)
-        is_filter = False
-        if topic_id is not None:
-            query = query.filter(Reputation.topic_id == topic_id)
-            is_filter = True
-        if user_id is not None:
-            query = query.filter(Reputation.user_id == user_id)
-            is_filter = True
-        if is_filter:
-            reputations = query.all()
-            if reputations is not None and len(reputations) > 0:
-                results = list()
-                for reputation in reputations:
-                    # get user info
-                    user = User.query.filter_by(id=reputation.user_id).first()
-                    result = user.__dict__
-
-                    result['reputation'] = reputation.__dict__
-                    results.append(result)
-                return send_result(marshal(results, ReputationDto.user_reputation_response), message='Success')
-            else:
-                return send_result(message='Không thể tìm thấy người dùng.')
-        else:
-            return send_error(message='Không thể tìm thấy người dùng. Vui lòng kiểm tra lại từ khoá tìm kiếm.')
