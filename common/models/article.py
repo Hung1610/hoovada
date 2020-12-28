@@ -29,12 +29,9 @@ article_topics = db.Table('topic_article',
 
 class Article(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'article'
-    __table_args__ = (
-        db.Index("idx_article_title", "title", mysql_length=255),
-    )
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.UnicodeText)
+    title = db.Column(db.Unicode(255))
     slug = db.Column(db.String(255), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
