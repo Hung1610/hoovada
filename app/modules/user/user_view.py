@@ -159,20 +159,3 @@ class UserDoc(Resource):
         args = doc_upload.parse_args()
         controller = UserController()
         return controller.upload_document(args=args)
-
-
-parser_user_hot = reqparse.RequestParser()
-parser_user_hot.add_argument('page', type=int, required=False, help='Search user by page.')
-parser_user_hot.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-
-@api.route('/user_hot')
-@api.expect(parser_user_hot)
-class UserHot(Resource):
-    @api.response(code=200, model=user_response, description='Model for user response.')
-    def get(self):
-        """ get users hot 
-        """
-
-        args = parser_user_hot.parse_args()
-        controller = UserController()
-        return controller.get_user_hot(args)

@@ -25,6 +25,7 @@
                 "RABBITMQ_PASSWORD": "hoovada",
                 "MAIL_PASSWORD": "xrkajeadxbexdell",
                 "DOMAIN_ENDPOINT": "staging.hoovada.com",
+                "FACEBOOK_SECRET": "f677942d840c504cc86190b3aad6ef7d",
                 "prometheus_multiproc_dir": "./multiproc-tmp"
             },
             "args": [
