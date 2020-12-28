@@ -25,9 +25,9 @@ parser = reqparse.RequestParser()
 parser.add_argument('topic_id', type=int, required=False, help='Search reputation by topic_id')
 parser.add_argument('user_id', type=int, required=False, help='Search reputation by user_id')
 
-@api.route('/search')
+@api.route('/all/reputation')
 @api.expect(parser)
-class UserReputationSearch(Resource):
+class UserReputationAll(Resource):
     # @token_required
     @api.response(code=200, model=user_reputation_response, description='Model for user title response.')
     def get(self):
@@ -37,7 +37,22 @@ class UserReputationSearch(Resource):
 
         args = parser.parse_args()
         controller = ReputationController()
-        return controller.search(args=args)
+        return controller.get(args=args)
+
+
+@api.route('/<string:user_id>/reputation')
+class UserReputationForUser(Resource):
+    # @token_required
+    @api.response(code=200, model=user_reputation_response, description='Model for user title response.')
+    def get(self, user_id):
+        """ 
+        Search all reputation that satisfy conditions.
+        """
+
+        args = {}
+        args['user_id'] = user_id
+        controller = ReputationController()
+        return controller.get(args=args)
 
 
 @api.route('/update_all')
