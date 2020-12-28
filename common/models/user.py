@@ -48,8 +48,7 @@ class User(Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    display_name = db.Column(db.String(255), unique=True, nullable=False)  # , default='')
-    title = db.Column(db.String(255))  # , default='')
+    display_name = db.Column(db.Unicode(255), unique=True, nullable=False)  # , default='')
     phone_number = db.Column(db.String(255), unique=True, nullable=True)
     verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
 
