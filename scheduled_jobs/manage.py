@@ -11,6 +11,7 @@ import signal
 # third-party modules
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.redis import RedisJobStore
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 
 # own modules
@@ -24,6 +25,22 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 REDIS_PORT = environ.get('REDIS_PORT', '6380')
 REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PASSWORD = environ.get('REDIS_PASSWORD', 'hoovada')
+
+# mysql configuration
+DB_USER = environ.get('DB_USER', 'dev')
+DB_PASSWORD = environ.get('DB_PASSWORD', 'hoovada')
+DB_HOST = environ.get('DB_HOST', 'localhost')
+DB_PORT = environ.get('DB_PORT', '3306')
+DB_NAME = environ.get('DB_NAME', 'hoovada')
+DB_CHARSET = 'utf8mb4'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT,
+        name=DB_NAME,
+        charset=DB_CHARSET
+    )
 
 def send_registered_user_emails_job():
     """ Send email notification to admin. Contains list of newly registered users
@@ -87,14 +104,18 @@ def health_check():
 def get_scheduler():
     # ApScheduler
     scheduler = BackgroundScheduler()
+
+    sqlalchemy_job_store = SQLAlchemyJobStore(SQLALCHEMY_DATABASE_URI)
     
     redis_job_store = RedisJobStore(db=1,\
             host=REDIS_HOST,\
             port=REDIS_PORT,\
             password=REDIS_PASSWORD)
     redis_job_store.remove_all_jobs()
+
     jobstores = {
-        'default': redis_job_store
+        'default': sqlalchemy_job_store,
+        'redis': redis_job_store,
     }
     executors = {
         'default': ThreadPoolExecutor(20),
@@ -115,6 +136,7 @@ def get_scheduler():
     scheduler.add_job(send_weekly_recommendation_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0, id='send_weekly_recommendation_emails_job', replace_existing=True)
     scheduler.add_job(send_daily_similar_emails_job, 'cron', minute=0, hour=0, id='send_daily_similar_emails_job', replace_existing=True)
     scheduler.add_job(send_weekly_similar_emails_job, 'cron', day_of_week='sun', week='*', hour=0, minute=0, id='send_weekly_similar_emails_job', replace_existing=True)
+    
     return scheduler
 
 def gracefully_shutdown_scheduler(scheduler):
