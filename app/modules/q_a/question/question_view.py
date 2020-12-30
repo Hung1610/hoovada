@@ -5,11 +5,13 @@
 from datetime import datetime
 
 # third-party modules
-from flask_restx import Resource, reqparse
+from flask import request
+from flask_restx import Resource
 
 # own modules
 from app.modules.q_a.question.question_controller import QuestionController
 from app.modules.q_a.question.question_dto import QuestionDto
+from common.cache import cache
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -30,13 +32,19 @@ model_answer_request = QuestionDto.model_answer_request
 model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
+proposal_get_parser = QuestionDto.proposal_get_parser
+
 
 
 @api.route('')
 class QuestionList(Resource):
+    @staticmethod
+    def get_key_prefix():
+        return 'get.questions'
+
     @api.expect(get_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    # @cache.cached(query_string=True)
+    @cache.cached(key_prefix=get_key_prefix, query_string=True)
     def get(self):
         """ 
         Get list of questions from database.
@@ -46,7 +54,6 @@ class QuestionList(Resource):
         return controller.get(args=args)
 
 
-    # @token_required
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
@@ -56,7 +63,9 @@ class QuestionList(Resource):
 
         data = api.payload
         controller = QuestionController()
-        return controller.create(data=data)
+        result = controller.create(data=data)
+        cache.clear_cache(QuestionList.get_key_prefix())
+        return result
 
 
 @api.route('/recommended-users')
@@ -100,9 +109,12 @@ class QuestionSimilar(Resource):
 
 @api.route('/<string:id_or_slug>')
 class Question(Resource):
-    # @api.marshal_with(question)
-    # @api.param(name='id', description='The ID of thequestion.')
+    @staticmethod
+    def get_key_prefix():
+        return '{}{}'.format('get.question', request.view_args['id_or_slug'])
+
     @api.response(code=200, model=model_response, description='Model for question response.')
+    @cache.cached(key_prefix=get_key_prefix, query_string=True)
     def get(self, id_or_slug):
         """ 
         Get specific question by its ID.
@@ -113,7 +125,6 @@ class Question(Resource):
 
     @admin_token_required()
     @api.expect(model_request)
-    # @api.marshal_with(question)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id_or_slug):
         """ 
@@ -122,7 +133,10 @@ class Question(Resource):
 
         data = api.payload
         controller = QuestionController()
-        return controller.update(object_id=id_or_slug, data=data)
+        result = controller.update(object_id=id_or_slug, data=data)
+        cache.clear_cache(Question.get_key_prefix())
+        cache.clear_cache('get.questions')
+        return result
 
     @admin_token_required()
     def delete(self, id_or_slug):
@@ -131,20 +145,10 @@ class Question(Resource):
         """
 
         controller = QuestionController()
-        return controller.delete(object_id=id_or_slug)
-
-@api.route('/<string:id_or_slug>/answer')
-class QuestionAnswer(Resource):
-    # @token_required
-    @api.expect(model_answer_request)
-    def post(self, id_or_slug):
-        """ 
-        Create answer for question by its ID.
-        """
-
-        data = api.payload
-        controller = QuestionController()
-        return controller.create_answer(object_id=id_or_slug, data=data)
+        result = controller.delete(object_id=id_or_slug)
+        cache.clear_cache(Question.get_key_prefix())
+        cache.clear_cache('get.questions')
+        return result
 
 @api.route('/<string:id_or_slug>/invite')
 class QuestionInvite(Resource):
@@ -170,13 +174,15 @@ class QuestionFriendInvite(Resource):
         controller = QuestionController()
         return controller.invite_friends(object_id=id_or_slug)
 
-proposal_get_parser = reqparse.RequestParser()
-proposal_get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
-proposal_get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
 @api.route('/<string:id_or_slug>/proposal')
 class QuestionProposal(Resource):
+    @staticmethod
+    def get_key_prefix():
+        return '{}{}'.format('get.question.proposals', request.view_args['id_or_slug'])
+
     @api.expect(proposal_get_parser)
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
+    @cache.cached(key_prefix=get_key_prefix, query_string=True)
     def get(self, id_or_slug):
         """ Get list of questions from database.
         """
@@ -192,7 +198,9 @@ class QuestionProposal(Resource):
 
         data = api.payload
         controller = QuestionController()
-        return controller.create_proposal(object_id=id_or_slug, data=data)
+        result = controller.create_proposal(object_id=id_or_slug, data=data)
+        cache.clear_cache(QuestionProposal.get_key_prefix())
+        return result
 
 @api.route('/<string:id_or_slug>/delete-proposal')
 class QuestionDeleteProposal(Resource):
@@ -202,7 +210,9 @@ class QuestionDeleteProposal(Resource):
         """
 
         controller = QuestionController()
-        return controller.create_delete_proposal(object_id=id_or_slug)
+        result = controller.create_delete_proposal(object_id=id_or_slug)
+        cache.clear_cache(QuestionProposal.get_key_prefix())
+        return result
 
 
 @api.route('/all/proposal/<int:id>/approve')
@@ -216,18 +226,6 @@ class QuestionApprove(Resource):
         controller = QuestionController()
         return controller.approve_proposal(object_id=id)
 
-@api.route('/get_by_slug/<string:slug>')
-class GetQuestionBySlug(Resource):
-    # @api.marshal_with(question)
-    # @api.param(name='id', description='The ID of thequestion.')
-    @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self, slug):
-        """ Get specific question by its ID.
-        """
-
-        controller = QuestionController()
-        return controller.get_by_slug(slug)
-
 @api.route('/update_slug')
 class UpdateSlug(Resource):
     @admin_token_required()
@@ -237,20 +235,5 @@ class UpdateSlug(Resource):
         """
 
         controller = QuestionController()
-        return controller.update_slug()
-
-parser_question_for_you = reqparse.RequestParser()
-parser_question_for_you.add_argument('page', type=int, required=False, help='Search questions by page.')
-parser_question_for_you.add_argument('per_page', type=int, required=False, help='Get record number on page.')
-@api.route('/question_for_you')
-@api.expect(parser_question_for_you)
-class QuestionForYou(Resource):
-    @token_required
-    @api.response(code=200, model=model_response, description='Model for question response.')
-    def get(self):
-        """ Get questions that users bookmarked or being asked
-        """
-
-        args = parser_question_for_you.parse_args()
-        controller = QuestionController()
-        return controller.get_question_for_you(args)
+        controller.update_slug()
+        cache.clear_cache('get.questions')
