@@ -41,8 +41,6 @@ services:
     environment:
       - FLASK_APP=app.manage:flask_app
     env_file: ./docker.env
-    volumes:
-      - ./migrations/versions:/opt/migrations/versions
       
   scheduled_jobs:
     build:
