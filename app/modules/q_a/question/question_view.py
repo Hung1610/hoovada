@@ -38,13 +38,9 @@ proposal_get_parser = QuestionDto.proposal_get_parser
 
 @api.route('')
 class QuestionList(Resource):
-    @staticmethod
-    def get_key_prefix():
-        return 'get.questions'
 
     @api.expect(get_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    @cache.cached(key_prefix=get_key_prefix, query_string=True)
     def get(self):
         """ 
         Get list of questions from database.
@@ -64,7 +60,6 @@ class QuestionList(Resource):
         data = api.payload
         controller = QuestionController()
         result = controller.create(data=data)
-        cache.clear_cache(QuestionList.get_key_prefix())
         return result
 
 
@@ -114,7 +109,7 @@ class Question(Resource):
         return '{}{}'.format('get.question', request.view_args['id_or_slug'])
 
     @api.response(code=200, model=model_response, description='Model for question response.')
-    @cache.cached(key_prefix=get_key_prefix, query_string=True)
+    @cache.cached(key_prefix=get_key_prefix)
     def get(self, id_or_slug):
         """ 
         Get specific question by its ID.
@@ -135,7 +130,6 @@ class Question(Resource):
         controller = QuestionController()
         result = controller.update(object_id=id_or_slug, data=data)
         cache.clear_cache(Question.get_key_prefix())
-        cache.clear_cache('get.questions')
         return result
 
     @admin_token_required()
@@ -147,7 +141,6 @@ class Question(Resource):
         controller = QuestionController()
         result = controller.delete(object_id=id_or_slug)
         cache.clear_cache(Question.get_key_prefix())
-        cache.clear_cache('get.questions')
         return result
 
 @api.route('/<string:id_or_slug>/invite')
@@ -182,7 +175,7 @@ class QuestionProposal(Resource):
 
     @api.expect(proposal_get_parser)
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
-    @cache.cached(key_prefix=get_key_prefix, query_string=True)
+    @cache.cached(key_prefix=get_key_prefix)
     def get(self, id_or_slug):
         """ Get list of questions from database.
         """
@@ -236,4 +229,3 @@ class UpdateSlug(Resource):
 
         controller = QuestionController()
         controller.update_slug()
-        cache.clear_cache('get.questions')
