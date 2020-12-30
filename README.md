@@ -109,7 +109,7 @@ $ ln -s $HOME/.conda/envs/pypy_env/bin/pypy3 $HOME/.conda/envs/pypy_env/bin/pyth
 
 $ python -m ensurepip
 $ python -m pip install --upgrade pip
-$ pip3 install -r <path to project>/requirements.txt
+$ pip3 install -r <path to project>/requirements.txt --ignore-installed
 
 // Run APIs and socketIO on development environment
 
