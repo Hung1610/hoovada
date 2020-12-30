@@ -31,6 +31,9 @@ from common.models.vote import (ArticleVote, AnswerVote,
 from common.models.timeline import Timeline
 from common.models.permission import Permission
 
+# These tables/models will be ignored by Alembic/Flask-Migrate
+from common.models.ignored import ApschedulerJobs
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
