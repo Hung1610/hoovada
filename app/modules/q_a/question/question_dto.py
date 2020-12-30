@@ -142,6 +142,10 @@ class QuestionDto(Dto):
         'emails_or_usernames': fields.List(fields.String, description='The list of emails/usernames to invite by'),
     })
 
+    proposal_get_parser = reqparse.RequestParser()
+    proposal_get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
+    proposal_get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
+
     get_similar_questions_parser = reqparse.RequestParser()
     get_similar_questions_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
     get_similar_questions_parser.add_argument('similarity_rate', type=int, default=75, help='The rate of similarity to question title')
