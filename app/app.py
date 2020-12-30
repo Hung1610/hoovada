@@ -9,6 +9,7 @@ from logging.config import dictConfig
 from flask import Flask, g, request
 from flask_cors import CORS
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
+from sqlalchemy_utils import create_database, database_exists
 
 # own modules
 from app.settings import config_by_name
@@ -75,6 +76,9 @@ def init_app():
     # Config Flask-Cache
     cache.init_app(app)
     # Config Flask-SqlAlchemy
+    url = app.config['SQLALCHEMY_DATABASE_URI']
+    if not database_exists(url):
+        create_database(url)
     db.init_app(app)
     # Config Flask-Migrate
     migrate.init_app(app, db)

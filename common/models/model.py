@@ -28,6 +28,8 @@ class Model(db.Model):
     """
     __abstract__ = True
 
+    id = db.Column(db.Integer, primary_key=True)
+
     def _asdict(self):
         # return {c.key: getattr(self, c.key)
         #         for c in inspect(self).mapper.column_attrs}
