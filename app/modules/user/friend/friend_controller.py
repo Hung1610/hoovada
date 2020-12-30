@@ -28,7 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserFriendController(Controller):
     query_classname = 'UserFriend'
-    special_filtering_fields = ['from_date', 'to_date', 'user_id']
+    special_filtering_fields = ['from_date', 'to_date', 'user_id', 'display_name']
     allowed_ordering_fields = ['created_date', 'updated_date']
 
     def apply_filtering(self, query, params):
@@ -40,6 +40,11 @@ class UserFriendController(Controller):
         if params.get('user_id'):
             g.friend_belong_to_user_id = params.get('user_id')
             query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
+        if params.get('display_name'):
+            query = query.filter(
+                (UserFriend.friend.display_name == params.get('display_name')) |
+                (UserFriend.friended.display_name == params.get('display_name')) 
+            )
 
         return query
 

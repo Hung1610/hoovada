@@ -32,7 +32,7 @@ class UserFriend(Model):
             return self.friended if self.friended_id != g.friend_belong_to_user_id\
                 else self.friend
 
-        return None
+        return self.friend
 
     @property
     def adaptive_friend_id(self):
