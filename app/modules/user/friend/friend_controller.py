@@ -42,8 +42,8 @@ class UserFriendController(Controller):
             query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
         if params.get('display_name'):
             query = query.filter(
-                (UserFriend.friend.display_name == params.get('display_name')) |
-                (UserFriend.friended.display_name == params.get('display_name')) 
+                (UserFriend.friend.has(User.display_name.like('display_name'))) |
+                (UserFriend.friended.has(User.display_name.like('display_name')))
             )
 
         return query
