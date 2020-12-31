@@ -5,11 +5,13 @@
 from datetime import datetime
 
 # third-party modules
+from flask import request
 from flask_restx import Resource, reqparse
 
 # own modules
 from app.modules.article.article_controller import ArticleController
 from app.modules.article.article_dto import ArticleDto
+from common.cache import cache
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -63,9 +65,13 @@ class ArticleListCount(Resource):
         return controller.get_count(args=args)
 
 
+def get_article_key_prefix():
+    return '{}{}'.format('get.article', request.view_args['id_or_slug'])
+
 @api.route('/<string:id_or_slug>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @cache.cached(key_prefix=get_article_key_prefix)
     def get(self, id_or_slug):
         """Get specific article by its ID.
         """
@@ -82,7 +88,9 @@ class Article(Resource):
 
         data = api.payload
         controller = ArticleController()
-        return controller.update(object_id=id_or_slug, data=data, is_put=True)
+        result = controller.update(object_id=id_or_slug, data=data, is_put=True)
+        cache.clear_cache(get_article_key_prefix())
+        return result
 
     @token_required
     @api.expect(_article_dto_request)
@@ -93,7 +101,10 @@ class Article(Resource):
 
         data = api.payload
         controller = ArticleController()
-        return controller.update(object_id=id_or_slug, data=data)
+        result = controller.update(object_id=id_or_slug, data=data)
+        cache.clear_cache(get_article_key_prefix())
+        return result
+
 
     @admin_token_required()
     def delete(self, id_or_slug):
@@ -101,7 +112,10 @@ class Article(Resource):
         """
 
         controller = ArticleController()
-        return controller.delete(object_id=id_or_slug)
+        result = controller.delete(object_id=id_or_slug)
+        cache.clear_cache(get_article_key_prefix())
+        return result
+
 
         
 @api.route('/similar')
