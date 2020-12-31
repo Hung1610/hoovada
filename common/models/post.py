@@ -27,13 +27,8 @@ post_topics = db.Table('topic_post',
 
 class Post(Model):
     __tablename__ = 'post'
-    __table_args__ = (
-        db.Index("idx_post_title", "title", mysql_length=255),
-    )
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.UnicodeText)
-    slug = db.Column(db.String(255), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True)
@@ -68,10 +63,4 @@ class Post(Model):
                     primaryjoin="and_(Post.id == remote(PostComment.post_id),\
                         remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
-
-    @staticmethod
-    def generate_slug(target, value, oldvalue, initiator):
-        if value and (not target.slug or value != oldvalue):
-            target.slug = slugify(value)
-
-event.listen(Post.title, 'set', Post.generate_slug, retval=False)
+    

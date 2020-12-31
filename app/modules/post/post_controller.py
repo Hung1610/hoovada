@@ -40,8 +40,6 @@ class PostController(Controller):
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        if not 'title' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
