@@ -429,8 +429,9 @@ class TopicController(Controller):
         topics = Topic.query.all()
         try:
             for topic in topics:
-                topic.color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-                db.session.commit()
+                if topic.color_code is None:
+                    topic.color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+                    db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())
