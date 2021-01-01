@@ -46,7 +46,7 @@ push-live:
 	@docker push ${NGINX_LIVE}
 
 deploy-live:
-	@kubectl set image deployment/api api=${API_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
+	@kubectl set image deployment/app app=${API_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
 	@kubectl set image deployment/socketio socketio=${API_TEST} nginx=${NGINX_LIVE} -n hoovada-live --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_LIVE} -n hoovada-live --record
 
