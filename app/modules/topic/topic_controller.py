@@ -65,7 +65,7 @@ class TopicController(Controller):
                         "Thai nghén & Nuôi dạy con",
                         "Luật pháp & Thủ tục", 
                         "Xe cộ & Giao thông",  
-                        "Mua sắm & tiêu dùng",
+                        "Mua sắm & Tiêu dùng",
                         "Văn hóa trong và ngoài nước",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
