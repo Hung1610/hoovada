@@ -43,11 +43,12 @@ build-live:
 push-live:
 	@docker push ${API_LIVE}
 	@docker push ${SOCKETIO_LIVE}
+	@docker push ${SCHEDULED_JOBS_LIVE}
 	@docker push ${NGINX_LIVE}
 
 deploy-live:
 	@kubectl set image deployment/app app=${API_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
-	@kubectl set image deployment/socketio socketio=${API_TEST} nginx=${NGINX_LIVE} -n hoovada-live --record
+	@kubectl set image deployment/socketio socketio=${SOCKETIO_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_LIVE} -n hoovada-live --record
 
 all-live: build-live push-live deploy-live
