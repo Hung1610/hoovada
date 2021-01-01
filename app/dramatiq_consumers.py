@@ -288,9 +288,11 @@ def new_article_notify_user_list(article_id, user_ids):
     User = db.get_model('User')
     Article = db.get_model('Article')
 
-    users = User.query.with_entities(db.func.count(User.id))\
-        .filter(User.id.in_(user_ids))\
-        .scalar()
+    #users = User.query.with_entities(db.func.count(User.id))\
+    #    .filter(User.id.in_(user_ids))\
+    #    .scalar()
+
+    users = User.query.filter(User.id.in_(user_ids)).all()    
 
     article = Article.query.get(article_id)
     
@@ -307,9 +309,11 @@ def new_question_notify_user_list(question_id, user_ids):
     User = db.get_model('User')
     Question = db.get_model('Question')
 
-    users = User.query.with_entities(db.func.count(User.id))\
-        .filter(User.id.in_(user_ids))\
-        .scalar()
+    #users = User.query.with_entities(db.func.count(User.id))\
+    #    .filter(User.id.in_(user_ids))\
+    #    .scalar()
+
+    users = User.query.filter(User.id.in_(user_ids)).all()
 
     question = Question.query.get(question_id)
     
@@ -326,9 +330,11 @@ def new_answer_notify_user_list(answer_id, user_ids):
     User = db.get_model('User')
     Answer = db.get_model('Answer')
 
-    users = User.query.with_entities(db.func.count(User.id))\
-        .filter(User.id.in_(user_ids))\
-        .scalar()
+    #users = User.query.with_entities(db.func.count(User.id))\
+    #    .filter(User.id.in_(user_ids))\
+    #    .scalar()
+
+    users = User.query.filter(User.id.in_(user_ids)).all()
 
     answer = Answer.query.get(answer_id)
     
