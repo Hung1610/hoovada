@@ -75,7 +75,7 @@ class TopicController(Controller):
             for topic_name in fixed_topics:
                 topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
                 if not topic:  # the topic does not exist
-                    topic = Topic(name=topic_name, is_fixed=True, user_id=3)
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=1)
                     db.session.add(topic)
                     db.session.commit()
         except Exception as e:
