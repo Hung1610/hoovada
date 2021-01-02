@@ -63,7 +63,7 @@ class CommonBaseConfig:
     MAX_SEEN_CACHE = 10
 
     # Wasabi service
-    S3_BUCKET = environ.get('S3_BUCKET', '') # test bucket
+    S3_BUCKET = environ.get('S3_BUCKET', 'hoovada') # test bucket
     WASABI_ACCESS_KEY = environ.get('WASABI_ACCESS_KEY', '') # test bucket
     WASABI_SECRET_ACCESS_KEY = environ.get('WASABI_SECRET_ACCESS_KEY', '')  
 

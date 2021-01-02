@@ -129,7 +129,6 @@ class AnswerController(Controller):
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
             file_name = encode_file_name(file_name) + ext
-            bucket = 'hoovada'
             sub_folder = 'answer' + '/' + encode_file_name(str(answer.id))
             try:
                 url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)

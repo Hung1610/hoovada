@@ -50,7 +50,6 @@ class FileUploadController(Controller):
             # file_name = 'user_' + str(user.id) + '_avatar'
             file_name = encode_file_name(file_name) + ".png"
             user_id = user.id
-            bucket = 'hoovada'
             sub_folder = encode_file_name(str(user_id))
             try:
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
