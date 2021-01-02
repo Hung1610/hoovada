@@ -319,42 +319,39 @@ class UserController(Controller):
     def _parse_user(self, data, user=None):
         if user is None:
             user = User()
-        if 'display_name' in data:
+        if data.get('display_name'):
             user.display_name = data['display_name']
-        if 'title' in data:
+        if data.get('title'):
             user.title = data['title']
-
-        if 'first_name' in data:
+        if data.get('first_name'):
             user.first_name = data['first_name']
-        if 'middle_name' in data:
+        if data.get('middle_name'):
             user.middle_name = data['middle_name']
-        if 'last_name' in data:
+        if data.get('last_name'):
             user.last_name = data['last_name']
-
-        if 'birthday' in data:
+        if data.get('birthday'):
             user.birthday = dateutil.parser.isoparse(data['birthday'])
-        if 'gender' in data:
+        if data.get('gender'):
             user.gender = data['gender']
-        if 'age' in data:
+        if data.get('age'):
             user.age = data['age']
-        if 'email' in data:
+        if data.get('email'):
             user.email = data['email']
-        if 'password' in data:
+        if data.get('password'):
             user.set_password(password=data['password'])
-
-        if 'last_seen' in data:
+        if data.get('last_seen'):
             try:
                 user.last_seen = dateutil.parser.isoparse(data['last_seen'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'joined_date' in data:
+        if data.get('joined_date'):
             try:
                 user.joined_date = dateutil.parser.isoparse(data['joined_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'confirmed' in data:
+        if data.get('confirmed'):
             try:
                 user.confirmed = bool(data['confirmed'])
             except Exception as e:
@@ -362,22 +359,21 @@ class UserController(Controller):
                 pass
         else:
             user.confirmed = 1
-        if 'email_confirmed_at' in data:
+        if data.get('email_confirmed_at'):
             try:
                 user.email_confirmed_at = dateutil.parser.isoparse(data['email_confirmed_at'])
             except Exception as e:
                 print(e.__str__())
                 pass
-
-        if 'profile_pic_url' in data:
+        if data.get('profile_pic_url'):
             user.profile_pic_url = data['profile_pic_url']
-        if 'admin' in data:
+        if data.get('admin'):
             try:
                 user.admin = UserRole.ADMIN if bool(data['admin']) is True else None
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'active' in data:
+        if data.get('active'):
             try:
                 user.active = bool(data['active'])
             except Exception as e:
@@ -385,35 +381,8 @@ class UserController(Controller):
                 pass
         else:
             user.active = 1
-
-        if 'reputation' in data:
-            try:
-                user.reputation = int(data['reputation'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'profile_views' in data:  # doan nay can sua de chi co the view duoc, ma ko set duoc
-            pass
-            # try:
-            #     user.profile_views = int(data['profile_views'])
-            # except Exception as e:
-            #     print(e.__str__())
-            #     pass
-
-        if 'about_me' in data:
+        if data.get('about_me'):
             user.about_me = data['about_me']
-        if 'about_me_markdown' in data:
-            user.about_me_markdown = data['about_me_markdown']
-        if 'about_me_html' in data:
-            user.about_me_html = data['about_me_html']
-
-        if 'people_reached' in data:
-            try:
-                user.people_reached = int(data['people_reached'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-
         if 'show_email_publicly_setting' in data:
             try:
                 user.show_email_publicly_setting = bool(data['show_email_publicly_setting'])
@@ -495,28 +464,28 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'is_private' in data:
+        if data.get('is_private'):
             try:
                 user.is_private = bool(data['is_private'])
             except Exception as e:
                 user.is_private = False
                 print(e.__str__())
                 pass
-        if 'is_deactivated' in data:
+        if data.get('is_deactivated'):
             try:
                 user.is_deactivated = bool(data['is_deactivated'])
             except Exception as e:
                 user.is_deactivated = False
                 print(e.__str__())
                 pass
-        if 'verified_document' in data:
+        if data.get('verified_document'):
             try:
                 user.verified_document = bool(data['verified_document'])
             except Exception as e:
                 user.verified_document = False
                 print(e.__str__())
                 pass
-        if 'show_nsfw' in data:
+        if data.get('show_nsfw'):
             try:
                 user.show_nsfw = bool(data['show_nsfw'])
             except Exception as e:

@@ -54,6 +54,7 @@ def init_basic_app():
     def before_request():
         g.current_user, _ = app.get_logged_user(request)
         g.current_user_is_admin = False
+        g.endorsed_topic_id = None
         if g.current_user:
             g.current_user.last_seen = datetime.now()
             db.session.commit()
