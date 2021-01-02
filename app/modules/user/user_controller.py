@@ -208,7 +208,6 @@ class UserController(Controller):
             filename = photo.filename
             file_name, ext = get_file_name_extension(filename)
             file_name = encode_file_name('user_' + str(user.id) + '_avatar') + ext
-            bucket = 'hoovada'
             sub_folder = 'user' + '/' + encode_file_name(str(user.id))
             try:
                 if user.profile_pic_url:
@@ -280,7 +279,6 @@ class UserController(Controller):
             filename = photo.filename
             file_name, ext = get_file_name_extension(filename)
             file_name = encode_file_name('user_' + str(user.id) + '_cover') + ext
-            bucket = 'hoovada'
             sub_folder = 'user' + '/' + encode_file_name(str(user.id))
             try:
                 if user.cover_pic_url:

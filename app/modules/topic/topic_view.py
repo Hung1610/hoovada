@@ -216,7 +216,7 @@ class UpdateTopicColor(Resource):
     # @admin_token_required()
     def post(self):
         """
-        Update Slug for articles in DB
+        Randomize color for fix topics
         """
 
         controller = TopicController()

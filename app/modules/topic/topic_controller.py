@@ -42,45 +42,40 @@ class TopicController(Controller):
     special_filtering_fields = ['hot']
     allowed_ordering_fields = ['created_date', 'updated_date']
     
-
     def create_topics(self):
-        fixed_topics = ["Những lĩnh vực khác",
-                        "hoovada.com", 
-                        "Du lịch", 
-                        "Gia đình & Quan hệ xã hội", 
-                        "Giáo dục & Tham khảo",
-                        "Giải trí & Âm nhạc",
-                        "Khoa học Tự nhiên", 
-                        "Khoa học Xã hội", 
-                        "Kinh doanh & Tài chính", 
-                        "Máy tính & Internet",
-                        "Môi trường", 
-                        "Nhà & Vườn", 
-                        "Nơi ăn uống", 
-                        "Sức khỏe",
-                        "Thai nghén & Nuôi dạy con", 
-                        "Thể thao", 
-                        "Thủ tục hành chính", 
-                        "Tin tức & Sự kiện",
-                        "Trò chơi & Giải trí", 
-                        "Văn hóa & Xã hội", 
-                        "Văn học & Nhân văn", 
-                        "Vật nuôi",
-                        "Vẻ đẹp & Phong cách", 
-                        "Ô-tô & Vận tải", 
-                        "Điện tử tiêu dùng", 
-                        "Ẩm thực", 
-                        "Doanh nghiệp địa phương",  
+        fixed_topics = ["Những lĩnh vực khác", 
+                        "Du lịch",
                         "Chính trị",
                         "Tôn giáo",
-                        "Đời tư",
-                        "Lĩnh vực người lớn"]
+                        "Âm nhạc",
+                        "Thể thao",
+                        "Ẩm thực",
+                        "Giáo dục",
+                        "Sức khỏe",
+                        "Văn học",
+                        "Động vật",
+                        "Trò chơi & Giải trí",
+                        "Nhà cửa & Xây dựng",
+                        "Tài nguyên & Môi trường",
+                        "Gia đình & Quan hệ xã hội",
+                        "Khoa học tự nhiên",
+                        "Khoa học xã hội và nhân văn",
+                        "Đầu tư kinh doanh", 
+                        "Công nghệ thông tin",
+                        "Thai nghén & Nuôi dạy con",
+                        "Luật pháp & Thủ tục", 
+                        "Xe cộ & Giao thông",  
+                        "Mua sắm & Tiêu dùng",
+                        "Văn hóa trong và ngoài nước",
+                        "Chuyện đời tư",
+                        "Lĩnh vực người lớn",
+                        "hoovada.com"]
 
         try:
             for topic_name in fixed_topics:
                 topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
                 if not topic:  # the topic does not exist
-                    topic = Topic(name=topic_name, is_fixed=True, user_id=3)
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=1)
                     db.session.add(topic)
                     db.session.commit()
         except Exception as e:
@@ -401,7 +396,6 @@ class TopicController(Controller):
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
             file_name = encode_file_name(file_name) + ext
-            bucket = 'hoovada'
             sub_folder = 'topic' + '/' + encode_file_name(str(topic.id))
             try:
                 url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
@@ -434,8 +428,9 @@ class TopicController(Controller):
         topics = Topic.query.all()
         try:
             for topic in topics:
-                topic.color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-                db.session.commit()
+                if topic.color_code is None:
+                    topic.color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+                    db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())

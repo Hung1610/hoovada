@@ -9,10 +9,10 @@ SOCKETIO_TEST   		:= ${REGISTRY}:socketio-${GIT_COMMIT}-${DATE}
 SCHEDULED_JOBS_TEST   	:= ${REGISTRY}:scheduled-jobs-${GIT_COMMIT}-${DATE}
 NGINX_TEST				:= ${REGISTRY}:nginx-${GIT_COMMIT}-${DATE}
 
-VERSION 				:= v0.2.0
+VERSION 				:= v0.2.1
 API_LIVE   				:= ${REGISTRY}:api-${VERSION}-${DATE}
 SOCKETIO_LIVE   		:= ${REGISTRY}:socketio-${VERSION}-${DATE}
-SCHEDULED_JOBS_LIVE   	:= ${REGISTRY}:scheduled-jobs-${GIT_COMMIT}-${DATE}
+SCHEDULED_JOBS_LIVE   	:= ${REGISTRY}:scheduled-jobs-${VERSION}-${DATE}
 NGINX_LIVE				:= ${REGISTRY}:nginx-${VERSION}-${DATE}
 
 build:
@@ -43,11 +43,12 @@ build-live:
 push-live:
 	@docker push ${API_LIVE}
 	@docker push ${SOCKETIO_LIVE}
+	@docker push ${SCHEDULED_JOBS_LIVE}
 	@docker push ${NGINX_LIVE}
 
 deploy-live:
-	@kubectl set image deployment/api api=${API_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
-	@kubectl set image deployment/socketio socketio=${API_TEST} nginx=${NGINX_LIVE} -n hoovada-live --record
+	@kubectl set image deployment/app app=${API_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
+	@kubectl set image deployment/socketio socketio=${SOCKETIO_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_LIVE} -n hoovada-live --record
 
 all-live: build-live push-live deploy-live
