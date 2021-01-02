@@ -46,8 +46,10 @@ def encode_file_name(filename):
         string - The encoded filename.
     """
 
+    now = datetime.now()
+
     encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
-    return encoded
+    return '{}{}'.format(now.isoformat(), encoded)
 
 
 def generate_confirmation_token(email):
@@ -95,9 +97,9 @@ def send_email(to, subject, template):
     Return:
         None
     """
-    
-    msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template)
-    mail.send(msg)
+    if to:
+        msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template)
+        mail.send(msg)
 
 
 def send_confirmation_email(to):
