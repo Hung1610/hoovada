@@ -431,7 +431,7 @@ class TopicController(Controller):
             return send_error(message=e)
 
     def update_color(self):
-        topics = Topic.query.filter(Topic.is_fixed == true).all()
+        topics = Topic.query.filter(Topic.is_fixed == True).all()
         try:
             for topic in topics:
                 #while topic.color_code is None:
