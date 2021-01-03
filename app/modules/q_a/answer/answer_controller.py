@@ -7,6 +7,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
+from bs4 import BeautifulSoup
 from flask import current_app, g, request
 from flask_restx import marshal
 
@@ -64,7 +65,7 @@ class AnswerController(Controller):
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            is_sensitive = check_sensitive(answer.answer)
+            is_sensitive = check_sensitive(' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings))
             if is_sensitive:
                 return send_error(message=messages.ERR_ISSUE.format('Content is not allowed'))
             answer.created_date = datetime.utcnow()
@@ -252,7 +253,7 @@ class AnswerController(Controller):
             answer = self._parse_answer(data=data, answer=answer)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            is_sensitive = check_sensitive(answer.answer)
+            is_sensitive = check_sensitive(' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings))
             if is_sensitive:
                 return send_error(message=messages.ERR_ISSUE.format('Comment content not allowed'))
             if answer.question_id is None:
