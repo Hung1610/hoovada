@@ -26,6 +26,7 @@ class UserDto(Dto):
         'last_name': fields.String(required=False, default=''),
 
         'birthday': fields.DateTime(required=False),
+        'is_birthday_hidden': fields.Boolean(required=False),
         'gender': fields.String(required=False, default=''),
         'age': fields.String(required=False, default=''),
         'email': fields.String(required=True),
@@ -90,6 +91,7 @@ class UserDto(Dto):
         'last_name': fields.String(required=False),
 
         'birthday': fields.DateTime(required=False),
+        'is_birthday_hidden': fields.Boolean(required=False),
         'gender': fields.String(required=False),
         'age': fields.String(required=False),
         'email': fields.String(required=False),
