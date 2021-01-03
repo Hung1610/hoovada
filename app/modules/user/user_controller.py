@@ -331,6 +331,13 @@ class UserController(Controller):
             user.last_name = data['last_name']
         if data.get('birthday'):
             user.birthday = dateutil.parser.isoparse(data['birthday'])
+        if data.get('is_birthday_hidden'):
+            try:
+                user.is_birthday_hidden = bool(data['is_birthday_hidden'])
+            except Exception as e:
+                user.is_birthday_hidden = False
+                print(e.__str__())
+                pass
         if data.get('gender'):
             user.gender = data['gender']
         if data.get('age'):
