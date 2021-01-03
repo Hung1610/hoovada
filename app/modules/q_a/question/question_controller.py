@@ -10,15 +10,14 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
+from bs4 import BeautifulSoup
 from flask import current_app, g, request
 from flask_restx import marshal
 from slugify import slugify
-from sqlalchemy import and_, desc, func, or_, text
+from sqlalchemy import desc, func, or_, text
 
 # own modules
 from common.db import db
-from app.constants import messages
-from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.question.question_dto import QuestionDto
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
@@ -83,7 +82,7 @@ class QuestionController(Controller):
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
                 if question.question:
-                    is_sensitive = check_sensitive(question.question)
+                    is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
                     if is_sensitive:
                         return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
                 question.created_date = datetime.utcnow()
@@ -511,7 +510,7 @@ class QuestionController(Controller):
             if len(spelling_errors) > 0:
                 return send_error(message='Please check question title for spelling errors', data=spelling_errors)
             if proposal.question:
-                is_sensitive = check_sensitive(proposal.question)
+                is_sensitive = check_sensitive(' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message='Question body not allowed.')
             proposal.last_activity = datetime.utcnow()
@@ -583,7 +582,7 @@ class QuestionController(Controller):
             if is_sensitive:
                 return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
             if question.question:
-                is_sensitive = check_sensitive(question.question)
+                is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
             question.updated_date = datetime.utcnow()
