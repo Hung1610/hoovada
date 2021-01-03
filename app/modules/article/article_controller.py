@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.utils.onesignal_notif import push_notif_to_specific_users
-import json
+from logging import log
 import re
 from datetime import datetime
 
@@ -48,18 +47,18 @@ class ArticleController(Controller):
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
 
     def create(self, data):
-        if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
-        if not 'title' in data:
-            return send_error(message=constants.msg_must_contain_title)
-        if not 'fixed_topic_id' in data:
-            return send_error(message=constants.msg_must_contain_fixed_topic_id)
-        if not 'topic_ids' in data:
-            return send_error(message=constants.msg_must_contain_topics_id)
-
-        current_user, _ = current_app.get_logged_user(request)
-        data['user_id'] = current_user.id
         try:
+            if not isinstance(data, dict):
+                return send_error(message=constants.msg_wrong_data_format)
+            if not 'title' in data:
+                return send_error(message=constants.msg_must_contain_title)
+            if not 'fixed_topic_id' in data:
+                return send_error(message=constants.msg_must_contain_fixed_topic_id)
+            if not 'topic_ids' in data:
+                return send_error(message=constants.msg_must_contain_topics_id)
+
+            current_user, _ = current_app.get_logged_user(request)
+            data['user_id'] = current_user.id
             data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
             data['title'] = data['title'].strip()
             is_sensitive = check_sensitive(data['title'])
@@ -69,7 +68,7 @@ class ArticleController(Controller):
             article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
-                is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
+                is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
                 if article.scheduled_date and article.scheduled_date < datetime.now():
@@ -125,7 +124,6 @@ class ArticleController(Controller):
             else:  # topic already exist
                 return send_error(message=constants.msg_article_already_exists.format(data['title']))
         except Exception as e:
-            db.session.rollback()
             print(e)
             return send_error(message=constants.msg_create_failed)
 
@@ -312,40 +310,37 @@ class ArticleController(Controller):
             return send_error(message="Get similar articles failed. Error: "+ e.__str__())
 
     def update(self, object_id, data, is_put=False):
-        if object_id is None:
-            return send_error(message=constants.msg_lacking_id)
-        if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
-
-        if object_id.isdigit():
-            article = Article.query.filter_by(id=object_id).first()
-        else:
-            article = Article.query.filter_by(slug=object_id).first()
-        if article is None:
-            return send_error(message=constants.msg_not_found_with_id.format(object_id))
-        if is_put:
-            db.session.delete(article)
-            return self.create(data)
-        article, _ = self._parse_article(data=data, article=article)
-
-        if 'topic_ids' in data:
-            topic_ids = data['topic_ids']
-            # update article topics
-            topics = []
-            for topic_id in topic_ids:
-                try:
-                    topic = Topic.query.filter_by(id=topic_id).first()
-                    topics.append(topic)
-                except Exception as e:
-                    print(e)
-                    pass
-            article.topics = topics
         try:
+            if object_id is None:
+                return send_error(message=constants.msg_lacking_id)
+            if not isinstance(data, dict):
+                return send_error(message=constants.msg_wrong_data_format)
+
+            if object_id.isdigit():
+                article = Article.query.filter_by(id=object_id).first()
+            else:
+                article = Article.query.filter_by(slug=object_id).first()
+            if article is None:
+                return send_error(message=constants.msg_not_found_with_id.format(object_id))
+            article, _ = self._parse_article(data=data, article=article)
+
+            if 'topic_ids' in data:
+                topic_ids = data['topic_ids']
+                # update article topics
+                topics = []
+                for topic_id in topic_ids:
+                    try:
+                        topic = Topic.query.filter_by(id=topic_id).first()
+                        topics.append(topic)
+                    except Exception as e:
+                        print(e)
+                        pass
+            article.topics = topics
             # check sensitive before updating
             is_sensitive = check_sensitive(article.title)
             if is_sensitive:
                 return send_error(message=constants.msg_update_failed_insensitive_title)
-            is_sensitive = check_sensitive(''.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
+            is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
             if is_sensitive:
                 return send_error(message=constants.msg_update_failed_insensitive_body)
             # update topics to article_topic table
@@ -375,7 +370,7 @@ class ArticleController(Controller):
             return send_result(message=constants.msg_update_success,
                                 data=marshal(result, ArticleDto.model_article_response))
         except Exception as e:
-            print(e)
+            log(e)
             return send_error(message=constants.msg_update_failed)
 
     def delete(self, object_id):
