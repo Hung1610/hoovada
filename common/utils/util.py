@@ -420,9 +420,9 @@ def check_password(password):
 
     policy = PasswordPolicy.from_names(
         length=8,  # min length: 8
-        uppercase=1,  # need min. 1 uppercase letters
+        #uppercase=1,  # need min. 1 uppercase letters
         numbers=1,  # need min. 1 digits
-        special=1,  # need min. 1 special characters
+        #special=1,  # need min. 1 special characters
         #nonletters=2,  # need min. 2 non-letter characters (digits, specials, anything)
     )
     return policy.test(password)
