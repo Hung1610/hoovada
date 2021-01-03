@@ -72,6 +72,7 @@ class TopicController(Controller):
                         "Con người & Tâm sinh lý",
                         "Hậu cần & Xuất nhập khẩu",
                         "Quan hệ ngoại giao",
+                        "Lịch sử & Truyền thuyết",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
                         "hoovada.com"]
