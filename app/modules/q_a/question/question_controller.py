@@ -378,7 +378,7 @@ class QuestionController(Controller):
             if args.get('topic'):
                 topics = args['topic']
             else:
-                return send_error(message='Please provide topics')
+                topics = []
             top_users_reputation = Reputation.query.with_entities(
                     Reputation.user_id,
                     User,
