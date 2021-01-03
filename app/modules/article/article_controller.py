@@ -276,6 +276,8 @@ class ArticleController(Controller):
         try:
             current_user, _ = current_app.get_logged_user(request)
             query = Article.query
+            if args.get('exclude_article_id'):
+                query = query.filter(Article.id != args.get('exclude_article_id'))
             title_similarity = db.func.SIMILARITY_STRING(Article.title, title).label('title_similarity')
             query = query.with_entities(Article, title_similarity)\
                 .filter(title_similarity > 50)

@@ -100,3 +100,4 @@ class ArticleDto(Dto):
     get_similar_articles_parser.add_argument('fixed_topic_id', type=int, required=False, help='fixed_topic_id by which to get similar questions')
     get_similar_articles_parser.add_argument('topic_id', type=int, required=False, action='append', help='topic_id by which to get similar questions')
     get_similar_articles_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
+    get_similar_articles_parser.add_argument('exclude_article_id', type=str, required=False, help='Exclude article with this id')
