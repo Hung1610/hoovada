@@ -130,7 +130,7 @@ class QuestionDto(Dto):
 
     top_user_reputation_args_parser = reqparse.RequestParser()
     top_user_reputation_args_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
-    top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=True, help='Relevant topics IDs')
+    top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=False, help='Relevant topics IDs')
 
     top_user_reputation_response = api.model('top_user_reputation_response', {
         'user_id': fields.Integer(readonly=True, description=''),
