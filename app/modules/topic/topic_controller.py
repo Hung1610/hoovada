@@ -70,6 +70,8 @@ class TopicController(Controller):
                         "Văn hóa trong và ngoài nước",
                         "Điện tử & Máy móc",
                         "Con người & Tâm sinh lý",
+                        "Hậu cần & Xuất nhập khẩu",
+                        "Quan hệ ngoại giao",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
                         "hoovada.com"]
@@ -431,9 +433,12 @@ class TopicController(Controller):
         topics = Topic.query.all()
         try:
             for topic in topics:
-                if topic.color_code is None:
-                    topic.color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-                    db.session.commit()
+                while topic.color_code is None:
+                    color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+                    topic_with_same_code = Topic.query.filter(Topic.color_code == color_code, Topic.is_fixed == True).first()
+                    if topic_with_same_code is None:
+                        topic.color_code = color_code
+                        db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())
