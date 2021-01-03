@@ -156,7 +156,7 @@ class AuthController:
             auth_token = encode_auth_token(user_id=user.id)
             if auth_token:
                 return send_result(data={'access_token': auth_token.decode('utf8')})
-        except Exception:
+        except Exception as e:
             return send_error(message=messages.ERR_ISSUE.format(e))
 
 
