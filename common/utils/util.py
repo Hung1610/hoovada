@@ -136,55 +136,55 @@ def send_password_reset_email(to):
 def send_answer_notif_email(user, answer, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer.html', user=user, answer=answer, question=question)
-        send_email(user.email, 'Hoovada - Có người trả lời cẩu hỏi', html)
+        send_email(user.email, 'Bạn nhận được câu trả lời mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html)
 
 
 def send_article_comment_notif_email(user, comment, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
-        send_email(user.email, 'Hoovada - Có người bình luận trên bài viết', html)
+        send_email(user.email, 'Bạn nhận được bình luận mới cho bài viết của bạn từ cộng đồng hoovada.com', html)
 
 
 def send_question_comment_notif_email(user, comment, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
-        send_email(user.email, 'Hoovada - Có người bình luận trên cẩu hỏi', html)
+        send_email(user.email, 'Bạn nhận được bình luận mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html)
 
 
 def send_answer_comment_notif_email(user, comment, answer):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
-        send_email(user.email, 'Hoovada - Có người bình luận trên cẩu trả lời', html)
+        send_email(user.email, 'Bạn nhận được bình luận mới cho câu trả lời của bạn từ cộng đồng hoovada.com', html)
 
 
 def send_question_invite_notif_email(user, inviter, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_invite.html', inviter=inviter, user=user, question=question)
-        send_email(user.email, 'Hoovada - Bạn được mời trả lời câu hỏi', html)
+        send_email(user.email, 'Bạn nhận được lời mời trả lời câu hỏi từ cộng đồng hoovada.com', html)
 
 
 def send_friend_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_friend_request.html', requester=requester, user=user)
-        send_email(user.email, 'Hoovada - Bạn được nhận yêu cầu làm bạn', html)
+        send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html)
 
 
 def send_follow_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_follow_request.html', requester=requester, user=user)
-        send_email(user.email, 'Hoovada - Bạn được nhận yêu cầu theo dõi', html)
+        send_email(user.email, 'Bạn có người theo dõi mới từ cộng đồng hoovada.com', html)
     
 
 def send_article_notif_email(user, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article.html', article=article, user=user)
-        send_email(user.email, 'Hoovada - Có bài viết mới', html)
+        send_email(user.email, 'Bài viết mới từ cộng đồng hoovada.com', html)
     
 
 def send_question_notif_email(user, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question.html', question=question, user=user)
-        send_email(user.email, 'Hoovada - Có câu hỏi mới', html)
+        send_email(user.email, 'Câu hỏi mới từ cộng đồng hoovada.com', html)
 
 
 def get_response_message(message):
