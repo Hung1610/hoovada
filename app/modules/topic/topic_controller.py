@@ -54,6 +54,7 @@ class TopicController(Controller):
                         "Sức khỏe",
                         "Văn học",
                         "Động vật",
+                        "Ngôn ngữ",
                         "Trò chơi & Giải trí",
                         "Nhà cửa & Xây dựng",
                         "Tài nguyên & Môi trường",
@@ -67,6 +68,8 @@ class TopicController(Controller):
                         "Xe cộ & Giao thông",  
                         "Mua sắm & Tiêu dùng",
                         "Văn hóa trong và ngoài nước",
+                        "Điện tử & Máy móc",
+                        "Con người & Tâm sinh lý",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
                         "hoovada.com"]

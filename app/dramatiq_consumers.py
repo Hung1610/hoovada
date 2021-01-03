@@ -36,7 +36,7 @@ def send_weekly_registered_users():
 
     html = render_template('admin_registered_users_notification.html', users=users)
     for admin_email in current_app.config['MAIL_ADMINS']:
-        send_email(admin_email, 'Người dùng mới đăng ký -Hoovada', html)
+        send_email(admin_email, 'Người dùng mới đăng ký tham gia công đồng hoovada.com', html)
 
 @dramatiq.actor()
 def update_seen_questions(question_id, user_id):
