@@ -83,6 +83,8 @@ def update_seen_articles(article_id, user_id):
 @dramatiq.actor()
 def update_reputation(topic_id, voter_id):
     Reputation = db.get_model('Reputation')
+    User = db.get_model('User')
+
     # Find reputation
     reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, Reputation.topic_id == topic_id).first()
 
@@ -91,8 +93,18 @@ def update_reputation(topic_id, voter_id):
         reputation_creator.user_id = voter_id
         reputation_creator.topic_id = topic_id
         db.session.add(reputation_creator)
+        
     # Set reputation score
     reputation_creator.updated_date = datetime.datetime.now()
+
+    total_rep = Reputation.query.with_entities(db.func.sum(Reputation.score))\
+       .filter(Reputation.user_id == voter_id)\
+       .scalar()
+
+    user = User.query.get(voter_id)
+    user.reputation = total_rep
+    db.session.commit()
+
 
 @dramatiq.actor()
 def send_weekly_recommendation_mails():
