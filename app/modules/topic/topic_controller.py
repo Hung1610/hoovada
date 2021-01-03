@@ -72,6 +72,7 @@ class TopicController(Controller):
                         "Con người & Tâm sinh lý",
                         "Hậu cần & Xuất nhập khẩu",
                         "Quan hệ ngoại giao",
+                        "Lịch sử & Truyền thuyết",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
                         "hoovada.com"]
@@ -430,7 +431,7 @@ class TopicController(Controller):
             return send_error(message=e)
 
     def update_color(self):
-        topics = Topic.query.all()
+        topics = Topic.query.filter(Topic.is_fixed == true).all()
         try:
             for topic in topics:
                 while topic.color_code is None:
@@ -439,6 +440,7 @@ class TopicController(Controller):
                     if topic_with_same_code is None:
                         topic.color_code = color_code
                         db.session.commit()
+
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())
