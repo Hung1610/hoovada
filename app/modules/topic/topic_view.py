@@ -202,7 +202,7 @@ class CreateFixedTopic(Resource):
 
 @api.route('/update_slug')
 class UpdateTopicSlug(Resource):
-    #@admin_token_required()
+    @admin_token_required()
     def post(self):
         """
         Update Slug for articles in DB
