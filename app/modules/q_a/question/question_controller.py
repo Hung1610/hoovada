@@ -279,7 +279,7 @@ class QuestionController(Controller):
                             if user.is_online\
                                 and user.question_invite_notify_settings:
                                 display_name =  question.user.display_name if question.user else 'Khách'
-                                message = '[Thông báo] ' + display_name + ' đã mời bạn trả lời!'
+                                message = display_name + ' đã mời bạn trả lời!'
                                 push_notif_to_specific_users(message, [user.id])
                             elif user.question_invite_email_settings:
                                 send_question_invite_notif_email(user, current_user, question)

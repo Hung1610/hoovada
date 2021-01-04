@@ -79,7 +79,7 @@ class AnswerController(Controller):
                     and answer.question.user.my_question_notify_settings\
                     and answer.question.user.new_answer_notify_settings:
                     display_name = answer.user.display_name if answer.user else 'Khách'
-                    message = '[Thông báo] ' + display_name + ' đã trả lời câu hỏi của bạn!'
+                    message = display_name + ' đã trả lời câu hỏi của bạn!'
                     push_notif_to_specific_users(message, [answer.question.user_id])
                 elif answer.question.user.my_question_email_settings\
                     and answer.question.user.new_answer_email_settings:

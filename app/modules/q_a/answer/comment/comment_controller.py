@@ -126,7 +126,7 @@ class CommentController(BaseCommentController):
                     if comment.answer.user.is_online\
                         and comment.answer.user.new_answer_comment_notify_settings:
                         display_name =  comment.user.display_name if comment.user else 'Khách'
-                        message = '[Thông báo] ' + display_name + ' đã bình luận trên câu trả lời!'
+                        message = display_name + ' đã bình luận trong câu trả lời!'
                         push_notif_to_specific_users(message, [comment.answer.user_id])
                     elif comment.answer.user.new_answer_comment_email_settings:
                         send_answer_comment_notif_email(comment.answer.user, comment, comment.answer)

@@ -311,7 +311,7 @@ def new_article_notify_user_list(article_id, user_ids):
     for user in users:
         if user.is_online and user.followed_new_publication_notify_settings:
             display_name =  article.user.display_name if article.user else 'Khách'
-            message = '[Thông báo] ' + display_name + ' đã có bài viết mới!'
+            message =  display_name + ' có bài viết mới!'
             push_notif_to_specific_users(message, [user.id])
         elif  user.followed_new_publication_email_settings:
             send_article_notif_email(user, article)
@@ -332,7 +332,7 @@ def new_question_notify_user_list(question_id, user_ids):
     for user in users:
         if user.is_online and user.followed_new_publication_notify_settings:
             display_name =  question.user.display_name if question.user else 'Khách'
-            message = '[Thông báo] ' + display_name + ' đã có câu hỏi mới!'
+            message = display_name + ' có câu hỏi mới!'
             push_notif_to_specific_users(message, [user.id])
         elif  user.followed_new_publication_email_settings:
             send_question_notif_email(user, question)
@@ -353,7 +353,7 @@ def new_answer_notify_user_list(answer_id, user_ids):
     for user in users:
         if user.is_online and user.followed_new_publication_notify_settings:
             display_name =  answer.user.display_name if answer.user else 'Khách'
-            message = '[Thông báo] ' + display_name + ' đã có câu trả lời mới!'
+            message = display_name + ' có câu trả lời mới!'
             push_notif_to_specific_users(message, [user.id])
         elif  user.followed_new_publication_email_settings:
             send_answer_notif_email(user, answer, answer.question)
