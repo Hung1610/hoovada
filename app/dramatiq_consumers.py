@@ -5,7 +5,7 @@
 import datetime
 
 # third-party modules
-from flask import current_app, render_template
+from flask import current_app, render_template, g
 from flask_dramatiq import Dramatiq
 
 # own modules
@@ -81,9 +81,12 @@ def update_seen_articles(article_id, user_id):
     db.session.commit()
 
 @dramatiq.actor()
-def update_reputation(topic_id, voter_id):
+def update_reputation(topic_id, voter_id, is_voter=False):
     Reputation = db.get_model('Reputation')
     User = db.get_model('User')
+
+    if is_voter:
+        g.negative_rep_points = -1
 
     # Find reputation
     reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, Reputation.topic_id == topic_id).first()

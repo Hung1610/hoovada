@@ -625,18 +625,7 @@ class QuestionController(Controller):
             if question is None:
                 return send_error(message="Question with ID {} not found".format(object_id))
             else:
-                # delete from question_topic
-
-                # delete from vote
-
-                # delete from share
-
-                # delete from answer
-
-                # delete from timline
-
-                # delete from
-
+                # related records are automatically cascaded
                 db.session.delete(question)
                 db.session.commit()
                 return send_result(message="Question with the ID {} was deleted.".format(object_id))
