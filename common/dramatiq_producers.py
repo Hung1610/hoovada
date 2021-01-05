@@ -48,7 +48,7 @@ def update_seen_articles(article_id, user_id):
     pass
 
 @dramatiq.actor()
-def update_reputation(topic_id, voter_id):
+def update_reputation(topic_id, voter_id, is_voter=False):
     pass
 
 @dramatiq.actor()

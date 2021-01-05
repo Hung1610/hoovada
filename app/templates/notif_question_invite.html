@@ -36,7 +36,7 @@
                         style="color:#B92B27;    font-style: italic;font-size: 14px;"> đã hỏi</span>
                 </div>
                 <div style="padding:10px 0px;color: #828282;font-size: 12px;">12:30 22/4/2020</div>
-                <div>{{question.question}}</div>
+                <div>{{question.question|safe}}</div>
                 <div style="margin:0;outline:none;padding:0;text-align:center; padding-top:20px"> <a
                         href="{{config.DOMAIN_URL}}/question/{{question.slug}}" style="background: #B92B27;
                     border-radius: 99px;color:white;padding:8px 20px;border:#B92B27;text-decoration: none;">Xem chi
