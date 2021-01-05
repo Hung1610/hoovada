@@ -117,8 +117,7 @@ class AnswerVoteController(Controller):
                 # Answer creator rep
                 update_reputation.send(topic.id, user_voted.id)
                 # Answer voter rep
-                update_reputation.send(topic.id, current_user.id)
-            db.session.commit()
+                update_reputation.send(topic.id, current_user.id, is_voter=True)
             return send_result(data=marshal(vote, AnswerVoteDto.model_response), message='Success')
         except Exception as e:
             db.session.rollback()

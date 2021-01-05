@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask import g
 from sqlalchemy import event
 
 # own modules
@@ -28,7 +29,6 @@ class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
     @staticmethod
     def generate_score(target, value, oldvalue, initiator):
         Question = db.get_model('Question')
-        QuestionVote = db.get_model('QuestionVote')
         Answer = db.get_model('Answer')
         AnswerVote = db.get_model('AnswerVote')
         Article = db.get_model('Article')
@@ -36,12 +36,6 @@ class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
         Topic = db.get_model('Topic')
 
         # Calculate upvote score
-        question_votes_count = QuestionVote.query.with_entities(db.func.count(QuestionVote.id))\
-            .filter(QuestionVote.question.has(Question.user_id == target.user_id) \
-                & (QuestionVote.question.has(\
-                    Question.topics.any(Topic.id == target.topic_id))) \
-                & (QuestionVote.vote_status == VotingStatusEnum.UPVOTED.name))\
-            .scalar()
         answer_votes_count = AnswerVote.query.with_entities(db.func.count(AnswerVote.id))\
             .filter(AnswerVote.answer.has(Answer.user_id == target.user_id) \
                 & AnswerVote.answer.has(\
@@ -55,18 +49,11 @@ class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
                 & (ArticleVote.vote_status == VotingStatusEnum.UPVOTED.name))\
             .scalar()
 
-        upvote_score = (question_votes_count\
-            + answer_votes_count\
+        upvote_score = (answer_votes_count\
             + article_votes_count)\
             * 10
 
         # Calculate downvote score
-        question_votes_count = QuestionVote.query.with_entities(db.func.count(QuestionVote.id))\
-            .filter((QuestionVote.question.has(Question.user_id == target.user_id) | (QuestionVote.user_id == target.user_id)) \
-                & QuestionVote.question.has(\
-                    Question.topics.any(Topic.id == target.topic_id)) \
-                & (QuestionVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
-            .scalar()
         answer_votes_count = AnswerVote.query.with_entities(db.func.count(AnswerVote.id))\
             .filter((AnswerVote.answer.has(Answer.user_id == target.user_id) | (AnswerVote.user_id == target.user_id)) \
                 & AnswerVote.answer.has(\
@@ -80,10 +67,9 @@ class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
                 & (ArticleVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
             .scalar()
         
-        downvote_score = (question_votes_count\
-            + answer_votes_count\
+        downvote_score = (answer_votes_count\
             + article_votes_count)\
-            * (-2)
+            * (g.negative_rep_points)
 
         target.score = upvote_score + downvote_score
 

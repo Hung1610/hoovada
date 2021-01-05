@@ -118,8 +118,7 @@ class QuestionVoteController(Controller):
                 # Question creator rep
                 update_reputation.send(topic.id, user_voted.id)
                 # Question voter rep
-                update_reputation.send(topic.id, current_user.id)
-            db.session.commit()
+                update_reputation.send(topic.id, current_user.id, is_voter=True)
             return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
         except Exception as e:
             db.session.rollback()
