@@ -379,15 +379,18 @@ class QuestionController(Controller):
                 topics = args['topic']
             else:
                 topics = []
+
+            total_score = db.func.sum(Reputation.score).label('total_score')
             top_users_reputation = Reputation.query.with_entities(
                     Reputation.user_id,
                     User,
-                    db.func.sum(Reputation.score).label('total_score'),
+                    total_score,
                 )\
                 .join(Reputation.user)\
                 .group_by(Reputation.user_id, User)\
                 .filter(Reputation.topic_id.in_(topics))\
-                .order_by(desc('total_score'))\
+                .filter(total_score > 0)\
+                .order_by(desc(total_score))\
                 .limit(limit).all()
             results = [{'user_id': user_id, 'user': user._asdict(), 'total_score': total_score} for user_id, user, total_score in top_users_reputation]
             return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
