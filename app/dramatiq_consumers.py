@@ -87,6 +87,8 @@ def update_reputation(topic_id, voter_id, is_voter=False):
 
     if is_voter:
         g.negative_rep_points = -1
+    else:
+        g.negative_rep_points = -2
 
     # Find reputation
     reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, Reputation.topic_id == topic_id).first()
