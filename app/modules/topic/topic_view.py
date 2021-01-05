@@ -189,6 +189,7 @@ class BookmarkUserTopic(Resource):
 
 
 @api.route('/create_topics')
+@admin_token_required()
 class CreateFixedTopic(Resource):
     def post(self):
         """ 
@@ -201,7 +202,7 @@ class CreateFixedTopic(Resource):
 
 @api.route('/update_slug')
 class UpdateTopicSlug(Resource):
-    # @admin_token_required()
+    @admin_token_required()
     def post(self):
         """
         Update Slug for articles in DB
@@ -213,7 +214,7 @@ class UpdateTopicSlug(Resource):
 
 @api.route('/update_color')
 class UpdateTopicColor(Resource):
-    # @admin_token_required()
+    @admin_token_required()
     def post(self):
         """
         Randomize color for fix topics

@@ -88,7 +88,7 @@ class UserFollowController(Controller):
                 if follow.followed.is_online\
                     and follow.followed.follow_notify_settings:
                     display_name =  current_user.display_name if current_user else 'Khách'
-                    message = '[Thông báo] ' + display_name + ' đã theo dõi bạn!'
+                    message = display_name + ' đã theo dõi bạn!'
                     push_notif_to_specific_users(message, [follow.followed.id])
                 elif follow.followed.follow_email_settings:
                     send_follow_request_notif_email(follow.followed, current_user)

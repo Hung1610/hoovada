@@ -282,7 +282,7 @@ class AuthController:
                     user.confirmed = True
                     db.session.commit()
                     html = render_template('welcome.html', user=user)
-                    send_email(user.email, 'Welcome to Hoovada', html)
+                    send_email(user.email, 'Chào mừng bạn tham gia cộng đồng hoovada.com', html)
                     return send_result(message=messages.MSG_ACC_ALREADY_ACTIVATED)
 
                 return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
@@ -419,25 +419,25 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp mật khẩu!')
+            return send_error(message='Password is missing!')
         
         if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
         
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp tên người dùng!')
+            return send_error(message='Display_name is missing!')
         
         if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_POLICY_STATUS)
 
         if is_valid_email(data['email']) is False:
-            return send_error(message='Địa chỉ Email không hợp lệ!')
+            return send_error(message='Password is not valid!')
         
         if data['password_confirm'] != data['password']:
             return send_error(message='Password confirmation failed!')
 
         if len(check_password(data['password'])) > 0:
-            return send_error(message='Mật khẩu phải có ít nhất 8 kí tự,phải có ít nhất 1 kí tự viết hoa, 1 số, 1 kí tự đặc biệt')
+            return send_error(message='Password length must be least 8 with at least 1 number digit!')
         
         email = data['email']
         display_name = data['display_name']
@@ -728,12 +728,12 @@ class AuthController:
             user.email_confirmed_at = datetime.now()
             db.session.commit()
             html = render_template('welcome.html', user=user)
-            send_email(user.email, 'Welcome to Hoovada', html)
+            send_email(user.email, 'Chào mừng bạn tham gia cộng đồng hoovada.com', html)
             message = 'Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập.'
             return send_result(message=message)
         
         else:
-            message = 'Ma kich hoat của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
+            message = 'Mã kich hoat của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_result(message=message) 
 
     # @staticmethod
@@ -749,7 +749,7 @@ class AuthController:
             if user and user.check_password(data['password']):
                 if not user.confirmed:
                     self.resend_confirmation(data=data)
-                    return send_error( message='Tai khoan email cua ban chua duoc xac nhan. Vui long dang nhap hop thu cua ban de tien hanh xac thuc.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                    return send_error( message='Tài khoản email của ban chưa được xác thực. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
                 
                 auth_token = encode_auth_token(user_id=user.id)
 

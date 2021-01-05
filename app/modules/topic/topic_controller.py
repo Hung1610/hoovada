@@ -47,7 +47,6 @@ class TopicController(Controller):
                         "Du lịch",
                         "Chính trị",
                         "Tôn giáo",
-                        "Âm nhạc",
                         "Thể thao",
                         "Ẩm thực",
                         "Giáo dục",
@@ -55,6 +54,8 @@ class TopicController(Controller):
                         "Văn học",
                         "Động vật",
                         "Ngôn ngữ",
+                        "Âm nhạc & Điện ảnh",
+                        "Nghệ thuật",
                         "Trò chơi & Giải trí",
                         "Nhà cửa & Xây dựng",
                         "Tài nguyên & Môi trường",
@@ -65,13 +66,12 @@ class TopicController(Controller):
                         "Công nghệ thông tin",
                         "Thai nghén & Nuôi dạy con",
                         "Luật pháp & Thủ tục", 
-                        "Xe cộ & Giao thông",  
+                        "Xe cộ & Giao thông",
                         "Mua sắm & Tiêu dùng",
                         "Văn hóa trong và ngoài nước",
                         "Điện tử & Máy móc",
                         "Con người & Tâm sinh lý",
                         "Hậu cần & Xuất nhập khẩu",
-                        "Quan hệ ngoại giao",
                         "Lịch sử & Truyền thuyết",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
@@ -431,15 +431,15 @@ class TopicController(Controller):
             return send_error(message=e)
 
     def update_color(self):
-        topics = Topic.query.filter(Topic.is_fixed == true).all()
+        topics = Topic.query.filter(Topic.is_fixed == True).all()
         try:
             for topic in topics:
-                while topic.color_code is None:
-                    color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-                    topic_with_same_code = Topic.query.filter(Topic.color_code == color_code, Topic.is_fixed == True).first()
-                    if topic_with_same_code is None:
-                        topic.color_code = color_code
-                        db.session.commit()
+                #while topic.color_code is None:
+                #    color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+                #    topic_with_same_code = Topic.query.filter(Topic.color_code == color_code, Topic.is_fixed == True).first()
+                #    if topic_with_same_code is None:
+                topic.color_code = "#000000"
+                db.session.commit()
 
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:

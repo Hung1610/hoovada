@@ -120,7 +120,7 @@ class CommentController(BaseCommentController):
                         and comment.question.user.my_question_notify_settings\
                         and comment.question.user.new_question_comment_notify_settings:
                         display_name =  comment.user.display_name if comment.user else 'Khách'
-                        message = '[Thông báo] ' + display_name + ' đã bình luận trên câu hỏi!'
+                        message = display_name + ' đã bình luận trong câu hỏi!'
                         push_notif_to_specific_users(message, [comment.question.user_id])
                     elif comment.question.user.my_question_email_settings\
                         and comment.question.user.new_question_comment_email_settings:

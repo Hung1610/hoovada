@@ -94,15 +94,4 @@ DELETE FROM post_report WHERE user_id NOT IN (SELECT user.id FROM user);
 DELETE FROM post_vote WHERE user_id NOT IN (SELECT user.id FROM user);
 DELETE FROM topic WHERE user_id NOT IN (SELECT user.id FROM user);
 
-# add_account_super_admin
-ALTER TABLE `user` MODIFY admin VARCHAR(255);
-INSERT INTO `hoovada`.`user` (`display_name`, `verification_sms_time`, `email`, `password_hash`, `last_seen`, `joined_date`, `confirmed`, `admin`, `active`, `reputation`, `profile_views`, `about_me`, `about_me_markdown`, `about_me_html`, `people_reached`, `show_email_publicly_setting`, `hoovada_digests_setting`, `hoovada_digests_frequency_setting`, `questions_you_asked_or_followed_setting`, `questions_you_asked_or_followed_frequency_setting`, `people_you_follow_setting`, `people_you_follow_frequency_setting`, `email_stories_topics_setting`, `email_stories_topics_frequency_setting`, `last_message_read_time`, `question_count`, `question_favorite_count`, `question_favorited_count`, `question_share_count`, `question_shared_count`, `question_report_count`, `question_reported_count`, `question_upvote_count`, `question_upvoted_count`, `question_downvote_count`, `question_downvoted_count`, `answer_count`, `answer_share_count`, `answer_shared_count`, `answer_favorite_count`, `answer_favorited_count`, `answer_upvote_count`, `answer_upvoted_count`, `answer_downvote_count`, `answer_downvoted_count`, `answer_report_count`, `answer_reported_count`, `topic_follow_count`, `topic_followed_count`, `topic_created_count`, `user_follow_count`, `user_followed_count`, `comment_count`, `comment_upvote_count`, `comment_upvoted_count`, `comment_downvote_count`, `comment_downvoted_count`, `comment_report_count`, `comment_reported_count`, `user_report_count`, `user_reported_count`, `article_share_count`, `article_shared_count`) VALUES ('SUPER ADMIN', '2020-08-28 03:38:32', 'super_admin', 'pbkdf2:sha256:150000$L2wqN2PU$390f98ed95b556821f442e9e09005d0043d1a8822109f8a36da4189680e20098', '2020-08-28 03:38:32', '2020-08-28 03:38:32', '1', 'SUPER_ADMIN', '1', '0', '0', '', '', '', '0', '0', '1', 'weekly', '1', 'weekly', '1', 'weekly', '1', 'weekly', '2020-08-28 03:38:32', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-
-# remove_outdated_comment_tables
-DROP TABLE IF EXISTS comment_report, comment_share, comment_favorite, comment_vote;
-
-
-
-
-
 
