@@ -87,7 +87,7 @@ class Post(Resource):
         controller = PostController()
         return controller.update(object_id=id_or_slug, data=data)
 
-    @admin_token_required()
+    @admin_token_required
     def delete(self, id_or_slug):
         """
         Delete the post by its ID.
@@ -112,7 +112,7 @@ class PostSimilar(Resource):
 
 @api.route('/update_slug')
 class UpdatePostSlug(Resource):
-    @admin_token_required()
+    @admin_token_required
     @api.response(code=200, model=_post_dto_response, description='Model for question response.')
     def post(self):
         """ 

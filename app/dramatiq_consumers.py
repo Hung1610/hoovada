@@ -5,12 +5,12 @@
 import datetime
 
 # third-party modules
-from flask import current_app, render_template, g
+from flask import current_app, render_template
 from flask_dramatiq import Dramatiq
 
 # own modules
 from common.db import db
-from common.enum import FrequencySettingEnum
+from common.enum import FrequencySettingEnum, VotingStatusEnum
 from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.utils.util import send_answer_notif_email, send_article_notif_email, send_email, send_question_notif_email
 
@@ -84,11 +84,17 @@ def update_seen_articles(article_id, user_id):
 def update_reputation(topic_id, voter_id, is_voter=False):
     Reputation = db.get_model('Reputation')
     User = db.get_model('User')
+    Question = db.get_model('Question')
+    Answer = db.get_model('Answer')
+    AnswerVote = db.get_model('AnswerVote')
+    Article = db.get_model('Article')
+    ArticleVote = db.get_model('ArticleVote')
+    Topic = db.get_model('Topic')
 
     if is_voter:
-        g.negative_rep_points = -1
+        negative_rep_points = -1
     else:
-        g.negative_rep_points = -2
+        negative_rep_points = -2
 
     # Find reputation
     reputation_creator = Reputation.query.filter(Reputation.user_id == voter_id, Reputation.topic_id == topic_id).first()
@@ -100,7 +106,44 @@ def update_reputation(topic_id, voter_id, is_voter=False):
         db.session.add(reputation_creator)
         
     # Set reputation score
-    reputation_creator.updated_date = datetime.datetime.now()
+    # Calculate upvote score
+    answer_votes_count = AnswerVote.query.with_entities(db.func.count(AnswerVote.id))\
+        .filter(AnswerVote.answer.has(Answer.user_id == reputation_creator.user_id) \
+            & AnswerVote.answer.has(\
+                Answer.question.has(Question.topics.any(Topic.id == reputation_creator.topic_id))) \
+            & (AnswerVote.vote_status == VotingStatusEnum.UPVOTED.name))\
+        .scalar()
+    article_votes_count = ArticleVote.query.with_entities(db.func.count(ArticleVote.id))\
+        .filter(ArticleVote.article.has(Article.user_id == reputation_creator.user_id) \
+            & ArticleVote.article.has(\
+                Article.topics.any(Topic.id == reputation_creator.topic_id)) \
+            & (ArticleVote.vote_status == VotingStatusEnum.UPVOTED.name))\
+        .scalar()
+
+    upvote_score = (answer_votes_count\
+        + article_votes_count)\
+        * 10
+
+    # Calculate downvote score
+    answer_votes_count = AnswerVote.query.with_entities(db.func.count(AnswerVote.id))\
+        .filter((AnswerVote.answer.has(Answer.user_id == reputation_creator.user_id) | (AnswerVote.user_id == reputation_creator.user_id)) \
+            & AnswerVote.answer.has(\
+                Answer.question.has(Question.topics.any(Topic.id == reputation_creator.topic_id))) \
+            & (AnswerVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
+        .scalar()
+    article_votes_count = ArticleVote.query.with_entities(db.func.count(ArticleVote.id))\
+        .filter((ArticleVote.article.has(Article.user_id == reputation_creator.user_id) | (ArticleVote.user_id == reputation_creator.user_id)) \
+            & ArticleVote.article.has(\
+                Article.topics.any(Topic.id == reputation_creator.topic_id)) \
+            & (ArticleVote.vote_status == VotingStatusEnum.DOWNVOTED.name))\
+        .scalar()
+    
+    downvote_score = (answer_votes_count\
+        + article_votes_count)\
+        * negative_rep_points
+
+    reputation_creator.score = upvote_score + downvote_score
+    db.session.commit()
 
     total_rep = Reputation.query.with_entities(db.func.sum(Reputation.score))\
        .filter(Reputation.user_id == voter_id)\

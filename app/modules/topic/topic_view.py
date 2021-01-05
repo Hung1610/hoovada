@@ -29,7 +29,7 @@ upload_parser = TopicDto.upload_parser
 @api.route('/<string:topic_id_or_slug>/file')
 @api.doc(params={'topic_id_or_slug': 'The topic id or slug'})
 class TopicFile(Resource):
-    @admin_token_required()
+    @admin_token_required
     @api.expect(upload_parser)
     @api.response(code=200, model=topic_response, description='Model for answer response.')
     def post(self, topic_id_or_slug):
@@ -42,8 +42,6 @@ class TopicFile(Resource):
 
 @api.route('')
 class TopicList(Resource):
-    # @admin_token_required()
-    # @api.marshal_list_with(topic_response)
     @api.expect(parser)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
@@ -114,7 +112,7 @@ class Topic(Resource):
         controller = TopicController()
         return controller.update(object_id=topic_id_or_slug, data=data)
 
-    @admin_token_required()
+    @admin_token_required
     def delete(self, topic_id_or_slug):
         """ 
         Delete topic by its ID.
@@ -189,8 +187,8 @@ class BookmarkUserTopic(Resource):
 
 
 @api.route('/create_topics')
-@admin_token_required()
 class CreateFixedTopic(Resource):
+    @admin_token_required
     def post(self):
         """ 
         Create fixed topics
@@ -202,7 +200,7 @@ class CreateFixedTopic(Resource):
 
 @api.route('/update_slug')
 class UpdateTopicSlug(Resource):
-    @admin_token_required()
+    @admin_token_required
     def post(self):
         """
         Update Slug for articles in DB
@@ -214,7 +212,7 @@ class UpdateTopicSlug(Resource):
 
 @api.route('/update_color')
 class UpdateTopicColor(Resource):
-    @admin_token_required()
+    @admin_token_required
     def post(self):
         """
         Randomize color for fix topics
