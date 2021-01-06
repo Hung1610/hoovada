@@ -1,11 +1,14 @@
 <div
     style="font-family:roboto,sans-serif;border:1px solid #e0e0e0;background-color:white;max-width:600px;margin:0 auto">
-    <div style="background-color:#FFA500;padding:24px">
+    <div style="background-color:#EA451B;padding:24px">
         <div style="color:black;font-weight: 700;font-size: 20;padding-bottom:5px">HOOVADA</div>
 
         <div style="color:black;font-size: 16;">Nền tảng chia sẻ kiến thức hàng đầu Việt Nam</div>
     </div>
 
+    <div style="background-color:white">
+        <img src="https://3.pik.vn/2020ee2c94bf-4eee-4ec5-bdc3-26692f8d785e.png" style="width:100%;padding:15px 0px;" />
+    </div>
 
     <div style="margin-bottom:24px;padding:20px 24px">
         <div style="color: #333333;font-weight: 700;font-size: 20;padding-bottom:5px">
@@ -33,22 +36,18 @@
             </div>
             <div>
                 <div> <span style="font-weight: 700">{{article.user.display_name if article.user else 'Khách'}}</span> <span
-                        style="color:#FFA500;    font-style: italic;font-size: 14px;"> đã tạo bài viết</span>
+                        style="color:#EA451B;    font-style: italic;font-size: 14px;"> đã tạo bài viết</span>
                 </div>
                 <div style="padding:10px 0px;color: #828282;font-size: 12px;">{{article.created_date}}</div>
                 <div>{{article.html|safe}}</div>
                 <div style="margin:0;outline:none;padding:0;text-align:center; padding-top:20px"> <a
-                        href="{{config.DOMAIN_URL}}/article/{{article.slug}}" style="background: #FFA500;
-                    border-radius: 99px;color:white;padding:8px 20px;border:#FFA500;text-decoration: none;">Xem chi
+                        href="{{config.DOMAIN_URL}}/article/{{article.slug}}" style="background: #EA451B;
+                    border-radius: 99px;color:white;padding:8px 20px;border:#EA451B;text-decoration: none;">Xem chi
                         tiết bài viết</a></div>
             </div>
             </table>
         </div>
-
         <div>
-
-
-
             <div style="background-color:#eceff1;padding:24px;font-size:12px;line-height:16px">
                 <div style="color:#757575;text-align:center">Tin nhắn đã được gửi đi từ Hoovada.com tới
                     {{user.email}}.</div>
@@ -56,7 +55,7 @@
                     <div style="color:#757575;text-align:center">Nếu bạn không muốn nhận những email này từ Hoovada.com
                         trong tương lai, vui lòng nhấp vào <a
                             href="{{config.DOMAIN_URL}}/profile/{{user.display_name}}"
-                            style="text-decoration:none;color:#FFA500;font-weight: 700;" target="_blank"
+                            style="text-decoration:none;color:#EA451B;font-weight: 700;" target="_blank"
                             >hủy
                             đăng ký</a></div>
                 </div>
