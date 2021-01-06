@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import current_app, request
+from flask import current_app, request, g
+from flask.signals import message_flashed
 from flask_restx import marshal
 
 from app.modules.file_upload.file_upload_dto import FileUploadDto
 # own modules
+from app.constants import messages
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import send_error, send_result
@@ -20,8 +22,25 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FileUploadController(Controller):
 
-    def create(self, data):
-        pass
+    def create(self, args):
+        current_user = g.current_user
+
+        file = args.get('file')
+
+        if not file:
+            return send_error(message=messages.ERR_NO_FILE)
+        
+        try:
+            filename = file.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name(file_name) + ext
+            sub_folder = '{}/{}'.format('file', current_user.id if current_user else 'guest')
+            url = upload_file(file=file, file_name=file_name, sub_folder=sub_folder)
+            result = {'url': url}
+            return send_result(data=marshal(result, FileUploadDto.model), message='Upload image successfully.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
 
     def get(self):
         pass
@@ -34,30 +53,4 @@ class FileUploadController(Controller):
 
     def delete(self, object_id):
         pass
-
-    def upload_image(self, args):
-        if not isinstance(args, dict) or not 'image' in args:
-            return send_error(message='Your request does not contain image.')
-        # upload here
-        user, _ = current_app.get_logged_user(request)
-        # user = User.query.filter_by(id=id).first()
-        if user is None:
-            return send_error('You are not logged in')
-        photo = args['image']
-        if photo:
-            filename = photo.filename
-            file_name, ext = get_file_name_extension(filename)
-            # file_name = 'user_' + str(user.id) + '_avatar'
-            file_name = encode_file_name(file_name) + ".png"
-            user_id = user.id
-            sub_folder = encode_file_name(str(user_id))
-            try:
-                url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
-                result = dict()
-                result['url'] = url
-                return send_result(data=marshal(result, FileUploadDto.model), message='Upload image successfully.')
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message='Could not save your avatar.')
-        else:
-            return send_error(message='Please attach or check your photo before uploading.')
+    

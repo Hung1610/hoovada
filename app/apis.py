@@ -117,7 +117,7 @@ def init_api():
     api.add_namespace(ns_answer_comment, '/answer')
     api.add_namespace(ns_answer_comment_report, '/answer/all/comment')
     api.add_namespace(ns_answer_comment_favorite, '/answer/all/comment')
-    api.add_namespace(ns_upload, '/file_upload')
+    api.add_namespace(ns_upload, '/file')
     api.add_namespace(ns_search, '/search')
     api.add_namespace(ns_qa_timeline, '/timeline')
     api.add_namespace(ns_language, '/language')

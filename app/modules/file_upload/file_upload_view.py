@@ -17,20 +17,20 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = FileUploadDto.api
 
-avatar_upload = api.parser()
-avatar_upload.add_argument('image', location='files',
-                           type=FileStorage, required=True, help='The image file to upload')
+upload = api.parser()
+upload.add_argument('file', location='files',
+                           type=FileStorage, required=True, help='The file to upload')
 
 
-@api.route('/upload_image')
+@api.route('')
 class UploadImage(Resource):
     @token_required
-    @api.expect(avatar_upload)
+    @api.expect(upload)
     def post(self):
         """
         Upload avatar.
         """
         
-        args = avatar_upload.parse_args()
+        args = upload.parse_args()
         controller = FileUploadController()
-        return controller.upload_image(args=args)
+        return controller.create(args=args)
