@@ -21,11 +21,10 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FileUploadController(Controller):
-
-    def create(self, args):
+    def create(self, data):
         current_user = g.current_user
 
-        file = args.get('file')
+        file = data.get('file')
 
         if not file:
             return send_error(message=messages.ERR_NO_FILE)
@@ -53,4 +52,3 @@ class FileUploadController(Controller):
 
     def delete(self, object_id):
         pass
-    
