@@ -115,7 +115,7 @@ def send_confirmation_email(to):
     token = generate_confirmation_token(email=to)
     confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
-    send_email(to, 'Xác nhận đăng ký', html)
+    send_email(to, 'Hoovada - Xác thực tài khoản!', html)
 
 
 def send_password_reset_email(to):
@@ -130,7 +130,7 @@ def send_password_reset_email(to):
     
     token = generate_confirmation_token(email=to)
     html = render_template('reset_password.html', token=token)
-    send_email(to, 'Hoovada Password Reset', html)
+    send_email(to, 'Hoovada - Thay đổi mật khẩu!', html)
 
 
 def send_answer_notif_email(user, answer, question):
