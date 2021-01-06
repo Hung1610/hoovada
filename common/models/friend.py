@@ -46,7 +46,7 @@ class UserFriend(Model):
 
     @property
     def adaptive_friended(self):
-        if g.friend_belong_to_user_id:
+        if g.friend_belong_to_user_id or g.mutual_friend_ids:
             return self.friended if self.friended_id != self.adaptive_friend_id\
                 else self.friend
 
@@ -54,7 +54,7 @@ class UserFriend(Model):
 
     @property
     def adaptive_friended_id(self):
-        if g.friend_belong_to_user_id:
+        if g.friend_belong_to_user_id or g.mutual_friend_ids:
             return self.friended_id if self.friended_id != self.adaptive_friend_id\
                 else self.friend_id
 
