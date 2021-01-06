@@ -7,8 +7,8 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-sensitive_words = ['lồn', 'dm', 'du me', 'đu me', 'đủ mẹ', 'đủ má', 'đù', 'đụ', 'đéo', 'dái', 'địt', 'dâm đãng', 'làm tình',
-                   'cuto', 'chat sex', 'loạn luân', 'slm', 'dkm', 'porn', 'bú', 'giao lưu sex', 'nc sex', 'xxx', 'nc dâm',
+sensitive_words = ['lồn', 'dm', 'du me', 'đu me', 'đủ mẹ', 'đủ má', 'đù', 'đụ', 'đéo', 'địt', 'dâm đãng', 'làm tình',
+                   'cuto', 'chat sex', 'loạn luân', 'slm', 'dkm', 'porn', 'giao lưu sex', 'nc sex', 'xxx', 'nc dâm',
                    'fuck ', 'chat xxx', 'sax', 'phá trinh', 'tùm gái', ' tìm trai', 'tìm bạn nữ', 'childporn', 'bắn tinh', 'việt cộng',
                    'trai bao', 'gái bao', 'web sex', 'phim sex', 'film sex', 'child porn', 'gái dâm', 'trai dâm', 'cặc',
                    'nứng', 'some nam nữ', 'sex trẻ em', 'quay tay', 'zl', 'sục', 'dâm', 'kèo nhà cái', "video sex",
