@@ -46,7 +46,7 @@ class UserFriendController(Controller):
                     .filter(UserFriend.is_approved == True)]
             g.mutual_friend_ids = friend_ids
             query = query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
-                .filter(UserFriend.friended_id != g.current_user.id, UserFriend.friend_id != g.current_user.id)
+                .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
         if params.get('display_name'):
             query = query.filter(
                 (UserFriend.friend.has(User.display_name.like('display_name'))) |
