@@ -28,7 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserFriendController(Controller):
     query_classname = 'UserFriend'
-    special_filtering_fields = ['from_date', 'to_date', 'user_id', 'display_name']
+    special_filtering_fields = ['from_date', 'to_date', 'user_id', 'display_name', 'is_mutual']
     allowed_ordering_fields = ['created_date', 'updated_date']
 
     def apply_filtering(self, query, params):
@@ -40,6 +40,13 @@ class UserFriendController(Controller):
         if params.get('user_id'):
             g.friend_belong_to_user_id = params.get('user_id')
             query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
+        if params.get('is_mutual') and g.current_user:
+            friend_ids = [friend.adaptive_friend_id \
+                for friend in query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\
+                    .filter(UserFriend.is_approved == True)]
+            g.mutual_friend_ids = friend_ids
+            query = query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
+                .filter(UserFriend.friended_id != g.current_user.id, UserFriend.friend_id != g.current_user.id)
         if params.get('display_name'):
             query = query.filter(
                 (UserFriend.friend.has(User.display_name.like('display_name'))) |
@@ -50,6 +57,7 @@ class UserFriendController(Controller):
 
     def get(self, args):
         try:
+            g.friend_belong_to_user_id = g.current_user.id
             query = self.get_query_results(args)
             res, code = paginated_result(query)
             res['data'] = marshal(res['data'], UserFriendDto.model_response)

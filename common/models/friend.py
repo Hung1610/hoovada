@@ -28,16 +28,34 @@ class UserFriend(Model):
 
     @property
     def adaptive_friend(self):
+        if g.friend_belong_to_user_id or g.mutual_friend_ids:
+            return self.friend if self.friended_id == g.friend_belong_to_user_id \
+                or (self.friended_id in g.mutual_friend_ids)\
+                else self.friended
+
+        return None
+
+    @property
+    def adaptive_friend_id(self):
+        if g.friend_belong_to_user_id or g.mutual_friend_ids:
+            return self.friend_id if self.friended_id == g.friend_belong_to_user_id \
+                or (self.friended_id in g.mutual_friend_ids)\
+                else self.friended_id
+
+        return None
+
+    @property
+    def adaptive_friended(self):
         if g.friend_belong_to_user_id:
-            return self.friended if self.friended_id != g.friend_belong_to_user_id\
+            return self.friended if self.friended_id != self.adaptive_friend_id\
                 else self.friend
 
         return self.friend
 
     @property
-    def adaptive_friend_id(self):
+    def adaptive_friended_id(self):
         if g.friend_belong_to_user_id:
-            return self.friended_id if self.friended_id != g.friend_belong_to_user_id\
+            return self.friended_id if self.friended_id != self.adaptive_friend_id\
                 else self.friend_id
 
         return None
