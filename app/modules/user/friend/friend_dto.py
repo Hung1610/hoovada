@@ -57,6 +57,7 @@ class UserFriendDto(Dto):
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search all friends by start voting date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search all friends by finish voting date.')
     model_get_parser.add_argument('is_approved', type=inputs.boolean, required=False, help='Get all approved friends in database.')
+    model_get_parser.add_argument('is_mutual', type=inputs.boolean, required=False, help='Get mutual friends in database.')
     model_get_parser.add_argument('friend_id', type=int, required=False, help='Search all friends by requested by user id.')
     model_get_parser.add_argument('friended_id', type=int, required=False, help='Search all friends by requested to user id.')
     model_get_parser.add_argument('display_name', type=str, required=False, help='Search all friends by diplay_name.')
