@@ -1,24 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import hashlib
-import hmac
 # built-in modules
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # third-party modules
-import chardet
 from flask.templating import render_template
 import requests
-from flask import current_app, make_response, request
+from flask import current_app, request, g
 from flask_restx import marshal
 
+# own modules
 from common.db import db
 from app.constants import messages
-from app.modules.auth.auth_dto import AuthDto
 from app.modules.user.user_dto import UserDto
-# own modules
 from app.settings.config import BaseConfig as Config
 from common.models.ban import UserBan
 from common.models.blacklist import BlacklistToken
@@ -28,7 +24,7 @@ from common.utils.util import (check_password, check_verification,
                                confirm_token, convert_vietnamese_diacritics,
                                decode_auth_token, encode_auth_token,
                                generate_confirmation_token,
-                               get_response_message, is_valid_email,
+                               is_valid_email,
                                is_valid_username, send_confirmation_email, send_email,
                                send_password_reset_email,
                                send_verification_sms, validate_phone_number)
@@ -51,21 +47,21 @@ def save_token(token):
 
 def save_social_account(provider, extra_data):
     social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
-    if social_account is not None:
+    if social_account:
         user = User.query.filter_by(id=social_account.user_id).first()
         if not user:
             raise Exception(messages.ERR_FAILED_LOGIN)
         return user
-    else:
-        email = extra_data.get('email', '')
-        if (AuthController.check_user_exist(email)):
-            raise Exception(messages.ERR_EMAIL_EXISTED.format(email))
         
-        banned = UserBan.query.filter(UserBan.ban_by == email).first()
-        if banned:
-            raise Exception(messages.ERR_BANNED_EMAIL)
-        
-        user, _ = current_app.get_logged_user(request)
+    email = extra_data.get('email', '')
+    
+    banned = UserBan.query.filter(UserBan.ban_by == email).first()
+    if banned:
+        raise Exception(messages.ERR_BANNED_EMAIL)
+    
+    user = g.current_user
+    if not user:
+        user = User.query.filter_by(email=email).first()
         if not user:
             user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
             user_name = AuthController.create_user_name(user_name)
@@ -80,18 +76,16 @@ def save_social_account(provider, extra_data):
                 db.session.commit()
             except Exception as e:
                 print(e)
-                db.session.rollback()
                 raise e
-        
-        try:
-            social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
-            db.session.add(social_account)
-            db.session.commit()
-            return user
-        except Exception as e:
-            print(e)
-            db.session.rollback()
-            raise e
+    
+    try:
+        social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
+        db.session.add(social_account)
+        db.session.commit()
+        return user
+    except Exception as e:
+        print(e)
+        raise e
 
 
 class AuthController:
