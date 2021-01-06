@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import current_app, request, g
-from flask.signals import message_flashed
+from flask import g
 from flask_restx import marshal
 
 from app.modules.file_upload.file_upload_dto import FileUploadDto
@@ -36,7 +35,7 @@ class FileUploadController(Controller):
             sub_folder = '{}/{}'.format('file', current_user.id if current_user else 'guest')
             url = upload_file(file=file, file_name=file_name, sub_folder=sub_folder)
             result = {'url': url}
-            return send_result(data=marshal(result, FileUploadDto.model), message='Upload image successfully.')
+            return send_result(data=marshal(result, FileUploadDto.model), message='Uploaded successfully.')
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
