@@ -115,7 +115,7 @@ def send_confirmation_email(to):
     token = generate_confirmation_token(email=to)
     confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
     html = render_template('confirmation.html', confirm_url=confirm_url)
-    send_email(to, 'Hoovada - Xác thực tài khoản!', html)
+    send_email(to, 'Xác thực tài khoản hoovada.com!', html)
 
 
 def send_password_reset_email(to):
