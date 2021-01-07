@@ -68,7 +68,9 @@ class UserController(Controller):
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
         if params.get('email_or_name'):
-            query = query.filter((User.display_name == params.get('email_or_name')) | (User.email == params.get('email_or_name')))
+            query = query.filter(\
+                (User.display_name.like('%' + params.get('email_or_name') + '%')) | \
+                (User.email.like('%' + params.get('email_or_name') + '%')))
         if params.get('is_endorsed') and g.endorsed_topic_id:
             topic = Topic.query.get(g.endorsed_topic_id)
             user_ids = [user.id for user in topic.endorsed_users]
