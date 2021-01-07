@@ -276,7 +276,7 @@ class AuthController:
                     user.confirmed = True
                     db.session.commit()
                     html = render_template('welcome.html', user=user)
-                    send_email(user.email, 'Chào mừng bạn tham gia cộng đồng hoovada.com', html)
+                    send_email(user.email, 'Chào mừng bạn tham gia vào cộng đồng hoovada.com', html)
                     return send_result(message=messages.MSG_ACC_ALREADY_ACTIVATED)
 
                 return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
@@ -722,7 +722,7 @@ class AuthController:
             user.email_confirmed_at = datetime.now()
             db.session.commit()
             html = render_template('welcome.html', user=user)
-            send_email(user.email, 'Chào mừng bạn tham gia cộng đồng hoovada.com', html)
+            send_email(user.email, 'Chào mừng bạn tham gia vào cộng đồng hoovada.com', html)
             message = 'Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập.'
             return send_result(message=message)
         
