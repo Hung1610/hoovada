@@ -387,9 +387,9 @@ class QuestionController(Controller):
                     total_score,
                 )\
                 .join(Reputation.user)\
-                .group_by(Reputation.user_id, User)\
                 .filter(Reputation.topic_id.in_(topics))\
-                .filter(total_score > 0)\
+                .group_by(Reputation.user_id)\
+                .having(total_score > 0)\
                 .order_by(desc(total_score))\
                 .limit(limit).all()
             results = [{'user_id': user_id, 'user': user._asdict(), 'total_score': total_score} for user_id, user, total_score in top_users_reputation]
