@@ -113,7 +113,7 @@ def send_confirmation_email(to):
     """
     
     token = generate_confirmation_token(email=to)
-    confirm_url = url_for('auth_confirmation_email', token=token, _external=True)
+    confirm_url = '{}/{}{}'.format(current_app.config['DOMAIN_URL'], '?page=signup_success&token=', token)
     html = render_template('confirmation.html', confirm_url=confirm_url)
     send_email(to, 'Xác thực tài khoản hoovada.com!', html)
 

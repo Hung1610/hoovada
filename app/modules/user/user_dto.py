@@ -230,6 +230,7 @@ class UserDto(Dto):
     model_get_parser.add_argument('email_or_name', type=str, required=False, help='Search user by email')
     model_get_parser.add_argument('endorsed_topic_id', type=int, required=False, help='Get user endorsed status by id')
     model_get_parser.add_argument('is_endorsed', type=inputs.boolean, required=False, help='Get all endorsed users in database.')
+    model_get_parser.add_argument('is_mutual_friend', type=inputs.boolean, required=False, help='Get mutual friends in database.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'question_count', 'post_count', 'answer_count', 'reputation'", type=str,
                             choices=('question_count', 'post_count', 'answer_count', 'reputation'), action='append',
                         )
