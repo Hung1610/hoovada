@@ -96,10 +96,7 @@ class AuthController:
         """ Check user exist by its email. One email on one register """
 
         user = User.query.filter_by(email=email).first()
-        if user is not None:  
-            return True
-        else:
-            return False
+        return user
 
 
     @staticmethod
@@ -463,7 +460,7 @@ class AuthController:
             is_confirmed = False
         if is_confirmed:
             try:
-                send_confirmation_email(to=user.email)
+                send_confirmation_email(to=user.email, user=user)
                 db.session.commit()
                 return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
             
@@ -699,10 +696,11 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
         
         email = data['email']
-        if not AuthController.check_user_exist(email=email):
+        user = AuthController.check_user_exist(email=email)
+        if not user:
             return send_error(message='Người dùng chưa đăng ký!')
         try:
-            send_confirmation_email(to=email)
+            send_confirmation_email(to=email, user=user)
             return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
             
         except Exception as e:

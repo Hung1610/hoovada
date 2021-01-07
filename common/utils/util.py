@@ -102,7 +102,7 @@ def send_email(to, subject, template):
         mail.send(msg)
 
 
-def send_confirmation_email(to):
+def send_confirmation_email(to, user=None):
     """ Send a confirmation email to the registered user.
 
     Args:
@@ -114,7 +114,7 @@ def send_confirmation_email(to):
     
     token = generate_confirmation_token(email=to)
     confirm_url = '{}/{}{}'.format(current_app.config['DOMAIN_URL'], '?page=signup_success&token=', token)
-    html = render_template('confirmation.html', confirm_url=confirm_url)
+    html = render_template('confirmation.html', confirm_url=confirm_url, user=user)
     send_email(to, 'Xác thực tài khoản hoovada.com!', html)
 
 
