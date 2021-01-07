@@ -74,17 +74,22 @@ class QuestionController(Controller):
             title = data['title']
             user_id = data.get('user_id')
             question = Question.query.filter(Question.title == title).first()
-            if not question:  # the topic does not exist
+            if not question:  # the question does not exist
                 question, topic_ids = self._parse_question(data=data, question=None)
                 if question.topics.count('1') > 5:
                     return send_error(message='Question cannot have more than 5 topics.')
-                spelling_errors = check_spelling(question.title)
-                if len(spelling_errors) > 0:
-                    return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+
+                topic = Topic.query.filter(Topic.id == int(data['fixed_topic_id']).first())
+                if topic.name != 'Ngôn ngữ' or topic.name != 'Văn hóa trong và ngoài nước':
+                    spelling_errors = check_spelling(question.title)
+                    if len(spelling_errors) > 0:
+                        return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+                
                 if question.question:
                     is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
                     if is_sensitive:
                         return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
+
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
                 question.slug = slugify(question.title)
@@ -509,9 +514,13 @@ class QuestionController(Controller):
                 return send_error(message='Question cannot have more than 5 topics.')
             if not proposal.title.strip().endswith('?'):
                 return send_error(message='Please end question title with questio mark ("?")')
-            spelling_errors = check_spelling(proposal.title)
-            if len(spelling_errors) > 0:
-                return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+            
+            topic = Topic.query.filter(Topic.id == int(data['fixed_topic_id']).first())
+            if topic.name != 'Ngôn ngữ' or topic.name != 'Văn hóa trong và ngoài nước':       
+                spelling_errors = check_spelling(proposal.title)
+                if len(spelling_errors) > 0:
+                    return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+
             if proposal.question:
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings))
                 if is_sensitive:
