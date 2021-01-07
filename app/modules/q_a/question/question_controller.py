@@ -80,7 +80,7 @@ class QuestionController(Controller):
                     return send_error(message='Question cannot have more than 5 topics.')
 
                 topic = Topic.query.filter(Topic.id == question.fixed_topic_id).first()
-                if topic is not None and (topic.name != 'Ngôn ngữ' or topic.name != 'Văn hóa trong và ngoài nước'):
+                if topic is not None and (topic.name != 'Ngôn ngữ' and topic.name != 'Văn hóa trong và ngoài nước'):
                     spelling_errors = check_spelling(question.title)
                     if len(spelling_errors) > 0:
                         return send_error(message='Please check question title for spelling errors', data=spelling_errors)
@@ -513,10 +513,10 @@ class QuestionController(Controller):
             if proposal.topics.count('1') > 5:
                 return send_error(message='Question cannot have more than 5 topics.')
             if not proposal.title.strip().endswith('?'):
-                return send_error(message='Please end question title with questio mark ("?")')
+                return send_error(message='Please end question title with question mark ("?")')
             
             topic = Topic.query.filter(Topic.id == question.fixed_topic_id).first()
-            if topic is not None and (topic.name != 'Ngôn ngữ' or topic.name != 'Văn hóa trong và ngoài nước'):       
+            if topic is not None and (topic.name != 'Ngôn ngữ' and topic.name != 'Văn hóa trong và ngoài nước'):       
                 spelling_errors = check_spelling(proposal.title)
                 if len(spelling_errors) > 0:
                     return send_error(message='Please check question title for spelling errors', data=spelling_errors)
