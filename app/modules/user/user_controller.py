@@ -28,6 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 User = db.get_model('User')
+UserFriend = db.get_model('UserFriend')
 SocialAccount = db.get_model('SocialAccount')
 Reputation = db.get_model('Reputation')
 Topic = db.get_model('Topic')
@@ -35,7 +36,7 @@ Topic = db.get_model('Topic')
 
 class UserController(Controller):
     query_classname = 'User'
-    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name']
+    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name', 'is_mutual_friend']
     allowed_ordering_fields = ['question_count', 'answer_count', 'post_count', 'reputation']
 
     def create(self, data):
@@ -67,11 +68,25 @@ class UserController(Controller):
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
         if params.get('email_or_name'):
-            query = query.filter((User.display_name == params.get('email_or_name')) | (User.email == params.get('email_or_name')))
+            query = query.filter(\
+                (User.display_name.like('%' + params.get('email_or_name') + '%')) | \
+                (User.email.like('%' + params.get('email_or_name') + '%')))
         if params.get('is_endorsed') and g.endorsed_topic_id:
             topic = Topic.query.get(g.endorsed_topic_id)
             user_ids = [user.id for user in topic.endorsed_users]
             query = query.filter(User.id.in_(user_ids))
+        if params.get('is_mutual_friend') and g.current_user:
+            g.friend_belong_to_user_id = g.current_user.id
+            my_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\
+                    .filter(UserFriend.is_approved == True)
+            friend_ids = [friend.adaptive_friend_id for friend in my_friends_query]
+            g.mutual_friend_ids = friend_ids
+            mutual_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
+                .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
+            mutual_friend_ids = [friend.adaptive_friend_id for friend in mutual_friends_query]
+            mutual_friend_ids = [friend_id for friend_id in mutual_friend_ids if friend_id not in friend_ids]
+            query = query.filter(User.id.in_(mutual_friend_ids))
+            
 
         return query
 
