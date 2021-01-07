@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+import collections
 from common.utils.util import send_friend_request_notif_email
 from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
@@ -40,13 +41,6 @@ class UserFriendController(Controller):
         if params.get('user_id'):
             g.friend_belong_to_user_id = params.get('user_id')
             query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
-        if params.get('is_mutual') and g.current_user:
-            friend_ids = [friend.adaptive_friend_id \
-                for friend in query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\
-                    .filter(UserFriend.is_approved == True)]
-            g.mutual_friend_ids = friend_ids
-            query = query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
-                .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
         if params.get('display_name'):
             query = query.filter(
                 (UserFriend.friend.has(User.display_name.like('display_name'))) |
