@@ -41,19 +41,19 @@ class Article(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     allow_voting = db.Column(db.Boolean, default=True)
     views_count = db.Column(db.Integer, default=0)
 
-    @aggregated('votes', db.Column(db.Integer))
+    @aggregated('votes', db.Column(db.Integer, server_default="0"))
     def upvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
-    @aggregated('votes', db.Column(db.Integer))
+    @aggregated('votes', db.Column(db.Integer, server_default="0"))
     def downvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
-    @aggregated('article_shares', db.Column(db.Integer))
+    @aggregated('article_shares', db.Column(db.Integer, server_default="0"))
     def share_count(self):
         return db.func.count('1')
-    @aggregated('article_favorites', db.Column(db.Integer))
+    @aggregated('article_favorites', db.Column(db.Integer, server_default="0"))
     def favorite_count(self):
         return db.func.count('1')
-    @aggregated('article_comments', db.Column(db.Integer))
+    @aggregated('article_comments', db.Column(db.Integer, server_default="0"))
     def comment_count(self):
         return db.func.count('1')
 

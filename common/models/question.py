@@ -73,23 +73,23 @@ class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
 class Question(Model, BaseQuestion):
     __tablename__ = 'question'
     
-    views_count = db.Column(db.Integer, default=0)
-    @aggregated('answers', db.Column(db.Integer))
+    views_count = db.Column(db.Integer, server_default="0")
+    @aggregated('answers', db.Column(db.Integer, server_default="0"))
     def answers_count(self):
         return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
-    @aggregated('votes', db.Column(db.Integer))
+    @aggregated('votes', db.Column(db.Integer, server_default="0"))
     def upvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
-    @aggregated('votes', db.Column(db.Integer))
+    @aggregated('votes', db.Column(db.Integer, server_default="0"))
     def downvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
-    @aggregated('question_shares', db.Column(db.Integer))
+    @aggregated('question_shares', db.Column(db.Integer, server_default="0"))
     def share_count(self):
         return db.func.count('1')
-    @aggregated('question_favorites', db.Column(db.Integer))
+    @aggregated('question_favorites', db.Column(db.Integer, server_default="0"))
     def favorite_count(self):
         return db.func.count('1')
-    @aggregated('question_comments', db.Column(db.Integer))
+    @aggregated('question_comments', db.Column(db.Integer, server_default="0"))
     def comment_count(self):
         return db.func.count('1')
     topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery')
