@@ -68,9 +68,20 @@ class ArticleController(Controller):
             article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
+
+                # check sensitive words
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
+
+                # only allowed Vietnamese or English article title name
+                parent_topic = Topic.query.filter(Topic.id == article.fixed_topic_id).first()
+                if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
+                    spelling_errors = check_spelling(article.title)
+                    if len(spelling_errors) > 0:
+                        return send_error(message='Article title is spelled wrongly!', data=spelling_errors)
+
+
                 if article.scheduled_date and article.scheduled_date < datetime.now():
                     return send_error(message=messages.ERR_ISSUE.format('Scheduled date is earlier than current time'))
                 db.session.add(article)

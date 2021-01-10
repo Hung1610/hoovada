@@ -20,6 +20,7 @@ from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import delete_file, upload_file
+from common.utils.sensitive_words import check_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -48,6 +49,10 @@ class UserController(Controller):
             exist_user = User.query.filter_by(email=data['email']).first()
             if not exist_user:
                 user = self._parse_user(data, None)
+
+                if check_sensitive(user.about_me) or check_sensitive(user.display_name):
+                    return send_error(message='User information contains word that is not allowed!')
+
                 user.display_name = user.display_name or data['email']
                 user.password_hash = user.password_hash or data['email']
                 user.admin = UserRole.ADMIN
@@ -163,15 +168,8 @@ class UserController(Controller):
             return send_error(message='Could not get user by ID {}.'.format(user_name))
 
     def update(self, user_name, data):
-        """
-        Doest now allow to update `id`, `email`, `password`, `profile_views`.
+        """ Does not allow to update `id`, `email`, `password`, `profile_views` """
 
-        :param user_name:
-
-        :param data:
-
-        :return:
-        """
         if not isinstance(data, dict):
             return send_error(message='You must pass dictionary-like data.')
         if 'id' in data:
@@ -188,6 +186,10 @@ class UserController(Controller):
                 return send_error(message='User not found')
             else:
                 user = self._parse_user(data=data, user=user)
+
+                if check_sensitive(user.about_me) or check_sensitive(user.display_name):
+                    return send_error(message='User information contains word that is not allowed!')
+
                 db.session.commit()
                 return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
         except Exception as e:
@@ -403,8 +405,10 @@ class UserController(Controller):
                 pass
         else:
             user.active = 1
+        
         if data.get('about_me'):
             user.about_me = data['about_me']
+
         if 'show_email_publicly_setting' in data:
             try:
                 user.show_email_publicly_setting = bool(data['show_email_publicly_setting'])

@@ -109,7 +109,7 @@ class TopicController(Controller):
             if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
                 spelling_errors = check_spelling(data['name'])
                 if len(spelling_errors) > 0:
-                    return send_error(message='Please check topic name for spelling errors', data=spelling_errors)
+                    return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
            
             # check topic already exists
             topic = Topic.query.filter(or_(
