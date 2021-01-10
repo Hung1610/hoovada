@@ -349,7 +349,7 @@ class ArticleController(Controller):
                     except Exception as e:
                         print(e)
                         pass
-            article.topics = topics
+                article.topics = topics
             # check sensitive before updating
             is_sensitive = check_sensitive(article.title)
             if is_sensitive:
@@ -362,7 +362,7 @@ class ArticleController(Controller):
             article.last_activity = datetime.utcnow()
             db.session.commit()
             
-            result = article.__dict__
+            result = article._asdict()
             # get user info
             result['user'] = article.user
             # get all topics that article belongs to
@@ -384,7 +384,7 @@ class ArticleController(Controller):
             return send_result(message=constants.msg_update_success,
                                 data=marshal(result, ArticleDto.model_article_response))
         except Exception as e:
-            log(e)
+            log(1, e)
             return send_error(message=constants.msg_update_failed)
 
     def delete(self, object_id):
