@@ -114,9 +114,6 @@ class AuthController:
     def check_user_name_exist(user_name):
         """ Check user exist by its user_name. Return True is existed else return False if not existed"""
 
-        if user_name.lower() == "khách" or user_name.lower() == "ẩn danh":
-            return True
-
         user = User.query.filter_by(display_name=user_name).first()
         return user is not None
 

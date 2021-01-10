@@ -13,6 +13,8 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+b = enchant.Broker()
+b.set_ordering("*","aspell,hunspell")
 
 en_dict = enchant.Dict("en_US")
 vi_dict = enchant.Dict("vi_VN")

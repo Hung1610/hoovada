@@ -18,6 +18,7 @@ from sqlalchemy import and_, desc, func, or_, text
 from app.modules.article import constants
 from app.modules.article.article_dto import ArticleDto
 from app.constants import messages
+from common.utils.checker import check_spelling
 from common.db import db
 from common.dramatiq_producers import new_article_notify_user_list, update_seen_articles
 from common.controllers.controller import Controller
