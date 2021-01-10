@@ -54,7 +54,7 @@ class TopicList(Resource):
         return controller.get(args=args)
 
 
-    #@token_required
+    @token_required
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):

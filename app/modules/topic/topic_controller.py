@@ -93,20 +93,28 @@ class TopicController(Controller):
             return send_error(message="Data is not correct or not in dictionary type")
         
         if not 'name' in data:
-            return send_error(message='Topic name must be filled')
+            return send_error(message='Topic name must be filled!')
         else:
             topic_name = data['name']
             is_sensitive = check_sensitive(topic_name)
             if is_sensitive:
-                return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+                return send_error(message='Topic name is not allowed!')
 
         if not 'parent_id' in data:
-            return send_error(message='Topic must have a parent topic.')
+            return send_error(message='Topic must have a parent fixed_topic!')
         try:
-            # check topuc already exists
+
+            # only allowed Vietnamese or English topic names
+            parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
+            if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
+                spelling_errors = check_spelling(data['name'])
+                if len(spelling_errors) > 0:
+                    return send_error(message='Please check topic name for spelling errors', data=spelling_errors)
+           
+            # check topic already exists
             topic = Topic.query.filter(or_(
                 and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
-                and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
+                and_(Topic.name == data['name'], Topic.parent_id == None, data['parent_id']==0),
                 and_(Topic.name == data['name'], Topic.name == data['name'], int(data['parent_id'])>0))
                 ).first()
 
