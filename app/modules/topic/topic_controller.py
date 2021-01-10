@@ -126,7 +126,7 @@ class TopicController(Controller):
                     # update amount of sub-topics for for parent topic
                     parent_id = topic.parent_id
                     parent_topic = Topic.query.filter_by(id=parent_id).first()
-                    parent_topic.count += 1
+                    #parent_topic.count += 1
                     db.session.commit()
                 except Exception as e:
                     print(e.__str__())
@@ -458,12 +458,13 @@ class TopicController(Controller):
         if 'name' in data:
             topic.name = data['name']
             
-        if 'count' in data:
-            try:
-                topic.count = int(data['count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        #if 'count' in data:
+        #    try:
+        #        topic.count = int(data['count'])
+        #    except Exception as e:
+        #        print(e.__str__())
+        #        pass
+        
         if 'user_id' in data:
             try:
                 topic.user_id = int(data['user_id'])
