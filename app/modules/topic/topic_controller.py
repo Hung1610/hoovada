@@ -21,6 +21,7 @@ from common.controllers.controller import Controller
 from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.response import (paginated_result, send_error,
                                    send_paginated_result, send_result)
+from common.utils.checker import check_spelling
 from common.utils.sensitive_words import check_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
@@ -112,11 +113,7 @@ class TopicController(Controller):
                     return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
            
             # check topic already exists
-            topic = Topic.query.filter(or_(
-                and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
-                and_(Topic.name == data['name'], Topic.parent_id == None, data['parent_id']==0),
-                and_(Topic.name == data['name'], Topic.name == data['name'], int(data['parent_id'])>0))
-                ).first()
+            topic = Topic.query.filter(Topic.name == data['name'], Topic.parent_id == data['parent_id']).first()
 
             current_user = g.current_user
             data['user_id'] = current_user.id
@@ -129,23 +126,6 @@ class TopicController(Controller):
                 topic.name = topic.name.capitalize()
                 db.session.add(topic)
                 db.session.commit()
-                # update count for fixed topic
-                try:
-                    # update amount of sub-topics for for parent topic
-                    parent_id = topic.parent_id
-                    parent_topic = Topic.query.filter_by(id=parent_id).first()
-                    #parent_topic.count += 1
-                    db.session.commit()
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-                # update topic created count for user
-                try:
-                    user = User.query.filter_by(id= topic.user_id).first()
-                    user.topic_created_count += 1
-                    db.session.commit()
-                except Exception as e:
-                    print(e.__str__())
 
                 return send_result(message='Topic was created successfully.',
                                    data=marshal(topic, TopicDto.model_topic_response))
