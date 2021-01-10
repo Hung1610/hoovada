@@ -195,7 +195,7 @@ class CreateFixedTopic(Resource):
         """
 
         controller = TopicController()
-        return controller.create_topics()
+        return controller.create_fixed_topics()
 
 @api.deprecated
 @api.route('/update_slug', doc=False)

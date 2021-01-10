@@ -42,7 +42,7 @@ class TopicController(Controller):
     special_filtering_fields = ['hot']
     allowed_ordering_fields = ['created_date', 'updated_date']
     
-    def create_topics(self):
+    def create_fixed_topics(self):
         fixed_topics = ["Những lĩnh vực khác", 
                         "Du lịch",
                         "Chính trị",
@@ -81,7 +81,7 @@ class TopicController(Controller):
             for topic_name in fixed_topics:
                 topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
                 if not topic:  # the topic does not exist
-                    topic = Topic(name=topic_name, is_fixed=True, user_id=1)
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=1, color_code="#675DDA")
                     db.session.add(topic)
                     db.session.commit()
         except Exception as e:
