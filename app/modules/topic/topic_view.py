@@ -54,7 +54,7 @@ class TopicList(Resource):
         return controller.get(args=args)
 
 
-    #@token_required
+    @token_required
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):
@@ -186,7 +186,7 @@ class BookmarkUserTopic(Resource):
         return controller.get_bookmarked_users(object_id=topic_id_or_slug, args=args)
 
 
-@api.route('/create_topics')
+@api.route('/create_topics', doc=False)
 class CreateFixedTopic(Resource):
     @admin_token_required
     def post(self):
@@ -195,22 +195,22 @@ class CreateFixedTopic(Resource):
         """
 
         controller = TopicController()
-        return controller.create_topics()
+        return controller.create_fixed_topics()
 
-
-@api.route('/update_slug')
+@api.deprecated
+@api.route('/update_slug', doc=False)
 class UpdateTopicSlug(Resource):
     @admin_token_required
     def post(self):
         """
-        Update Slug for articles in DB
+        Update Slug for topics in DB
         """
 
         controller = TopicController()
         return controller.update_slug()
 
-
-@api.route('/update_color')
+@api.deprecated
+@api.route('/update_color', doc=False)
 class UpdateTopicColor(Resource):
     @admin_token_required
     def post(self):

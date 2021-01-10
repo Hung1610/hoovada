@@ -42,7 +42,7 @@ class TopicController(Controller):
     special_filtering_fields = ['hot']
     allowed_ordering_fields = ['created_date', 'updated_date']
     
-    def create_topics(self):
+    def create_fixed_topics(self):
         fixed_topics = ["Những lĩnh vực khác", 
                         "Du lịch",
                         "Chính trị",
@@ -81,7 +81,7 @@ class TopicController(Controller):
             for topic_name in fixed_topics:
                 topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
                 if not topic:  # the topic does not exist
-                    topic = Topic(name=topic_name, is_fixed=True, user_id=1)
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=1, color_code="#675DDA")
                     db.session.add(topic)
                     db.session.commit()
         except Exception as e:
@@ -93,20 +93,28 @@ class TopicController(Controller):
             return send_error(message="Data is not correct or not in dictionary type")
         
         if not 'name' in data:
-            return send_error(message='Topic name must be filled')
+            return send_error(message='Topic name must be filled!')
         else:
             topic_name = data['name']
             is_sensitive = check_sensitive(topic_name)
             if is_sensitive:
-                return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+                return send_error(message='Topic name is not allowed!')
 
         if not 'parent_id' in data:
-            return send_error(message='Topic must have a parent topic.')
+            return send_error(message='Topic must have a parent fixed_topic!')
         try:
-            # check topuc already exists
+
+            # only allowed Vietnamese or English topic names
+            parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
+            if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
+                spelling_errors = check_spelling(data['name'])
+                if len(spelling_errors) > 0:
+                    return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
+           
+            # check topic already exists
             topic = Topic.query.filter(or_(
                 and_(Topic.name == data['name'], Topic.parent_id == data['parent_id']),
-                and_(Topic.name == data['name'], Topic.parent_id == None,data['parent_id']==0),
+                and_(Topic.name == data['name'], Topic.parent_id == None, data['parent_id']==0),
                 and_(Topic.name == data['name'], Topic.name == data['name'], int(data['parent_id'])>0))
                 ).first()
 
@@ -126,7 +134,7 @@ class TopicController(Controller):
                     # update amount of sub-topics for for parent topic
                     parent_id = topic.parent_id
                     parent_topic = Topic.query.filter_by(id=parent_id).first()
-                    parent_topic.count += 1
+                    #parent_topic.count += 1
                     db.session.commit()
                 except Exception as e:
                     print(e.__str__())
@@ -458,12 +466,13 @@ class TopicController(Controller):
         if 'name' in data:
             topic.name = data['name']
             
-        if 'count' in data:
-            try:
-                topic.count = int(data['count'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        #if 'count' in data:
+        #    try:
+        #        topic.count = int(data['count'])
+        #    except Exception as e:
+        #        print(e.__str__())
+        #        pass
+        
         if 'user_id' in data:
             try:
                 topic.user_id = int(data['user_id'])
