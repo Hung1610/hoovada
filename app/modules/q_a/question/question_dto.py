@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from datetime import datetime
 from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse
 
@@ -36,6 +37,29 @@ class QuestionDto(Dto):
         'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
+    })
+
+    question_top_answer = api.model('question_top_answer', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the answer'),
+        'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
+        'updated_date': fields.DateTime(default=datetime.utcnow, description='The date answer was updated'),
+        'last_activity': fields.DateTime(default=datetime.utcnow, description='The last time answer was updated'),
+        'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
+        'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
+        'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
+        'answer': fields.String(description='The content of the answer'),
+        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
+        'user': fields.Nested(model_question_user, description='The user information', attribute='display_user'),
+        'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
+        'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),
+        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
+        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'file_url': fields.String(description='The file url'),
+        'file_type': fields.String(description='The file type', attribute='file_type.name'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_answer_request = api.model('answer_question_request', {
@@ -93,6 +117,7 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
+        'top_answer': fields.List(fields.Nested(question_top_answer), description='The list of invited users'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
