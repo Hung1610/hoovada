@@ -447,6 +447,9 @@ class AuthController:
 
         if AuthController.check_user_name_exist(display_name):
             return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
+            
+        if is_valid_username(display_name) is False:
+            return send_error(message=messages.ERR_INVALID_INPUT_NAME)
         
         user = User(display_name=display_name, email=email, confirmed=False)
         user.set_password(password=password)
