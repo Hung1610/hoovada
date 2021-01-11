@@ -98,7 +98,7 @@ def send_email(to, subject, template):
         None
     """
     if to:
-        msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template)
+        msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
 
 
@@ -115,7 +115,7 @@ def send_confirmation_email(to, user=None):
     token = generate_confirmation_token(email=to)
     confirm_url = '{}/{}{}'.format(current_app.config['DOMAIN_URL'], '?page=signup_success&token=', token)
     html = render_template('confirmation.html', confirm_url=confirm_url, user=user)
-    send_email(to, 'X‡c th?c tˆi kho?n hoovada.com!', html)
+    send_email(to, 'Xï¿½c th?c tï¿½i kho?n hoovada.com!', html)
 
 
 def send_password_reset_email(to):
@@ -136,31 +136,31 @@ def send_password_reset_email(to):
 def send_answer_notif_email(user, answer, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer.html', user=user, answer=answer, question=question)
-        send_email(user.email, 'B?n nh?n ???c c‰u tr? l?i m?i cho c‰u h?i c?a b?n t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c cï¿½u tr? l?i m?i cho cï¿½u h?i c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_article_comment_notif_email(user, comment, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
-        send_email(user.email, 'B?n nh?n ???c b“nh lu?n m?i cho bˆi vi?t c?a b?n t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c bï¿½nh lu?n m?i cho bï¿½i vi?t c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_question_comment_notif_email(user, comment, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
-        send_email(user.email, 'B?n nh?n ???c b“nh lu?n m?i cho c‰u h?i c?a b?n t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c bï¿½nh lu?n m?i cho cï¿½u h?i c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_answer_comment_notif_email(user, comment, answer):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
-        send_email(user.email, 'B?n nh?n ???c b“nh lu?n m?i cho c‰u tr? l?i c?a b?n t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c bï¿½nh lu?n m?i cho cï¿½u tr? l?i c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_question_invite_notif_email(user, inviter, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_invite.html', inviter=inviter, user=user, question=question)
-        send_email(user.email, 'B?n nh?n ???c l?i m?i tr? l?i c‰u h?i t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c l?i m?i tr? l?i cï¿½u h?i t? c?ng ??ng hoovada.com', html)
 
 
 def send_friend_request_notif_email(user, requester):
@@ -172,19 +172,19 @@ def send_friend_request_notif_email(user, requester):
 def send_follow_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_follow_request.html', requester=requester, user=user)
-        send_email(user.email, 'B?n c— ng??i theo d›i m?i t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'B?n cï¿½ ng??i theo dï¿½i m?i t? c?ng ??ng hoovada.com', html)
     
 
 def send_article_notif_email(user, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article.html', article=article, user=user)
-        send_email(user.email, 'Bˆi vi?t m?i t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'Bï¿½i vi?t m?i t? c?ng ??ng hoovada.com', html)
     
 
 def send_question_notif_email(user, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question.html', question=question, user=user)
-        send_email(user.email, 'C‰u h?i m?i t? c?ng ??ng hoovada.com', html)
+        send_email(user.email, 'Cï¿½u h?i m?i t? c?ng ??ng hoovada.com', html)
 
 
 def get_response_message(message):
@@ -324,16 +324,16 @@ def convert_vietnamese_diacritics(s):
         string
     """
     
-    s = re.sub(r'[ˆ‡??‹‰???????????]', 'a', s)
-    s = re.sub(r'[Ëç??Ì??????å?????]', 'A', s)
-    s = re.sub(r'[????????]', 'e', s)
-    s = re.sub(r'[éƒ???æ?????]', 'E', s)
-    s = re.sub(r'[˜—??›™???????????]', 'o', s)
-    s = re.sub(r'[ñî??Íï???????????]', 'O', s)
-    s = re.sub(r'[“’???]', 'i', s)
-    s = re.sub(r'[íê???]', 'I', s)
-    s = re.sub(r'[œ?????????]', 'u', s)
-    s = re.sub(r'[??????ôò???]', 'U', s)
+    s = re.sub(r'[ï¿½ï¿½??ï¿½ï¿½???????????]', 'a', s)
+    s = re.sub(r'[ï¿½ï¿½??ï¿½??????ï¿½?????]', 'A', s)
+    s = re.sub(r'[ï¿½ï¿½???ï¿½?????]', 'e', s)
+    s = re.sub(r'[ï¿½???ï¿½?????]', 'E', s)
+    s = re.sub(r'[ï¿½ï¿½??ï¿½ï¿½???????????]', 'o', s)
+    s = re.sub(r'[ï¿½ï¿½??ï¿½ï¿½???????????]', 'O', s)
+    s = re.sub(r'[ï¿½ï¿½???]', 'i', s)
+    s = re.sub(r'[ï¿½ï¿½???]', 'I', s)
+    s = re.sub(r'[ï¿½ï¿½?????????]', 'u', s)
+    s = re.sub(r'[??????ï¿½ï¿½???]', 'U', s)
     s = re.sub(r'[?????]', 'y', s)
     s = re.sub(r'[?????]', 'Y', s)
     s = re.sub(r'[?]', 'D', s)
@@ -370,7 +370,7 @@ def is_valid_username(user_name):
     """
     
     valid_regex = re.match("^[a-zA-Z0-9_.-]+$", user_name) is not None
-    valid_name = ~(user_name.lower() == "kh‡ch" or user_name.lower() == "?n danh")
+    valid_name = ~(user_name.lower() == "khï¿½ch" or user_name.lower() == "?n danh")
     return valid_regex and valid_name
 
 
