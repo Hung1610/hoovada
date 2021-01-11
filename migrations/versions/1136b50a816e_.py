@@ -408,7 +408,7 @@ def downgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
                existing_nullable=True)
-    op.drop_constraint(None, 'answer', type_='unique')
+    op.drop_constraint('user_id', 'answer', type_='unique')
     op.alter_column('answer', 'is_deleted',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
