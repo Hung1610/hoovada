@@ -55,7 +55,7 @@ class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     
     @declared_attr
     def fixed_topic_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+        return db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
 
     @declared_attr
     def fixed_topic(cls):
@@ -63,7 +63,7 @@ class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -119,8 +119,8 @@ class Question(Model, BaseQuestion):
 class QuestionProposal(Model, BaseQuestion):
     __tablename__ = 'question_proposal'
     
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True)
-    question_id = db.Column(db.Integer, nullable=True)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True, index=True)
+    question_id = db.Column(db.Integer, nullable=True, index=True)
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
     proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
     proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)

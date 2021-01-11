@@ -31,7 +31,7 @@ class BaseShare(object):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -41,45 +41,45 @@ class BaseShare(object):
 class QuestionShare(Model, BaseShare):
     __tablename__ = 'question_share'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
     user = db.relationship('User', foreign_keys=[user_id], lazy=True)
-    user_shared_to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_shared_to_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     user_shared_to = db.relationship('User', foreign_keys=[user_shared_to_id], lazy=True) # one-to-many relationship with table Article
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), index=True)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Article
 
 
 class AnswerShare(Model, BaseShare):
     __tablename__ = 'answer_share'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
-    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), index=True)
     answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Article
 
 
 class ArticleShare(Model, BaseShare):
     __tablename__ = 'article_share'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), index=True)
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
 
 
 class PostShare(Model, BaseShare):
     __tablename__ = 'post_share'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), index=True)
     post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post
 
 
 class TopicShare(Model, BaseShare):
     __tablename__ = 'topic_share'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article

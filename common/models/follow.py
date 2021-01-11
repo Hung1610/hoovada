@@ -23,16 +23,16 @@ class BaseFollow(object):
 class UserFollow(Model, BaseFollow):
     __tablename__ = 'user_follow'
     
-    follower_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    follower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     follower = db.relationship('User', foreign_keys=[follower_id], lazy=True) # one-to-many relationship with table User
-    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     followed = db.relationship('User', foreign_keys=[followed_id], lazy=True) # one-to-many relationship with table User
 
 
 class TopicFollow(Model, BaseFollow):
     __tablename__ = 'topic_follow'
     
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic

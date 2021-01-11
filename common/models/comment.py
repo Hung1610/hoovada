@@ -34,7 +34,7 @@ class BaseComment(object):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -44,7 +44,7 @@ class BaseComment(object):
 class ArticleComment(Model, BaseComment):
     __tablename__ = 'article_comment'
 
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), index=True)
     article = db.relationship('Article', lazy=True)
     favorites = db.relationship("ArticleCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
@@ -55,14 +55,14 @@ class ArticleComment(Model, BaseComment):
 class PostComment(Model, BaseComment):
     __tablename__ = 'post_comment'
     
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), index=True)
     post = db.relationship('Post', lazy=True) 
     
 
 class AnswerComment(Model, BaseComment):
     __tablename__ = 'answer_comment'
     
-    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), index=True)
     answer = db.relationship('Answer', lazy=True)
     favorites = db.relationship("AnswerCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
@@ -73,7 +73,7 @@ class AnswerComment(Model, BaseComment):
 class QuestionComment(Model, BaseComment):
     __tablename__ = 'question_comment'
     
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), index=True)
     question = db.relationship('Question', lazy=True)
     favorites = db.relationship("QuestionCommentFavorite", cascade='all,delete-orphan')
     @aggregated('favorites', db.Column(db.Integer))
