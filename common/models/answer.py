@@ -35,23 +35,23 @@ class Answer(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     file_url = db.Column(db.String(255))
     file_type = db.Column(db.Enum(FileTypeEnum, validate_strings=True), nullable=True)
 
-    @aggregated('votes', db.Column(db.Integer))
+    @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
 
-    @aggregated('votes', db.Column(db.Integer))
+    @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def downvote_count(self):
         return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
 
-    @aggregated('answer_comments', db.Column(db.Integer))
+    @aggregated('answer_comments', db.Column(db.Integer, server_default="0", nullable=False))
     def comment_count(self):
         return db.func.count('1')
 
-    @aggregated('answer_shares', db.Column(db.Integer))
+    @aggregated('answer_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
         return db.func.count('1')
 
-    @aggregated('answer_favorites', db.Column(db.Integer))
+    @aggregated('answer_favorites', db.Column(db.Integer, server_default="0", nullable=False))
     def favorite_count(self):
         return db.func.count('1')
 
