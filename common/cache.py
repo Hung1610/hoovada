@@ -32,7 +32,7 @@ def clear_cache(self, key_prefix=None):
     redis_client = self.get_redis_client()
     if not key_prefix:
         key_prefix = request.path
-    keys = [key for key in redis_client.keys() if key.startswith(key_prefix)]
+    keys = [key for key in redis_client.keys('{}*'.format(key_prefix))]
     nkeys = len(keys)
     for key in keys:
         redis_client.delete(key)

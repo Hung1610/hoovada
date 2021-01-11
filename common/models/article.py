@@ -33,9 +33,9 @@ class Article(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255))
     slug = db.Column(db.String(255), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
     allow_voting = db.Column(db.Boolean, default=True)

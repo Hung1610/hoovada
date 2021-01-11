@@ -26,7 +26,7 @@ class BaseBookmark(object):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
