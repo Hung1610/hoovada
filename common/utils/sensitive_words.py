@@ -17,7 +17,7 @@ sensitive_words = ['lồn', 'dm', 'du me', 'đu me', 'đủ mẹ', 'đủ má', 
 
 def check_sensitive(text):
     if text is None or str(text).strip().__eq__(''):
-        return True
+        return False
     result = False
     for word in sensitive_words:
         word = str(word).strip()

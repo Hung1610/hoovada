@@ -98,7 +98,7 @@ def send_email(to, subject, template):
         None
     """
     if to:
-        msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template)
+        msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
 
 
@@ -115,7 +115,7 @@ def send_confirmation_email(to, user=None):
     token = generate_confirmation_token(email=to)
     confirm_url = '{}/{}{}'.format(current_app.config['DOMAIN_URL'], '?page=signup_success&token=', token)
     html = render_template('confirmation.html', confirm_url=confirm_url, user=user)
-    send_email(to, 'Xác thực tài khoản hoovada.com!', html)
+    send_email(to, 'X�c th?c t�i kho?n hoovada.com!', html)
 
 
 def send_password_reset_email(to):
@@ -130,61 +130,61 @@ def send_password_reset_email(to):
     
     token = generate_confirmation_token(email=to)
     html = render_template('reset_password.html', token=token)
-    send_email(to, 'Hoovada - Thay đổi mật khẩu!', html)
+    send_email(to, 'Hoovada - Thay ??i m?t kh?u!', html)
 
 
 def send_answer_notif_email(user, answer, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer.html', user=user, answer=answer, question=question)
-        send_email(user.email, 'Bạn nhận được câu trả lời mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c c�u tr? l?i m?i cho c�u h?i c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_article_comment_notif_email(user, comment, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho bài viết của bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c b�nh lu?n m?i cho b�i vi?t c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_question_comment_notif_email(user, comment, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c b�nh lu?n m?i cho c�u h?i c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_answer_comment_notif_email(user, comment, answer):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho câu trả lời của bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c b�nh lu?n m?i cho c�u tr? l?i c?a b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_question_invite_notif_email(user, inviter, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_invite.html', inviter=inviter, user=user, question=question)
-        send_email(user.email, 'Bạn nhận được lời mời trả lời câu hỏi từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c l?i m?i tr? l?i c�u h?i t? c?ng ??ng hoovada.com', html)
 
 
 def send_friend_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_friend_request.html', requester=requester, user=user)
-        send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n nh?n ???c l?i m?i k?t b?n t? c?ng ??ng hoovada.com', html)
 
 
 def send_follow_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_follow_request.html', requester=requester, user=user)
-        send_email(user.email, 'Bạn có người theo dõi mới từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B?n c� ng??i theo d�i m?i t? c?ng ??ng hoovada.com', html)
     
 
 def send_article_notif_email(user, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article.html', article=article, user=user)
-        send_email(user.email, 'Bài viết mới từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'B�i vi?t m?i t? c?ng ??ng hoovada.com', html)
     
 
 def send_question_notif_email(user, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question.html', question=question, user=user)
-        send_email(user.email, 'Câu hỏi mới từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'C�u h?i m?i t? c?ng ??ng hoovada.com', html)
 
 
 def get_response_message(message):
@@ -324,20 +324,20 @@ def convert_vietnamese_diacritics(s):
         string
     """
     
-    s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
-    s = re.sub(r'[ÀÁẠẢÃĂẰẮẶẲẴÂẦẤẬẨẪ]', 'A', s)
-    s = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', s)
-    s = re.sub(r'[ÈÉẸẺẼÊỀẾỆỂỄ]', 'E', s)
-    s = re.sub(r'[òóọỏõôồốộổỗơờớợởỡ]', 'o', s)
-    s = re.sub(r'[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]', 'O', s)
-    s = re.sub(r'[ìíịỉĩ]', 'i', s)
-    s = re.sub(r'[ÌÍỊỈĨ]', 'I', s)
-    s = re.sub(r'[ùúụủũưừứựửữ]', 'u', s)
-    s = re.sub(r'[ƯỪỨỰỬỮÙÚỤỦŨ]', 'U', s)
-    s = re.sub(r'[ỳýỵỷỹ]', 'y', s)
-    s = re.sub(r'[ỲÝỴỶỸ]', 'Y', s)
-    s = re.sub(r'[Đ]', 'D', s)
-    s = re.sub(r'[đ]', 'd', s)
+    s = re.sub(r'[��??��???????????]', 'a', s)
+    s = re.sub(r'[��??�??????�?????]', 'A', s)
+    s = re.sub(r'[��???�?????]', 'e', s)
+    s = re.sub(r'[�???�?????]', 'E', s)
+    s = re.sub(r'[��??��???????????]', 'o', s)
+    s = re.sub(r'[��??��???????????]', 'O', s)
+    s = re.sub(r'[��???]', 'i', s)
+    s = re.sub(r'[��???]', 'I', s)
+    s = re.sub(r'[��?????????]', 'u', s)
+    s = re.sub(r'[??????��???]', 'U', s)
+    s = re.sub(r'[?????]', 'y', s)
+    s = re.sub(r'[?????]', 'Y', s)
+    s = re.sub(r'[?]', 'D', s)
+    s = re.sub(r'[?]', 'd', s)
     return s
 
 
@@ -370,7 +370,7 @@ def is_valid_username(user_name):
     """
     
     valid_regex = re.match("^[a-zA-Z0-9_.-]+$", user_name) is not None
-    valid_name = ~(user_name.lower() == "khách" or user_name.lower() == "ẩn danh")
+    valid_name = ~(user_name.lower() == "kh�ch" or user_name.lower() == "?n danh")
     return valid_regex and valid_name
 
 
