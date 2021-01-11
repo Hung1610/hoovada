@@ -369,7 +369,9 @@ def is_valid_username(user_name):
         Boolean
     """
     
-    return re.match("^[a-zA-Z0-9_.-]+$", user_name) is not None
+    valid_regex = re.match("^[a-zA-Z0-9_.-]+$", user_name) is not None
+    valid_name = ~(user_name.lower() == "khách" or user_name.lower() == "ẩn danh")
+    return valid_regex and valid_name
 
 
 def validate_phone_number(phone_number):

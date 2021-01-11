@@ -18,6 +18,7 @@ from sqlalchemy import and_, desc, func, or_, text
 from app.modules.article import constants
 from app.modules.article.article_dto import ArticleDto
 from app.constants import messages
+from common.utils.checker import check_spelling
 from common.db import db
 from common.dramatiq_producers import new_article_notify_user_list, update_seen_articles
 from common.controllers.controller import Controller
@@ -68,9 +69,20 @@ class ArticleController(Controller):
             article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
             if not article:  # the article does not exist
                 article, topic_ids = self._parse_article(data=data, article=None)
+
+                # check sensitive words
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=constants.msg_insensitive_body)
+
+                # only allowed Vietnamese or English article title name
+                parent_topic = Topic.query.filter(Topic.id == article.fixed_topic_id).first()
+                if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
+                    spelling_errors = check_spelling(article.title)
+                    if len(spelling_errors) > 0:
+                        return send_error(message='Article title is spelled wrongly!', data=spelling_errors)
+
+
                 if article.scheduled_date and article.scheduled_date < datetime.now():
                     return send_error(message=messages.ERR_ISSUE.format('Scheduled date is earlier than current time'))
                 db.session.add(article)
@@ -337,7 +349,7 @@ class ArticleController(Controller):
                     except Exception as e:
                         print(e)
                         pass
-            article.topics = topics
+                article.topics = topics
             # check sensitive before updating
             is_sensitive = check_sensitive(article.title)
             if is_sensitive:
@@ -350,7 +362,7 @@ class ArticleController(Controller):
             article.last_activity = datetime.utcnow()
             db.session.commit()
             
-            result = article.__dict__
+            result = article._asdict()
             # get user info
             result['user'] = article.user
             # get all topics that article belongs to
@@ -372,7 +384,7 @@ class ArticleController(Controller):
             return send_result(message=constants.msg_update_success,
                                 data=marshal(result, ArticleDto.model_article_response))
         except Exception as e:
-            log(e)
+            log(1, e)
             return send_error(message=constants.msg_update_failed)
 
     def delete(self, object_id):

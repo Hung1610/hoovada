@@ -105,6 +105,16 @@ class Question(Model, BaseQuestion):
     question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
     bookmarked_users = db.relationship("User", secondary='question_bookmark')
 
+    @property
+    def top_answer(self):
+        Answer = db.get_model('Answer')
+        answer = Answer.query\
+            .filter(Answer.question_id == self.id)\
+            .order_by(\
+                db.desc(db.text("upvote_count + downvote_count + share_count + favorite_count")))\
+            .first()
+        return answer
+
 
 class QuestionProposal(Model, BaseQuestion):
     __tablename__ = 'question_proposal'

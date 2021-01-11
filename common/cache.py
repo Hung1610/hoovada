@@ -14,8 +14,11 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 def get_redis_client(self):
     redis_client = Redis(
-        self.app.config['CACHE_REDIS_HOST'], 
-        self.app.config['CACHE_REDIS_PORT'])
+        self.app.config['CACHE_REDIS_HOST'],
+        self.app.config['CACHE_REDIS_PORT'],
+        0,
+        self.app.config['CACHE_REDIS_PASSWORD'],
+        )
     return redis_client
 
 def cache_key(self):

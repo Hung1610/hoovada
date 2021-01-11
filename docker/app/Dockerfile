@@ -4,7 +4,7 @@ WORKDIR /opt
 
 COPY ./app/requirements.txt /opt/
 
-RUN apt-get update -y && apt-get install -y python-dev python3-dev libevent-dev enchant libmemcached-dev zlib1g-dev libenchant-dev hunspell-vi
+RUN apt-get update -y && apt-get install -y python-dev python3-dev libevent-dev enchant libmemcached-dev zlib1g-dev libenchant-dev aspell
 
 RUN pip3 install --no-cache-dir -r requirements.txt --ignore-installed
 
@@ -19,6 +19,16 @@ RUN adduser --ingroup app --home /dev/null --shell /usr/sbin/nologin app
 RUN usermod -u 1000 app
 
 COPY --chown=app:app . /opt/
+
+WORKDIR /opt/aspell6-vi-0.01.1-1
+
+RUN ./configure
+
+RUN make
+
+RUN make install
+
+WORKDIR /opt
 
 USER app
 

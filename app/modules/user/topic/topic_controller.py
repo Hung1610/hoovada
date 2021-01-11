@@ -30,13 +30,8 @@ User = db.get_model('User')
 
 class TopicController(Controller):
     def get(self, args, user_id=None):
-        """
-        Search topics by params.
-
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
+        """ Search topics by params"""
+        
         fixed_topic_id, topic_id, is_fixed = None, None, None
         if 'fixed_topic_id' in args:
             try:
