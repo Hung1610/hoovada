@@ -16,15 +16,13 @@
     </div>
 
     <div style="margin-bottom:24px;padding:20px 24px">
-        <div style="color: #333333;font-weight: 700;font-size: 20;padding-bottom:5px">
-            [Thông báo] {{comment.user.display_name if comment.user else 'Khách'}} đã bình luận trên câu trả lời của bạn
-        </div>
         <div style="padding:20px 0px; ">
             <div>Xin chào <span style="font-weight: 700">{{user.display_name}}</span>
             </div>
 
         </div>
-        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{comment.user.display_name if comment.user else 'Khách'}}</span> bình luận trong câu trả lời cho câu hỏi:
+        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{comment.user.display_name if comment.user else 'Khách'}}</span> 
+            đã bình luận trong câu trả lời cho câu hỏi:
             <span style="font-weight: 700">“{{answer.question.title}}”</span> của bạn như sau:
         </div>
 

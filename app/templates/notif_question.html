@@ -16,15 +16,13 @@
     </div>
 
     <div style="margin-bottom:24px;padding:20px 24px">
-        <div style="color: #333333;font-weight: 700;font-size: 20;padding-bottom:5px">
-            [Thông báo] {{question.user.display_name if question.user else 'Khách'}} đã có câu hỏi mới
-        </div>
         <div style="padding:20px 0px; ">
             <div>Xin chào <span style="font-weight: 700">{{user.display_name}}</span>
             </div>
 
         </div>
-        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{question.user.display_name if question.user else 'Khách'}}</span> đã có câu hỏi mới:
+        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{question.user.display_name if question.user else 'Một người 
+        dùng không đăng nhập'}}</span> đã có câu hỏi mới:
             <span style="font-weight: 700">“{{question.title}}”</span>
         </div>
 
