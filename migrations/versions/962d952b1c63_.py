@@ -34,8 +34,8 @@ def upgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
                existing_nullable=True)
-    op.create_index(op.f('ix_answer_comment_answer_id'), 'answer_comment', ['answer_id'], unique=False)
-    op.create_foreign_key(None, 'answer_comment', 'answer', ['answer_id'], ['id'], ondelete='CASCADE')
+    op.drop_constraint('answer_comment_ibfk_1', 'answer_comment', type_='foreignkey')
+    op.create_foreign_key('answer_comment_ibfk_1', 'answer_comment', 'answer', ['answer_id'], ['id'], ondelete='CASCADE')
     op.alter_column('article', 'is_anonymous',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
@@ -48,7 +48,6 @@ def upgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
                existing_nullable=True)
-    op.create_index(op.f('ix_article_comment_article_id'), 'article_comment', ['article_id'], unique=False)
     op.alter_column('post', 'allow_favorite',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('true'),
@@ -61,7 +60,6 @@ def upgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
                existing_nullable=True)
-    op.create_index(op.f('ix_post_comment_post_id'), 'post_comment', ['post_id'], unique=False)
     op.alter_column('question', 'allow_audio_answer',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
@@ -86,7 +84,6 @@ def upgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
                existing_nullable=True)
-    op.create_index(op.f('ix_question_comment_question_id'), 'question_comment', ['question_id'], unique=False)
     op.alter_column('question_proposal', 'allow_audio_answer',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text('false'),
@@ -364,7 +361,6 @@ def downgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
                existing_nullable=True)
-    op.drop_index(op.f('ix_question_comment_question_id'), table_name='question_comment')
     op.alter_column('question', 'is_private',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
@@ -389,7 +385,6 @@ def downgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
                existing_nullable=True)
-    op.drop_index(op.f('ix_post_comment_post_id'), table_name='post_comment')
     op.alter_column('post', 'is_draft',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
@@ -402,7 +397,6 @@ def downgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'1'"),
                existing_nullable=True)
-    op.drop_index(op.f('ix_article_comment_article_id'), table_name='article_comment')
     op.alter_column('article', 'is_draft',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
@@ -415,8 +409,6 @@ def downgrade():
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
                existing_nullable=True)
-    op.drop_constraint(None, 'answer_comment', type_='foreignkey')
-    op.drop_index(op.f('ix_answer_comment_answer_id'), table_name='answer_comment')
     op.alter_column('answer', 'is_deleted',
                existing_type=mysql.TINYINT(display_width=1),
                server_default=sa.text("'0'"),
