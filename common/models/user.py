@@ -38,7 +38,7 @@ class SocialAccount(Model):
     last_login = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
     extra_data = db.Column(db.String(500))
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, index=True)
 
 
 class User(Model):
@@ -48,7 +48,7 @@ class User(Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    display_name = db.Column(db.Unicode(255), unique=True, nullable=False)  # , default='')
+    display_name = db.Column(db.Unicode(255), unique=True, nullable=False, index=True)  # , default='')
     phone_number = db.Column(db.String(255), unique=True, nullable=True)
     verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -333,7 +333,7 @@ class UserLocation(Model):
     is_current = db.Column(db.Boolean, default=False)
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
@@ -343,10 +343,10 @@ class UserLanguage(Model):
     __tablename__ = 'user_language'
 
     id = db.Column(db.Integer, primary_key=True)
-    language_id = db.Column(db.Integer, db.ForeignKey('language.id'), nullable=False)
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'), nullable=False, index=True)
     language = db.relationship('Language', lazy=True) # one-to-many relationship with table Article
     level = db.Column(db.UnicodeText)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     is_default = db.Column(db.Boolean, default=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
@@ -363,7 +363,7 @@ class UserEducation(Model):
     is_current = db.Column(db.Boolean, default=False)
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
@@ -373,7 +373,7 @@ class UserEmployment(Model):
     __tablename__ = 'user_employment'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, index=True)
     position = db.Column(db.String(255))
     company = db.Column(db.String(255))
     start_year = db.Column(db.Integer)
@@ -395,10 +395,10 @@ class UserTopic(Model):
     __tablename__ = 'user_topic'
 
     id = db.Column(db.Integer, primary_key=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
     topic = db.relationship('Topic', foreign_keys=[topic_id], lazy=True) # one-to-many relationship with table Article
     description = db.Column(db.UnicodeText)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     is_default = db.Column(db.Boolean, default=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
@@ -412,9 +412,9 @@ class UserSeenQuestion(Model):
     __tablename__ = 'user_seen_question'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     user = db.relationship('User', backref=backref("seen_question_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True, index=True)
     question = db.relationship('Question', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -426,9 +426,9 @@ class UserSeenArticle(Model):
     __tablename__ = 'user_seen_article'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     user = db.relationship('User', backref=backref("seen_article_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True, index=True)
     article = db.relationship('Article', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -445,9 +445,9 @@ class UserMailedQuestion(Model):
         self.question_id = question_id
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     user = db.relationship('User', backref=backref("mailed_question_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=True, index=True)
     question = db.relationship('Question', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -464,8 +464,8 @@ class UserMailedArticle(Model):
         self.article_id = article_id
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     user = db.relationship('User', backref=backref("mailed_article_users", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=True, index=True)
     article = db.relationship('Article', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True) # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)

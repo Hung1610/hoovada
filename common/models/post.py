@@ -29,9 +29,9 @@ class Post(Model):
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True, index=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Post
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
