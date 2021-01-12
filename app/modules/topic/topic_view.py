@@ -186,7 +186,7 @@ class BookmarkUserTopic(Resource):
         return controller.get_bookmarked_users(object_id=topic_id_or_slug, args=args)
 
 
-@api.route('/create_topics', doc=False)
+@api.route('/create_topics')
 class CreateFixedTopic(Resource):
     @admin_token_required()
     def post(self):
