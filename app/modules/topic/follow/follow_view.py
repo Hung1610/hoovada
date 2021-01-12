@@ -36,7 +36,7 @@ class FollowTopicAll(Resource):
 
 @api.route('all/follow/<int:object_id>')
 class FollowTopicAllDetail(Resource):
-    @admin_token_required
+    @admin_token_required()
     def delete(self, object_id):
         """
         Delete follow.

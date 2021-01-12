@@ -132,7 +132,7 @@ class ArticleSimilar(Resource):
 
 @api.route('/update_slug')
 class UpdateArticleSlug(Resource):
-    @admin_token_required
+    @admin_token_required()
     @api.response(code=200, model=_article_dto_response, description='Model for question response.')
     def post(self):
         """ Update Slug for articles in DB
