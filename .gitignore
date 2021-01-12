@@ -902,5 +902,7 @@ fabric.properties
 
 app/static
 
+*.env
+
 multiproc-tmp/*
 !multiproc-tmp/.gitkeep 
