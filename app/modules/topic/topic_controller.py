@@ -113,7 +113,7 @@ class TopicController(Controller):
                     return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
            
             # check topic already exists
-            topic = Topic.query.filter(Topic.name == data['name'], Topic.parent_id == data['parent_id']).first()
+            topic = Topic.query.filter(Topic.name == data['name']).first()
 
             current_user = g.current_user
             data['user_id'] = current_user.id
@@ -130,7 +130,7 @@ class TopicController(Controller):
                 return send_result(message='Topic was created successfully.',
                                    data=marshal(topic, TopicDto.model_topic_response))
             else:  # topic already exist
-                return send_error(message='The topic with name {} and parent topic id {} already exist'.format(data['name'], data['parent_id']))
+                return send_error(message='The topic with name {} already exist'.format(data['name']))
         
         except Exception as e:
             print(e.__str__())
@@ -408,10 +408,11 @@ class TopicController(Controller):
         topics = Topic.query.all()
         try:
             for topic in topics:
-                if topic.parent:
-                    topic.slug = '{}-{}'.format(slugify(topic.parent.name),slugify(topic.name))
-                else:
-                    topic.slug = '{}'.format(slugify(topic.name))
+                topic.slug = '{}'.format(slugify(topic.name))
+                # if topic.parent:
+                #     topic.slug = '{}-{}'.format(slugify(topic.parent.name),slugify(topic.name))
+                # else:
+                #     topic.slug = '{}'.format(slugify(topic.name))
                 db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
