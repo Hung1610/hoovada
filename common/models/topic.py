@@ -92,10 +92,11 @@ class Topic(Model):
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):
         if value and (not target.slug or value != oldvalue):
-            if target.parent_id:
-                parent = db.get_model('Topic').query.get(target.parent_id)
-                target.slug = '{}-{}'.format(slugify(parent.name), slugify(value))
-            else:
-                target.slug = '{}'.format(slugify(value))
+            target.slug = '{}'.format(slugify(value))
+            # if target.parent_id:
+            #     parent = db.get_model('Topic').query.get(target.parent_id)
+            #     target.slug = '{}-{}'.format(slugify(parent.name), slugify(value))
+            # else:
+            #     target.slug = '{}'.format(slugify(value))
 
 event.listen(Topic.name, 'set', Topic.generate_slug, retval=False)
