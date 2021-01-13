@@ -50,7 +50,7 @@ class TopicController(Controller):
                         "Tôn giáo",
                         "Thể thao",
                         "Ẩm thực",
-                        "Giáo dục",
+                        "Giáo dục & Việc làm",
                         "Sức khỏe",
                         "Văn học",
                         "Động vật",
