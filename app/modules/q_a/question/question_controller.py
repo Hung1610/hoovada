@@ -174,7 +174,7 @@ class QuestionController(Controller):
         if params.get('hot'):
             if g.current_user:
                 query = query.join(TopicBookmark, \
-                        ((TopicBookmark.topic_id==Question.fixed_topic_id) &\
+                        ((Question.topics.any(Topic.id == TopicBookmark.topic_id)) &\
                             TopicBookmark.user_id == current_user.id), \
                         isouter=True)\
                     .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
