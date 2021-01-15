@@ -188,7 +188,6 @@ class BookmarkUserTopic(Resource):
 
 @api.route('/create_topics')
 class CreateFixedTopic(Resource):
-    @admin_token_required()
     def post(self):
         """ 
         Create fixed topics
