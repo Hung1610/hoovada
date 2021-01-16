@@ -6,6 +6,9 @@ from abc import ABC, abstractmethod
 # built-in modules
 from common.db import db
 
+# third-party modules
+from sqlalchemy.sql.expression import true
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
@@ -46,11 +49,8 @@ class Controller(ABC):
                     filter_value = params[key]
                     if filter_value is not None:
                         column_to_filter = getattr(self.get_model_class(), key)
-                        if key == 'is_deleted':
-                            if column_to_filter:
-                                query = query.filter(not column_to_filter)
-                            else:
-                                query = query.filter(column_to_filter)
+                        if key == 'is_deleted' and column_to_filter and filter_value == true:
+                            query = query.with_deleted()
                         elif column_to_filter:
                             query = query.filter(column_to_filter == filter_value)
 

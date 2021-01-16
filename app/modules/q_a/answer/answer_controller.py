@@ -54,7 +54,7 @@ class AnswerController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
-            answer = Answer.query.filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
+            answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
             if answer:
                 if answer.is_deleted:
                     return send_error(message=messages.ERR_ISSUE.format('This has a hidden answer for this question. Consider recovering this.'), data={'answer_id': answer.id})

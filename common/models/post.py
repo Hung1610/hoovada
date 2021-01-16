@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 
 # built-in modules
-from slugify import slugify
-from sqlalchemy import event
+from datetime import datetime
+
 # third-party modules
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.db import db
 from common.models.model import Model
 
@@ -25,7 +25,7 @@ post_topics = db.Table('topic_post',
     extend_existing=True
 )
 
-class Post(Model):
+class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -51,13 +51,10 @@ class Post(Model):
         return db.func.count('1')
 
     topics = db.relationship('Topic', secondary=post_topics, lazy='subquery')
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     allow_favorite = db.Column(db.Boolean, default=True, server_default=expression.true())
     is_draft = db.Column(db.Boolean, server_default=expression.false())
-    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     votes = db.relationship("PostVote", cascade='all,delete-orphan')
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan',
                     primaryjoin="and_(Post.id == remote(PostComment.post_id),\
