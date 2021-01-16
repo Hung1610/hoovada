@@ -193,18 +193,48 @@ class User(Model):
     
     articles = db.relationship("Article", cascade='all,delete-orphan')
     @aggregated('articles', db.Column(db.Integer))
-    def article_count(self):
+    def article_aggregated_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
+    @property
+    def article_count(self):
+        if g.current_user and g.current_user.id == self.id:
+            Article = db.get_model('Article')
+            anonymous_count = Article.query.with_entities(db.func.count(Article.id)).filter(\
+                                                (Article.user_id == self.id) &
+                                                (Article.is_deleted != True) &
+                                                (Article.is_anonymous == True)).scalar()
+            return self.article_aggregated_count + anonymous_count
+        return self.article_aggregated_count
 
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     @aggregated('answers', db.Column(db.Integer))
-    def answer_count(self):
+    def answer_aggregated_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
+    @property
+    def answer_count(self):
+        if g.current_user and g.current_user.id == self.id:
+            Answer = db.get_model('Answer')
+            anonymous_count = Answer.query.with_entities(db.func.count(Answer.id)).filter(\
+                                                (Answer.user_id == self.id) &
+                                                (Answer.is_deleted != True) &
+                                                (Answer.is_anonymous == True)).scalar()
+            return self.answer_aggregated_count + anonymous_count
+        return self.answer_aggregated_count
     
     questions = db.relationship("Question", cascade='all,delete-orphan')
     @aggregated('questions', db.Column(db.Integer))
-    def question_count(self):
+    def question_aggregated_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
+    @property
+    def question_count(self):
+        if g.current_user and g.current_user.id == self.id:
+            Question = db.get_model('Question')
+            anonymous_count = Question.query.with_entities(db.func.count(Question.id)).filter(\
+                                                (Question.user_id == self.id) &
+                                                (Question.is_deleted != True) &
+                                                (Question.is_anonymous == True)).scalar()
+            return self.question_aggregated_count + anonymous_count
+        return self.question_aggregated_count
     
     posts = db.relationship("Post", cascade='all,delete-orphan')
     @aggregated('posts', db.Column(db.Integer))
