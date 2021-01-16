@@ -162,10 +162,8 @@ class PostController(Controller):
 
             query = Post.query.join(User, isouter=True).filter(db.or_(Post.scheduled_date == None, datetime.utcnow() >= Post.scheduled_date))
             query = query.filter(db.or_(Post.user == None, User.is_deactivated != True))
-            if not is_deleted:
-                query = query.filter(Post.is_deleted != True)
-            else:
-                query = query.filter(Post.is_deleted == True)
+            if is_deleted:
+                query = query.with_deleted()
             if title and not str(title).strip().__eq__(''):
                 title = '%' + title.strip() + '%'
                 query = query.filter(Post.title.like(title))

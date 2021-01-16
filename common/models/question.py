@@ -13,7 +13,7 @@ from sqlalchemy.ext.declarative import declared_attr
 # own modules
 from common.db import db
 from common.models.model import Model
-from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -40,7 +40,7 @@ question_topics = db.Table('question_topic',
 )
 
 # pylint: disable=R0201
-class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255))
     slug = db.Column(db.String(255), index=True)
@@ -50,7 +50,6 @@ class BaseQuestion(AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
-    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     
     @declared_attr

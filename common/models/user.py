@@ -194,17 +194,17 @@ class User(Model):
     articles = db.relationship("Article", cascade='all,delete-orphan')
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> 1 AND is_anonymous <> 1'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
 
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     @aggregated('answers', db.Column(db.Integer))
     def answer_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> 1 AND is_anonymous <> 1'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     
     questions = db.relationship("Question", cascade='all,delete-orphan')
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> 1 AND is_anonymous <> 1'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     
     posts = db.relationship("Post", cascade='all,delete-orphan')
     @aggregated('posts', db.Column(db.Integer))
