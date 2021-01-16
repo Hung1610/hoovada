@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "flask",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
             "args": [
                 "run"
             ],
@@ -20,7 +20,7 @@
             "type": "python",
             "request": "launch",
             "module": "flask",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
             "args": [
                 "db",
                 "migrate"
@@ -32,7 +32,7 @@
             "type": "python",
             "request": "launch",
             "module": "flask",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
             "args": [
                 "db",
                 "upgrade"
@@ -43,7 +43,7 @@
             "name": "Python: Flask Gunicorn",
             "type": "python",
             "request": "launch",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
             "gevent": true,
             "program": "venv/bin/gunicorn",
             "args": [
@@ -57,7 +57,7 @@
             "type": "python",
             "request": "launch",
             "module": "dramatiq",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
             "args": [
                 "app.manage_dramatiq:broker"
             ],
@@ -68,14 +68,14 @@
             "type": "python",
             "request": "launch",
             "module": "scheduled_jobs.manage",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
         },
         {
             "name": "Python: Flask SocketIO",
             "type": "python",
             "request": "launch",
             "module": "app_socketio.app",
-            "envFile": "${workspaceFolder}/docker.env",
+            "envFile": "${workspaceFolder}/.env",
             "args": [],
             "jinja": true
         }
