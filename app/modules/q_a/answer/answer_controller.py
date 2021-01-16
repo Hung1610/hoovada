@@ -165,7 +165,7 @@ class AnswerController(Controller):
         if params.get('user_id'):
             get_my_own = False
             if g.current_user:
-                if params.get('user_id') == g.current_user.id:
+                if params.get('user_id') == str(g.current_user.id):
                     get_my_own = True
             if not get_my_own:
                 query = query.filter(db.func.coalesce(Answer.is_anonymous, False) != True)
