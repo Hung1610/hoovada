@@ -13,7 +13,7 @@ from sqlalchemy_utils import aggregated
 
 # own modules
 from common.db import db
-from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.models.model import Model
 
 __author__ = "hoovada.com team"
@@ -27,7 +27,7 @@ article_topics = db.Table('topic_article',
     extend_existing=True
 )
 
-class Article(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'article'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -63,7 +63,6 @@ class Article(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     is_draft = db.Column(db.Boolean, server_default=expression.false())
-    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
     article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan',
