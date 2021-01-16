@@ -51,7 +51,6 @@ class UserFriendController(Controller):
 
     def get(self, args):
         try:
-            g.friend_belong_to_user_id = g.current_user.id
             query = self.get_query_results(args)
             res, code = paginated_result(query)
             res['data'] = marshal(res['data'], UserFriendDto.model_response)
