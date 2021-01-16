@@ -111,6 +111,28 @@ class CommonBaseConfig:
 
     JSON_AS_ASCII = False
 
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT,
+        name=DB_NAME,
+        charset=DB_CHARSET
+    )
+
+    DB_SLAVE_USER = environ.get('DB_SLAVE_USER', DB_USER)
+    DB_SLAVE_PASSWORD = environ.get('DB_SLAVE_PASSWORD', DB_PASSWORD)
+    DB_SLAVE_HOST = environ.get('DB_SLAVE_HOST', DB_HOST)
+    DB_SLAVE_PORT = environ.get('DB_SLAVE_PORT', DB_PORT)
+
+    SQLALCHEMY_DATABASE_SLAVE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
+        user=DB_SLAVE_USER,
+        password=DB_SLAVE_PASSWORD,
+        host=DB_SLAVE_HOST,
+        port=DB_SLAVE_PORT,
+        name=DB_NAME,
+        charset=DB_CHARSET
+    )
 
 class CommonDevelopmentConfig(CommonBaseConfig):
     """Development configuration."""
@@ -136,7 +158,7 @@ class CommonDevelopmentConfig(CommonBaseConfig):
 
 
 class CommonProductionConfig(CommonBaseConfig):
-    """production configuration."""
+    """Production configuration."""
 
     DEBUG = False
     
