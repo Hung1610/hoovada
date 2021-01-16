@@ -15,7 +15,7 @@ class DistributedSession(SignallingSession):
     def get_bind(self, mapper=None, clause=None):
         if self._flushing:
             return create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
-        return create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
+        return create_engine(current_app.config['SQLALCHEMY_DATABASE_SLAVE_URI'])
 
 
 def create_session(self, options):
