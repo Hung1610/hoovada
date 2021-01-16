@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 from datetime import datetime
 
 #third-party modules
@@ -10,6 +9,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.db import db
 from common.enum import FileTypeEnum
 from common.models.model import Model
@@ -19,7 +19,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-class Answer(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'answer'
     __table_args__ = (
         db.UniqueConstraint('user_id', 'question_id'),
@@ -66,7 +66,6 @@ class Answer(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan',
                     primaryjoin="and_(Answer.id == remote(AnswerComment.answer_id),\
                         remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
-    is_deleted = db.Column(db.Boolean, default=False, server_default=expression.false())
 
 class AnswerImprovement(Model):
     __tablename__ = 'answer_improvement'
