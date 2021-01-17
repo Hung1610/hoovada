@@ -45,7 +45,7 @@ class CommentList(Resource):
         return controller.get(answer_id=answer_id, args=args)
 
     @api.expect(comment_request)
-    # @api.marshal_with(comment)
+    @token_required
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self, answer_id):
         """
