@@ -24,7 +24,7 @@ class DistributedSession(SignallingSession):
     def get_bind(self, mapper=None, clause=None):
         if self._flushing:
             return self.engines['master']
-        return self.engines['master']
+        return self.engines['slave']
 
 
 def create_session(self, options):
@@ -43,7 +43,7 @@ def get_model_by_tablename(self, tablename):
 
 SQLAlchemy.get_model = get_model
 SQLAlchemy.get_model_by_tablename = get_model_by_tablename
-SQLAlchemy.create_session = create_session
+#SQLAlchemy.create_session = create_session
 
 db = SQLAlchemy()
 
