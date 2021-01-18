@@ -34,7 +34,7 @@ def get_model_by_tablename(self, tablename):
 
 SQLAlchemy.get_model = get_model
 SQLAlchemy.get_model_by_tablename = get_model_by_tablename
-SQLAlchemy.create_session = create_session
+#SQLAlchemy.create_session = create_session
 
 db = SQLAlchemy()
 
