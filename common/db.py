@@ -12,10 +12,19 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class DistributedSession(SignallingSession):
+    engines = {}
+
+    def __init__(self, db, autocommit=False, autoflush=True, **options):
+        SignallingSession.__init__(self, db, autocommit=False, autoflush=True, **options)
+        self.engines = {
+            'master': create_engine(self.app.config['SQLALCHEMY_DATABASE_URI']),
+            'slave': create_engine(self.app.config['SQLALCHEMY_DATABASE_SLAVE_URI'])
+        }
+
     def get_bind(self, mapper=None, clause=None):
         if self._flushing:
-            return create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
-        return create_engine(current_app.config['SQLALCHEMY_DATABASE_SLAVE_URI'])
+            return self.engines['master']
+        return self.engines['slave']
 
 
 def create_session(self, options):
@@ -34,7 +43,7 @@ def get_model_by_tablename(self, tablename):
 
 SQLAlchemy.get_model = get_model
 SQLAlchemy.get_model_by_tablename = get_model_by_tablename
-#SQLAlchemy.create_session = create_session
+SQLAlchemy.create_session = create_session
 
 db = SQLAlchemy()
 
