@@ -76,6 +76,7 @@ class TopicController(Controller):
                         "Lịch sử & Truyền thuyết",
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
+                        "Truyền thông & Quảng cáo",
                         "hoovada.com"]
 
         try:
@@ -427,7 +428,7 @@ class TopicController(Controller):
                 #    color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
                 #    topic_with_same_code = Topic.query.filter(Topic.color_code == color_code, Topic.is_fixed == True).first()
                 #    if topic_with_same_code is None:
-                topic.color_code = "#000000"
+                topic.color_code = "#675DDA"
                 db.session.commit()
 
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
