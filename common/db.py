@@ -24,7 +24,7 @@ class DistributedSession(SignallingSession):
     def get_bind(self, mapper=None, clause=None):
         if self._flushing:
             return self.engines['master']
-        return self.engines['slave']
+        return self.engines['master']
 
 
 def create_session(self, options):
