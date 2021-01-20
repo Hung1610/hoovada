@@ -47,9 +47,9 @@ push-test:
 	@docker push ${NGINX_TEST}
 
 deploy-test:
-	@kubectl set image deployment/app app=${API_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
-	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-staging --record
+	@kubectl set image deployment/app app=${API_TEST} nginx=${NGINX_TEST} -n hoovada-test --record
+	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-test --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-test --record
 
 all-test: build-test push-test deploy-test
 
