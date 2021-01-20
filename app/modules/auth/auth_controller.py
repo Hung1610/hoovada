@@ -428,7 +428,7 @@ class AuthController:
             return send_error(message='Password confirmation failed!')
 
         if len(check_password(data['password'])) > 0:
-            return send_error(message='Password length must be least 8 with at least 1 number digit!')
+            return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
         
         email = data['email']
         display_name = data['display_name']

@@ -37,14 +37,7 @@ client = Client(username=CommonBaseConfig.TWILIO_ACCOUNT_SID, password=CommonBas
 
 
 def encode_file_name(filename):
-    """ Encode the filename (without extension).
-
-    Args:
-        filename: The filename.
-
-    Returns:
-        string - The encoded filename.
-    """
+    """ Encode the filename (without extension)."""
 
     now = datetime.now()
 
@@ -53,28 +46,14 @@ def encode_file_name(filename):
 
 
 def generate_confirmation_token(email):
-    """ Confirmation email token
+    """ Confirmation email token """
 
-    Args:
-        email: The email used to generate confirmation token.
-
-    Returns:
-        string
-
-    """
     serializer = URLSafeTimedSerializer(CommonBaseConfig.SECRET_KEY)
     return serializer.dumps(email, salt=CommonBaseConfig.SECURITY_SALT)
 
 
 def confirm_token(token, expirations=3600):
     """ Confirm token.
-
-    Args:
-        token (string): The token to confirm.
-        expirations (int): The expiration time.
-
-    Returns:
-         email if success and None vice versa.
     """
 
     serializer = URLSafeTimedSerializer(CommonBaseConfig.SECRET_KEY)
@@ -87,30 +66,15 @@ def confirm_token(token, expirations=3600):
 
 
 def send_email(to, subject, template):
-    """ Send an email.
+    """ Send an email."""
 
-    Args:
-        to: The email-address to send to.
-        subject: The subject of the email.
-        template: The template to generate email.
-
-    Return:
-        None
-    """
     if to:
         msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
 
 
 def send_confirmation_email(to, user=None):
-    """ Send a confirmation email to the registered user.
-
-    Args:
-        to: The email address to send to.
-
-    Returns:
-        None
-    """
+    """ Send a confirmation email to the registered user."""
     
     token = generate_confirmation_token(email=to)
     confirm_url = '{}/?page=signup_success&token={}&email={}'.format(current_app.config['DOMAIN_URL'], token, to)
@@ -119,14 +83,7 @@ def send_confirmation_email(to, user=None):
 
 
 def send_password_reset_email(to):
-    """ Send a password reset email to the registered user.
-
-    Args:
-        to: The email address to send to.
-
-    Returns:
-        None
-    """
+    """ Send a password reset email to the registered user."""
     
     token = generate_confirmation_token(email=to)
     html = render_template('reset_password.html', token=token)
@@ -188,28 +145,14 @@ def send_question_notif_email(user, question):
 
 
 def get_response_message(message):
-    """ Get HTML message to return to user.
-
-    Args:
-        message: The message to return.
-
-    Returns:
-        string
-    """
+    """ Get HTML message to return to user."""
     
     html = render_template('response.html', message=message)
     return html
 
 
 def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
-    """ Generate the Auth token.
-
-    Args:
-        user_id (int): The user's ID to generate token
-
-    Returns:
-        string
-    """
+    """ Generate the Auth token."""
     
     try:
         payload = {
@@ -228,14 +171,7 @@ def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
 
 
 def decode_auth_token(auth_token):
-    """ Validates the auth token
-
-    Args:
-        auth_token (string): coded authentication token sent with request
-
-    Returns:
-        integer - user_id or None
-    """
+    """ Validates the auth token"""
 
     try:
         payload = jwt.decode(auth_token, CommonBaseConfig.SECRET_KEY)
@@ -244,47 +180,6 @@ def decode_auth_token(auth_token):
         return None, 'Signature expired. Please log in again.'
     except jwt.InvalidTokenError:
         return None, 'Invalid token. Please log in again.'
-
-
-def password_validator(form, field):
-    """Ensure that passwords have at least 6 characters with one lowercase letter, one uppercase letter and one number.
-        Override this method to customize the password validator.
-    """
-
-    # Convert string to list of characters
-    password = list(field.data)
-    password_length = len(password)
-
-    # Count lowercase, uppercase and numbers
-    lowers = uppers = digits = 0
-    for ch in password:
-        if ch.islower():
-            lowers += 1
-        if ch.isupper():
-            uppers += 1
-        if ch.isdigit():
-            digits += 1
-
-    # Password must have one lowercase letter, one uppercase letter and one digit
-    is_valid = password_length >= 6 and lowers and uppers and digits
-    if not is_valid:
-        raise ValidationError(_l(
-            'Password must have at least 6 characters with one lowercase letter, one uppercase letter and one number'))
-
-
-def username_validator(form, field):
-    """Ensure that Usernames contains at least 5 alphanumeric characters.
-    """
-
-    username = field.data
-    if len(username) < 5:
-        raise ValidationError(_l('Username must be at least 5 characters long'))
-    valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._'
-    chars = list(username)
-    for char in chars:
-        if char not in valid_chars:
-            raise ValidationError(_l("Username may only contain letters, numbers, '-', '.' and '_'"))
-
 
 def unmark_element(element, stream=None):
     if stream is None:
@@ -306,6 +201,7 @@ __md.stripTopLevelTags = False
 
 def convert_markdown(string):
     """Convert the argument from markdown to html"""
+    
     return markdown2.markdown(string,
                               extras=["code-friendly", "code-color", "footnotes"])
 
@@ -315,14 +211,7 @@ def remove_markdown(text):
 
 
 def convert_vietnamese_diacritics(s):
-    """ Convert accented Vietnamese into unsigned
-
-    Args:
-        s (string)
-
-    Returns:
-        string
-    """
+    """ Convert accented Vietnamese into unsigned"""
     
     s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
     s = re.sub(r'[ÀÁẠẢÃĂẰẮẶẲẴÂẦẤẬẨẪ]', 'A', s)
@@ -360,14 +249,7 @@ def send_verification_sms(to=''):
 
 
 def is_valid_username(user_name):
-    """ Ensure that username only has letter, number and chraters (_.-).
-        
-    Args:
-        user_name (string): display name
-    
-    Returns:
-        Boolean
-    """
+    """Verify that user name only has letter, number and chraters (_.-)."""
     
     valid_regex = re.match("^[a-zA-Z0-9_.-]+$", user_name) is not None
     valid_name = ~(user_name.lower() == "khách" or user_name.lower() == "ẩn danh")
@@ -375,14 +257,7 @@ def is_valid_username(user_name):
 
 
 def validate_phone_number(phone_number):
-    """Ensure that is correct phone number.
-    
-    Args:
-        phone_number (string)
-
-    Returns:
-        Boolean
-    """
+    """Verify valid phone number"""
     
     try:
         phone_number = phonenumbers.parse(phone_number, None)
@@ -394,8 +269,7 @@ def validate_phone_number(phone_number):
 
 
 def check_verification(phone, code):
-    """ Verify code sent to that phone number
-    """
+    """ Verify code sent to that phone number"""
     
     user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=phone).first()
     service = CommonBaseConfig.VERIFICATION_SID
@@ -417,13 +291,12 @@ def check_verification(phone, code):
 
 
 def check_password(password):
-    """ Ensure that passwords have at least 8 characters with two uppercase letters, two numbers and two special characters.
-    """
+    """ Verify that passwords have at least 8 characters"""
 
     policy = PasswordPolicy.from_names(
         length=8,  # min length: 8
         #uppercase=1,  # need min. 1 uppercase letters
-        numbers=1,  # need min. 1 digits
+        #numbers=1,  # need min. 1 digits
         #special=1,  # need min. 1 special characters
         #nonletters=2,  # need min. 2 non-letter characters (digits, specials, anything)
     )
@@ -431,22 +304,15 @@ def check_password(password):
 
 
 def is_valid_email(email):
-    """ Validate email address
-
-        Args:
-            email (string): email address
-
-        Returns:
-            boolean   
-    """
+    """ Validate email address"""
 
     regex = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.search(regex, email) is not None
 
 
 def get_logged_user(self, req):
-    """ User information retrieving.
-    """
+    """ User information retrieving."""
+
     auth_token = None
     api_key = None
     # auth = False
