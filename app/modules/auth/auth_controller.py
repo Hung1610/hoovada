@@ -778,7 +778,7 @@ class AuthController:
     def get_user_info(self, req):
         """Get user information"""
 
-        user, _ = current_app.get_logged_user(req=req)
+        user = g.current_user
         if user is None:
             return send_error(message='You are not logged in.')
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
