@@ -9,30 +9,49 @@ SOCKETIO_TEST   		:= ${REGISTRY}:socketio-${GIT_COMMIT}-${DATE}
 SCHEDULED_JOBS_TEST   	:= ${REGISTRY}:scheduled-jobs-${GIT_COMMIT}-${DATE}
 NGINX_TEST				:= ${REGISTRY}:nginx-${GIT_COMMIT}-${DATE}
 
-VERSION 				:= v0.3.3
+VERSION 				:= v0.3.4.post3
 API_LIVE   				:= ${REGISTRY}:api-${VERSION}-${DATE}
 SOCKETIO_LIVE   		:= ${REGISTRY}:socketio-${VERSION}-${DATE}
 SCHEDULED_JOBS_LIVE   	:= ${REGISTRY}:scheduled-jobs-${VERSION}-${DATE}
 NGINX_LIVE				:= ${REGISTRY}:nginx-${VERSION}-${DATE}
 
-build:
+build-staging:
 	@docker build -t ${API_TEST} -f ./docker/app/Dockerfile .
 	@docker build -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
 	@docker build -t ${SCHEDULED_JOBS_TEST} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX_TEST} -f ./docker/nginx/Dockerfile .
 
-push:
+push-staging:
 	@docker push ${API_TEST}
 	@docker push ${SOCKETIO_TEST}
 	@docker push ${SCHEDULED_JOBS_TEST}
 	@docker push ${NGINX_TEST}
 
-deploy:
+deploy-staging:
 	@kubectl set image deployment/app app=${API_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
 	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-staging --record
 
-all: build push deploy
+all-staging: build-staging push-staging deploy-staging
+
+build-test:
+	@docker build -t ${API_TEST} -f ./docker/app/Dockerfile .
+	@docker build -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
+	@docker build -t ${SCHEDULED_JOBS_TEST} -f ./docker/scheduled_jobs/Dockerfile .
+	@docker build -t ${NGINX_TEST} -f ./docker/nginx/Dockerfile .
+
+push-test:
+	@docker push ${API_TEST}
+	@docker push ${SOCKETIO_TEST}
+	@docker push ${SCHEDULED_JOBS_TEST}
+	@docker push ${NGINX_TEST}
+
+deploy-test:
+	@kubectl set image deployment/app app=${API_TEST} nginx=${NGINX_TEST} -n hoovada-test --record
+	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-test --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-test --record
+
+all-test: build-test push-test deploy-test
 
 build-live:
 	@docker build -t ${API_LIVE} -f ./docker/app/Dockerfile .
