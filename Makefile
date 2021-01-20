@@ -9,7 +9,7 @@ SOCKETIO_TEST   		:= ${REGISTRY}:socketio-${GIT_COMMIT}-${DATE}
 SCHEDULED_JOBS_TEST   	:= ${REGISTRY}:scheduled-jobs-${GIT_COMMIT}-${DATE}
 NGINX_TEST				:= ${REGISTRY}:nginx-${GIT_COMMIT}-${DATE}
 
-VERSION 				:= v0.3.4.post1
+VERSION 				:= v0.3.4.post2
 API_LIVE   				:= ${REGISTRY}:api-${VERSION}-${DATE}
 SOCKETIO_LIVE   		:= ${REGISTRY}:socketio-${VERSION}-${DATE}
 SCHEDULED_JOBS_LIVE   	:= ${REGISTRY}:scheduled-jobs-${VERSION}-${DATE}
