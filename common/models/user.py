@@ -197,8 +197,8 @@ class User(Model):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     @property
     def article_count(self):
-        if self.question_aggregated_count is None:
-            self.question_aggregated_count = 0
+        if self.article_aggregated_count is None:
+            self.article_aggregated_count = 0
             
         if g.current_user and g.current_user.id == self.id:
             Article = db.get_model('Article')
@@ -215,6 +215,9 @@ class User(Model):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     @property
     def answer_count(self):
+        if self.answer_aggregated_count is None:
+            self.answer_aggregated_count = 0
+            
         if g.current_user and g.current_user.id == self.id:
             Answer = db.get_model('Answer')
             anonymous_count = Answer.query.with_entities(db.func.count(Answer.id)).filter(\
