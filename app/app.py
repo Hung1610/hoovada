@@ -81,7 +81,7 @@ def init_app():
     # Config Flask-SqlAlchemy
     url = app.config['SQLALCHEMY_DATABASE_URI']
     if not database_exists(url):
-        create_database(url)
+        create_database(url, app.config['DB_CHARSET'])
     db.init_app(app)
     # Config Flask-Migrate
     migrate.init_app(app, db)

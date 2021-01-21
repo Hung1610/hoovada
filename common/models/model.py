@@ -30,6 +30,10 @@ class Model(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    def __init__(self, query_class, **kw):
+        self.query_class = query_class
+        super().__init__(**kw)
+
     def _asdict(self):
         # return {c.key: getattr(self, c.key)
         #         for c in inspect(self).mapper.column_attrs}
