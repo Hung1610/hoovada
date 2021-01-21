@@ -52,8 +52,10 @@ class AuditUpdateMixin(object):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
                               
 class SoftDeleteMixin(object):
-    query_class = QueryWithSoftDelete
     is_deleted = db.Column(db.Boolean, nullable=False, default=False, server_default=expression.false())
+    def __init_subclass__(cls, **kwargs):
+        cls.query_class = QueryWithSoftDelete
+        return super().__init_subclass__(**kwargs) 
 
 class AnonymousMixin(object):
     is_anonymous = db.Column(db.Boolean, nullable=False, server_default=expression.false())
