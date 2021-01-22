@@ -141,11 +141,11 @@ class User(Model):
     answer_reported_count = db.Column(db.Integer, server_default='0')
 
     followed_topics = db.relationship('Topic', secondary='topic_follow', lazy='dynamic')
-    @aggregated('followed_topics', db.Column(db.Integer))
+    @aggregated('followed_topics', db.Column(db.Integer, server_default="0", nullable=False))
     def topic_followed_count(self):
         return db.func.count('1')
     created_topics = db.relationship('Topic', lazy='dynamic')
-    @aggregated('created_topics', db.Column(db.Integer))
+    @aggregated('created_topics', db.Column(db.Integer, server_default="0", nullable=False))
     def topic_created_count(self):
         return db.func.count('1')
 
@@ -192,11 +192,14 @@ class User(Model):
     show_nsfw = db.Column(db.Boolean, server_default=expression.false())
     
     articles = db.relationship("Article", cascade='all,delete-orphan')
-    @aggregated('articles', db.Column(db.Integer))
+    @aggregated('articles', db.Column(db.Integer, server_default="0", nullable=False))
     def article_aggregated_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     @property
     def article_count(self):
+        if self.article_aggregated_count is None:
+            self.article_aggregated_count = 0
+            
         if g.current_user and g.current_user.id == self.id:
             Article = db.get_model('Article')
             anonymous_count = Article.query.with_entities(db.func.count(Article.id)).filter(\
@@ -207,11 +210,14 @@ class User(Model):
         return self.article_aggregated_count
 
     answers = db.relationship("Answer", cascade='all,delete-orphan')
-    @aggregated('answers', db.Column(db.Integer))
+    @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answer_aggregated_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     @property
     def answer_count(self):
+        if self.answer_aggregated_count is None:
+            self.answer_aggregated_count = 0
+            
         if g.current_user and g.current_user.id == self.id:
             Answer = db.get_model('Answer')
             anonymous_count = Answer.query.with_entities(db.func.count(Answer.id)).filter(\
@@ -222,11 +228,14 @@ class User(Model):
         return self.answer_aggregated_count
     
     questions = db.relationship("Question", cascade='all,delete-orphan')
-    @aggregated('questions', db.Column(db.Integer))
+    @aggregated('questions', db.Column(db.Integer, server_default="0", nullable=False))
     def question_aggregated_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
     @property
     def question_count(self):
+        if self.question_aggregated_count is None:
+            self.question_aggregated_count = 0
+
         if g.current_user and g.current_user.id == self.id:
             Question = db.get_model('Question')
             anonymous_count = Question.query.with_entities(db.func.count(Question.id)).filter(\
@@ -237,7 +246,7 @@ class User(Model):
         return self.question_aggregated_count
     
     posts = db.relationship("Post", cascade='all,delete-orphan')
-    @aggregated('posts', db.Column(db.Integer))
+    @aggregated('posts', db.Column(db.Integer, server_default="0", nullable=False))
     def post_count(self):
         return db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0))
     

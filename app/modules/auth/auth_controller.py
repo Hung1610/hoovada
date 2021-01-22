@@ -402,75 +402,67 @@ class AuthController:
 
     # @staticmethod
     def register(self, data):
-        if not isinstance(data, dict):
-            return send_error(
-                message=messages.ERR_WRONG_DATA_FORMAT)
-        
-        if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
-        
-        if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message='Password is missing!')
-        
-        if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
-        
-        if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-            return send_error(message='Display_name is missing!')
-        
-        if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_POLICY_STATUS)
-
-        if is_valid_email(data['email']) is False:
-            return send_error(message='Password is not valid!')
-        
-        if data['password_confirm'] != data['password']:
-            return send_error(message='Password confirmation failed!')
-
-        if len(check_password(data['password'])) > 0:
-            return send_error(message='Password length must be least 8 with at least 1 number digit!')
-        
-        email = data['email']
-        display_name = data['display_name']
-        password = data['password']
-        is_policy_accepted = data['is_policy_accepted']
-
-        banned = UserBan.query.filter(UserBan.ban_by == email).first()
-        if banned:
-            raise send_error(message=messages.ERR_BANNED_EMAIL)
-
-        if not is_policy_accepted:
-            return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
-
-        if AuthController.check_user_exist(email=email):
-            return send_error(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))
-
-        if AuthController.check_user_name_exist(display_name):
-            return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
-            
-        if is_valid_username(display_name) is False:
-            return send_error(message=messages.ERR_INVALID_INPUT_NAME)
-        
-        user = User(display_name=display_name, email=email, confirmed=False)
-        user.set_password(password=password)
-
         try:
-            # user.save()
+            if not isinstance(data, dict):
+                return send_error(
+                    message=messages.ERR_WRONG_DATA_FORMAT)
+            
+            if not 'email' in data or str(data['email']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_MAIL)
+            
+            if not 'password' in data or str(data['password']).strip().__eq__(''):
+                return send_error(message='Password is missing!')
+            
+            if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            
+            if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
+                return send_error(message='Display_name is missing!')
+            
+            if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_POLICY_STATUS)
+
+            if is_valid_email(data['email']) is False:
+                return send_error(message='Password is not valid!')
+            
+            if data['password_confirm'] != data['password']:
+                return send_error(message='Password confirmation failed!')
+
+            if len(check_password(data['password'])) > 0:
+                return send_error(message='Password length must be least 8 with at least 1 number digit!')
+            
+            email = data['email']
+            display_name = data['display_name']
+            password = data['password']
+            is_policy_accepted = data['is_policy_accepted']
+
+            banned = UserBan.query.filter(UserBan.ban_by == email).first()
+            if banned:
+                raise send_error(message=messages.ERR_BANNED_EMAIL)
+
+            if not is_policy_accepted:
+                return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
+
+            if AuthController.check_user_exist(email=email):
+                return send_error(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))
+
+            if AuthController.check_user_name_exist(display_name):
+                return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
+                
+            if is_valid_username(display_name) is False:
+                return send_error(message=messages.ERR_INVALID_INPUT_NAME)
+            
+            user = User(display_name=display_name, email=email, confirmed=False)
+            user.set_password(password=password)
             db.session.add(user)
-            is_confirmed = True
+            db.session.commit()
+            send_confirmation_email(to=user.email, user=user)
+            return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
+                
         except Exception as e:
             print(e.__str__())
-            is_confirmed = False
-        if is_confirmed:
-            try:
-                send_confirmation_email(to=user.email, user=user)
-                db.session.commit()
-                return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
-            
-            except Exception as e:
-                print(e.__str__())
-                db.session.rollback()
-                return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')
+            db.session.rollback()
+            return send_error(message='Đăng ký thất bại!')
 
     def reset_password_by_sms(self, data):
         """Reset password request by SMS OTP"""
@@ -786,7 +778,7 @@ class AuthController:
     def get_user_info(self, req):
         """Get user information"""
 
-        user, _ = current_app.get_logged_user(req=req)
+        user = g.current_user
         if user is None:
             return send_error(message='You are not logged in.')
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
