@@ -20,6 +20,8 @@ build:
 	@docker build -t ${SOCKETIO_TEST} -f ./docker/app_socketio/Dockerfile .
 	@docker build -t ${SCHEDULED_JOBS_TEST} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX_TEST} -f ./docker/nginx/Dockerfile .
+
+push:
 	@docker push ${API_TEST}
 	@docker push ${SOCKETIO_TEST}
 	@docker push ${SCHEDULED_JOBS_TEST}
@@ -30,20 +32,22 @@ deploy-staging:
 	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-staging --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-staging --record
 
-all-staging: build deploy-staging
+all-staging: build push deploy-staging
 
 deploy-test:
 	@kubectl set image deployment/app app=${API_TEST} nginx=${NGINX_TEST} -n hoovada-test --record
 	@kubectl set image deployment/socketio socketio=${SOCKETIO_TEST} nginx=${NGINX_TEST} -n hoovada-test --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_TEST} -n hoovada-test --record
 
-all-test: build deploy-test
+all-test: build push deploy-test
 
 build-live:
 	@docker build -t ${API_LIVE} -f ./docker/app/Dockerfile .
 	@docker build -t ${SOCKETIO_LIVE} -f ./docker/app_socketio/Dockerfile .
 	@docker build -t ${SCHEDULED_JOBS_LIVE} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX_LIVE} -f ./docker/nginx/Dockerfile .
+
+push-live:
 	@docker push ${API_LIVE}
 	@docker push ${SOCKETIO_LIVE}
 	@docker push ${SCHEDULED_JOBS_LIVE}
@@ -54,7 +58,7 @@ deploy-live:
 	@kubectl set image deployment/socketio socketio=${SOCKETIO_LIVE} nginx=${NGINX_LIVE} -n hoovada-live --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS_LIVE} -n hoovada-live --record
 
-all-live: build-live deploy-live
+all-live: build-live push-live deploy-live
 
 login:
 	@docker login registry.gitlab.com
