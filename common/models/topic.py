@@ -25,11 +25,11 @@ class TopicUserEndorse(Model):
     __tablename__ = 'topic_user_endorse'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship("User", foreign_keys=[user_id], lazy=True)
-    endorsed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    endorsed_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     endorsed = db.relationship("User", foreign_keys=[endorsed_id], lazy=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
 
 class Topic(Model):
@@ -38,7 +38,7 @@ class Topic(Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     slug = db.Column(db.String(255), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     color_code = db.Column(db.String(100))
     file_url = db.Column(db.String(255))
@@ -50,7 +50,7 @@ class Topic(Model):
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
         return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
-    parent_id = db.Column(db.Integer, db.ForeignKey('topic.id'), index=True)  # the ID of parent topic
+    parent_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), index=True)  # the ID of parent topic
     children = db.relationship("Topic", cascade='all,delete-orphan')
     parent = db.relationship("Topic", remote_side=[id], lazy=True)
     is_fixed = db.Column(db.Boolean, default=False)  # is this topic fixed?
