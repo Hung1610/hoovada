@@ -21,19 +21,12 @@ vi_dict = enchant.Dict("vi_VN")
 
 
 class Checker:
-    """ Checking type of object or something else
+    """ Checking type of object
     """
 
     @staticmethod
     def is_date(date_str):
-        """ Check if the string is date type
-
-        Args 
-            date_str(str): The string to check
-
-        Returns:
-            (boolean) True if the string is datetime format, and vise versa
-        """
+        """ Check if the string is date type"""
         try:
             parse(date_str)
             return True
@@ -42,14 +35,7 @@ class Checker:
 
     @staticmethod
     def is_numeric(number_str):
-        """ Check if the string is numeric type
-
-        Args:
-            number_str(str): The String to check
-
-        Returns
-            (boolean) True if the string is numeric format, and vise versa
-        """
+        """ Check if the string is numeric type"""
         return str(number_str).isnumeric()
 
 def check_spelling(text):
