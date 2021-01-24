@@ -18,9 +18,9 @@ class UserFriend(Model):
     __tablename__ = 'user_friend'
 
     id = db.Column(db.Integer, primary_key=True)
-    friend_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), index=True)
     friend = db.relationship('User', foreign_keys=[friend_id], backref='sent_friend_requests', lazy=True) # one-to-many relationship with table User
-    friended_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    friended_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     friended = db.relationship('User', foreign_keys=[friended_id], backref='received_friend_requests', lazy=True) # one-to-many relationship with table User
     is_approved = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime)

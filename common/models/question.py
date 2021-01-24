@@ -22,20 +22,20 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 question_user_invite = db.Table('question_user_invite',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True),
 )
 
 question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('id', db.Integer, primary_key=True),
-    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
-    db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id')),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE')),
+    db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id', ondelete='CASCADE')),
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
 question_topics = db.Table('question_topic',
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False),
-    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'), nullable=False),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False),
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
@@ -54,7 +54,7 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
     
     @declared_attr
     def fixed_topic_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
+        return db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
 
     @declared_attr
     def fixed_topic(cls):
@@ -62,7 +62,7 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -118,7 +118,7 @@ class Question(Model, BaseQuestion):
 class QuestionProposal(Model, BaseQuestion):
     __tablename__ = 'question_proposal'
     
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True, index=True)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=True, index=True)
     question_id = db.Column(db.Integer, nullable=True, index=True)
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
     proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
