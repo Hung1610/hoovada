@@ -20,8 +20,8 @@ class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'reputation'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table User
     score = db.Column(db.Float)

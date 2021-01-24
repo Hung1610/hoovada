@@ -25,7 +25,7 @@ class BaseVote(object):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -35,32 +35,32 @@ class BaseVote(object):
 class QuestionVote(Model, BaseVote):
     __tablename__ = 'question_vote'
     
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), index=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), index=True)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
 class AnswerVote(Model, BaseVote):
     __tablename__ = 'answer_vote'
     
-    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), index=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), index=True)
     answer =  db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
 
 
 class AnswerImprovementVote(Model, BaseVote):
     __tablename__ = 'answer_improvement_vote'
     
-    improvement_id = db.Column(db.Integer, db.ForeignKey('answer_improvement.id'), index=True)
+    improvement_id = db.Column(db.Integer, db.ForeignKey('answer_improvement.id', ondelete='CASCADE'), index=True)
     improvement =  db.relationship('AnswerImprovement', lazy=True) # one-to-many relationship with table Answer
 
 class ArticleVote(Model, BaseVote):
     __tablename__ = 'article_vote'
 
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'), index=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), index=True)
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
 
 
 class PostVote(Model, BaseVote):
     __tablename__ = 'post_vote'
     
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), index=True)
     post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post

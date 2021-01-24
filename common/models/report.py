@@ -28,7 +28,7 @@ class BaseReport(object):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -38,28 +38,28 @@ class BaseReport(object):
 class QuestionReport(Model, BaseReport):
     __tablename__ = 'question_report'
     
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False, index=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False, index=True)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
 class QuestionCommentReport(Model, BaseReport):
     __tablename__ = 'question_comment_report'
 
-    comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id'), nullable=False, index=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id', ondelete='CASCADE'), nullable=False, index=True)
     comment = db.relationship('QuestionComment', lazy=True) # one-to-many relationship with table Comment
 
 
 class AnswerReport(Model, BaseReport):
     __tablename__ = 'answer_report'
 
-    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False, index=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), nullable=False, index=True)
     answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
 
 
 class AnswerCommentReport(Model, BaseReport):
     __tablename__ = 'answer_comment_report'
 
-    comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id'), nullable=False, index=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id', ondelete='CASCADE'), nullable=False, index=True)
     comment = db.relationship('AnswerComment', lazy=True) # one-to-many relationship with table Comment
 
 
@@ -71,7 +71,7 @@ class ArticleReport(Model, BaseReport):
 
 class ArticleCommentReport(Model, BaseReport):
     __tablename__ = 'article_comment_report'
-    comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id'), nullable=False, index=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id', ondelete='CASCADE'), nullable=False, index=True)
     comment = db.relationship('ArticleComment', lazy=True) # one-to-many relationship with table Comment
 
 
@@ -84,5 +84,5 @@ class PostReport(Model, BaseReport):
 class TopicReport(Model, BaseReport):
     __tablename__ = 'topic_report'
     
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic

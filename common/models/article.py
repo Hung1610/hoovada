@@ -22,8 +22,8 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 article_topics = db.Table('topic_article',
-    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'), primary_key=True),
-    db.Column('article_id', db.Integer, db.ForeignKey('article.id'), primary_key=True),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('article_id', db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
 
@@ -33,9 +33,9 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255))
     slug = db.Column(db.String(255), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False, index=True)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
     allow_voting = db.Column(db.Boolean, default=True)

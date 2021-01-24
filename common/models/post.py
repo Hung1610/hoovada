@@ -20,8 +20,8 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 post_topics = db.Table('topic_post',
-    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'), primary_key=True),
-    db.Column('post_id', db.Integer, db.ForeignKey('post.id'), primary_key=True),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
 
@@ -29,9 +29,9 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
-    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True, index=True)
+    fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=True, index=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Post
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
