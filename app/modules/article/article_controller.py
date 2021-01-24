@@ -191,11 +191,7 @@ class ArticleController(Controller):
         return query
 
     def get(self, args):
-        """
-        Search articles.
-        :param args:
-        :return:
-        """
+
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
