@@ -71,7 +71,7 @@ def get_article_key_prefix():
 @api.route('/<string:id_or_slug>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    @cache.cached(key_prefix=get_article_key_prefix)
+    # @cache.cached(key_prefix=get_article_key_prefix)
     def get(self, id_or_slug):
         """Get specific article by its ID.
         """
