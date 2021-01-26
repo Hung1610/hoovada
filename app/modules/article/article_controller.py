@@ -9,10 +9,9 @@ from datetime import datetime
 # third-party modules
 import dateutil.parser
 from bs4 import BeautifulSoup
-from flask import abort, current_app, g, request
-from flask_restx import marshal
+from flask import current_app, g, request
 from slugify import slugify
-from sqlalchemy import and_, desc, func, or_, text
+from sqlalchemy import desc, func, text
 
 # own modules
 from app.modules.article import constants
