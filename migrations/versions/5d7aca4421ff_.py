@@ -42,7 +42,6 @@ def upgrade():
     op.drop_constraint('answer_bookmark_ibfk_1', 'answer_bookmark', type_='foreignkey')
     op.create_foreign_key(None, 'answer_bookmark', 'user', ['user_id'], ['id'], ondelete='CASCADE')
     op.create_foreign_key(None, 'answer_bookmark', 'answer', ['answer_id'], ['id'], ondelete='CASCADE')
-    op.create_index(op.f('ix_answer_comment_answer_id'), 'answer_comment', ['answer_id'], unique=False)
     op.drop_constraint('answer_comment_ibfk_2', 'answer_comment', type_='foreignkey')
     op.create_foreign_key(None, 'answer_comment', 'user', ['user_id'], ['id'], ondelete='CASCADE')
     op.drop_constraint('answer_comment_favorite_ibfk_2', 'answer_comment_favorite', type_='foreignkey')
