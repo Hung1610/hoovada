@@ -180,7 +180,6 @@ def upgrade():
     op.drop_constraint('question_ibfk_2', 'question', type_='foreignkey')
     op.create_foreign_key(None, 'question', 'user', ['user_id'], ['id'], ondelete='CASCADE')
     op.create_foreign_key(None, 'question', 'topic', ['fixed_topic_id'], ['id'], ondelete='CASCADE')
-    op.drop_constraint('question_bookmark_ibfk_2', 'question_bookmark', type_='foreignkey')
     op.drop_constraint('question_bookmark_ibfk_1', 'question_bookmark', type_='foreignkey')
     op.create_foreign_key(None, 'question_bookmark', 'question', ['question_id'], ['id'], ondelete='CASCADE')
     op.create_foreign_key(None, 'question_bookmark', 'user', ['user_id'], ['id'], ondelete='CASCADE')
