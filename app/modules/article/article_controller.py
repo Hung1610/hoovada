@@ -9,10 +9,9 @@ from datetime import datetime
 # third-party modules
 import dateutil.parser
 from bs4 import BeautifulSoup
-from flask import abort, current_app, g, request
-from flask_restx import marshal
+from flask import current_app, g, request
 from slugify import slugify
-from sqlalchemy import and_, desc, func, or_, text
+from sqlalchemy import desc, func, text
 
 # own modules
 from app.modules.article import constants
@@ -58,7 +57,7 @@ class ArticleController(Controller):
             if not 'topic_ids' in data:
                 return send_error(message=constants.msg_must_contain_topics_id)
 
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             data['user_id'] = current_user.id
             data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
             data['title'] = data['title'].strip()
@@ -66,75 +65,63 @@ class ArticleController(Controller):
             if is_sensitive:
                 return send_error(message=constants.msg_insensitive_title)
 
-            article = Article.query.filter(Article.title == data['title']).filter(Article.user_id == data['user_id']).first()
-            if not article:  # the article does not exist
-                article, topic_ids = self._parse_article(data=data, article=None)
-
-                # check sensitive words
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
-                if is_sensitive:
-                    return send_error(message=constants.msg_insensitive_body)
-
-                # only allowed Vietnamese or English article title name
-                parent_topic = Topic.query.filter(Topic.id == article.fixed_topic_id).first()
-                if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
-                    spelling_errors = check_spelling(article.title)
-                    if len(spelling_errors) > 0:
-                        return send_error(message='Article title is spelled wrongly!', data=spelling_errors)
-
-
-                if article.scheduled_date and article.scheduled_date < datetime.now():
-                    return send_error(message=messages.ERR_ISSUE.format('Scheduled date is earlier than current time'))
-                db.session.add(article)
-                db.session.commit()
-                # Add topics and get back list of topic for article
-                try:
-                    result = article.__dict__
-                    # get user info
-                    user = User.query.filter_by(id=article.user_id).first()
-                    result['user'] = user
-                    # add article_topics
-                    topics = []
-                    for topic_id in topic_ids:
-                        try:
-                            topic = Topic.query.filter_by(id=topic_id).first()
-                            article.topics.append(topic)
-                            db.session.commit()
-                            topics.append(topic)
-                        except Exception as e:
-                            print(e)
-                            pass
-                    result['topics'] = topics
-                    
-                    # upvote/downvote status for current user
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    if article.user:
-                        followers = UserFollow.query.with_entities(UserFollow.follower_id)\
-                            .filter(UserFollow.followed_id == article.user.id).all()
-                        follower_ids = [follower[0] for follower in followers]
-                        new_article_notify_user_list.send(article.id, follower_ids)
-                        g.friend_belong_to_user_id = article.user.id
-                        friends = UserFriend.query\
-                            .filter(\
-                                (UserFriend.friended_id == article.user.id) | \
-                                (UserFriend.friend_id == article.user.id))\
-                            .all()
-                        friend_ids = [friend.adaptive_friend_id for friend in friends]
-                        new_article_notify_user_list.send(article.id, friend_ids)
-                    return send_result(message=constants.msg_create_success,
-                                       data=marshal(result, ArticleDto.model_article_response))
-                except Exception as e:
-                    print(e)
-                    return send_result(data=marshal(article, ArticleDto.model_article_response),
-                                       message=constants.msg_create_success_without_topics)
-            else:  # topic already exist
+            article = Article.query.filter(Article.title == data['title']).first()
+            if article:  # the article does not exist
                 return send_error(message=constants.msg_article_already_exists.format(data['title']))
+
+            article, topic_ids = self._parse_article(data=data, article=None)
+
+            # check sensitive words
+            is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
+            if is_sensitive:
+                return send_error(message=constants.msg_insensitive_body)
+
+            # only allowed Vietnamese or English article title name
+            parent_topic = Topic.query.filter(Topic.id == article.fixed_topic_id).first()
+            if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
+                spelling_errors = check_spelling(article.title)
+                if len(spelling_errors) > 0:
+                    return send_error(message='Article title is spelled wrongly!', data=spelling_errors)
+
+
+            if article.scheduled_date and article.scheduled_date < datetime.now():
+                return send_error(message=messages.ERR_ISSUE.format('Scheduled date is earlier than current time'))
+
+            db.session.add(article)
+            db.session.commit()
+            # Add topics and get back list of topic for article
+            try:
+                result = article._asdict()
+                result['user'] = article.user
+                result['topics'] = article.topics
+                
+                # upvote/downvote status for current user
+                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                if vote is not None:
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
+                                                ArticleFavorite.article_id == article.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
+                if article.user:
+                    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
+                        .filter(UserFollow.followed_id == article.user.id).all()
+                    follower_ids = [follower[0] for follower in followers]
+                    new_article_notify_user_list.send(article.id, follower_ids)
+                    g.friend_belong_to_user_id = article.user.id
+                    friends = UserFriend.query\
+                        .filter(\
+                            (UserFriend.friended_id == article.user.id) | \
+                            (UserFriend.friend_id == article.user.id))\
+                        .all()
+                    friend_ids = [friend.adaptive_friend_id for friend in friends]
+                    new_article_notify_user_list.send(article.id, friend_ids)
+                return send_result(message=constants.msg_create_success,
+                                    data=marshal(result, ArticleDto.model_article_response))
+            except Exception as e:
+                print(e)
+                return send_result(data=marshal(article, ArticleDto.model_article_response),
+                                    message=constants.msg_create_success_without_topics)
         except Exception as e:
             print(e)
             return send_error(message=constants.msg_create_failed)
@@ -454,14 +441,20 @@ class ArticleController(Controller):
             except Exception as e:
                 print(e)
                 pass
-
+            
         topic_ids = None
         if 'topic_ids' in data:
-            try:
-                topic_ids = data['topic_ids']
-            except Exception as e:
-                print(e)
-                pass
+            topic_ids = data['topic_ids']
+            # update proposal topics
+            topics = []
+            for topic_id in topic_ids:
+                try:
+                    topic = Topic.query.filter_by(id=topic_id).first()
+                    topics.append(topic)
+                except Exception as e:
+                    print(e)
+                    pass
+            article.topics = topics
 
         if g.current_user_is_admin:
             if 'allow_voting' in data:
