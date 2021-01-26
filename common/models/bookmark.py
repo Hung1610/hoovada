@@ -26,7 +26,7 @@ class BaseBookmark(object):
     
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+        return db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
 
     @declared_attr
     def user(cls):
@@ -36,19 +36,19 @@ class BaseBookmark(object):
 class QuestionBookmark(Model, BaseBookmark):
     __tablename__ = 'question_bookmark'
     
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
 
 
 class AnswerBookmark(Model, BaseBookmark):
     __tablename__ = 'answer_bookmark'
 
-    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), nullable=False)
     answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer
 
 
 class TopicBookmark(Model, BaseBookmark):
     __tablename__ = 'topic_bookmark'
     
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic

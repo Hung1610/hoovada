@@ -24,5 +24,5 @@ class UserBan(Model):
     ban_type = db.Column(db.Enum(BanTypeEnum, validate_strings=True), nullable=False, server_default="EMAIL")
     expiry_date = db.Column(db.DateTime)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'))
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User

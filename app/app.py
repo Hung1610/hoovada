@@ -56,7 +56,7 @@ def init_basic_app():
         g.current_user_is_admin = False
         g.endorsed_topic_id = None
         g.friend_belong_to_user_id = None
-        g.mutual_friend_ids = None
+        g.mutual_friend_ids = []
         if g.current_user:
             g.current_user.last_seen = datetime.now()
             db.session.commit()
