@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: da23ada1721b
+Revision ID: initial
 Revises: 
-Create Date: 2020-12-30 15:06:33.270496
+Create Date: 2021-01-26 21:46:30.668581
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'da23ada1721b'
+revision = 'initial'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,6 +49,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_social_account_user_id'), 'social_account', ['user_id'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_name', sa.Unicode(length=255), nullable=False),
@@ -60,6 +61,7 @@ def upgrade():
     sa.Column('gender', sa.String(length=255), nullable=True),
     sa.Column('age', sa.String(length=255), nullable=True),
     sa.Column('birthday', sa.DateTime(), nullable=True),
+    sa.Column('is_birthday_hidden', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=True),
     sa.Column('password_hash', sa.String(length=255), nullable=True),
     sa.Column('last_seen', sa.DateTime(), nullable=True),
@@ -119,8 +121,8 @@ def upgrade():
     sa.Column('answer_downvoted_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('answer_report_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('answer_reported_count', sa.Integer(), server_default='0', nullable=True),
-    sa.Column('topic_followed_count', sa.Integer(), nullable=True),
-    sa.Column('topic_created_count', sa.Integer(), nullable=True),
+    sa.Column('topic_followed_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('topic_created_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('comment_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('comment_upvote_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('comment_upvoted_count', sa.Integer(), server_default='0', nullable=True),
@@ -135,16 +137,16 @@ def upgrade():
     sa.Column('is_deactivated', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_private', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('show_nsfw', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('article_count', sa.Integer(), nullable=True),
-    sa.Column('answer_count', sa.Integer(), nullable=True),
-    sa.Column('question_count', sa.Integer(), nullable=True),
-    sa.Column('post_count', sa.Integer(), nullable=True),
+    sa.Column('article_aggregated_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('answer_aggregated_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('question_aggregated_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('post_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('friends_sent_count', sa.Integer(), nullable=True),
     sa.Column('friend_received_count', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('display_name'),
     sa.UniqueConstraint('phone_number')
     )
+    op.create_index(op.f('ix_user_display_name'), 'user', ['display_name'], unique=True)
     op.create_table('user_employment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -156,6 +158,7 @@ def upgrade():
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_employment_user_id'), 'user_employment', ['user_id'], unique=False)
     op.create_table('article_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -164,9 +167,11 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_report_article_id'), 'article_report', ['article_id'], unique=False)
+    op.create_index(op.f('ix_article_report_user_id'), 'article_report', ['user_id'], unique=False)
     op.create_table('post_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -175,9 +180,11 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_post_report_post_id'), 'post_report', ['post_id'], unique=False)
+    op.create_index(op.f('ix_post_report_user_id'), 'post_report', ['user_id'], unique=False)
     op.create_table('topic',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=True),
@@ -196,11 +203,13 @@ def upgrade():
     sa.Column('bookmarkers_count', sa.Integer(), nullable=True),
     sa.Column('followers_count', sa.Integer(), nullable=True),
     sa.Column('allow_follow', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.ForeignKeyConstraint(['parent_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['parent_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_topic_parent_id'), 'topic', ['parent_id'], unique=False)
     op.create_index(op.f('ix_topic_slug'), 'topic', ['slug'], unique=False)
+    op.create_index(op.f('ix_topic_user_id'), 'topic', ['user_id'], unique=False)
     op.create_table('user_ban',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('ban_by', sa.String(length=255), nullable=True),
@@ -208,7 +217,7 @@ def upgrade():
     sa.Column('expiry_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_education',
@@ -222,9 +231,10 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_education_user_id'), 'user_education', ['user_id'], unique=False)
     op.create_table('user_follow',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('is_approved', sa.Boolean(), nullable=True),
@@ -232,10 +242,12 @@ def upgrade():
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('follower_id', sa.Integer(), nullable=True),
     sa.Column('followed_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['followed_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['follower_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['followed_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['follower_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_follow_followed_id'), 'user_follow', ['followed_id'], unique=False)
+    op.create_index(op.f('ix_user_follow_follower_id'), 'user_follow', ['follower_id'], unique=False)
     op.create_table('user_friend',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('friend_id', sa.Integer(), nullable=True),
@@ -243,10 +255,12 @@ def upgrade():
     sa.Column('is_approved', sa.Boolean(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['friend_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['friended_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['friend_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['friended_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_friend_friend_id'), 'user_friend', ['friend_id'], unique=False)
+    op.create_index(op.f('ix_user_friend_friended_id'), 'user_friend', ['friended_id'], unique=False)
     op.create_table('user_language',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('language_id', sa.Integer(), nullable=False),
@@ -255,10 +269,12 @@ def upgrade():
     sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['language_id'], ['language.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['language_id'], ['language.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_language_language_id'), 'user_language', ['language_id'], unique=False)
+    op.create_index(op.f('ix_user_language_user_id'), 'user_language', ['user_id'], unique=False)
     op.create_table('user_location',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('location_detail', sa.UnicodeText(), nullable=True),
@@ -268,22 +284,24 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_location_user_id'), 'user_location', ['user_id'], unique=False)
     op.create_table('user_permission',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('permission_id', sa.Integer(), nullable=True),
     sa.Column('allow', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['permission_id'], ['permission.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['permission_id'], ['permission.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_permission_permission_id'), 'user_permission', ['permission_id'], unique=False)
     op.create_index(op.f('ix_user_permission_user_id'), 'user_permission', ['user_id'], unique=False)
     op.create_table('article',
-    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.Unicode(length=255), nullable=True),
     sa.Column('slug', sa.String(length=255), nullable=True),
@@ -292,26 +310,28 @@ def upgrade():
     sa.Column('html', sa.UnicodeText(), nullable=True),
     sa.Column('allow_voting', sa.Boolean(), nullable=True),
     sa.Column('views_count', sa.Integer(), nullable=True),
-    sa.Column('upvote_count', sa.Integer(), nullable=True),
-    sa.Column('downvote_count', sa.Integer(), nullable=True),
-    sa.Column('share_count', sa.Integer(), nullable=True),
-    sa.Column('favorite_count', sa.Integer(), nullable=True),
-    sa.Column('comment_count', sa.Integer(), nullable=True),
+    sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('downvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('scheduled_date', sa.DateTime(), nullable=True),
     sa.Column('last_activity', sa.DateTime(), nullable=True),
     sa.Column('is_draft', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_fixed_topic_id'), 'article', ['fixed_topic_id'], unique=False)
     op.create_index(op.f('ix_article_slug'), 'article', ['slug'], unique=False)
+    op.create_index(op.f('ix_article_user_id'), 'article', ['user_id'], unique=False)
     op.create_table('post',
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.UnicodeText(), nullable=True),
-    sa.Column('slug', sa.String(length=255), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('fixed_topic_id', sa.Integer(), nullable=True),
     sa.Column('html', sa.UnicodeText(), nullable=True),
@@ -321,23 +341,21 @@ def upgrade():
     sa.Column('downvote_count', sa.Integer(), nullable=True),
     sa.Column('share_count', sa.Integer(), nullable=True),
     sa.Column('comment_count', sa.Integer(), nullable=True),
-    sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('scheduled_date', sa.DateTime(), nullable=True),
     sa.Column('last_activity', sa.DateTime(), nullable=True),
     sa.Column('allow_favorite', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('is_draft', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_post_title', 'post', ['title'], unique=False, mysql_length=255)
-    op.create_index(op.f('ix_post_slug'), 'post', ['slug'], unique=False)
+    op.create_index(op.f('ix_post_fixed_topic_id'), 'post', ['fixed_topic_id'], unique=False)
+    op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
     op.create_table('question',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.Unicode(length=255), nullable=True),
     sa.Column('slug', sa.String(length=255), nullable=True),
@@ -347,26 +365,28 @@ def upgrade():
     sa.Column('allow_video_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('allow_audio_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_private', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('last_activity', sa.DateTime(), nullable=True),
-    sa.Column('views_count', sa.Integer(), nullable=True),
-    sa.Column('answers_count', sa.Integer(), nullable=True),
-    sa.Column('upvote_count', sa.Integer(), nullable=True),
-    sa.Column('downvote_count', sa.Integer(), nullable=True),
-    sa.Column('share_count', sa.Integer(), nullable=True),
-    sa.Column('favorite_count', sa.Integer(), nullable=True),
-    sa.Column('comment_count', sa.Integer(), nullable=True),
+    sa.Column('views_count', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('answers_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('downvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('fixed_topic_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_fixed_topic_id'), 'question', ['fixed_topic_id'], unique=False)
     op.create_index(op.f('ix_question_slug'), 'question', ['slug'], unique=False)
+    op.create_index(op.f('ix_question_user_id'), 'question', ['user_id'], unique=False)
     op.create_table('question_proposal',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.Unicode(length=255), nullable=True),
     sa.Column('slug', sa.String(length=255), nullable=True),
@@ -376,7 +396,6 @@ def upgrade():
     sa.Column('allow_video_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('allow_audio_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_private', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('last_activity', sa.DateTime(), nullable=True),
     sa.Column('fixed_topic_id', sa.Integer(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=True),
@@ -385,11 +404,14 @@ def upgrade():
     sa.Column('is_parma_delete', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_approved', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_proposal_fixed_topic_id'), 'question_proposal', ['fixed_topic_id'], unique=False)
+    op.create_index(op.f('ix_question_proposal_question_id'), 'question_proposal', ['question_id'], unique=False)
     op.create_index(op.f('ix_question_proposal_slug'), 'question_proposal', ['slug'], unique=False)
+    op.create_index(op.f('ix_question_proposal_user_id'), 'question_proposal', ['user_id'], unique=False)
     op.create_table('reputation',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
@@ -397,20 +419,23 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('score', sa.Float(), nullable=True),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_reputation_topic_id'), 'reputation', ['topic_id'], unique=False)
+    op.create_index(op.f('ix_reputation_user_id'), 'reputation', ['user_id'], unique=False)
     op.create_table('topic_bookmark',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_topic_bookmark_user_id'), 'topic_bookmark', ['user_id'], unique=False)
     op.create_table('topic_follow',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('is_approved', sa.Boolean(), nullable=True),
@@ -418,10 +443,12 @@ def upgrade():
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('topic_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_topic_follow_topic_id'), 'topic_follow', ['topic_id'], unique=False)
+    op.create_index(op.f('ix_topic_follow_user_id'), 'topic_follow', ['user_id'], unique=False)
     op.create_table('topic_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -430,10 +457,12 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_topic_report_topic_id'), 'topic_report', ['topic_id'], unique=False)
+    op.create_index(op.f('ix_topic_report_user_id'), 'topic_report', ['user_id'], unique=False)
     op.create_table('topic_share',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -446,20 +475,25 @@ def upgrade():
     sa.Column('link_copied', sa.Boolean(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('topic_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_topic_share_topic_id'), 'topic_share', ['topic_id'], unique=False)
+    op.create_index(op.f('ix_topic_share_user_id'), 'topic_share', ['user_id'], unique=False)
     op.create_table('topic_user_endorse',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('endorsed_id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['endorsed_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['endorsed_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_topic_user_endorse_endorsed_id'), 'topic_user_endorse', ['endorsed_id'], unique=False)
+    op.create_index(op.f('ix_topic_user_endorse_topic_id'), 'topic_user_endorse', ['topic_id'], unique=False)
+    op.create_index(op.f('ix_topic_user_endorse_user_id'), 'topic_user_endorse', ['user_id'], unique=False)
     op.create_table('user_topic',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
@@ -468,14 +502,17 @@ def upgrade():
     sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_topic_topic_id'), 'user_topic', ['topic_id'], unique=False)
+    op.create_index(op.f('ix_user_topic_user_id'), 'user_topic', ['user_id'], unique=False)
     op.create_table('answer',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('last_activity', sa.DateTime(), nullable=True),
     sa.Column('accepted', sa.Boolean(), nullable=True),
@@ -486,16 +523,18 @@ def upgrade():
     sa.Column('allow_improvement', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('file_url', sa.String(length=255), nullable=True),
     sa.Column('file_type', sa.Enum('AUDIO', 'VIDEO', name='filetypeenum'), nullable=True),
-    sa.Column('upvote_count', sa.Integer(), nullable=True),
-    sa.Column('downvote_count', sa.Integer(), nullable=True),
-    sa.Column('comment_count', sa.Integer(), nullable=True),
-    sa.Column('share_count', sa.Integer(), nullable=True),
-    sa.Column('favorite_count', sa.Integer(), nullable=True),
-    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('downvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'question_id')
     )
+    op.create_index(op.f('ix_answer_question_id'), 'answer', ['question_id'], unique=False)
+    op.create_index(op.f('ix_answer_user_id'), 'answer', ['user_id'], unique=False)
     op.create_table('article_comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.UnicodeText(), nullable=True),
@@ -505,20 +544,23 @@ def upgrade():
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('favorite_count', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_comment_article_id'), 'article_comment', ['article_id'], unique=False)
+    op.create_index(op.f('ix_article_comment_user_id'), 'article_comment', ['user_id'], unique=False)
     op.create_table('article_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('article_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_favorite_user_id'), 'article_favorite', ['user_id'], unique=False)
     op.create_table('article_share',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -531,10 +573,12 @@ def upgrade():
     sa.Column('link_copied', sa.Boolean(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('article_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_share_article_id'), 'article_share', ['article_id'], unique=False)
+    op.create_index(op.f('ix_article_share_user_id'), 'article_share', ['user_id'], unique=False)
     op.create_table('article_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('vote_status', sa.Enum('NEUTRAL', 'UPVOTED', 'DOWNVOTED', name='votingstatusenum'), server_default='NEUTRAL', nullable=False),
@@ -542,10 +586,12 @@ def upgrade():
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_vote_article_id'), 'article_vote', ['article_id'], unique=False)
+    op.create_index(op.f('ix_article_vote_user_id'), 'article_vote', ['user_id'], unique=False)
     op.create_table('post_comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.UnicodeText(), nullable=True),
@@ -554,20 +600,23 @@ def upgrade():
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_post_comment_post_id'), 'post_comment', ['post_id'], unique=False)
+    op.create_index(op.f('ix_post_comment_user_id'), 'post_comment', ['user_id'], unique=False)
     op.create_table('post_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_post_favorite_user_id'), 'post_favorite', ['user_id'], unique=False)
     op.create_table('post_share',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -580,10 +629,12 @@ def upgrade():
     sa.Column('link_copied', sa.Boolean(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_post_share_post_id'), 'post_share', ['post_id'], unique=False)
+    op.create_index(op.f('ix_post_share_user_id'), 'post_share', ['user_id'], unique=False)
     op.create_table('post_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('vote_status', sa.Enum('NEUTRAL', 'UPVOTED', 'DOWNVOTED', name='votingstatusenum'), server_default='NEUTRAL', nullable=False),
@@ -591,20 +642,23 @@ def upgrade():
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_post_vote_post_id'), 'post_vote', ['post_id'], unique=False)
+    op.create_index(op.f('ix_post_vote_user_id'), 'post_vote', ['user_id'], unique=False)
     op.create_table('question_bookmark',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_bookmark_user_id'), 'question_bookmark', ['user_id'], unique=False)
     op.create_table('question_comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.UnicodeText(), nullable=True),
@@ -614,27 +668,30 @@ def upgrade():
     sa.Column('question_id', sa.Integer(), nullable=True),
     sa.Column('favorite_count', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_comment_question_id'), 'question_comment', ['question_id'], unique=False)
+    op.create_index(op.f('ix_question_comment_user_id'), 'question_comment', ['user_id'], unique=False)
     op.create_table('question_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_favorite_user_id'), 'question_favorite', ['user_id'], unique=False)
     op.create_table('question_proposal_topic',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=True),
     sa.Column('question_proposal_id', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['question_proposal_id'], ['question_proposal.id'], ),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
+    sa.ForeignKeyConstraint(['question_proposal_id'], ['question_proposal.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('question_report',
@@ -645,10 +702,12 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_report_question_id'), 'question_report', ['question_id'], unique=False)
+    op.create_index(op.f('ix_question_report_user_id'), 'question_report', ['user_id'], unique=False)
     op.create_table('question_share',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -662,23 +721,26 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('user_shared_to_id', sa.Integer(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['user_shared_to_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_shared_to_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_share_question_id'), 'question_share', ['question_id'], unique=False)
+    op.create_index(op.f('ix_question_share_user_id'), 'question_share', ['user_id'], unique=False)
+    op.create_index(op.f('ix_question_share_user_shared_to_id'), 'question_share', ['user_shared_to_id'], unique=False)
     op.create_table('question_topic',
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], )
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE')
     )
     op.create_table('question_user_invite',
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_id', 'question_id')
     )
     op.create_table('question_vote',
@@ -688,22 +750,24 @@ def upgrade():
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_vote_question_id'), 'question_vote', ['question_id'], unique=False)
+    op.create_index(op.f('ix_question_vote_user_id'), 'question_vote', ['user_id'], unique=False)
     op.create_table('topic_article',
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('article_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('topic_id', 'article_id')
     )
     op.create_table('topic_post',
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('post_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('topic_id', 'post_id')
     )
     op.create_table('user_mailed_article',
@@ -711,47 +775,56 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_mailed_article_article_id'), 'user_mailed_article', ['article_id'], unique=False)
+    op.create_index(op.f('ix_user_mailed_article_user_id'), 'user_mailed_article', ['user_id'], unique=False)
     op.create_table('user_mailed_question',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('question_id', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_mailed_question_question_id'), 'user_mailed_question', ['question_id'], unique=False)
+    op.create_index(op.f('ix_user_mailed_question_user_id'), 'user_mailed_question', ['user_id'], unique=False)
     op.create_table('user_seen_article',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_seen_article_article_id'), 'user_seen_article', ['article_id'], unique=False)
+    op.create_index(op.f('ix_user_seen_article_user_id'), 'user_seen_article', ['user_id'], unique=False)
     op.create_table('user_seen_question',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('question_id', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_seen_question_question_id'), 'user_seen_question', ['question_id'], unique=False)
+    op.create_index(op.f('ix_user_seen_question_user_id'), 'user_seen_question', ['user_id'], unique=False)
     op.create_table('answer_bookmark',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('answer_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_bookmark_user_id'), 'answer_bookmark', ['user_id'], unique=False)
     op.create_table('answer_comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.UnicodeText(), nullable=True),
@@ -761,20 +834,23 @@ def upgrade():
     sa.Column('answer_id', sa.Integer(), nullable=True),
     sa.Column('favorite_count', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_comment_answer_id'), 'answer_comment', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_answer_comment_user_id'), 'answer_comment', ['user_id'], unique=False)
     op.create_table('answer_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('answer_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_favorite_user_id'), 'answer_favorite', ['user_id'], unique=False)
     op.create_table('answer_improvement',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -783,10 +859,12 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('answer_id', sa.Integer(), nullable=True),
     sa.Column('vote_score', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_improvement_answer_id'), 'answer_improvement', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_answer_improvement_user_id'), 'answer_improvement', ['user_id'], unique=False)
     op.create_table('answer_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -795,10 +873,12 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('answer_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_report_answer_id'), 'answer_report', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_answer_report_user_id'), 'answer_report', ['user_id'], unique=False)
     op.create_table('answer_share',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -811,10 +891,12 @@ def upgrade():
     sa.Column('link_copied', sa.Boolean(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('answer_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_share_answer_id'), 'answer_share', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_answer_share_user_id'), 'answer_share', ['user_id'], unique=False)
     op.create_table('answer_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('vote_status', sa.Enum('NEUTRAL', 'UPVOTED', 'DOWNVOTED', name='votingstatusenum'), server_default='NEUTRAL', nullable=False),
@@ -822,20 +904,23 @@ def upgrade():
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('answer_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_vote_answer_id'), 'answer_vote', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_answer_vote_user_id'), 'answer_vote', ['user_id'], unique=False)
     op.create_table('article_comment_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('article_comment_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['article_comment_id'], ['article_comment.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['article_comment_id'], ['article_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_comment_favorite_user_id'), 'article_comment_favorite', ['user_id'], unique=False)
     op.create_table('article_comment_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -844,20 +929,23 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('comment_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['comment_id'], ['article_comment.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['comment_id'], ['article_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_article_comment_report_comment_id'), 'article_comment_report', ['comment_id'], unique=False)
+    op.create_index(op.f('ix_article_comment_report_user_id'), 'article_comment_report', ['user_id'], unique=False)
     op.create_table('question_comment_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('question_comment_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['question_comment_id'], ['question_comment.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['question_comment_id'], ['question_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_comment_favorite_user_id'), 'question_comment_favorite', ['user_id'], unique=False)
     op.create_table('question_comment_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -866,20 +954,23 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('comment_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['comment_id'], ['question_comment.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['comment_id'], ['question_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_question_comment_report_comment_id'), 'question_comment_report', ['comment_id'], unique=False)
+    op.create_index(op.f('ix_question_comment_report_user_id'), 'question_comment_report', ['user_id'], unique=False)
     op.create_table('answer_comment_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('answer_comment_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_comment_id'], ['answer_comment.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_comment_id'], ['answer_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_comment_favorite_user_id'), 'answer_comment_favorite', ['user_id'], unique=False)
     op.create_table('answer_comment_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -888,10 +979,12 @@ def upgrade():
     sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
     sa.Column('comment_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['comment_id'], ['answer_comment.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['comment_id'], ['answer_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_comment_report_comment_id'), 'answer_comment_report', ['comment_id'], unique=False)
+    op.create_index(op.f('ix_answer_comment_report_user_id'), 'answer_comment_report', ['user_id'], unique=False)
     op.create_table('answer_improvement_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('vote_status', sa.Enum('NEUTRAL', 'UPVOTED', 'DOWNVOTED', name='votingstatusenum'), server_default='NEUTRAL', nullable=False),
@@ -899,10 +992,12 @@ def upgrade():
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('improvement_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['improvement_id'], ['answer_improvement.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['improvement_id'], ['answer_improvement.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_answer_improvement_vote_improvement_id'), 'answer_improvement_vote', ['improvement_id'], unique=False)
+    op.create_index(op.f('ix_answer_improvement_vote_user_id'), 'answer_improvement_vote', ['user_id'], unique=False)
     op.create_table('timeline',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -914,90 +1009,194 @@ def upgrade():
     sa.Column('article_comment_id', sa.Integer(), nullable=True),
     sa.Column('activity', sa.Enum('COMMENTED', 'FAVORITED', 'UPVOTED', 'DOWNVOTED', 'REPORTED', name='timelineactivityenum'), nullable=True),
     sa.Column('activity_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_comment_id'], ['answer_comment.id'], ),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ),
-    sa.ForeignKeyConstraint(['article_comment_id'], ['article_comment.id'], ),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ),
-    sa.ForeignKeyConstraint(['question_comment_id'], ['question_comment.id'], ),
+    sa.ForeignKeyConstraint(['answer_comment_id'], ['answer_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['article_comment_id'], ['article_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['question_comment_id'], ['question_comment.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_timeline_answer_id'), 'timeline', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_timeline_article_id'), 'timeline', ['article_id'], unique=False)
+    op.create_index(op.f('ix_timeline_question_id'), 'timeline', ['question_id'], unique=False)
+    op.create_index(op.f('ix_timeline_user_id'), 'timeline', ['user_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_timeline_user_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_question_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_article_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_answer_id'), table_name='timeline')
     op.drop_table('timeline')
+    op.drop_index(op.f('ix_answer_improvement_vote_user_id'), table_name='answer_improvement_vote')
+    op.drop_index(op.f('ix_answer_improvement_vote_improvement_id'), table_name='answer_improvement_vote')
     op.drop_table('answer_improvement_vote')
+    op.drop_index(op.f('ix_answer_comment_report_user_id'), table_name='answer_comment_report')
+    op.drop_index(op.f('ix_answer_comment_report_comment_id'), table_name='answer_comment_report')
     op.drop_table('answer_comment_report')
+    op.drop_index(op.f('ix_answer_comment_favorite_user_id'), table_name='answer_comment_favorite')
     op.drop_table('answer_comment_favorite')
+    op.drop_index(op.f('ix_question_comment_report_user_id'), table_name='question_comment_report')
+    op.drop_index(op.f('ix_question_comment_report_comment_id'), table_name='question_comment_report')
     op.drop_table('question_comment_report')
+    op.drop_index(op.f('ix_question_comment_favorite_user_id'), table_name='question_comment_favorite')
     op.drop_table('question_comment_favorite')
+    op.drop_index(op.f('ix_article_comment_report_user_id'), table_name='article_comment_report')
+    op.drop_index(op.f('ix_article_comment_report_comment_id'), table_name='article_comment_report')
     op.drop_table('article_comment_report')
+    op.drop_index(op.f('ix_article_comment_favorite_user_id'), table_name='article_comment_favorite')
     op.drop_table('article_comment_favorite')
+    op.drop_index(op.f('ix_answer_vote_user_id'), table_name='answer_vote')
+    op.drop_index(op.f('ix_answer_vote_answer_id'), table_name='answer_vote')
     op.drop_table('answer_vote')
+    op.drop_index(op.f('ix_answer_share_user_id'), table_name='answer_share')
+    op.drop_index(op.f('ix_answer_share_answer_id'), table_name='answer_share')
     op.drop_table('answer_share')
+    op.drop_index(op.f('ix_answer_report_user_id'), table_name='answer_report')
+    op.drop_index(op.f('ix_answer_report_answer_id'), table_name='answer_report')
     op.drop_table('answer_report')
+    op.drop_index(op.f('ix_answer_improvement_user_id'), table_name='answer_improvement')
+    op.drop_index(op.f('ix_answer_improvement_answer_id'), table_name='answer_improvement')
     op.drop_table('answer_improvement')
+    op.drop_index(op.f('ix_answer_favorite_user_id'), table_name='answer_favorite')
     op.drop_table('answer_favorite')
+    op.drop_index(op.f('ix_answer_comment_user_id'), table_name='answer_comment')
+    op.drop_index(op.f('ix_answer_comment_answer_id'), table_name='answer_comment')
     op.drop_table('answer_comment')
+    op.drop_index(op.f('ix_answer_bookmark_user_id'), table_name='answer_bookmark')
     op.drop_table('answer_bookmark')
+    op.drop_index(op.f('ix_user_seen_question_user_id'), table_name='user_seen_question')
+    op.drop_index(op.f('ix_user_seen_question_question_id'), table_name='user_seen_question')
     op.drop_table('user_seen_question')
+    op.drop_index(op.f('ix_user_seen_article_user_id'), table_name='user_seen_article')
+    op.drop_index(op.f('ix_user_seen_article_article_id'), table_name='user_seen_article')
     op.drop_table('user_seen_article')
+    op.drop_index(op.f('ix_user_mailed_question_user_id'), table_name='user_mailed_question')
+    op.drop_index(op.f('ix_user_mailed_question_question_id'), table_name='user_mailed_question')
     op.drop_table('user_mailed_question')
+    op.drop_index(op.f('ix_user_mailed_article_user_id'), table_name='user_mailed_article')
+    op.drop_index(op.f('ix_user_mailed_article_article_id'), table_name='user_mailed_article')
     op.drop_table('user_mailed_article')
     op.drop_table('topic_post')
     op.drop_table('topic_article')
+    op.drop_index(op.f('ix_question_vote_user_id'), table_name='question_vote')
+    op.drop_index(op.f('ix_question_vote_question_id'), table_name='question_vote')
     op.drop_table('question_vote')
     op.drop_table('question_user_invite')
     op.drop_table('question_topic')
+    op.drop_index(op.f('ix_question_share_user_shared_to_id'), table_name='question_share')
+    op.drop_index(op.f('ix_question_share_user_id'), table_name='question_share')
+    op.drop_index(op.f('ix_question_share_question_id'), table_name='question_share')
     op.drop_table('question_share')
+    op.drop_index(op.f('ix_question_report_user_id'), table_name='question_report')
+    op.drop_index(op.f('ix_question_report_question_id'), table_name='question_report')
     op.drop_table('question_report')
     op.drop_table('question_proposal_topic')
+    op.drop_index(op.f('ix_question_favorite_user_id'), table_name='question_favorite')
     op.drop_table('question_favorite')
+    op.drop_index(op.f('ix_question_comment_user_id'), table_name='question_comment')
+    op.drop_index(op.f('ix_question_comment_question_id'), table_name='question_comment')
     op.drop_table('question_comment')
+    op.drop_index(op.f('ix_question_bookmark_user_id'), table_name='question_bookmark')
     op.drop_table('question_bookmark')
+    op.drop_index(op.f('ix_post_vote_user_id'), table_name='post_vote')
+    op.drop_index(op.f('ix_post_vote_post_id'), table_name='post_vote')
     op.drop_table('post_vote')
+    op.drop_index(op.f('ix_post_share_user_id'), table_name='post_share')
+    op.drop_index(op.f('ix_post_share_post_id'), table_name='post_share')
     op.drop_table('post_share')
+    op.drop_index(op.f('ix_post_favorite_user_id'), table_name='post_favorite')
     op.drop_table('post_favorite')
+    op.drop_index(op.f('ix_post_comment_user_id'), table_name='post_comment')
+    op.drop_index(op.f('ix_post_comment_post_id'), table_name='post_comment')
     op.drop_table('post_comment')
+    op.drop_index(op.f('ix_article_vote_user_id'), table_name='article_vote')
+    op.drop_index(op.f('ix_article_vote_article_id'), table_name='article_vote')
     op.drop_table('article_vote')
+    op.drop_index(op.f('ix_article_share_user_id'), table_name='article_share')
+    op.drop_index(op.f('ix_article_share_article_id'), table_name='article_share')
     op.drop_table('article_share')
+    op.drop_index(op.f('ix_article_favorite_user_id'), table_name='article_favorite')
     op.drop_table('article_favorite')
+    op.drop_index(op.f('ix_article_comment_user_id'), table_name='article_comment')
+    op.drop_index(op.f('ix_article_comment_article_id'), table_name='article_comment')
     op.drop_table('article_comment')
+    op.drop_index(op.f('ix_answer_user_id'), table_name='answer')
+    op.drop_index(op.f('ix_answer_question_id'), table_name='answer')
     op.drop_table('answer')
+    op.drop_index(op.f('ix_user_topic_user_id'), table_name='user_topic')
+    op.drop_index(op.f('ix_user_topic_topic_id'), table_name='user_topic')
     op.drop_table('user_topic')
+    op.drop_index(op.f('ix_topic_user_endorse_user_id'), table_name='topic_user_endorse')
+    op.drop_index(op.f('ix_topic_user_endorse_topic_id'), table_name='topic_user_endorse')
+    op.drop_index(op.f('ix_topic_user_endorse_endorsed_id'), table_name='topic_user_endorse')
     op.drop_table('topic_user_endorse')
+    op.drop_index(op.f('ix_topic_share_user_id'), table_name='topic_share')
+    op.drop_index(op.f('ix_topic_share_topic_id'), table_name='topic_share')
     op.drop_table('topic_share')
+    op.drop_index(op.f('ix_topic_report_user_id'), table_name='topic_report')
+    op.drop_index(op.f('ix_topic_report_topic_id'), table_name='topic_report')
     op.drop_table('topic_report')
+    op.drop_index(op.f('ix_topic_follow_user_id'), table_name='topic_follow')
+    op.drop_index(op.f('ix_topic_follow_topic_id'), table_name='topic_follow')
     op.drop_table('topic_follow')
+    op.drop_index(op.f('ix_topic_bookmark_user_id'), table_name='topic_bookmark')
     op.drop_table('topic_bookmark')
+    op.drop_index(op.f('ix_reputation_user_id'), table_name='reputation')
+    op.drop_index(op.f('ix_reputation_topic_id'), table_name='reputation')
     op.drop_table('reputation')
+    op.drop_index(op.f('ix_question_proposal_user_id'), table_name='question_proposal')
     op.drop_index(op.f('ix_question_proposal_slug'), table_name='question_proposal')
+    op.drop_index(op.f('ix_question_proposal_question_id'), table_name='question_proposal')
+    op.drop_index(op.f('ix_question_proposal_fixed_topic_id'), table_name='question_proposal')
     op.drop_table('question_proposal')
+    op.drop_index(op.f('ix_question_user_id'), table_name='question')
     op.drop_index(op.f('ix_question_slug'), table_name='question')
+    op.drop_index(op.f('ix_question_fixed_topic_id'), table_name='question')
     op.drop_table('question')
-    op.drop_index(op.f('ix_post_slug'), table_name='post')
-    op.drop_index('idx_post_title', table_name='post')
+    op.drop_index(op.f('ix_post_user_id'), table_name='post')
+    op.drop_index(op.f('ix_post_fixed_topic_id'), table_name='post')
     op.drop_table('post')
+    op.drop_index(op.f('ix_article_user_id'), table_name='article')
     op.drop_index(op.f('ix_article_slug'), table_name='article')
+    op.drop_index(op.f('ix_article_fixed_topic_id'), table_name='article')
     op.drop_table('article')
     op.drop_index(op.f('ix_user_permission_user_id'), table_name='user_permission')
     op.drop_index(op.f('ix_user_permission_permission_id'), table_name='user_permission')
     op.drop_table('user_permission')
+    op.drop_index(op.f('ix_user_location_user_id'), table_name='user_location')
     op.drop_table('user_location')
+    op.drop_index(op.f('ix_user_language_user_id'), table_name='user_language')
+    op.drop_index(op.f('ix_user_language_language_id'), table_name='user_language')
     op.drop_table('user_language')
+    op.drop_index(op.f('ix_user_friend_friended_id'), table_name='user_friend')
+    op.drop_index(op.f('ix_user_friend_friend_id'), table_name='user_friend')
     op.drop_table('user_friend')
+    op.drop_index(op.f('ix_user_follow_follower_id'), table_name='user_follow')
+    op.drop_index(op.f('ix_user_follow_followed_id'), table_name='user_follow')
     op.drop_table('user_follow')
+    op.drop_index(op.f('ix_user_education_user_id'), table_name='user_education')
     op.drop_table('user_education')
     op.drop_table('user_ban')
+    op.drop_index(op.f('ix_topic_user_id'), table_name='topic')
     op.drop_index(op.f('ix_topic_slug'), table_name='topic')
+    op.drop_index(op.f('ix_topic_parent_id'), table_name='topic')
     op.drop_table('topic')
+    op.drop_index(op.f('ix_post_report_user_id'), table_name='post_report')
+    op.drop_index(op.f('ix_post_report_post_id'), table_name='post_report')
     op.drop_table('post_report')
+    op.drop_index(op.f('ix_article_report_user_id'), table_name='article_report')
+    op.drop_index(op.f('ix_article_report_article_id'), table_name='article_report')
     op.drop_table('article_report')
+    op.drop_index(op.f('ix_user_employment_user_id'), table_name='user_employment')
     op.drop_table('user_employment')
+    op.drop_index(op.f('ix_user_display_name'), table_name='user')
     op.drop_table('user')
+    op.drop_index(op.f('ix_social_account_user_id'), table_name='social_account')
     op.drop_table('social_account')
     op.drop_table('permission')
     op.drop_table('language')

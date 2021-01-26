@@ -47,4 +47,4 @@ SQLAlchemy.get_model_by_tablename = get_model_by_tablename
 
 db = SQLAlchemy()
 
-migrate = Migrate(compare_type=True, compare_server_default=True)
+migrate = Migrate(compare_type=True)
