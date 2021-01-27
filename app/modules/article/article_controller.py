@@ -10,6 +10,7 @@ from datetime import datetime
 import dateutil.parser
 from bs4 import BeautifulSoup
 from flask import current_app, g, request
+from flask_restx import marshal
 from slugify import slugify
 from sqlalchemy import desc, func, text
 
