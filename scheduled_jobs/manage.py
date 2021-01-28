@@ -22,6 +22,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+# redis configuration
 REDIS_PORT = environ.get('REDIS_PORT', '6380')
 REDIS_HOST = environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PASSWORD = environ.get('REDIS_PASSWORD', 'hoovada')
@@ -107,15 +108,14 @@ def get_scheduler():
 
     sqlalchemy_job_store = SQLAlchemyJobStore(SQLALCHEMY_DATABASE_URI)
     
-    redis_job_store = RedisJobStore(db=1,\
-            host=REDIS_HOST,\
-            port=REDIS_PORT,\
-            password=REDIS_PASSWORD)
-    redis_job_store.remove_all_jobs()
+    # redis_job_store = RedisJobStore(db=1,\
+    #         host=REDIS_HOST,\
+    #         port=REDIS_PORT,\
+    #         password=REDIS_PASSWORD)
 
     jobstores = {
         'default': sqlalchemy_job_store,
-        'redis': redis_job_store,
+        # 'redis': redis_job_store,
     }
     executors = {
         'default': ThreadPoolExecutor(20),
