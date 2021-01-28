@@ -19,7 +19,6 @@ class UserDto(Dto):
     api = Namespace(name, description='user related operations')
     model_request = api.model('user_request', {
         'display_name': fields.String(required=False, default=''),
-        'title': fields.String(required=False, default=''),
 
         'first_name': fields.String(required=False, default=''),
         'middle_name': fields.String(required=False, default=''),

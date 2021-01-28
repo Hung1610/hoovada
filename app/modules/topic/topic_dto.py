@@ -32,6 +32,7 @@ class TopicDto(Dto):
         'is_friended_by_me': fields.Boolean(default=False, description='The user is followed by me or not'),
         'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed by current user or not'),
         'profile_views': fields.Integer(default=False, description='User view count'),
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
 
     model_sub_topic = api.model('sub_topic', {
