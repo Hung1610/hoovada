@@ -12,33 +12,33 @@ NGINX			:= ${REGISTRY}:nginx-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
 
 build:
 	@docker build -t ${API} -f ./docker/app/Dockerfile .
-	@docker build -t ${SOCKETIO} -f ./docker/app_socketio/Dockerfile .
+	#@docker build -t ${SOCKETIO} -f ./docker/app_socketio/Dockerfile .
 	@docker build -t ${SCHEDULED_JOBS} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX} -f ./docker/nginx/Dockerfile .
 
 push:
 	@docker push ${API}
-	@docker push ${SOCKETIO}
+	#@docker push ${SOCKETIO}
 	@docker push ${SCHEDULED_JOBS}
 	@docker push ${NGINX}
 
 deploy-staging:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n hoovada-staging --record
-	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n hoovada-staging --record
+	#@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n hoovada-staging --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n hoovada-staging --record
 
 all-staging: build push deploy-staging
 
 deploy-test:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n hoovada-test --record
-	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n hoovada-test --record
+	#@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n hoovada-test --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n hoovada-test --record
 
 all-test: build push deploy-test
 
 deploy-live:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n hoovada-live --record
-	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n hoovada-live --record
+	#@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n hoovada-live --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n hoovada-live --record
 
 all-live: build push deploy-live
