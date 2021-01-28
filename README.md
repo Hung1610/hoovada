@@ -16,7 +16,7 @@ Project Overview
 
 - Language: pypy3.6
 - Framework: Flask 
-- Database: MySQL (Percona Distribution)
+- Database: MySQL
 - OpenAPI: [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
 - Front-end data format: [Json](https://pyjwt.readthedocs.io/en/latest/)
 - DB migration: [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/); the library could not detect every changes, i.e. change of data type. If migration does not work, please put the required sql command into sql/
@@ -31,9 +31,7 @@ Project Overview
 
 - Storage provider: wasabi
 - SMS service: twilio
-- Infrastructure provider: digital ocean
-- Hostname provider: namecheap
-- notification: onesignal
+- Notification: onesignal
 
 
 ### Future consideration
@@ -45,8 +43,10 @@ Project Overview
 Development instruction
 ---
 
-- Production: the real environment where we deploy https://www.hoovada.com
-- Staging: replicate production environment as much as possible at https://www.staging.hoovada.com
+- [staging.hoovada.com](https://staging.hoovada.com): stable API that used for FE integration
+- [test.hoovada.com](https://test.hoovada.com): testing unstable feature from BE and infrastructure
+- [Live](https://hoovada.com)
+
 
 ### Branch
 
@@ -72,11 +72,6 @@ $ git push -u origin <your branch name>
 - Then you can create merge-request (top left corner of gitlab UI) with the source branch is your branch and the target branch is dev branch.
 
 
-### Development environment setup
-
-- For testing, if you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py.
-
-
 #### Quick testing with docker
 
 ```bash
@@ -86,7 +81,7 @@ $ docker run <name of image>
 
 #### Running API services on Linux
 
-- To run API services on your desktop
+- To run API services on local
 
 ```bash
 // For Linux distribution, you might need to install dependencies
@@ -116,6 +111,8 @@ $ pip3 install -r <path to project>/requirements.txt --ignore-installed
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage.py -m dev -p <port>
 $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage_socketio.py -m dev -p <port>
 ```
+
+- If you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py.
 
 
 #### Full set-up with docker-compose
