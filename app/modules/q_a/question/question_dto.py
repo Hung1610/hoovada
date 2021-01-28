@@ -37,6 +37,7 @@ class QuestionDto(Dto):
         'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
 
     question_top_answer = api.model('question_top_answer', {

@@ -36,7 +36,8 @@ class TimelineDto(Dto):
     model_timeline_user = api.model(name + '_' + 'user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
-        'profile_pic_url': fields.String(required=False)
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
+        'profile_pic_url': fields.String(required=False),
     })
 
     timeline_model_request = api.model(name + '_' + 'model_request', {
