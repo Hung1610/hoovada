@@ -26,7 +26,6 @@ Project Overview
 - Wasabi client library: [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/sqs.html)
 - twilio client library: [twilio](https://pypi.org/project/twilio/)
 
-
 ### Services
 
 - Storage provider: wasabi
@@ -114,6 +113,21 @@ $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage_socketio.py -
 
 - If you face with mixed-content issues https vs http, change api = HTTPSApi() to api=Api() in app/apis.py.
 
+- Setting up DB
+
+```bash
+// run ./sql/before_migration.sql
+
+CREATE USER IF NOT EXISTS <user>@'%' IDENTIFIED BY <password>;
+GRANT ALL PRIVILEGES ON hoovada.* TO <user>@'%';
+FLUSH PRIVILEGES;
+
+// run ./sql/after_migration.sql
+
+// import data
+
+// run ./sql/after_import_data.sql
+```
 
 #### Full set-up with docker-compose
 

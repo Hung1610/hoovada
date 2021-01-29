@@ -1,0 +1,1 @@
+UPDATE `topic` set color_code="#efeefb" where is_fixed=1;
