@@ -32,12 +32,10 @@ Project Overview
 - SMS service: twilio
 - Notification: onesignal
 
-
 ### Future consideration
 
 - Framework: [Quart](https://pypi.org/project/Quart/)
 - OpenAPI : [Quart-OpenAPI](https://github.com/factset/quart-openapi/)
-
 
 Development instruction
 ---
@@ -45,7 +43,6 @@ Development instruction
 - [staging.hoovada.com](https://staging.hoovada.com): stable API that used for FE integration
 - [test.hoovada.com](https://test.hoovada.com): testing unstable feature from BE and infrastructure
 - [Live](https://hoovada.com)
-
 
 ### Branch
 

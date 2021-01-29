@@ -108,7 +108,7 @@ class TopicController(Controller):
 
             # only allowed Vietnamese or English topic names
             parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
-            if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
+            if parent_topic is not None and parent_topic.name == 'Những lĩnh vực khác':
                 spelling_errors = check_spelling(data['name'])
                 if len(spelling_errors) > 0:
                     return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)

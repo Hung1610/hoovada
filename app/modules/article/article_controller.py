@@ -78,11 +78,13 @@ class ArticleController(Controller):
                 return send_error(message=constants.msg_insensitive_body)
 
             # only allowed Vietnamese or English article title name
-            parent_topic = Topic.query.filter(Topic.id == article.fixed_topic_id).first()
-            if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and parent_topic.name != 'Văn hóa trong và ngoài nước':
-                spelling_errors = check_spelling(article.title)
-                if len(spelling_errors) > 0:
-                    return send_error(message='Article title is spelled wrongly!', data=spelling_errors)
+            #parent_topic = Topic.query.filter(Topic.id == article.fixed_topic_id).first()
+            #if parent_topic is not None and parent_topic.name != 'Ngôn ngữ' and \
+            #                            parent_topic.name != 'Văn hóa trong và ngoài nước' and \
+            #                            parent_topic.name != 'Công nghệ thông tin':
+            #    spelling_errors = check_spelling(article.title)
+            #    if len(spelling_errors) > 0:
+            #        return send_error(message='Article title is spelled wrongly!', data=spelling_errors)
 
 
             if article.scheduled_date and article.scheduled_date < datetime.now():
