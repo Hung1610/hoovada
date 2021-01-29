@@ -1,3 +1,4 @@
+
 ALTER DATABASE hoovada CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ALTER TABLE alembic_version CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.alembic_version CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
 ALTER TABLE answer CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  ALTER TABLE hoovada.answer CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  

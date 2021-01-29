@@ -1,0 +1,6 @@
+UPDATE `topic` set color_code="#efeefb" where is_fixed=1;
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME,'` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;') AS    mySQL
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA= "hoovada"
+AND TABLE_TYPE="BASE TABLE"

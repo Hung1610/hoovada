@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS hoovada CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE hoovada;
+
 SET GLOBAL log_bin_trust_function_creators = 1;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` FUNCTION `COMPARE_STRING`( s1 text, s2 text) RETURNS int(11)
@@ -49,4 +53,3 @@ ELSE
 END IF;
 END$$
 DELIMITER ;
-UPDATE `topic` set color_code="#efeefb" where is_fixed=1;

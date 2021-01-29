@@ -1,7 +1,7 @@
 REGISTRY   		:= registry.gitlab.com/hoovada/hoovada-services
 REPO_NAME   	:= $$(/usr/bin/basename -s .git `git config --get remote.origin.url`)
 GIT_COMMIT 		:= $$(git rev-parse --short HEAD)
-GIT_BRANCH 		:= $$(git describe --tags --exact-match 2> /dev/null || git symbolic-ref -q --short HEAD || git rev-parse --short HEAD)
+GIT_BRANCH 		:= $$(git branch | grep \* | cut -d ' ' -f2)
 DATE 			:= $$(date +'%d%b%Y')
 
 API   			:= ${REGISTRY}:api-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
