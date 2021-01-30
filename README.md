@@ -26,16 +26,6 @@ Project Overview
 - Wasabi client library: [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/sqs.html)
 - twilio client library: [twilio](https://pypi.org/project/twilio/)
 
-### Services
-
-- Storage provider: wasabi
-- SMS service: twilio
-- Notification: onesignal
-
-### Future consideration
-
-- Framework: [Quart](https://pypi.org/project/Quart/)
-- OpenAPI : [Quart-OpenAPI](https://github.com/factset/quart-openapi/)
 
 Development instruction
 ---
