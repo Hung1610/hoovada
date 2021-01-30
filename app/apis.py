@@ -12,7 +12,6 @@ from flask_restx import Api, Namespace, Resource
 from app.modules import *
 from common.utils.response import send_result
 from common.cache import cache
-from common.dramatiq_producers import test
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -32,7 +31,6 @@ ns_health = Namespace(name='healthz')
 class HealthCheck(Resource):
     def get(self):
         """ Use for Readiness and Liveness Probes"""   
-        test()
         return send_result(message="OK!", code=200)
 
 
