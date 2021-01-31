@@ -12,6 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from common.db import db
+from common.cache import cache
 from app.constants import messages
 from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto
 from common.controllers.controller import Controller
@@ -101,6 +102,7 @@ class QuestionFavoriteController(Controller):
             favorite.updated_date = datetime.utcnow()
             db.session.add(favorite)
             db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
             return send_result(message='Question successfully favorited.',
                                data=marshal(favorite, QuestionFavoriteDto.model_response))
         except Exception as e:
@@ -129,6 +131,7 @@ class QuestionFavoriteController(Controller):
             else:
                 db.session.delete(favorite)
                 db.session.commit()
+                cache.clear_cache(Question.__class__.__name__)
                 return send_result(message='Question favorite deleted successfully.')
         except Exception as e:
             print(e.__str__())
