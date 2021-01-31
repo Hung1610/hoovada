@@ -1,8 +1,10 @@
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+
 CREATE DATABASE IF NOT EXISTS hoovada CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 USE hoovada;
 
-SET GLOBAL log_bin_trust_function_creators = 1;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` FUNCTION `COMPARE_STRING`( s1 text, s2 text) RETURNS int(11)
     DETERMINISTIC
@@ -14,7 +16,7 @@ BEGIN
     IF s1 = s2 THEN 
       RETURN 0;     
     ELSEIF s1_len = 0 THEN 
-      RETURN s2_len; 
+      RETURN s2_len;  
     ELSEIF s2_len = 0 THEN 
       RETURN s1_len; 
     ELSE 

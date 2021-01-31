@@ -103,17 +103,32 @@ $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage_socketio.py -
 - Setting up DB
 
 ```bash
-// run ./sql/before_migration.sql
+$ cat /etc/mysql/conf.d/mysql.cnf 
+[mysqld]
+init_connect='SET collation_connection = utf8mb4_unicode_ci' 
+init-connect='SET NAMES utf8mb4'
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+skip-character-set-client-handshake
+
+[client]
+default-character-set=utf8mb4
+
+[mysql]
+default-character-set=utf8mb4
+default_collation_for_utf8mb4=utf8mb4_unicode_ci
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+character-set-client-handshake = FALSE
+
+$ mysql -u username -p hoovada < ./sql/before_migration.sql
 
 CREATE USER IF NOT EXISTS <user>@'%' IDENTIFIED BY <password>;
 GRANT ALL PRIVILEGES ON hoovada.* TO <user>@'%';
 FLUSH PRIVILEGES;
 
-// run ./sql/after_migration.sql
-
 // import data
-
-// run ./sql/after_import_data.sql
+$ mysql -u username -p hoovada < data.sql
 ```
 
 #### Full set-up with docker-compose
