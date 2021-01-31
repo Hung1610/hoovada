@@ -12,6 +12,7 @@ from sqlalchemy import desc
 
 # own modules
 from common.db import db
+from common.cache import cache
 from app.modules.q_a.question.share.share_dto import QuestionShareDto
 from common.controllers.controller import Controller
 from common.models import Answer, Question, QuestionShare, User
@@ -93,6 +94,7 @@ class ShareController(Controller):
             share.created_date = datetime.utcnow()
             db.session.add(share)
             db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
             # update other values
             try:
                 question = Question.query.filter_by(id=share.question_id).first()

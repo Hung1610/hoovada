@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
 from abc import ABC, abstractmethod
 
-# built-in modules
+# own modules
 from common.db import db
 
 # third-party modules
 from sqlalchemy.sql.expression import true
+from flask import g
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -21,6 +23,11 @@ class Controller(ABC):
     query_classname = ''
     allowed_ordering_fields = []
     special_filtering_fields = ['from_date', 'to_date']
+
+    def __repr__(self):
+        if g.current_user:
+            return "%s(%s)" % (self.query_classname, g.current_user.id)
+        return "%s(guest)" % (self.query_classname)
 
     def get_model_class(self):
         return db.get_model(self.query_classname)

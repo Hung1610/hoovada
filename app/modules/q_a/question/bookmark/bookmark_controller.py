@@ -12,6 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from common.db import db
+from common.cache import cache
 from app.modules.q_a.question.bookmark import constants
 from app.modules.q_a.question.bookmark.bookmark_dto import QuestionBookmarkDto
 from common.controllers.controller import Controller
@@ -95,6 +96,7 @@ class QuestionBookmarkController(Controller):
             bookmark.updated_date = datetime.utcnow()
             db.session.add(bookmark)
             db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
             return send_result(message=constants.msg_create_success,
                                data=marshal(bookmark, QuestionBookmarkDto.model_response))
         except Exception as e:
@@ -123,6 +125,7 @@ class QuestionBookmarkController(Controller):
             else:
                 db.session.delete(bookmark)
                 db.session.commit()
+                cache.clear_cache(Question.__class__.__name__)
                 return send_result(message=constants.msg_delete_success_with_id.format(bookmark.id))
         except Exception as e:
             print(e.__str__())
