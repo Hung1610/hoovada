@@ -28,7 +28,7 @@ _post_get_similar_params = PostDto.get_similar_posts_parser
 class PostList(Resource):
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     @api.expect(_post_get_params)
-    @cache.cached(query_string=True)
+    #@cache.cached(query_string=True)
     def get(self):
         """
         Get all posts that satisfy conditions
