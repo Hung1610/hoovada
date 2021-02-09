@@ -128,7 +128,7 @@ class Question(Resource):
         data = api.payload
         controller = QuestionController()
         result = controller.update(object_id=id_or_slug, data=data)
-        cache.clear_cache(get_question_key_prefix())
+        #cache.clear_cache(get_question_key_prefix())
         return result
 
     @admin_token_required()
@@ -139,7 +139,7 @@ class Question(Resource):
 
         controller = QuestionController()
         result = controller.delete(object_id=id_or_slug)
-        cache.clear_cache(get_question_key_prefix())
+        #cache.clear_cache(get_question_key_prefix())
         return result
 
 @api.route('/<string:id_or_slug>/invite')
@@ -191,7 +191,7 @@ class QuestionProposal(Resource):
         data = api.payload
         controller = QuestionController()
         result = controller.create_proposal(object_id=id_or_slug, data=data)
-        cache.clear_cache(get_question_proposal_key_prefix())
+        #cache.clear_cache(get_question_proposal_key_prefix())
         return result
 
 @api.route('/<string:id_or_slug>/delete-proposal')
@@ -203,7 +203,7 @@ class QuestionDeleteProposal(Resource):
 
         controller = QuestionController()
         result = controller.create_delete_proposal(object_id=id_or_slug)
-        cache.clear_cache(get_question_proposal_key_prefix())
+        #cache.clear_cache(get_question_proposal_key_prefix())
         return result
 
 
