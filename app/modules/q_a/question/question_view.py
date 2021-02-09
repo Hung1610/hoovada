@@ -108,7 +108,7 @@ def get_question_key_prefix():
 @api.route('/<string:id_or_slug>')
 class Question(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
-    # @cache.cached(key_prefix=get_question_key_prefix)
+    @cache.cached(key_prefix=get_question_key_prefix)
     def get(self, id_or_slug):
         """ 
         Get specific question by its ID.
@@ -128,7 +128,7 @@ class Question(Resource):
         data = api.payload
         controller = QuestionController()
         result = controller.update(object_id=id_or_slug, data=data)
-        #cache.clear_cache(get_question_key_prefix())
+        cache.clear_cache(get_question_key_prefix())
         return result
 
     @admin_token_required()
@@ -139,7 +139,7 @@ class Question(Resource):
 
         controller = QuestionController()
         result = controller.delete(object_id=id_or_slug)
-        #cache.clear_cache(get_question_key_prefix())
+        cache.clear_cache(get_question_key_prefix())
         return result
 
 @api.route('/<string:id_or_slug>/invite')
@@ -174,7 +174,7 @@ def get_question_proposal_key_prefix():
 class QuestionProposal(Resource):
     @api.expect(proposal_get_parser)
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
-    # @cache.cached(key_prefix=get_question_proposal_key_prefix)
+    @cache.cached(key_prefix=get_question_proposal_key_prefix)
     def get(self, id_or_slug):
         """ Get list of questions from database.
         """
@@ -191,7 +191,7 @@ class QuestionProposal(Resource):
         data = api.payload
         controller = QuestionController()
         result = controller.create_proposal(object_id=id_or_slug, data=data)
-        #cache.clear_cache(get_question_proposal_key_prefix())
+        cache.clear_cache(get_question_proposal_key_prefix())
         return result
 
 @api.route('/<string:id_or_slug>/delete-proposal')
@@ -203,7 +203,7 @@ class QuestionDeleteProposal(Resource):
 
         controller = QuestionController()
         result = controller.create_delete_proposal(object_id=id_or_slug)
-        #cache.clear_cache(get_question_proposal_key_prefix())
+        cache.clear_cache(get_question_proposal_key_prefix())
         return result
 
 

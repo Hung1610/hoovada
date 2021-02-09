@@ -30,7 +30,7 @@ _article_get_similar_params = ArticleDto.get_similar_articles_parser
 class ArticleList(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     @api.expect(_article_get_params)
-    # @cache.cached(query_string=True)
+    @cache.cached(query_string=True)
     def get(self):
         """Get all articles that satisfy conditions
         """
@@ -71,7 +71,7 @@ def get_article_key_prefix():
 @api.route('/<string:id_or_slug>')
 class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    # @cache.cached(key_prefix=get_article_key_prefix)
+    @cache.cached(key_prefix=get_article_key_prefix)
     def get(self, id_or_slug):
         """Get specific article by its ID.
         """
@@ -89,7 +89,7 @@ class Article(Resource):
         data = api.payload
         controller = ArticleController()
         result = controller.update(object_id=id_or_slug, data=data, is_put=True)
-        #cache.clear_cache(get_article_key_prefix())
+        cache.clear_cache(get_article_key_prefix())
         return result
 
     @token_required
@@ -102,7 +102,7 @@ class Article(Resource):
         data = api.payload
         controller = ArticleController()
         result = controller.update(object_id=id_or_slug, data=data)
-        #cache.clear_cache(get_article_key_prefix())
+        cache.clear_cache(get_article_key_prefix())
         return result
 
 
@@ -113,7 +113,7 @@ class Article(Resource):
 
         controller = ArticleController()
         result = controller.delete(object_id=id_or_slug)
-        #cache.clear_cache(get_article_key_prefix())
+        cache.clear_cache(get_article_key_prefix())
         return result
 
 

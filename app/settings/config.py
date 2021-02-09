@@ -48,9 +48,9 @@ class BaseConfig(CommonBaseConfig):
 
     # Cache configuration   # Flask-Caching related configs
     # Simple cache using Python dictionary
-    CACHE_TYPE = "simple"
+    #CACHE_TYPE = "simple"
     # Redis cache using redis database
-    #CACHE_TYPE = 'redis'
+    CACHE_TYPE = 'redis'
     
     CACHE_KEY_PREFIX = 'fcache'
     CACHE_REDIS_PORT = CommonBaseConfig.REDIS_PORT

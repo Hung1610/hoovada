@@ -97,7 +97,7 @@ class QuestionController(Controller):
                 question.slug = slugify(question.title)
                 db.session.add(question)
                 db.session.commit()
-                #cache.clear_cache(Question.__class__.__name__)
+                cache.clear_cache(Question.__class__.__name__)
                 # Add topics and get back list of topic for question
                 try:
                     result = question._asdict()
@@ -604,7 +604,7 @@ class QuestionController(Controller):
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
             db.session.commit()
-            #cache.clear_cache(Question.__class__.__name__)
+            cache.clear_cache(Question.__class__.__name__)
             result = question._asdict()
             # get user info
             result['user'] = question.user
@@ -644,7 +644,7 @@ class QuestionController(Controller):
                 # related records are automatically cascaded
                 db.session.delete(question)
                 db.session.commit()
-                #cache.clear_cache(Question.__class__.__name__)
+                cache.clear_cache(Question.__class__.__name__)
                 return send_result(message="Question with the ID {} was deleted.".format(object_id))
         except Exception as e:
             print(e.__str__())

@@ -104,7 +104,7 @@ class CommentController(BaseCommentController):
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
             db.session.commit()
-            #cache.clear_cache(Question.__class__.__name__)
+            cache.clear_cache(Question.__class__.__name__)
             # update comment count for user
             try:
                 user = User.query.filter_by(id=comment.user_id).first()
@@ -177,7 +177,7 @@ class CommentController(BaseCommentController):
                     return send_error(message='Insensitive contents not allowed.')
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
-                #cache.clear_cache(Question.__class__.__name__)
+                cache.clear_cache(Question.__class__.__name__)
                 result = comment.__dict__
                 result['user'] = comment.user
                 if current_user:
@@ -205,7 +205,7 @@ class CommentController(BaseCommentController):
 
                 db.session.delete(comment)
                 db.session.commit()
-                #cache.clear_cache(Question.__class__.__name__)
+                cache.clear_cache(Question.__class__.__name__)
                 return send_result(message='QuestionComment with the ID {} was deleted.'.format(object_id))
         except Exception as e:
             print(e.__str__())

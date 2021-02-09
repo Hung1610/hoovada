@@ -51,7 +51,7 @@ class AnswerImprovementList(Resource):
 class AnswerImprovementAllList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=improvement_response, description='Model for answer response.')
-    # @cache.cached(query_string=True)
+    @cache.cached(query_string=True)
     def get(self):
         """
         Get the list of answers from database.
