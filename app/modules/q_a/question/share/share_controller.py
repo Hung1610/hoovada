@@ -94,7 +94,7 @@ class ShareController(Controller):
             share.created_date = datetime.utcnow()
             db.session.add(share)
             db.session.commit()
-            cache.clear_cache(Question.__class__.__name__)
+            #cache.clear_cache(Question.__class__.__name__)
             # update other values
             try:
                 question = Question.query.filter_by(id=share.question_id).first()
