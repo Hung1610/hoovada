@@ -77,6 +77,7 @@ class TopicController(Controller):
                         "Chuyện đời tư",
                         "Lĩnh vực người lớn",
                         "Truyền thông & Quảng cáo",
+                        "Tiếng lóng & Biệt ngữ",
                         "hoovada.com"]
 
         try:

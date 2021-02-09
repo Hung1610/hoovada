@@ -88,3 +88,4 @@ zope.interface==5.1.2
 prometheus-flask-exporter==0.18.1
 kombu==5.0.2
 onesignal-sdk==2.0.0
+cryptography==2.8

@@ -21,20 +21,20 @@ push:
 	@docker push ${NGINX}
 
 deploy-staging:
-	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n hoovada-staging --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n hoovada-staging --record
+	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-test --record
 
 all-staging: build push deploy-staging
 
 deploy-test:
-	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n hoovada-test --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n hoovada-test --record
+	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-test --record
 
 all-test: build push deploy-test
 
 deploy-live:
-	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n hoovada-live --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n hoovada-live --record
+	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-production --record
+	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-production--record
 
 all-live: build push deploy-live
 

@@ -1,7 +1,7 @@
 SET GLOBAL log_bin_trust_function_creators = 1;
 
 
-CREATE DATABASE IF NOT EXISTS hoovada CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE IF NOT EXISTS hoovada CHARACTER SET utf8mb4;
 
 USE hoovada;
 

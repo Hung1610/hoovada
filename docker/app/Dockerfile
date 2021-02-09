@@ -6,7 +6,7 @@ COPY ./app/requirements.txt /opt/
 
 RUN apt-get update -y && apt-get install -y python-dev python3-dev libevent-dev enchant libmemcached-dev zlib1g-dev libenchant-dev aspell
 
-RUN pip3 install --no-cache-dir -r requirements.txt --ignore-installed
+RUN pip3 install --no-cache-dir -r requirements.txt --ignore-installed 
 
 ENV TZ=Asia/Ho_Chi_Minh
 
@@ -14,7 +14,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN addgroup app && groupmod -g 1000 app
 
-RUN adduser --ingroup app --home /dev/null --shell /usr/sbin/nologin app
+RUN useradd -ms /usr/sbin/nologin app -g app
 
 RUN usermod -u 1000 app
 
