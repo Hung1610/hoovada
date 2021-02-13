@@ -166,17 +166,18 @@ class ArticleController(Controller):
                     (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
                 )
         if params.get('hot'):
-            if g.current_user:
-                query = query.join(TopicBookmark, \
-                        ((Article.topics.any(Topic.id == TopicBookmark.topic_id)) &\
-                            TopicBookmark.user_id == g.current_user.id), \
-                        isouter=True)\
-                    .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
-                        desc(text("upvote_count + downvote_count + share_count + favorite_count")))
-            else:
-                query = query.\
-                    order_by(\
-                        desc(text("upvote_count + downvote_count + share_count + favorite_count")))
+            #if g.current_user:
+            #    query = query.join(TopicBookmark, \
+            #            ((Article.topics.any(Topic.id == TopicBookmark.topic_id)) &\
+            #                TopicBookmark.user_id == g.current_user.id), \
+            #            isouter=True)\
+            #        .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
+            #            desc(text("upvote_count + downvote_count + share_count + favorite_count")))
+            #else:
+            #    query = query.\
+            #        order_by(\
+            #            desc(text("upvote_count + downvote_count + share_count + favorite_count")))
+            query = query.order_by(desc(text("updated_date")))
 
         return query
 

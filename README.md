@@ -7,10 +7,7 @@ Project Overview
 ---
 
 - We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point.
-
-- The app/requirements.txt is where you should put your new third-party libraries.
-
-- Conf file is at app/settings/config.py, we use environment variables to manage conf in production.
+- Configuration file is at app/settings/config.py, we use environment variables to manage conf in production.
 
 ### Built with
 
@@ -103,24 +100,6 @@ $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage_socketio.py -
 - Setting up DB
 
 ```bash
-$ cat /etc/mysql/conf.d/mysql.cnf 
-[mysqld]
-init_connect='SET collation_connection = utf8mb4_unicode_ci' 
-init-connect='SET NAMES utf8mb4'
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
-skip-character-set-client-handshake
-
-[client]
-default-character-set=utf8mb4
-
-[mysql]
-default-character-set=utf8mb4
-default_collation_for_utf8mb4=utf8mb4_unicode_ci
-character-set-server=utf8mb4
-collation-server=utf8mb4_unicode_ci
-character-set-client-handshake = FALSE
-
 $ mysql -u username -p hoovada < ./sql/before_migration.sql
 
 CREATE USER IF NOT EXISTS <user>@'%' IDENTIFIED BY <password>;
@@ -156,10 +135,25 @@ $ docker-compose rm
 - adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
 
 
-### Pylint
+### Code quality
 
-- We encourage developers to run Pylint before submitting code
+- Code style: Bắt buộc theo Pep8 coding style
+- Code commit : Bắt buộc có commit cho từng task và cung cấp commit message 
+- Third-party library:  Bắt buộc thêm library + version vào app/requirements.txt nếu có library mới
+- Dấu ngoặc kép: nên đồng nhất khi sử dụng dấu Dấu ngoặc kép cho cả file, hoặc sử dụng ‘’ hoặc là “”
+- import statement:
+	- Bắt buộc sử dụng full path để import modules trong cùng project.
+	- Khuyến khích import những function mình cần, hạn chế import cả package, ví dụ , nếu chỉ cần sử dụng sqrt() trong math thì:
+	```
+		Khuyến khích:  		from math import sqrt
+		Không khuyến khích:  	import math
+	```
 
+- Status code: Vui lòng trả về đúng status code  và ghi message bằng tiếng Anh , i.e. trong send_error và send_result. Message cho user sẽ đc viết bởi Frontend
+
+- Exception - EAFP principle: ưu tiên sử dụng except/try thay vì if/else. Ưu tiên sử dụng specific exceptions thay vì generic , và rất tốt nếu có thể catch nhiều specific exceptions khác nhau trong 1 code block
+
+- Vui lòng sử dụng pylint để kiêm tra code quality trước khi chuyển giao code
 ```
 $ pip3 install pylint
 $ pylint <your files>
