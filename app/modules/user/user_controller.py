@@ -336,46 +336,46 @@ class UserController(Controller):
     def _parse_user(self, data, user=None):
         if user is None:
             user = User()
-        if data.get('display_name'):
+        if 'display_name' in data:
             user.display_name = data['display_name']
-        if data.get('title'):
+        if 'title' in data:
             user.title = data['title']
-        if data.get('first_name'):
+        if 'first_name' in data:
             user.first_name = data['first_name']
-        if data.get('middle_name'):
+        if 'middle_name' in data:
             user.middle_name = data['middle_name']
-        if data.get('last_name'):
+        if 'last_name' in data:
             user.last_name = data['last_name']
-        if data.get('birthday'):
+        if 'birthday' in data:
             user.birthday = dateutil.parser.isoparse(data['birthday'])
-        if data.get('is_birthday_hidden'):
+        if 'is_birthday_hidden' in data:
             try:
                 user.is_birthday_hidden = bool(data['is_birthday_hidden'])
             except Exception as e:
                 user.is_birthday_hidden = False
                 print(e.__str__())
                 pass
-        if data.get('gender'):
+        if 'gender' in data:
             user.gender = data['gender']
-        if data.get('age'):
+        if 'age' in data:
             user.age = data['age']
-        if data.get('email'):
+        if 'email' in data:
             user.email = data['email']
-        if data.get('password'):
+        if 'password' in data:
             user.set_password(password=data['password'])
-        if data.get('last_seen'):
+        if 'last_seen' in data:
             try:
                 user.last_seen = dateutil.parser.isoparse(data['last_seen'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if data.get('joined_date'):
+        if 'joined_date' in data:
             try:
                 user.joined_date = dateutil.parser.isoparse(data['joined_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if data.get('confirmed'):
+        if 'confirmed' in data:
             try:
                 user.confirmed = bool(data['confirmed'])
             except Exception as e:
@@ -383,21 +383,21 @@ class UserController(Controller):
                 pass
         else:
             user.confirmed = 1
-        if data.get('email_confirmed_at'):
+        if 'email_confirmed_at' in data:
             try:
                 user.email_confirmed_at = dateutil.parser.isoparse(data['email_confirmed_at'])
             except Exception as e:
                 print(e.__str__())
                 pass
-        if data.get('profile_pic_url'):
+        if 'profile_pic_url' in data:
             user.profile_pic_url = data['profile_pic_url']
-        if data.get('admin'):
+        if 'admin' in data:
             try:
                 user.admin = UserRole.ADMIN if bool(data['admin']) is True else None
             except Exception as e:
                 print(e.__str__())
                 pass
-        if data.get('active'):
+        if 'active' in data:
             try:
                 user.active = bool(data['active'])
             except Exception as e:
@@ -406,7 +406,7 @@ class UserController(Controller):
         else:
             user.active = 1
         
-        if data.get('about_me'):
+        if 'about_me' in data:
             user.about_me = data['about_me']
 
         if 'show_email_publicly_setting' in data:
@@ -490,28 +490,28 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if data.get('is_private'):
+        if 'is_private' in data:
             try:
                 user.is_private = bool(data['is_private'])
             except Exception as e:
                 user.is_private = False
                 print(e.__str__())
                 pass
-        if data.get('is_deactivated'):
+        if 'is_deactivated' in data:
             try:
                 user.is_deactivated = bool(data['is_deactivated'])
             except Exception as e:
                 user.is_deactivated = False
                 print(e.__str__())
                 pass
-        if data.get('verified_document'):
+        if 'verified_document' in data:
             try:
                 user.verified_document = bool(data['verified_document'])
             except Exception as e:
                 user.verified_document = False
                 print(e.__str__())
                 pass
-        if data.get('show_nsfw'):
+        if 'show_nsfw' in data:
             try:
                 user.show_nsfw = bool(data['show_nsfw'])
             except Exception as e:
