@@ -212,7 +212,7 @@ class User(Model):
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answer_aggregated_count(self):
-        return db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0))
+        return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True') & db.text('IFNULL(is_anonymous, False) <> True'), 1, 0))
     @property
     def answer_count(self):
         if self.answer_aggregated_count is None:
