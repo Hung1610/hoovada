@@ -293,7 +293,7 @@ class AnswerController(Controller):
                 return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.MSG_DELETE_SUCCESS)
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Answer', e))
 
     def _parse_answer(self, data, answer=None):
         if answer is None:
