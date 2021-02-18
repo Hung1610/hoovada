@@ -24,7 +24,7 @@ ERR_UPDATE_FAILED = 'Failed to update {}. Issue: {}'
 
 # Delete Messages
 MSG_DELETE_SUCCESS = '{} deleted successful.'
-ERR_DELETE_FAILED = 'Failed to delete {}.'
+ERR_DELETE_FAILED = 'Failed to delete {}. Issue: {}'
 
 # File Messages
 ERR_NO_FILE = 'No file found in the request.'
