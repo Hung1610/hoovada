@@ -75,13 +75,13 @@ class Question(Model, BaseQuestion):
     views_count = db.Column(db.Integer, server_default="0")
     @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answers_count(self):
-        return db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0)))
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0)))
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def downvote_count(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0)))
     @aggregated('question_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
         return db.func.count('1')
