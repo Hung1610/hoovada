@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from abc import ABC, abstractmethod
+import dateutil.parser
 
 # third-party modules
 from sqlalchemy.ext.declarative import as_declarative
@@ -35,3 +35,20 @@ class Model(db.Model):
         #         for c in inspect(self).mapper.column_attrs}
         object_dict = {attr: catch(getattr, self, attr) for attr in dir(self) if not attr.startswith("__")}
         return object_dict
+    
+    def _from_dict(self, dictionary):
+        def _traverse(key, element):
+            if isinstance(element, dict):
+                return key, self._from_dict(element)
+            else:
+                try: 
+                    return key, dateutil.parser.isoparse(element)
+                except Exception:
+                    return key, element
+
+        objd = dict(_traverse(k, v) for k, v in dictionary.items() if v is not None)
+        self.update(objd)
+        
+    def update(self, values):
+        for k, v in values.items():
+            setattr(self, k, v)

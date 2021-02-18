@@ -91,7 +91,7 @@ class CommentController(BaseCommentController):
         question = Question.query.filter(Question.id == question_id).first()
         if not question:
             return send_error(message='The question does not exist.')
-        if not question.allow_comments:
+        if (not question.allow_comments) or (not question.user.allow_question_comment):
             return send_error(message='This question does not allow commenting.')
         data['question_id'] = question_id
 

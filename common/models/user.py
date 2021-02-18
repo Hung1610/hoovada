@@ -82,6 +82,12 @@ class User(Model):
     verified_document = db.Column(db.Boolean, default=False) 
     
     # Settings
+    show_fullname_instead_of_display_name = db.Column(db.Boolean, nullable=False, server_default=expression.false())
+
+    allow_answer_comment = db.Column(db.Boolean, nullable=False, server_default=expression.true())
+    allow_question_comment = db.Column(db.Boolean, nullable=False, server_default=expression.true())
+    allow_article_comment = db.Column(db.Boolean, nullable=False, server_default=expression.true())
+
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
     hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default='weekly')
