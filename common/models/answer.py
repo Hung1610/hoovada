@@ -40,11 +40,11 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0)))
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def downvote_count(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0)))
 
     @aggregated('answer_comments', db.Column(db.Integer, server_default="0", nullable=False))
     def comment_count(self):
@@ -83,5 +83,5 @@ class AnswerImprovement(Model):
 
     @aggregated('votes', db.Column(db.Integer))
     def vote_score(self):
-        return db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0))\
-            - db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0)))\
+            - db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0)))
