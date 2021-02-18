@@ -76,7 +76,12 @@ class UserDto(Dto):
         'is_private': fields.Boolean(default=False, description='The user is private or not'),
         'is_deactivated': fields.Boolean(default=False, description='The user is deactivated or not'),
         'show_nsfw': fields.Boolean(default=True, description='The user wants nsfw topics shown or not'),
-        # 'last_message_read_time': fields.DateTime(required=False)
+
+        'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
+
+        'allow_answer_comment': fields.Boolean(required=False, default=True),
+        'allow_question_comment': fields.Boolean(required=False, default=True),
+        'allow_article_comment': fields.Boolean(required=False, default=True),
     })
 
     model_response = api.model('user_response', {
@@ -210,6 +215,12 @@ class UserDto(Dto):
         'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
+        
+        'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
+        
+        'allow_answer_comment': fields.Boolean(required=False, default=True),
+        'allow_question_comment': fields.Boolean(required=False, default=True),
+        'allow_article_comment': fields.Boolean(required=False, default=True),
     })
 
     model_social_response = api.model('user_social_response', {

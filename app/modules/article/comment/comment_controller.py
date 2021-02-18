@@ -78,6 +78,11 @@ class CommentController(BaseCommentController):
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
+        article = Article.query.filter(Article.id == article_id).first()
+        if not article:
+            return send_error(message='The article does not exist.')
+        if (not article.user.allow_article_comment):
+            return send_error(message='This article does not allow commenting.')
         data['article_id'] = article_id
 
         try:

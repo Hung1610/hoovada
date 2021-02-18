@@ -19,9 +19,12 @@ from app.constants import messages
 from app.modules.post.post_dto import PostDto
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
-from common.models import Topic, TopicBookmark, UserFollow, UserFriend
+from common.models import Topic, UserFollow, UserFriend
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
+from common.utils.wasabi import upload_file
+from common.utils.util import encode_file_name
+from common.utils.file_handler import get_file_name_extension
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
