@@ -200,7 +200,7 @@ class User(Model):
     articles = db.relationship("Article", cascade='all,delete-orphan')
     @aggregated('articles', db.Column(db.Integer, server_default="0", nullable=False))
     def article_aggregated_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)), 0)
     @property
     def article_count(self):
         if self.article_aggregated_count is None:
@@ -218,7 +218,7 @@ class User(Model):
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answer_aggregated_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True') & db.text('IFNULL(is_anonymous, False) <> True'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True') & db.text('IFNULL(is_anonymous, False) <> True'), 1, 0)), 0)
     @property
     def answer_count(self):
         if self.answer_aggregated_count is None:
@@ -236,7 +236,7 @@ class User(Model):
     questions = db.relationship("Question", cascade='all,delete-orphan')
     @aggregated('questions', db.Column(db.Integer, server_default="0", nullable=False))
     def question_aggregated_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)), 0)
     @property
     def question_count(self):
         if self.question_aggregated_count is None:
@@ -254,7 +254,7 @@ class User(Model):
     posts = db.relationship("Post", cascade='all,delete-orphan')
     @aggregated('posts', db.Column(db.Integer, server_default="0", nullable=False))
     def post_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0)), 0)
     
     timelines = db.relationship("Timeline", cascade='all,delete-orphan')
     

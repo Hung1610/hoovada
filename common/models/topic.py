@@ -45,11 +45,11 @@ class Topic(Model):
     fixed_topic_questions = db.relationship('Question', lazy='dynamic')
     @aggregated('questions', db.Column(db.Integer))
     def question_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0)), 0)
     fixed_topic_articles = db.relationship('Article', lazy='dynamic')
     @aggregated('articles', db.Column(db.Integer))
     def article_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0)), 0)
     parent_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), index=True)  # the ID of parent topic
     children = db.relationship("Topic", cascade='all,delete-orphan')
     parent = db.relationship("Topic", remote_side=[id], lazy=True)
@@ -60,15 +60,15 @@ class Topic(Model):
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.endorsed_id, TopicUserEndorse.topic_id], lazy='dynamic')
     @aggregated('endorsed_users', db.Column(db.Integer))
     def endorsers_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)
     bookmarked_users = db.relationship('User', secondary='topic_bookmark', lazy='dynamic')
     @aggregated('bookmarked_users', db.Column(db.Integer))
     def bookmarkers_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)
     followed_users = db.relationship('User', secondary='topic_follow', lazy='dynamic')
     @aggregated('followed_users', db.Column(db.Integer))
     def followers_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)))
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)
     allow_follow = db.Column(db.Boolean, server_default=expression.true())  
 
     @property
