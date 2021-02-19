@@ -187,9 +187,9 @@ class UserController(Controller):
             else:
                 user = self._parse_user(data=data, user=user)
 
-                if check_sensitive(user.about_me) or check_sensitive(user.display_name):
+                if check_sensitive(user.about_me) or check_sensitive(user.display_name) or check_sensitive(user.first_name) or check_sensitive(user.last_name):
                     return send_error(message='User information contains word that is not allowed!')
-
+                    
                 db.session.commit()
                 return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
         except Exception as e:
