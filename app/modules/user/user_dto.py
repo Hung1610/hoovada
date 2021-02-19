@@ -18,7 +18,7 @@ class UserDto(Dto):
     name = 'user'
     api = Namespace(name, description='user related operations')
     model_request = api.model('user_request', {
-        'display_name': fields.String(required=False, default=''),
+        'display_name': fields.String(required=False, min_length=1, default=''),
 
         'first_name': fields.String(required=False, default=''),
         'middle_name': fields.String(required=False, default=''),
@@ -28,8 +28,8 @@ class UserDto(Dto):
         'is_birthday_hidden': fields.Boolean(required=False),
         'gender': fields.String(required=False, default=''),
         'age': fields.String(required=False, default=''),
-        'email': fields.String(required=True),
-        'password': fields.String(required=True),
+        'email': fields.String(required=False),
+        'password': fields.String(required=False),
 
         'profile_pic_url': fields.String(required=False, default=''),
         'cover_pic_url': fields.String(required=False, default=''),
