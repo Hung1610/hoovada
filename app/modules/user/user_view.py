@@ -39,7 +39,7 @@ class UserList(Resource):
         return controller.get(args=args)
 
     @admin_token_required(role=[UserRole.SUPER_ADMIN])
-    @api.expect(user_request)
+    @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
         """
@@ -92,7 +92,7 @@ class User(Resource):
             # return controller.get_by_id(object_id=id)
         return controller.get_by_user_name(user_name)
 
-    @api.expect(user_request)
+    @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
         """
