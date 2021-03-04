@@ -22,7 +22,6 @@ _favorite_response = FavoriteDto.model_response
 _vote_get_params = FavoriteDto.model_get_parser
 
 @api.deprecated
-@api.hide
 @api.route('/<int:article_id>/favorite')
 class FavoriteUser(Resource):
     @api.expect(_vote_get_params)
