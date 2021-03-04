@@ -49,7 +49,7 @@ class QuestionList(Resource):
         controller = QuestionController()
         return controller.get(args=args)
 
-
+    @token_required
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
