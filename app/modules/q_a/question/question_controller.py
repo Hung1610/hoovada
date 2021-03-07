@@ -26,6 +26,7 @@ from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.dramatiq_producers import new_question_notify_user_list, update_seen_questions
 from app.modules.q_a.question.question_dto import QuestionDto
+from app.modules.q_a.question.bookmark.bookmark_controller import QuestionBookmarkController
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -98,6 +99,11 @@ class QuestionController(Controller):
                 db.session.add(question)
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
+                # Add bookmark for the creator
+                controller = QuestionBookmarkController()
+                controller.create(question_id=question.id)
+
+                update_seen_questions.send(question.id, current_user.id)
                 # Add topics and get back list of topic for question
                 try:
                     result = question._asdict()
