@@ -17,6 +17,7 @@ from sqlalchemy import desc, func, text
 # own modules
 from app.modules.article import constants
 from app.modules.article.article_dto import ArticleDto
+from app.modules.article.bookmark.bookmark_controller import ArticleBookmarkController
 from app.constants import messages
 from common.utils.checker import check_spelling
 from common.db import db
@@ -93,6 +94,10 @@ class ArticleController(Controller):
             db.session.add(article)
             db.session.commit()
             update_seen_articles.send(article.id, current_user.id)
+            # Add bookmark for the creator
+            controller = ArticleBookmarkController()
+            controller.create(article_id=article.id)
+
             # Add topics and get back list of topic for article
             try:
                 result = article._asdict()
