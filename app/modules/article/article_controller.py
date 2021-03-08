@@ -92,6 +92,7 @@ class ArticleController(Controller):
 
             db.session.add(article)
             db.session.commit()
+            update_seen_articles.send(article.id, current_user.id)
             # Add topics and get back list of topic for article
             try:
                 result = article._asdict()

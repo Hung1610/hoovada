@@ -25,6 +25,7 @@ from common.utils.checker import check_spelling
 from common.utils.sensitive_words import check_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
+from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -128,7 +129,9 @@ class TopicController(Controller):
                 topic.name = topic.name.capitalize()
                 db.session.add(topic)
                 db.session.commit()
-
+                # Add bookmark for the creator
+                controller = TopicBookmarkController()
+                controller.create(topic_id=topic.id)
                 return send_result(message='Topic was created successfully.',
                                    data=marshal(topic, TopicDto.model_topic_response))
             else:  # topic already exist
