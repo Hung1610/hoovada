@@ -52,3 +52,10 @@ class TopicBookmark(Model, BaseBookmark):
     
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
+
+
+class ArticleBookmark(Model, BaseBookmark):
+    __tablename__ = 'article_bookmark'
+
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), nullable=False)
+    article = db.relationship('Article', lazy=True)  # one-to-many relationship with table Article

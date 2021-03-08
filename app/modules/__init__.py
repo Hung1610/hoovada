@@ -6,7 +6,7 @@ from app.modules.article import (ns_article, ns_article_comment,
                                  ns_article_comment_report,
                                  ns_article_favorite,
                                  ns_article_report, ns_article_share,
-                                 ns_article_vote)
+                                 ns_article_vote, ns_article_bookmark)
 from app.modules.auth import api as ns_auth
 from app.modules.file_upload import api as ns_upload
 from app.modules.language import ns_language
