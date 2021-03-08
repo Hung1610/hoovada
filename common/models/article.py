@@ -70,6 +70,15 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
                         remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
+    @property
+    def is_bookmarked_by_me(self):
+        ArticleBookmark = db.get_model('ArticleBookmark')
+        if g.current_user:
+            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == g.current_user.id,
+                                                    ArticleBookmark.article_id == self.id).first()
+            return True if bookmark else False
+        return False
+
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):
         if value and (not target.slug or value != oldvalue):

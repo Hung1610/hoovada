@@ -12,6 +12,7 @@ from app.modules.article.favorite.favorite_view import \
 from app.modules.article.report.report_view import api as ns_article_report
 from app.modules.article.share.share_view import api as ns_article_share
 from app.modules.article.voting.vote_view import api as ns_article_vote
+from app.modules.article.bookmark.bookmark_view import api as ns_article_bookmark
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

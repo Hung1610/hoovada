@@ -89,6 +89,7 @@ def init_api():
     api.add_namespace(ns_post_comment, '/post')
     api.add_namespace(ns_article, '/article')
     api.add_namespace(ns_article_vote, '/article')
+    api.add_namespace(ns_article_bookmark, '/article')
     api.add_namespace(ns_article_favorite, '/article')
     api.add_namespace(ns_article_report, '/article')
     api.add_namespace(ns_article_share, '/article')
