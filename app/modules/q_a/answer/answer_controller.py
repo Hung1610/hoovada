@@ -15,6 +15,7 @@ from flask_restx import marshal
 from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
+from app.modules.q_a.answer.bookmark.bookmark_controller import AnswerBookmarkController
 from common.controllers.controller import Controller
 from common.utils.onesignal_notif import push_basic_notification, push_notif_to_specific_users
 from common.enum import FileTypeEnum, VotingStatusEnum
@@ -73,6 +74,9 @@ class AnswerController(Controller):
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
+            # Add bookmark for the creator
+            controller = AnswerBookmarkController()
+            controller.create(answer_id=answer.id)
             result = answer._asdict()
             if answer.question.user:
                 if answer.question.user.is_online \
