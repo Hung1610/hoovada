@@ -133,6 +133,21 @@ $ docker-compose rm
 - Swagger:  http://localhost:5000/api/v1/openapi
 - adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
 
+#### Generate new migration file
+When you have changes for database. E.g: adding new table, you hate to do migration
+https://flask-migrate.readthedocs.io/.
+Firstly, access the backend environment to have flask-migrate already. Start db container and access it
+```
+docker-compose start backend
+docker exec -it hoovada-services_backend_1 /bin/bash
+```
+In docker bash. Run:
+```
+flask db migrate -m "what you've changed in db"
+```
+check migrations/versions/ for the new file.
+Next time when you run `flask db upgrade`, the migration is executing.
+
 
 ### Code quality
 
