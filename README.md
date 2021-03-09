@@ -6,7 +6,7 @@ APIs services of the project hoovada.com
 Project Overview
 ---
 
-- We follow this [structure example](https://github.com/frol/flask-restplus-server-example), the app directory is the main entry point.
+- We follow this [structure example](https://github.com/frol/flask-restplus-server-example)
 - Configuration file is at app/settings/config.py, we use environment variables to manage conf in production.
 
 ### Built with
@@ -27,9 +27,8 @@ Project Overview
 Development instruction
 ---
 
-- [staging.hoovada.com](https://staging.hoovada.com): stable API that used for FE integration
-- [test.hoovada.com](https://test.hoovada.com): testing unstable feature from BE and infrastructure
-- [Live](https://hoovada.com)
+- Testing: [staging](https://staging.hoovada.com) and [test](https://test.hoovada.com)
+- Production: [hoovada.com](https://hoovada.com)
 
 ### Branch
 
@@ -137,23 +136,22 @@ $ docker-compose rm
 
 ### Code quality
 
-- Code style: Bắt buộc theo Pep8 coding style
-- Code commit : Bắt buộc có commit cho từng task và cung cấp commit message 
-- Third-party library:  Bắt buộc thêm library + version vào app/requirements.txt nếu có library mới
-- Dấu ngoặc kép: nên đồng nhất khi sử dụng dấu Dấu ngoặc kép cho cả file, hoặc sử dụng ‘’ hoặc là “”
+- Code style: Please follow  Pep8 coding style
+- Third-party library:  Please add library + version into app/requirements.txt 
+- Quote: Please use either ‘’ or “” but not both
 - import statement:
-	- Bắt buộc sử dụng full path để import modules trong cùng project.
-	- Khuyến khích import những function mình cần, hạn chế import cả package, ví dụ , nếu chỉ cần sử dụng sqrt() trong math thì:
+	- Please use full path import
+	- Recomend to import only necessary function not entire package, i.e. if you only need sqrt():
 	```
-		Khuyến khích:  		from math import sqrt
-		Không khuyến khích:  	import math
+		Recommended:  		from math import sqrt
+		Not recommended:  	import math
 	```
 
-- Status code: Vui lòng trả về đúng status code  và ghi message bằng tiếng Anh , i.e. trong send_error và send_result. Message cho user sẽ đc viết bởi Frontend
+- Status code: Please use English only, i.e. in send_error and send_result.
 
-- Exception - EAFP principle: ưu tiên sử dụng except/try thay vì if/else. Ưu tiên sử dụng specific exceptions thay vì generic , và rất tốt nếu có thể catch nhiều specific exceptions khác nhau trong 1 code block
+- Exception - EAFP principle: use except/try instead of if/else, also if possible please use specific exceptions instead of generic exception.
 
-- Vui lòng sử dụng pylint để kiêm tra code quality trước khi chuyển giao code
+- Plese use pylint before pushing code
 ```
 $ pip3 install pylint
 $ pylint <your files>
