@@ -24,6 +24,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 question_user_invite = db.Table('question_user_invite',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('status', db.SmallInteger,comment='Trạng thái của câu hỏi cho biết đã được trả lời hay chưa (0: chưa trả lời, 1: đã trả lời, 2: từ chối trả lời)'),
 )
 
 question_proposal_topics = db.Table('question_proposal_topic',
