@@ -27,14 +27,18 @@ class HTTPSApi(Api):
 
 
 ns_health = Namespace(name='healthz')
+
+
 @ns_health.route('/')
 class HealthCheck(Resource):
     def get(self):
-        """ Use for Readiness and Liveness Probes"""   
+        """ Use for Readiness and Liveness Probes"""
         return send_result(message="OK!", code=200)
 
 
 ns_cache = Namespace(name='cache')
+
+
 @ns_cache.route('/flush')
 class Cache(Resource):
     def post(self):
@@ -44,23 +48,22 @@ class Cache(Resource):
 
 
 def init_api():
-
     doc = False if environ.get('FLASK_ENV') == "production" else "/api/v1/openapi"
 
     api = HTTPSApi(title='Hoovada APIs',
-                swagger='2.0',
-                version='1.0',
-                description='The Hoovada APIs',
-                authorizations={
-                    'apikey': {
-                        'type': 'apiKey',
-                        'in': 'header',
-                        'name': 'X-API-KEY'
-                    }
-                },
-                security='apikey',
-                prefix='/api/v1',
-                doc=doc)
+                   swagger='2.0',
+                   version='1.0',
+                   description='The Hoovada APIs',
+                   authorizations={
+                       'apikey': {
+                           'type': 'apiKey',
+                           'in': 'header',
+                           'name': 'X-API-KEY'
+                       }
+                   },
+                   security='apikey',
+                   prefix='/api/v1',
+                   doc=doc)
 
     api.add_namespace(ns_health)
     api.add_namespace(ns_cache, '/cache')

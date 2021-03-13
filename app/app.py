@@ -44,11 +44,13 @@ dictConfig({
     }
 })
 
+
 def init_basic_app():
     # Flask initilization
     Flask.get_logged_user = get_logged_user
     app = Flask(__name__, static_folder='static')
     app.config.from_object(config_by_name[app.config['ENV']])
+
     # Setup Flask app
     @app.before_request
     def before_request():
@@ -60,6 +62,7 @@ def init_basic_app():
         if g.current_user:
             g.current_user.last_seen = datetime.now()
             db.session.commit()
+
     return app
 
 
@@ -71,6 +74,7 @@ metrics.register_default(
         labels={'path': lambda: request.path}
     )
 )
+
 
 def init_app():
     app = init_basic_app()

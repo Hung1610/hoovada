@@ -18,4 +18,5 @@ def create_app():
 
     return app
 
+
 flask_app = create_app()
