@@ -24,18 +24,28 @@ class CommonBaseConfig:
     USER_MODEL_NAME = environ.get('FLASK_USER_MODEL_NAME', 'User')
 
     # flask configuration
-    SECRET_KEY = environ.get('SECRET_KEY', 'f495b66803a6512d')
-    SECURITY_SALT = environ.get('SECURITY_SALT', '14be1971fc014f1b84')
+    SECRET_KEY = environ.get('SECRET_KEY', '123456789')
+    SECURITY_SALT = environ.get('SECURITY_SALT', '123456789')
 
     # Email configuration
     MAIL_SERVER = environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(environ.get('MAIL_PORT') or 587)
     MAIL_USE_TLS = environ.get('MAIL_USE_TLS', True)
     MAIL_USE_SSL = False
+
     MAIL_USERNAME =  environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com')
-    MAIL_DEFAULT_SENDER = environ.get('MAIL_USERNAME', 'hoovada.test@gmail.com') 
+    MAIL_DEFAULT_SENDER = MAIL_USERNAME
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD', '')
-    MAIL_ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
+
+    AUTHENTICATION_MAIL_USERNAME =  environ.get('AUTHENTICATION_MAIL_USERNAME', MAIL_USERNAME)
+    AUTHENTICATION_MAIL_PASSWORD =  environ.get('AUTHENTICATION_MAIL_PASSWORD', MAIL_PASSWORD)
+
+    NOTIFICATION_MAIL_USERNAME =  environ.get('NOTIFICATION_MAIL_USERNAME', MAIL_USERNAME)
+    NOTIFICATION_MAIL_PASSWORD =  environ.get('NOTIFICATION_MAIL_PASSWORD', MAIL_PASSWORD)
+
+    MAIL_USERNAME_LIST = [NOTIFICATION_MAIL_USERNAME, AUTHENTICATION_MAIL_USERNAME]
+    MAIL_PASSWORD_LIST = [NOTIFICATION_MAIL_PASSWORD, AUTHENTICATION_MAIL_PASSWORD]
+
     # need to set this so that email can be sent
     MAIL_SUPPRESS_SEND = False
     TESTING = False
@@ -137,6 +147,7 @@ class CommonBaseConfig:
 class CommonDevelopmentConfig(CommonBaseConfig):
     """Development configuration."""
 
+    MAIL_ADMINS = ['hoovada.test@gmail.com'] # list of emails to receive error reports
     DEBUG = True
     DEBUG_TB_ENABLED = True
     SQLALCHEMY_ECHO = True
@@ -160,6 +171,7 @@ class CommonDevelopmentConfig(CommonBaseConfig):
 class CommonProductionConfig(CommonBaseConfig):
     """Production configuration."""
 
+    MAIL_ADMINS = ['admin@hoovada.com'] # list of emails to receive error reports
     DEBUG = False
     
     SQLALCHEMY_ECHO = False
