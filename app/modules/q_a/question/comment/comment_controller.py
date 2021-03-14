@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.utils.util import send_question_comment_notif_email
+#from common.utils.util import send_question_comment_notif_email
 from datetime import datetime
 
 from flask import current_app, request
@@ -124,9 +124,11 @@ class CommentController(BaseCommentController):
                         display_name =  comment.user.display_name if comment.user else 'Khách'
                         message = display_name + ' đã bình luận trong câu hỏi!'
                         push_notif_to_specific_users(message, [comment.question.user_id])
-                    elif comment.question.user.my_question_email_settings\
-                        and comment.question.user.new_question_comment_email_settings:
-                        send_question_comment_notif_email(comment.question.user, comment, comment.question)
+                    
+                    #elif comment.question.user.my_question_email_settings\
+                    #    and comment.question.user.new_question_comment_email_settings:
+                    #    send_question_comment_notif_email(comment.question.user, comment, comment.question)
+
                 return send_result(message='QuestionComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:

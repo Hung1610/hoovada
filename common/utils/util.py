@@ -37,25 +37,17 @@ client = Client(username=CommonBaseConfig.TWILIO_ACCOUNT_SID, password=CommonBas
 
 
 def encode_file_name(filename):
-    """ Encode the filename (without extension)."""
-
     now = datetime.now()
-
     encoded = hashlib.sha224(filename.encode('utf8')).hexdigest()
     return '{}{}'.format(now.isoformat(), encoded)
 
 
 def generate_confirmation_token(email):
-    """ Confirmation email token """
-
     serializer = URLSafeTimedSerializer(CommonBaseConfig.SECRET_KEY)
     return serializer.dumps(email, salt=CommonBaseConfig.SECURITY_SALT)
 
 
 def confirm_token(token, expirations=3600):
-    """ Confirm token.
-    """
-
     serializer = URLSafeTimedSerializer(CommonBaseConfig.SECRET_KEY)
     try:
         email = serializer.loads(token, salt=CommonBaseConfig.SECURITY_SALT, max_age=expirations)
@@ -66,95 +58,82 @@ def confirm_token(token, expirations=3600):
 
 
 def send_email(to, subject, template, sender=CommonBaseConfig.MAIL_USERNAME):
-    """ Send an email."""
-
     if to:
         msg = Message(subject, sender=sender, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
 
 
-def send_confirmation_email(to, user=None):
-    """ Send a confirmation email to the registered user."""
-    
+def send_confirmation_email(to, user=None):    
     token = generate_confirmation_token(email=to)
     confirm_url = '{}/?page=signup_success&token={}&email={}'.format(current_app.config['DOMAIN_URL'], token, to)
     html = render_template('confirmation.html', confirm_url=confirm_url, user=user)
 
-    send_email(to, 'Xác thực tài khoản hoovada.com!', html, sender=CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME)
+    send_email(to, 'Xác thực tài khoản hoovada.com!', html, sender=CommonBaseConfig.AUTHENTICATION_MAIL_SENDER)
 
 
-def send_password_reset_email(to):
-    """ Send a password reset email to the registered user."""
-    
+def send_password_reset_email(to):    
     token = generate_confirmation_token(email=to)
     html = render_template('reset_password.html', token=token)
-    send_email(to, 'Hoovada - Thay đổi mật khẩu!', html, sender=CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME)
+    send_email(to, 'Hoovada - Thay đổi mật khẩu!', html, sender=CommonBaseConfig.AUTHENTICATION_MAIL_SENDER)
 
 
 def send_answer_notif_email(user, answer, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer.html', user=user, answer=answer, question=question)
-        send_email(user.email, 'Bạn nhận được câu trả lời mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'Bạn nhận được câu trả lời mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
 
 def send_article_comment_notif_email(user, comment, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho bài viết của bạn từ cộng đồng hoovada.com', html)
-
-
-def send_question_comment_notif_email(user, comment, question):
-    if user and not (user.is_deactivated):
-        html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'Bạn nhận được bình luận mới cho bài viết của bạn từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
 
 def send_answer_comment_notif_email(user, comment, answer):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho câu trả lời của bạn từ cộng đồng hoovada.com', html)
-
+        send_email(user.email, 'Bạn nhận được bình luận mới cho câu trả lời của bạn từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
 def send_question_invite_notif_email(user, inviter, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_invite.html', inviter=inviter, user=user, question=question)
-        send_email(user.email, 'Bạn nhận được lời mời trả lời câu hỏi từ cộng đồng hoovada.com', html)
-
+        send_email(user.email, 'Bạn nhận được lời mời trả lời câu hỏi từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
 def send_friend_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_friend_request.html', requester=requester, user=user)
-        send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html)
-
-
-def send_follow_request_notif_email(user, requester):
-    if user and not (user.is_deactivated):
-        html = render_template('notif_follow_request.html', requester=requester, user=user)
-        send_email(user.email, 'Bạn có người theo dõi mới từ cộng đồng hoovada.com', html)
-    
+        send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
 def send_article_notif_email(user, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article.html', article=article, user=user)
-        send_email(user.email, 'Bài viết mới từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'Bài viết mới từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
     
 
 def send_question_notif_email(user, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question.html', question=question, user=user)
-        send_email(user.email, 'Câu hỏi mới từ cộng đồng hoovada.com', html)
+        send_email(user.email, 'Câu hỏi mới từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
+# No need to send email
+def send_question_comment_notif_email(user, comment, question):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
+        send_email(user.email, 'Bạn nhận được bình luận mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
 
-def get_response_message(message):
-    """ Get HTML message to return to user."""
-    
+ # No need to send email
+def send_follow_request_notif_email(user, requester):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_follow_request.html', requester=requester, user=user)
+        send_email(user.email, 'Bạn có người theo dõi mới từ cộng đồng hoovada.com', html, sender=CommonBaseConfig.NOTIFICATION_MAIL_SENDER)
+         
+
+def get_response_message(message):    
     html = render_template('response.html', message=message)
     return html
 
 
-def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
-    """ Generate the Auth token."""
-    
+def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):    
     try:
         payload = {
             'exp': datetime.utcnow() + delta,
@@ -172,8 +151,6 @@ def encode_auth_token(user_id, delta=timedelta(days=30, seconds=5)):
 
 
 def decode_auth_token(auth_token):
-    """ Validates the auth token"""
-
     try:
         payload = jwt.decode(auth_token, CommonBaseConfig.SECRET_KEY)
         return payload['sub'], ''  # return the user_id
@@ -200,9 +177,7 @@ __md = Markdown(output_format="plain")
 __md.stripTopLevelTags = False
 
 
-def convert_markdown(string):
-    """Convert the argument from markdown to html"""
-    
+def convert_markdown(string):    
     return markdown2.markdown(string,
                               extras=["code-friendly", "code-color", "footnotes"])
 
@@ -232,9 +207,6 @@ def convert_vietnamese_diacritics(s):
 
 
 def send_verification_sms(to=''):
-    """ Send verification code to that phone number
-    """
-    
     user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=to).first()
     service = CommonBaseConfig.VERIFICATION_SID
     verification = client.verify \

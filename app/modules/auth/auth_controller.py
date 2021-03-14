@@ -25,7 +25,7 @@ from common.utils.util import (check_password, check_verification,
                                decode_auth_token, encode_auth_token,
                                generate_confirmation_token,
                                is_valid_email,
-                               is_valid_username, send_confirmation_email, send_email,
+                               send_confirmation_email, send_email,
                                send_password_reset_email,
                                send_verification_sms, validate_phone_number)
 
@@ -211,8 +211,9 @@ class AuthController:
             return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
 
         display_name = data['display_name']
-        if is_valid_username(display_name) is False:
-            return send_error(message=messages.ERR_INVALID_INPUT_NAME)
+        # 14/03/2021: now allow space 
+        #if is_valid_username(display_name) is False:
+        #    return send_error(message=messages.ERR_INVALID_INPUT_NAME)
         
         if AuthController.check_user_name_exist(display_name):
             return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
@@ -448,9 +449,10 @@ class AuthController:
 
             if AuthController.check_user_name_exist(display_name):
                 return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
-                
-            if is_valid_username(display_name) is False:
-                return send_error(message=messages.ERR_INVALID_INPUT_NAME)
+            
+            # 14/03/2021: now allow space   
+            #if is_valid_username(display_name) is False:
+            #    return send_error(message=messages.ERR_INVALID_INPUT_NAME)
             
             user = User(display_name=display_name, email=email, confirmed=False)
             user.set_password(password=password)
