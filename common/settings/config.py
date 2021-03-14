@@ -37,7 +37,8 @@ class CommonBaseConfig:
     MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER', MAIL_USERNAME)
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD', '')
 
-    AUTHENTICATION_MAIL_SENDER =  'Hoovada - Kết nối' 
+    AUTHENTICATION_MAIL_USERNAME = "Hoovada - Kết nối" 
+    AUTHENTICATION_MAIL_SENDER =  "hoovadateam@gmail.com"
     NOTIFICATION_MAIL_SENDER =  environ.get('NOTIFICATION_MAIL_SENDER', MAIL_DEFAULT_SENDER)
 
     # need to set this so that email can be sent
