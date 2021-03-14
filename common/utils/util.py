@@ -65,11 +65,11 @@ def confirm_token(token, expirations=3600):
         return None
 
 
-def send_email(to, subject, template):
+def send_email(to, subject, template, sender=CommonBaseConfig.MAIL_USERNAME):
     """ Send an email."""
 
     if to:
-        msg = Message(subject, sender=CommonBaseConfig.MAIL_USERNAME, recipients=[to], html=template, charset='utf-8')
+        msg = Message(subject, sender=sender, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
 
 
