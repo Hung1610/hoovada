@@ -57,7 +57,7 @@ def confirm_token(token, expirations=3600):
         return None
 
 
-def send_email(to, subject, template, sender=("admin", CommonBaseConfig.MAIL_USERNAME)):
+def send_email(to, subject, template, sender=CommonBaseConfig.MAIL_USERNAME):
     if to:
         msg = Message(subject, sender=sender, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
@@ -68,7 +68,7 @@ def send_confirmation_email(to, user=None):
     confirm_url = '{}/?page=signup_success&token={}&email={}'.format(current_app.config['DOMAIN_URL'], token, to)
     html = render_template('confirmation.html', confirm_url=confirm_url, user=user)
 
-    send_email(to, 'Xác thực tài khoản hoovada.com!', html, sender=(CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME, CommonBaseConfig.AUTHENTICATION_MAIL_SENDER))
+    send_email(to, 'Xác thực tài khoản hoovada.com!', html, sender=CommonBaseConfig.AUTHENTICATION_MAIL_SENDER)
 
 
 def send_password_reset_email(to):    
