@@ -400,6 +400,40 @@ class AuthController:
 
         return send_error(message='Đăng nhập thất bại, vui lòng thử lại!')
 
+    def create_user(self, user, password):
+        """
+        Create new user
+        Args:
+            user: user object instant
+            password: user's password
+
+        Returns: True if create successfully else return error
+
+        """
+        try:
+            user.set_password(password=password)
+            db.session.add(user)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            e.__setattr__("is_rollback", True)
+            return e
+
+    def delete_user(self, email):
+        """
+        Delete user
+        Args:
+            email: email of user
+        Returns:
+
+        """
+        try:
+            query = db.session.query(User).filter(User.email == email)
+            query.delete()
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
 
     # @staticmethod
     def register(self, data):
@@ -455,15 +489,18 @@ class AuthController:
             #    return send_error(message=messages.ERR_INVALID_INPUT_NAME)
             
             user = User(display_name=display_name, email=email, confirmed=False)
-            user.set_password(password=password)
-            db.session.add(user)
-            db.session.commit()
-            send_confirmation_email(to=user.email, user=user)
-            return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
+            create_result = self.create_user(user=user, password=password)
+            if create_result is True:
+                send_confirmation_email(to=user.email, user=user)
+                return send_result(message='Chúng tôi đã gửi thư kích hoạt vào hòm thư của bạn. Vui lòng kiểm tra hòm thư!')
+            else:
+                raise Exception(create_result)
                 
         except Exception as e:
             print(e.__str__())
-            db.session.rollback()
+            # if has error and data did not rollback then manual delete user
+            if not hasattr(e, 'is_rollback'):
+                self.delete_user(data.get('email'))
             return send_error(message='Đăng ký thất bại!')
 
     def reset_password_by_sms(self, data):
