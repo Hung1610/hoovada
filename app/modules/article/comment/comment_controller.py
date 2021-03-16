@@ -12,7 +12,6 @@ from flask_restx import marshal
 from common.db import db
 from app.modules.article.comment.comment_dto import CommentDto
 from common.utils.onesignal_notif import push_notif_to_specific_users
-from common.utils.util import send_article_comment_notif_email
 from common.controllers.comment_controller import BaseCommentController
 from common.models import Article, ArticleComment, User
 from common.utils.permission import has_permission
@@ -36,10 +35,6 @@ class CommentController(BaseCommentController):
     def get(self, article_id, args):
         """
         Search comments by params.
-
-        :param args: Arguments in dictionary form.
-
-        :return:
         """
         # user_id, question_id, answer_id = None, None, None
         user_id = None 
@@ -112,8 +107,10 @@ class CommentController(BaseCommentController):
                         display_name =  comment.user.display_name if comment.user else 'Khách'
                         message = display_name + ' có bình luận trong bài viết!'
                         push_notif_to_specific_users(message, [comment.article.user_id])
-                    elif comment.article.user.new_article_comment_email_settings:
-                        send_article_comment_notif_email(comment.article.user, comment, comment.article)
+                    
+                    #elif comment.article.user.new_article_comment_email_settings:
+                    #    send_article_comment_notif_email(comment.article.user, comment, comment.article)
+
                 return send_result(message='ArticleComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:

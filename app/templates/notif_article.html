@@ -21,7 +21,7 @@
             </div>
 
         </div>
-        <div style="padding:0px 0px 20px 0px"><span style="font-weight: 700">{{article.user.display_name if article.user else 'Khách'}}</span> đã bài viết:
+        <div style="padding:0px 0px 20px 0px">Blog mới từ <span style="font-weight: 700">{{article.user.display_name if article.user else 'Khách'}}</span>:
             <span style="font-weight: 700">“{{article.title}}”</span>:
         </div>
 
@@ -37,8 +37,8 @@
                 {% endif %}
             </div>
             <div>
-                <div> <span style="font-weight: 700">{{article.user.display_name if article.user else 'Khách'}}</span> <span
-                        style="color:#F2BA49;    font-style: italic;font-size: 14px;"> đã tạo bài viết</span>
+                <div>Blog mới từ <span style="font-weight: 700">{{article.user.display_name if article.user else 'Khách'}}</span> <span
+                        style="color:#F2BA49;    font-style: italic;font-size: 14px;">:</span>
                 </div>
                 <div style="padding:10px 0px;color: #828282;font-size: 12px;">{{article.created_date}}</div>
                 <div>{{article.html|safe}}</div>

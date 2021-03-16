@@ -75,19 +75,6 @@ def send_password_reset_email(to):
     html = render_template('reset_password.html', token=token)
     send_email(to, 'Hoovada - Thay đổi mật khẩu!', html, sender=(CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME, CommonBaseConfig.AUTHENTICATION_MAIL_SENDER))
 
-
-def send_answer_notif_email(user, answer, question):
-    if user and not (user.is_deactivated):
-        html = render_template('notif_answer.html', user=user, answer=answer, question=question)
-        send_email(user.email, 'Bạn nhận được câu trả lời mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME, CommonBaseConfig.AUTHENTICATION_MAIL_SENDER))
-
-
-def send_article_comment_notif_email(user, comment, article):
-    if user and not (user.is_deactivated):
-        html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
-        send_email(user.email, 'Bạn nhận được bình luận mới cho bài viết của bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
-
-
 def send_answer_comment_notif_email(user, comment, answer):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
@@ -103,29 +90,40 @@ def send_friend_request_notif_email(user, requester):
         html = render_template('notif_friend_request.html', requester=requester, user=user)
         send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
 
+# TODO: fix bug
+def send_answer_notif_email(user, answer, question):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_answer.html', user=user, answer=answer, question=question)
+        send_email(user.email, 'Bạn nhận được câu trả lời mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME, CommonBaseConfig.AUTHENTICATION_MAIL_SENDER))
+
 def send_article_notif_email(user, article):
     if user and not (user.is_deactivated):
         html = render_template('notif_article.html', article=article, user=user)
         send_email(user.email, 'Bài viết mới từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
-    
 
 def send_question_notif_email(user, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question.html', question=question, user=user)
         send_email(user.email, 'Câu hỏi mới từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
 
-# No need to send email
+# No need to send email 
 def send_question_comment_notif_email(user, comment, question):
     if user and not (user.is_deactivated):
         html = render_template('notif_question_comment.html', user=user, comment=comment, question=question)
         send_email(user.email, 'Bạn nhận được bình luận mới cho câu hỏi của bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
 
- # No need to send email
+# No need to send email 
 def send_follow_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_follow_request.html', requester=requester, user=user)
         send_email(user.email, 'Bạn có người theo dõi mới từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
-         
+
+# No need to send email 
+def send_article_comment_notif_email(user, comment, article):
+    if user and not (user.is_deactivated):
+        html = render_template('notif_article_comment.html', user=user, comment=comment, article=article)
+        send_email(user.email, 'Bạn nhận được bình luận mới cho bài viết của bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
+      
 
 def get_response_message(message):    
     html = render_template('response.html', message=message)
