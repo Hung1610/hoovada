@@ -125,9 +125,9 @@ class CommentController(BaseCommentController):
                         message = display_name + ' đã bình luận trong câu hỏi!'
                         push_notif_to_specific_users(message, [comment.question.user_id])
                     
-                    #elif comment.question.user.my_question_email_settings\
-                    #    and comment.question.user.new_question_comment_email_settings:
-                    #    send_question_comment_notif_email(comment.question.user, comment, comment.question)
+                    elif comment.question.user.my_question_email_settings\
+                        and comment.question.user.new_question_comment_email_settings:
+                        send_question_comment_notif_email(comment.question.user, comment, comment.question)
 
                 return send_result(message='QuestionComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))

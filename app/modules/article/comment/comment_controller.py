@@ -108,8 +108,8 @@ class CommentController(BaseCommentController):
                         message = display_name + ' có bình luận trong bài viết!'
                         push_notif_to_specific_users(message, [comment.article.user_id])
                     
-                    #elif comment.article.user.new_article_comment_email_settings:
-                    #    send_article_comment_notif_email(comment.article.user, comment, comment.article)
+                    elif comment.article.user.new_article_comment_email_settings:
+                        send_article_comment_notif_email(comment.article.user, comment, comment.article)
 
                 return send_result(message='ArticleComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))

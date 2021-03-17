@@ -91,8 +91,8 @@ class UserFollowController(Controller):
                     message = display_name + ' đã theo dõi bạn!'
                     push_notif_to_specific_users(message, [follow.followed.id])
 
-            #    elif follow.followed.follow_email_settings:
-            #        send_follow_request_notif_email(follow.followed, current_user)
+                elif follow.followed.follow_email_settings:
+                    send_follow_request_notif_email(follow.followed, current_user)
 
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'),
                                data=marshal(follow, UserFollowDto.model_response))
