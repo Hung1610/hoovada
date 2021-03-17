@@ -99,13 +99,13 @@ class User(Model):
     my_question_email_settings = db.Column(db.Boolean, server_default=expression.true())
 
     new_question_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    new_question_comment_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_question_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
     new_answer_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    new_answer_comment_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_answer_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
     new_article_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    new_article_comment_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_article_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
     question_invite_notify_settings = db.Column(db.Boolean, server_default=expression.true())
     question_invite_email_settings = db.Column(db.Boolean, server_default=expression.true())
@@ -114,10 +114,10 @@ class User(Model):
     friend_request_email_settings = db.Column(db.Boolean, server_default=expression.true())
 
     follow_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    follow_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    follow_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
     followed_new_publication_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    followed_new_publication_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    followed_new_publication_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
     admin_interaction_notify_settings = db.Column(db.Boolean, server_default=expression.true())
     admin_interaction_email_settings = db.Column(db.Boolean, server_default=expression.true())
