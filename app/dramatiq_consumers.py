@@ -343,12 +343,9 @@ def send_new_topics(user_id):
         if user.email:
             send_email(user.email, 'Chủ đề mới từ cộng đồng hoovada.com', html)
 
-
 '''
 @dramatiq.actor()
 def new_article_notify_user_list(article_id, user_ids):
-    """Sends articles to followers"""
-
     User = db.get_model('User')
     Article = db.get_model('Article')
 
@@ -371,8 +368,6 @@ def new_article_notify_user_list(article_id, user_ids):
 
 @dramatiq.actor()
 def new_question_notify_user_list(question_id, user_ids):
-    """Sends question to followers"""
-
     User = db.get_model('User')
     Question = db.get_model('Question')
 
@@ -414,4 +409,4 @@ def new_answer_notify_user_list(answer_id, user_ids):
             push_notif_to_specific_users(message, [user.id])
         elif  user.followed_new_publication_email_settings:
             send_answer_notif_email(user, answer, answer.question)
-"""
+'''
