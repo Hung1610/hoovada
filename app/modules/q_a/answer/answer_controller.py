@@ -66,9 +66,15 @@ class AnswerController(Controller):
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            is_sensitive = check_sensitive(' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings))
+            
+            text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
+            if len(text.split()) < 50:
+                return send_error(message=messages.ERR_ISSUE.format('Content must be at least 50 words!'))
+
+            is_sensitive = check_sensitive(text)
             if is_sensitive:
                 return send_error(message=messages.ERR_ISSUE.format('Content is not allowed'))
+
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
@@ -89,6 +95,7 @@ class AnswerController(Controller):
                 elif answer.question.user.my_question_email_settings\
                     and answer.question.user.new_answer_email_settings:
                     send_answer_notif_email(answer.question.user, answer, answer.question)
+
             # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False

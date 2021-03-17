@@ -73,8 +73,13 @@ class ArticleController(Controller):
 
             article, topic_ids = self._parse_article(data=data, article=None)
 
+            text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
+
             # check sensitive words
-            is_sensitive = check_sensitive(' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings))
+            is_sensitive = check_sensitive(text)
+            if len(text.split()) < 200:
+                return send_error(message=messages.ERR_ISSUE.format('Content must be at least 200 words!'))
+
             if is_sensitive:
                 return send_error(message=constants.msg_insensitive_body)
 

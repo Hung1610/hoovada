@@ -89,6 +89,7 @@ def send_friend_request_notif_email(user, requester):
         html = render_template('notif_friend_request.html', requester=requester, user=user)
         send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
 
+# Merge all 4 into 1
 def send_answer_comment_notif_email(user, comment, answer):
     if user and not (user.is_deactivated):
         html = render_template('notif_answer_comment.html', user=user, comment=comment, answer=answer)
