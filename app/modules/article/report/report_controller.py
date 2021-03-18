@@ -10,8 +10,8 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
+from app.constants import messages
 from common.db import db
-from app.modules.article import constants
 from app.modules.article.report.report_dto import ReportDto
 from common.controllers.controller import Controller
 from common.enum import ReportTypeEnum
@@ -61,11 +61,11 @@ class ReportController(Controller):
         if reports is not None and len(reports) > 0:
             return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
         else:
-            return send_result(message=constants.msg_not_found)
+            return send_result(message=messages.ERR_NOT_FOUND.format(str(article_id)))
 
     def create(self, article_id, data):
         if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
         if not has_permission(current_user.id, PermissionType.REPORT):
@@ -80,13 +80,14 @@ class ReportController(Controller):
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message=constants.msg_create_failed)
+            return send_error(message=messages.ERR_CREATE_FAILED.format("Report", str(e)))
 
     def get_by_id(self, object_id):
         query = ArticleReport.query
         report = query.filter(ArticleReport.id == object_id).first()
+        
         if report is None:
-            return send_error(message=constants.msg_not_found)
+            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
         else:
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
 
@@ -97,15 +98,7 @@ class ReportController(Controller):
         pass
 
     def _parse_report(self, data, report=None):
-        """ Parse dictionary form data to report.
-        
-        Args:
-            data: A dictionary form data.
-            report: A report as a param.
-
-        Returns: 
-            A report.
-        """
+        """ Parse dictionary form data to report"""
 
         if report is None:
             report = ArticleReport()

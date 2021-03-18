@@ -11,8 +11,8 @@ from flask_restx import marshal
 from sqlalchemy import desc
 
 # own modules
+from app.constants import messages
 from common.db import db
-from app.modules.article import constants
 from app.modules.article.share.share_dto import ShareDto
 from common.controllers.controller import Controller
 from common.models import Article, ArticleShare, User
@@ -81,11 +81,12 @@ class ShareController(Controller):
         if len(shares) > 0:
             return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
         else:
-            return send_result(constants.msg_not_found)
+            return send_result(messages.ERR_NOT_FOUND.format(str(article_id)))
 
     def create(self, article_id, data):
         if not isinstance(data, dict):
-            return send_error(message=constants.msg_wrong_data_format)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         current_user, _ = current_app.get_logged_user(request)
         if not has_permission(current_user.id, PermissionType.SHARE):
             return send_error(code=401, message='You have no authority to perform this action')
@@ -101,10 +102,12 @@ class ShareController(Controller):
             try:
                 article = Article.query.filter_by(id=share.article_id).first()
                 if not article:
-                    return send_error(message=constants.msg_not_found)
+                    return send_error(message=messages.ERR_NOT_FOUND.format(str(share.article_id)))
+
                 user_voted = User.query.filter_by(id=article.user_id).first()
                 if not user_voted:
-                    return send_error(message=constants.msg_not_found)
+                    return send_error(message=messages.ERR_NOT_FOUND.format(str(article.user_id)))
+
                 user_voted.article_shared_count += 1
                 if current_user:
                     share.user_id = current_user.id
@@ -113,15 +116,16 @@ class ShareController(Controller):
             except Exception as e:
                 pass
             return send_result(data=marshal(share, ShareDto.model_response))
+            
         except Exception as e:
             print(e.__str__())
-            return send_error(message=constants.msg_create_failed)
+            return send_error(message=messages.ERR_CREATE_FAILED.format("Share", str(e)))
 
     def get_by_id(self, object_id):
         query = ArticleShare.query
         report = query.filter(ArticleShare.id == object_id).first()
         if report is None:
-            return send_error(message=constants.msg_not_found)
+            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
         else:
             return send_result(data=marshal(report, ShareDto.model_response), message='Success')
 
@@ -182,12 +186,6 @@ class ShareController(Controller):
 
     def get_share_by_user_id(self,args):
         """ Search share.
-
-        Args:
-            `user_id` (int): Search shares by user_id
-
-        Returns:
-             List of shares article satisfy search condition.
         """
 
         query = ArticleShare.query
