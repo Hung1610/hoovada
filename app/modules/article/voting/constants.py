@@ -10,7 +10,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 # # Create Messages
 msg_create_success = 'Article successfully created.'
 msg_create_success_without_topics = 'Article partially created successfully with no topics for article.'
-msg_article_already_exists = 'Article {} has been created.'
 msg_create_failed = 'Failed to create article'
 
 # # Get Messages

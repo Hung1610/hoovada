@@ -10,11 +10,10 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 # # Create Messages
 msg_create_success = 'Article successfully created.'
 msg_create_success_without_topics = 'Article partially created successfully with no topics for article.'
-msg_article_already_exists = 'Article {} has been created.'
 msg_create_failed = 'Failed to create article'
 
 # # Get Messages
-msg_get_all_failed = 'Artcle could not be found.'
+msg_get_all_failed = 'Article could not be found.'
 msg_lacking_id = 'Article Id is missing.'
 
 # # Get Single/Update Messages
@@ -33,8 +32,5 @@ msg_lacking_query_params = 'Query parameters were not provided.'
 msg_not_found = 'Article is not found.'
 msg_not_found_with_id = 'Article {} is not found.'
 msg_search_failed = 'Article search failed.'
-msg_must_contain_title = 'Article title is missing.'
-msg_must_contain_fixed_topic_id = 'Article fixed topic is missing.'
-msg_must_contain_topics_id = 'Article topics are missing.'
 msg_insensitive_title = 'Article title is not appropriate.'
 msg_insensitive_body = 'Article content is not appropriate.'

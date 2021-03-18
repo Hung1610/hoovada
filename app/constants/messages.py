@@ -8,18 +8,18 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 # Create Messages
-MSG_CREATE_SUCCESS = '{} created successful.'
-MSG_CREATE_SUCCESS_WITH_ISSUE = '{} created partially successful, but {}.'
+MSG_CREATE_SUCCESS = '{} created successfully.'
+MSG_CREATE_SUCCESS_WITH_ISSUE = '{} created partially successfully, but {}.'
 MSG_ALREADY_EXISTS = '{} already exists.'
 ERR_CREATE_FAILED = 'Failed to create {}. Issue: {}'
 
 # Get Messages
-MSG_GET_SUCCESS = '{} get successful.'
+MSG_GET_SUCCESS = '{} get successfully.'
 ERR_GET_FAILED = 'Failed to get {}. Issue: {}'
 ERR_LACKING_GET_PARAMS = 'Please provide {}.'
 
 # Update Messages
-MSG_UPDATE_SUCCESS = '{} updated successful.'
+MSG_UPDATE_SUCCESS = '{} updated successfully.'
 ERR_UPDATE_FAILED = 'Failed to update {}. Issue: {}'
 
 # Delete Messages
@@ -37,6 +37,16 @@ ERR_NOT_FOUND = '{} not found'
 ERR_NOT_FOUND_WITH_ID = '{} not found with ID: {}'
 ERR_ISSUE = 'Issue: {}.'
 ERR_NOT_AUTHORIZED = 'You have no authority to perform this action'
+ERR_CONTENT_TOO_SHORT = 'Content must be at least {} words!'
+
+# Filtering content
+ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
+ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
+ERR_SPELLING = 'Please check spelling errors!'
+
+# TOpics
+ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
+ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 
 ########### Authentication Module #################
 
@@ -72,7 +82,6 @@ ERR_PHONE_NOT_CONFIRMED = "Account related to this phone number is not confirmed
 ERR_PHONE_OR_PASS_INCORRECT = "The phone number or the password is incorrect. "
 ERR_PHONE_CODE_INCORRECT = "Login code is incorrect or expired."
 
-
 # RESET PASSWORD
 ERR_RESET_CODE_FAILED_TO_SENT = "Reset code failed to send."
 ERR_RESET_PASS_INCORRECT = "Reset password code is incorrect or expired. Please go to hoovada.com to request for new reset code."
@@ -89,3 +98,12 @@ MSG_CODE_SENT = "Activation code has been sent. Please check your Email."
 ERR_PHONE_CODE_INCORRECT = "Activation code is incorrect or expired."
 ERR_PHONE_NO_CODE = "Please provide phone code."
 MSG_PHONE_CODE_SENT = "Activation code has been sent to the phone number {}. Please check the message."
+
+########### Article Module #################
+
+ERR_ARTICLE_ALREADY_EXISTS = 'Article with the title {} already exists!'
+ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current time!'
+
+########### Article Module #################
+ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark ("?")!'
+ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'

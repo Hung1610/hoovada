@@ -17,6 +17,7 @@ from slugify import slugify
 from sqlalchemy import desc, func, or_, text
 
 # own modules
+from app.constants import messages
 from common.db import db
 from common.cache import cache
 from common.controllers.controller import Controller
@@ -56,42 +57,47 @@ class QuestionController(Controller):
     
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
         if not 'title' in data:
-            return send_error(message='Question must contain at least the title.')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
 
         try:
+    
             if not data['title'].strip().endswith('?'):
-                return send_error(message='Please end question title with question mark ("?")')
+                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+            
             data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
             data['title'] = data['title'].strip()
+            
             is_sensitive = check_sensitive(data['title'])
             if is_sensitive:
-                return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
             data['title'] = data['title'] + ' ?'
             title = data['title']
             user_id = data.get('user_id')
             question = Question.query.filter(Question.title == title).first()
 
-            if not question:  # the question does not exist
+            if not question:
                 question, topic_ids = self._parse_question(data=data, question=None)
                 if question.topics.count('1') > 5:
-                    return send_error(message='Question cannot have more than 5 topics.')
+                    return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
                 topic = Topic.query.filter(Topic.id == question.fixed_topic_id).first()
                 if topic is not None and topic.name == 'Những lĩnh vực khác':
                     spelling_errors = check_spelling(question.title)
                     if len(spelling_errors) > 0:
-                        return send_error(message='Please check question title for spelling errors', data=spelling_errors)
+                        return send_error(message=messages.ERR_SPELLING, data=spelling_errors)
                 
                 if question.question:
                     is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
                     if is_sensitive:
-                        return send_error(message='Nội dung câu hỏi của bạn không hợp lệ.')
+                        return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
                 question.created_date = datetime.utcnow()
                 question.last_activity = datetime.utcnow()
@@ -99,21 +105,21 @@ class QuestionController(Controller):
                 db.session.add(question)
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
+
                 # Add bookmark for the creator
                 controller = QuestionBookmarkController()
                 controller.create(question_id=question.id)
 
                 update_seen_questions.send(question.id, current_user.id)
-                # Add topics and get back list of topic for question
                 try:
                     result = question._asdict()
                     # get user info
                     result['user'] = question.user
                     result['topics'] = question.topics
                     result['fixed_topic'] = question.fixed_topic
-                    # them thong tin nguoi dung dang upvote hay downvote cau hoi nay
                     result['up_vote'] = False
                     result['down_vote'] = False
+                    
                     followers = UserFollow.query.with_entities(UserFollow.follower_id)\
                         .filter(UserFollow.followed_id == question.user.id).all()
                     follower_ids = [follower[0] for follower in followers]
@@ -124,22 +130,27 @@ class QuestionController(Controller):
                             (UserFriend.friended_id == question.user.id) | \
                             (UserFriend.friend_id == question.user.id))\
                         .all()
+                    
                     friend_ids = [friend.adaptive_friend_id for friend in friends]
                     new_question_notify_user_list.send(question.id, friend_ids)
-                    return send_result(message='Question was created successfully.',
-                                       data=marshal(result, QuestionDto.model_question_response))
+                    
+                    return send_result(message=messages.MSG_CREATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
+                
                 except Exception as e:
                     print(e.__str__())
                     return send_result(data=marshal(question, QuestionDto.model_question_response),
-                                       message='Question added, but could not add topics. Please update list topics later.')
-            else:  # topic already exist
-                return send_error(message='You already created the question with title {}.'.format(data['title']))
+                                       message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Question', 'failed to add topics'))
+        
+            else:
+                return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(data['title']))
+        
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create question. Contact administrator for solution.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format("Question", str(e)))
 
     def apply_filtering(self, query, params):
+
         query = super().apply_filtering(query, params)
         current_user = g.current_user
         if current_user:
@@ -179,16 +190,8 @@ class QuestionController(Controller):
                     ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
                     (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
                 )
-        if params.get('hot'):
-            #if g.current_user:
-            #    query = query.join(TopicBookmark, ((Question.topics.any(Topic.id == TopicBookmark.topic_id)) &\
-            #                TopicBookmark.user_id == current_user.id), \
-            #            isouter=True)\
-            #        .order_by(desc(func.field(TopicBookmark.user_id, g.current_user.id)),\
-            #            desc(text("upvote_count + downvote_count + share_count + favorite_count")))
-            #else:
-            #    query = query.order_by(desc(text("updated_date")))
-            
+
+        if params.get('hot'):            
             query = query.order_by(desc(text("updated_date")))
 
         return query
@@ -225,7 +228,9 @@ class QuestionController(Controller):
                     result['is_bookmarked_by_me'] = True if bookmark else False
                 results.append(result)
             res['data'] = marshal(results, QuestionDto.model_question_response)
+            
             return res, code
+
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not load questions. Contact your administrator for solution.")
@@ -248,11 +253,11 @@ class QuestionController(Controller):
             else:
                 return send_error(message='Question is invitations only.') 
         result = question._asdict()
-        # get user info
+
         result['user'] = question.user
         result['topics'] = question.topics
         result['fixed_topic'] = question.fixed_topic
-        # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+        
         if current_user:
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
@@ -356,11 +361,11 @@ class QuestionController(Controller):
             for question in questions:
                 question = question[0]
                 result = question._asdict()
-                # get user info
+
                 result['user'] = question.user
                 result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+
                 if current_user:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
@@ -413,6 +418,7 @@ class QuestionController(Controller):
     def get_recommended_topics(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
+        
         title = args['title']
         if not 'limit' in args:
             return send_error(message='Please provide limit')
@@ -430,6 +436,7 @@ class QuestionController(Controller):
                 .limit(limit)
             topics = [topic[0] for topic in query.all()]
             return send_result(data=marshal(topics, QuestionDto.model_topic), message='Success')
+        
         except Exception as e:
             print(e)
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
@@ -546,7 +553,8 @@ class QuestionController(Controller):
     def approve_proposal(self, object_id):
         try:
             if object_id is None:
-                return send_error(message="Proposal ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Proposal Id'))
+
             proposal = QuestionProposal.query.filter_by(id=object_id).first()
             if proposal is None:
                 return send_error(message="Proposal with the ID {} not found".format(object_id))
@@ -564,57 +572,57 @@ class QuestionController(Controller):
             question.last_activity = datetime.utcnow()
             proposal.is_approved = True
             db.session.commit()
+            
             return send_result(message='Question update proposal was approved successfully.',
                                 data=marshal(question, QuestionDto.model_question_response))
+        
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
             return send_error(message='Could approve question proposal. Contact administrator for solution.')
 
     def update(self, object_id, data):
-        """ Thuc hien update nhu sau:
-            Khi nguoi dung lua chon thay the hoac xoa topic khoi question thi thuc hien cap nhat vao bang question_topic.
-        
-        Args:
-            object_id:
-            data:
-        
-        Returns:
-        """
 
         if object_id is None:
-            return send_error(message="Question ID is null")
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+        
         if not isinstance(data, dict):
-            return send_error(message="Data is not in dictionary form.")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
         else:
             question = Question.query.filter_by(slug=object_id).first()
+        
         if question is None:
-            return send_error(message="Question with the ID {} not found".format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+        
         question, _ = self._parse_question(data=data, question=question)
         try:
             if question.topics.count('1') > 5:
-                return send_error(message='Question cannot have more than 5 topics.')
+                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
+            
             # check sensitive after updating
             is_sensitive = check_sensitive(question.title)
             if is_sensitive:
-                return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+            
             if question.question:
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
                 if is_sensitive:
-                    return send_error(message='Không thể sửa câu hỏi vì nội dung mới của bạn không hợp lệ.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+            
             question.updated_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
             result = question._asdict()
-            # get user info
+
             result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
-            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+
             current_user, _ = current_app.get_logged_user(request)
             if current_user:
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
@@ -627,29 +635,32 @@ class QuestionController(Controller):
                 bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
                                                 QuestionBookmark.question_id == question.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
-            return send_result(message="Update successfully",
+            
+            return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"),
                                 data=marshal(result, QuestionDto.model_question_response))
+        
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not update question.')
+            return send_error(message=messages.ERR_UPDATE_FAILED.format("Question", str(e)))
 
     def delete(self, object_id):
-        """ Delete question permanently- only Admin is allowed to performed this action accordingly to hoovada.com policy
-            User can only send delete request to Admin
-        """
+
         try:
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
+            
             if question is None:
-                return send_error(message="Question with ID {} not found".format(object_id))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+            
             else:
                 # related records are automatically cascaded
                 db.session.delete(question)
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
                 return send_result(message="Question with the ID {} was deleted.".format(object_id))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message="Could not delete question with ID {}".format(object_id))
@@ -657,28 +668,34 @@ class QuestionController(Controller):
     def _parse_question(self, data, question=None):
         if question is None:
             question = Question()
+
         if 'title' in data:
             question.title = data['title']
+
         if 'user_id' in data:
             try:
                 question.user_id = data['user_id']
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'fixed_topic_id' in data:
             try:
                 question.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'question' in data:
             question.question = data['question']
+
         if 'accepted_question_id' in data:
             try:
                 question.accepted_question_id = int(data['accepted_question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'allow_video_answer' in data:
             try:
                 question.allow_video_answer = bool(data['allow_video_answer'])
@@ -686,6 +703,7 @@ class QuestionController(Controller):
                 question.allow_video_answer = True
                 print(e.__str__())
                 pass
+
         if 'allow_audio_answer' in data:
             try:
                 question.allow_audio_answer = bool(data['allow_audio_answer'])
@@ -693,6 +711,7 @@ class QuestionController(Controller):
                 question.allow_audio_answer = True
                 print(e.__str__())
                 pass
+
         if 'is_deleted' in data:
             try:
                 question.is_deleted = bool(data['is_deleted'])
@@ -700,6 +719,7 @@ class QuestionController(Controller):
                 question.is_deleted = False
                 print(e.__str__())
                 pass
+
         if 'is_private' in data:
             try:
                 question.is_private = bool(data['is_private'])
@@ -707,6 +727,7 @@ class QuestionController(Controller):
                 question.is_private = False
                 print(e.__str__())
                 pass
+
         if 'is_anonymous' in data:
             try:
                 question.is_anonymous = bool(data['is_anonymous'])
@@ -714,6 +735,7 @@ class QuestionController(Controller):
                 question.is_anonymous = False
                 print(e.__str__())
                 pass
+
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
