@@ -77,8 +77,8 @@ class ArticleController(Controller):
 
             # check sensitive words
             is_sensitive = check_sensitive(text)
-            if len(text.split()) < 200:
-                return send_error(message=messages.ERR_ISSUE.format('Content must be at least 200 words!'))
+            if len(text.split()) < 500:
+                return send_error(message=messages.ERR_ISSUE.format('Content must be at least 500 words!'))
 
             if is_sensitive:
                 return send_error(message=constants.msg_insensitive_body)
@@ -130,6 +130,7 @@ class ArticleController(Controller):
                         .all()
                     friend_ids = [friend.adaptive_friend_id for friend in friends]
                     new_article_notify_user_list.send(article.id, friend_ids)
+
                 return send_result(message=constants.msg_create_success,
                                     data=marshal(result, ArticleDto.model_article_response))
             except Exception as e:
