@@ -56,12 +56,10 @@ def confirm_token(token, expirations=3600):
         print(e.__str__())
         return None
 
-
 def send_email(to, subject, template, sender=(CommonBaseConfig.MAIL_USERNAME, CommonBaseConfig.MAIL_DEFAULT_SENDER)):
     if to:
         msg = Message(subject, sender=sender, recipients=[to], html=template, charset='utf-8')
         mail.send(msg)
-
 
 def send_confirmation_email(to, user=None):    
     token = generate_confirmation_token(email=to)
@@ -74,11 +72,7 @@ def send_password_reset_email(to):
     html = render_template('reset_password.html', token=token)
     send_email(to, 'Hoovada - Thay đổi mật khẩu!', html, sender=(CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME, CommonBaseConfig.AUTHENTICATION_MAIL_SENDER))
 
-def send_question_invite_notif_email(user, inviter, question):
-    if user and not (user.is_deactivated):
-        html = render_template('notif_question_invite.html', inviter=inviter, user=user, question=question)
-        send_email(user.email, 'Bạn nhận được lời mời trả lời câu hỏi từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
-
+# Merge both into 1 email 
 def send_follow_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_follow_request.html', requester=requester, user=user)

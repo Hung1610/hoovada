@@ -62,41 +62,40 @@ class AnswerController(Controller):
                 return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question'), data={'answer_id': answer.id})
 
         try:
-            # add new answer
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
             
             text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
-            if len(text.split()) < 50:
-                return send_error(message=messages.ERR_ISSUE.format('Content must be at least 50 words!'))
+            if len(text.split()) < 100:
+                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('100'))
 
             is_sensitive = check_sensitive(text)
             if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Content is not allowed'))
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
             db.session.commit()
+
             # Add bookmark for the creator
             controller = AnswerBookmarkController()
             controller.create(answer_id=answer.id)
             result = answer._asdict()
+
             if answer.question.user:
-                if answer.question.user.is_online \
-                    and answer.question.user.my_question_notify_settings\
-                    and answer.question.user.new_answer_notify_settings:
+                
+                if answer.question.user.is_online and answer.question.user.my_question_notify_settings and answer.question.user.new_answer_notify_settings:
+
                     display_name = answer.user.display_name if answer.user else 'Khách'
                     message = display_name + ' đã trả lời câu hỏi của bạn!'
                     push_notif_to_specific_users(message, [answer.question.user_id])
                     
-                elif answer.question.user.my_question_email_settings\
-                    and answer.question.user.new_answer_email_settings:
+                elif answer.question.user.my_question_email_settings and answer.question.user.new_answer_email_settings:
                     send_answer_notif_email(answer.question.user, answer, answer.question)
 
-            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
             if answer.user:
@@ -112,10 +111,13 @@ class AnswerController(Controller):
                     .all()
                 friend_ids = [friend.adaptive_friend_id for friend in friends]
                 new_answer_notify_user_list.send(answer.id, friend_ids)
+
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
+        
         except Exception as e:
+            db.session.commit()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Answer', str(e)))
 
     def create_with_file(self, object_id):
         if object_id is None:
@@ -158,11 +160,12 @@ class AnswerController(Controller):
             user = User.query.filter_by(id=answer.user_id).first()
             # update user information for answer
             result['user'] = user
-            # khi moi tao thi gia tri up_vote va down_vote cua nguoi dung hien gio la False
             result['up_vote'] = False
             result['down_vote'] = False
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(result, AnswerDto.model_response))
+        
         except Exception as e:
+            db.session.commit()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Answer media', e))
 
@@ -189,9 +192,7 @@ class AnswerController(Controller):
         return query
 
     def get(self, args):
-        """
-        Search answers.
-        """
+
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
@@ -275,11 +276,10 @@ class AnswerController(Controller):
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.commit()
-            # get user information for each answer.
+
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
-            # lay thong tin up_vote down_vote cho current user
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
@@ -290,7 +290,9 @@ class AnswerController(Controller):
                 result['is_favorited_by_me'] = True if favorite else False
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
+        
         except Exception as e:
+            db.session.commit()
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format('Answer', e))
 

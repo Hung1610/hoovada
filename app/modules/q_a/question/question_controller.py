@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.utils.util import send_question_invite_notif_email
-from common.utils.onesignal_notif import push_notif_to_specific_users
 import json
 import re
 from datetime import datetime
@@ -285,24 +283,7 @@ class QuestionController(Controller):
             if question is None:
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
             current_user, _ = current_app.get_logged_user(request)
-            emails_or_usernames = data['emails_or_usernames']
-            for email_or_username in emails_or_usernames:
-                try:
-                    user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
-                    if user:
-                        question.invited_users.append(user)
-                        
-                        if user:
-                            if user.is_online\
-                                and user.question_invite_notify_settings:
-                                display_name =  question.user.display_name if question.user else 'Khách'
-                                message = display_name + ' đã mời bạn trả lời!'
-                                push_notif_to_specific_users(message, [user.id])
-                            elif user.question_invite_email_settings:
-                                send_question_invite_notif_email(user, current_user, question)
-                except Exception as e:
-                    print(e)
-                    pass
+
             db.session.commit()
             result = question._asdict()
             result['user'] = question.user

@@ -28,14 +28,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class VoteController(Controller):
     def get(self, args, article_id = None):
-        """ Search votes.
-
-        Args:
-             The dictionary-like
-
-        Returns
-            A list of votes that satisfy conditions.
-        """
         
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
@@ -141,14 +133,6 @@ class VoteController(Controller):
             return send_error(message=constants.msg_delete_failed)
 
     def update(self, object_id, data):
-        """ Update object from search_data in database
-        
-        Args:
-            object_id:
-            data:
-        
-        Returns:
-        """
         pass
 
     def _parse_vote(self, data, vote=None):
