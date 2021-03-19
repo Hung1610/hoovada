@@ -289,7 +289,7 @@ class QuestionController(Controller):
             result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
-            # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
+
             if current_user:
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                 if vote is not None:

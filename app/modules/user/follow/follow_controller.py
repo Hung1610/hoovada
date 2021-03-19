@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-#from common.utils.util import send_follow_request_notif_email
-from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
 
 # third-party modules
@@ -28,14 +26,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserFollowController(Controller):
     def get(self, object_id, args):
-        '''
-        Get/Search follows.
-
-        Args:
-             The dictionary-like parameters.
-
-        Returns:
-        '''
         
         follower_id, from_date, to_date = None, None, None
         if 'follower_id' in args:
@@ -78,21 +68,11 @@ class UserFollowController(Controller):
             follow = UserFollow.query.filter(UserFollow.follower_id == data['follower_id'],
                                              UserFollow.followed_id == data['followed_id']).first()
             if follow:
-                return send_result(message=messages.ERR_ISSUE.format('Already befollowed'))
+                return send_result(message=messages.ERR_ISSUE.format('Already followed'))
 
             follow = self._parse_follow(data=data, follow=None)
             db.session.add(follow)
             db.session.commit()
-                        
-            if follow.followed:
-                if follow.followed.is_online\
-                    and follow.followed.follow_notify_settings:
-                    display_name =  current_user.display_name if current_user else 'Khách'
-                    message = display_name + ' đã theo dõi bạn!'
-                    push_notif_to_specific_users(message, [follow.followed.id])
-
-                elif follow.followed.follow_email_settings:
-                    send_follow_request_notif_email(follow.followed, current_user)
 
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'),
                                data=marshal(follow, UserFollowDto.model_response))

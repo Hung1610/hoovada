@@ -3,8 +3,8 @@
 
 """This file contains some useful and essential function utilities."""
 
-import hashlib
 # bulit-in modules
+import hashlib
 import re
 from datetime import datetime, timedelta
 from io import StringIO
@@ -71,12 +71,6 @@ def send_password_reset_email(to):
     token = generate_confirmation_token(email=to)
     html = render_template('reset_password.html', token=token)
     send_email(to, 'Hoovada - Thay đổi mật khẩu!', html, sender=(CommonBaseConfig.AUTHENTICATION_MAIL_USERNAME, CommonBaseConfig.AUTHENTICATION_MAIL_SENDER))
-
-# Merge both into 1 email 
-def send_follow_request_notif_email(user, requester):
-    if user and not (user.is_deactivated):
-        html = render_template('notif_follow_request.html', requester=requester, user=user)
-        send_email(user.email, 'Bạn có người theo dõi mới từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
 
 def send_friend_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
