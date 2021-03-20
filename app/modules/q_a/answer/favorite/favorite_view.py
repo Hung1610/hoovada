@@ -22,13 +22,12 @@ _favorite_request = AnswerFavoriteDto.model_request
 _favorite_response = AnswerFavoriteDto.model_response
 _vote_get_params = AnswerFavoriteDto.model_get_parser
 
-@api.deprecated
-@api.route('/<int:answer_id>/favorite')
+#@api.deprecated
+#@api.route('/<int:answer_id>/favorite')
 class FavoriteUser(Resource):
     @api.expect(_vote_get_params)
     def get(self, answer_id):
-        """
-        Search all favorite that satisfy conditions.
+        """ Search all favorite that satisfy conditions.
         """
 
         args = _vote_get_params.parse_args()

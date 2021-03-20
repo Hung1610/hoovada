@@ -404,7 +404,8 @@ class TopicController(Controller):
 
             topic.file_url = url
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(topic, TopicDto.model_topic_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Topic media'), data=marshal(topic, TopicDto.model_topic_response))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Topic media', e))

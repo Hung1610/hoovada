@@ -31,12 +31,6 @@ PostVote = db.get_model('PostVote')
 class VoteController(Controller):
     def get(self, args, post_id = None):
         """ Search votes.
-
-        Args:
-             The dictionary-like
-
-        Returns
-            A list of votes that satisfy conditions.
         """
         
         user_id, from_date, to_date = None, None, None
@@ -131,12 +125,6 @@ class VoteController(Controller):
 
     def update(self, object_id, data):
         """ Update object from search_data in database
-        
-        Args:
-            object_id:
-            data:
-        
-        Returns:
         """
         pass
 

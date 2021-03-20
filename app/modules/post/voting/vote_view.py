@@ -20,7 +20,7 @@ _vote_response = VoteDto.model_response
 _vote_get_params = VoteDto.model_get_parser
         
 
-@api.route('/<int:post_id>/vote')
+#@api.route('/<int:post_id>/vote')
 class VotePost(Resource):
     @api.expect(_vote_get_params)
     def get(self, post_id):

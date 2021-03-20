@@ -29,6 +29,7 @@ Development instruction
 
 - Testing: [staging](https://staging.hoovada.com) and [test](https://test.hoovada.com)
 - Production: [hoovada.com](https://hoovada.com)
+- Logging: [grafana.hoovada.com](https://grafana.hoovada.com)
 
 ### Branch
 

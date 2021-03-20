@@ -4,10 +4,9 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
+# own modules
 from app.modules.q_a.question.favorite.favorite_controller import \
     QuestionFavoriteController
-# own modules
-# from common.decorator import token_required
 from app.modules.q_a.question.favorite.favorite_dto import QuestionFavoriteDto
 from common.utils.decorator import admin_token_required, token_required
 
@@ -23,8 +22,8 @@ _favorite_response = QuestionFavoriteDto.model_response
 _vote_get_params = QuestionFavoriteDto.model_get_parser
 
 
-@api.deprecated
-@api.route('/<int:question_id>/favorite')
+#@api.deprecated
+#@api.route('/<int:question_id>/favorite')
 class FavoriteUser(Resource):
     @api.expect(_vote_get_params)
     def get(self, question_id):

@@ -29,13 +29,7 @@ User = db.get_model('User')
 
 class AnswerFavoriteController(Controller):
     def get(self, answer_id, args):
-        '''
-        Get/Search favorites.
-
-        Args:
-             The dictionary-like parameters.
-
-        Returns:
+        '''Get/Search favorites.
         '''
         
         user_id, favorited_user_id, from_date, to_date = None, None, None, None
