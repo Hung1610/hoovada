@@ -28,6 +28,17 @@ _article_get_similar_params = ArticleDto.get_similar_articles_parser
 
 @api.route('')
 class ArticleList(Resource):
+    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.expect(_article_get_params)
+    @cache.cached(query_string=True)
+    def get(self):
+        """Get all articles that satisfy conditions
+        """
+
+        args = _article_get_params.parse_args()
+        controller = ArticleController()
+        return controller.get(args=args)
+
 
     @token_required
     @api.expect(_article_dto_request)
