@@ -375,15 +375,8 @@ class UserController(Controller):
             return send_result(message='Could not find any users')
 
     def get_feed(self, user_id):
-        """
-        Get feed for user by user id
-        Call API in feed service to get feed
-        Args:
-            user_id: user id that want to get feed for
-
-        Returns:
-
-        """
+        """ Get feed for user by user id"""
+        
         try:
             api_endpoint = '/api/feed'
             param = 'user_id={}'.format(user_id)

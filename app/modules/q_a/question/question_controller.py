@@ -50,7 +50,8 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend', 'hot', 'for_me']
+    #special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend', 'hot', 'for_me']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answers_count']
     
     def create(self, data):
