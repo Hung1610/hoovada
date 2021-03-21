@@ -42,7 +42,7 @@ class QuestionList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ 
+        """
         Get list of questions from database.
         """
         args = get_parser.parse_args()

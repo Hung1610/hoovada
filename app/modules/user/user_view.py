@@ -51,6 +51,20 @@ class UserList(Resource):
         return controller.create(data=data)
 
 
+@api.route('/<int:user_id>/feed')
+# @api.expect(user_get_parser)
+@api.response(code=200, description='Model for user response.')
+class UserGetFeed(Resource):
+    def get(self, user_id):
+        """
+        Get user's feed
+        """
+
+        # args = user_get_parser.parse_args()
+        controller = UserController()
+        return controller.get_feed(user_id=user_id)
+
+
 @api.route('/all/count')
 @api.expect(user_get_parser)
 class UserListCount(Resource):

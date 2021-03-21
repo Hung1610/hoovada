@@ -168,17 +168,17 @@ class ArticleController(Controller):
                 query = query.filter(Article.is_draft == True)
             else:
                 query = query.filter(Article.is_draft != True)
-        if params.get('is_created_by_friend') and g.current_user:
-            query = query\
-                .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
-                .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
-                .filter(
-                    (UserFollow.follower_id == g.current_user.id) |
-                    ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
-                    (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
-                )
-        if params.get('hot'):
-            query = query.order_by(desc(text("updated_date")))
+        # if params.get('is_created_by_friend') and g.current_user:
+        #     query = query\
+        #         .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
+        #         .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
+        #         .filter(
+        #             (UserFollow.follower_id == g.current_user.id) |
+        #             ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
+        #             (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
+        #         )
+        # if params.get('hot'):
+        #     query = query.order_by(desc(text("updated_date")))
 
         return query
 
@@ -209,7 +209,7 @@ class ArticleController(Controller):
                                                     ArticleFavorite.article_id == article.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
-            
+
             res['data'] = marshal(results, ArticleDto.model_article_response)
             return res, code
 

@@ -175,22 +175,22 @@ class QuestionController(Controller):
             query = query.filter(Question.created_date <= params.get('to_date'))
         if params.get('topic_id'):
             query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
-        if params.get('for_me') and current_user:
-            query = query.filter((Question.invited_users.any(User.id==current_user.id)) | (Question.bookmarked_users.any(User.id==current_user.id)))
+        # if params.get('for_me') and current_user:
+        #     query = query.filter((Question.invited_users.any(User.id==current_user.id)) | (Question.bookmarked_users.any(User.id==current_user.id)))
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-        if params.get('is_created_by_friend') and current_user:
-            query = query\
-                .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
-                .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
-                .filter(
-                    (UserFollow.follower_id == current_user.id) |
-                    ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
-                    (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-                )
+        # if params.get('is_created_by_friend') and current_user:
+        #     query = query\
+        #         .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
+        #         .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
+        #         .filter(
+        #             (UserFollow.follower_id == current_user.id) |
+        #             ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
+        #             (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+        #         )
 
-        if params.get('hot'):            
-            query = query.order_by(desc(text("updated_date")))
+        # if params.get('hot'):
+        #     query = query.order_by(desc(text("updated_date")))
 
         return query
 
@@ -226,7 +226,7 @@ class QuestionController(Controller):
                     result['is_bookmarked_by_me'] = True if bookmark else False
                 results.append(result)
             res['data'] = marshal(results, QuestionDto.model_question_response)
-            
+
             return res, code
 
         except Exception as e:
