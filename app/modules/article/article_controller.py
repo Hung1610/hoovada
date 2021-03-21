@@ -181,41 +181,6 @@ class ArticleController(Controller):
             query = query.order_by(desc(text("updated_date")))
 
         return query
-
-    def get(self, args):
-
-        try:
-            query = self.get_query_results(args)
-            res, code = paginated_result(query)
-
-            current_user = g.current_user
-            articles = res.get('data')
-
-            results = []
-            for article in articles:
-                result = article.__dict__
-
-                user = User.query.filter_by(id=article.user_id).first()
-                result['user'] = user
-                result['topics'] = article.topics
-                result['fixed_topic'] = article.fixed_topic
-
-                if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                results.append(result)
-            
-            res['data'] = marshal(results, ArticleDto.model_article_response)
-            return res, code
-
-        except Exception as e:
-            print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('Article', str(e)))
     
     def get_count(self, args):
         

@@ -200,39 +200,6 @@ class QuestionController(Controller):
         
         return query
 
-    #@cache.memoize()
-    def get(self, args):
-        try:
-            query = self.get_query_results(args)
-            res, code = paginated_result(query)
-            current_user = g.current_user
-            results = []
-            for question in res.get('data'):
-                result = question._asdict()
-                # get user info
-                result['user'] = question.user
-                result['fixed_topic'] = question.fixed_topic
-                result['topics'] = question.topics
-                if current_user:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
-                                                    QuestionFavorite.question_id == question.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
-                results.append(result)
-            res['data'] = marshal(results, QuestionDto.model_question_response)
-            
-            return res, code
-
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message="Could not load questions. Contact your administrator for solution.")
-
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")

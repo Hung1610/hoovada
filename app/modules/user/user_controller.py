@@ -2,16 +2,22 @@
 # -*- coding: utf-8 -*-
 
 # build-in modules
+import json
 import os
 from datetime import datetime
+from http import HTTPStatus
+
 import dateutil.parser
 
 # third-party modules
+import requests
 from flask import current_app, request, g
 from flask_restx import marshal
 from sqlalchemy import desc, func
 
 # own modules
+from app.constants import messages
+from app.settings.config import BaseConfig
 from common.db import db
 from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
@@ -367,3 +373,27 @@ class UserController(Controller):
             return send_result(data=marshal(users, UserDto.model_response), message='Success')
         else:
             return send_result(message='Could not find any users')
+
+    def get_feed(self, user_id):
+        """
+        Get feed for user by user id
+        Call API in feed service to get feed
+        Args:
+            user_id: user id that want to get feed for
+
+        Returns:
+
+        """
+        try:
+            api_endpoint = '/api/feed'
+            param = 'user_id={}'.format(user_id)
+            get_feed_url = '{}{}?{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint, param)
+            response = requests.get(url=get_feed_url)
+            if response.status_code == HTTPStatus.OK:
+                response = json.loads(response.content)
+                return response
+            else:
+                txt = json.loads(response.text)
+                raise send_error(message=messages.ERR_ISSUE.format(txt))
+        except Exception as e:
+            raise send_error(message=messages.ERR_ISSUE.format(e))
