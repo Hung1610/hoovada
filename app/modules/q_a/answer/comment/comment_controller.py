@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.utils.util import send_answer_comment_notif_email
 from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
 
@@ -128,8 +127,7 @@ class CommentController(BaseCommentController):
                         display_name =  comment.user.display_name if comment.user else 'Khách'
                         message = display_name + ' đã bình luận trong câu trả lời!'
                         push_notif_to_specific_users(message, [comment.answer.user_id])
-                    elif comment.answer.user.new_answer_comment_email_settings:
-                        send_answer_comment_notif_email(comment.answer.user, comment, comment.answer)
+
                 return send_result(message='AnswerComment was created successfully',
                                    data=marshal(result, CommentDto.model_response))
             except Exception as e:

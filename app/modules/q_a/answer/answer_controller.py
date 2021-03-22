@@ -23,7 +23,7 @@ from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import UserRole
-from common.utils.util import encode_file_name, send_answer_notif_email
+from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
 
 __author__ = "hoovada.com team"
@@ -92,9 +92,6 @@ class AnswerController(Controller):
                     display_name = answer.user.display_name if answer.user else 'Khách'
                     message = display_name + ' đã trả lời câu hỏi của bạn!'
                     push_notif_to_specific_users(message, [answer.question.user_id])
-                    
-                elif answer.question.user.my_question_email_settings and answer.question.user.new_answer_email_settings:
-                    send_answer_notif_email(answer.question.user, answer, answer.question)
 
             result['up_vote'] = False
             result['down_vote'] = False
