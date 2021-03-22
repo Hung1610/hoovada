@@ -16,6 +16,8 @@ from app.modules.article.bookmark.bookmark_dto import ArticleBookmarkDto
 from common.utils.response import paginated_result
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
+from common.models.bookmark import ArticleBookmark
+from common.models import Article, User
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,14 +25,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2021 hoovada.com . All Rights Reserved."
 
 
-Article = db.get_model('Article')
-ArticleBookmark = db.get_model('ArticleBookmark')
-User = db.get_model('User')
-
-
 class ArticleBookmarkController(Controller):
-    query_classname = 'ArticleBookmark'
-    allowed_ordering_fields = ['created_date', 'updated_date']
     
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)

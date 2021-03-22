@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.dramatiq_producers import new_answer_notify_user_list
 from datetime import datetime
 
 # third-party modules
@@ -87,19 +86,20 @@ class AnswerController(Controller):
 
             result['up_vote'] = False
             result['down_vote'] = False
-            if answer.user:
-                followers = UserFollow.query.with_entities(UserFollow.follower_id)\
-                    .filter(UserFollow.followed_id == answer.user.id).all()
-                follower_ids = [follower[0] for follower in followers]
-                new_answer_notify_user_list.send(answer.id, follower_ids)
-                g.friend_belong_to_user_id = answer.user.id
-                friends = UserFriend.query\
-                    .filter(\
-                        (UserFriend.friended_id == answer.user.id) | \
-                        (UserFriend.friend_id == answer.user.id))\
-                    .all()
-                friend_ids = [friend.adaptive_friend_id for friend in friends]
-                new_answer_notify_user_list.send(answer.id, friend_ids)
+            
+            #if answer.user:
+            #    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
+            #        .filter(UserFollow.followed_id == answer.user.id).all()
+            #    follower_ids = [follower[0] for follower in followers]
+            #    new_answer_notify_user_list.send(answer.id, follower_ids)
+            #    g.friend_belong_to_user_id = answer.user.id
+            #    friends = UserFriend.query\
+            #        .filter(\
+            #            (UserFriend.friended_id == answer.user.id) | \
+            #            (UserFriend.friend_id == answer.user.id))\
+            #        .all()
+            #    friend_ids = [friend.adaptive_friend_id for friend in friends]
+            #    new_answer_notify_user_list.send(answer.id, friend_ids)
 
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         

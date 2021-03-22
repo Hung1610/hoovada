@@ -20,7 +20,7 @@ from app.modules.article.bookmark.bookmark_controller import ArticleBookmarkCont
 from app.constants import messages
 from common.utils.checker import check_spelling
 from common.db import db
-from common.dramatiq_producers import new_article_notify_user_list, update_seen_articles
+from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller
 from common.models.vote import ArticleVote, VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
@@ -90,9 +90,9 @@ class ArticleController(Controller):
 
             db.session.add(article)
             db.session.commit()
-            update_seen_articles.send(article.id, current_user.id)
 
-            # Add bookmark for the creator
+            # author is seen and bookmark article
+            update_seen_articles.send(article.id, current_user.id)
             controller = ArticleBookmarkController()
             controller.create(article_id=article.id)
 
@@ -112,21 +112,19 @@ class ArticleController(Controller):
                 favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
                                                 ArticleFavorite.article_id == article.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
-                if article.user:
-
-                    followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(UserFollow.followed_id == article.user.id).all()
-                    follower_ids = [follower[0] for follower in followers]
-                    new_article_notify_user_list.send(article.id, follower_ids)
-                    g.friend_belong_to_user_id = article.user.id
-                    
-                    friends = UserFriend.query\
-                        .filter(\
-                            (UserFriend.friended_id == article.user.id) | \
-                            (UserFriend.friend_id == article.user.id))\
-                        .all()
-                    friend_ids = [friend.adaptive_friend_id for friend in friends]
-
-                    new_article_notify_user_list.send(article.id, friend_ids)
+                
+                #if article.user:
+                #    followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(UserFollow.followed_id == article.user.id).all()
+                #    follower_ids = [follower[0] for follower in followers]
+                #    new_article_notify_user_list.send(article.id, follower_ids)
+                #    g.friend_belong_to_user_id = article.user.id   
+                #    friends = UserFriend.query\
+                #        .filter(\
+                #            (UserFriend.friended_id == article.user.id) | \
+                #            (UserFriend.friend_id == article.user.id))\
+                #        .all()
+                #    friend_ids = [friend.adaptive_friend_id for friend in friends]
+                #    new_article_notify_user_list.send(article.id, friend_ids)
 
                 return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
             
