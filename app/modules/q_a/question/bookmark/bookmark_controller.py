@@ -28,14 +28,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class QuestionBookmarkController(Controller):
     def get(self, question_id, args):
-        '''
-        Get/Search bookmarks.
-
-        Args:
-             The dictionary-like parameters.
-
-        Returns:
-        '''
         
         user_id, bookmarkd_user_id, from_date, to_date = None, None, None, None
         if 'user_id' in args:

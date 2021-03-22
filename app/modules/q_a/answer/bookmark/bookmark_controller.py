@@ -30,14 +30,6 @@ User = db.get_model('User')
 
 class AnswerBookmarkController(Controller):
     def get(self, answer_id, args):
-        '''
-        Get/Search bookmarks.
-
-        Args:
-             The dictionary-like parameters.
-
-        Returns:
-        '''
         
         user_id, bookmarkd_user_id, from_date, to_date = None, None, None, None
         if 'user_id' in args:
