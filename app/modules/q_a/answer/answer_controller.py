@@ -17,7 +17,7 @@ from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.bookmark.bookmark_controller import AnswerBookmarkController
 from common.controllers.controller import Controller
-from common.utils.onesignal_notif import push_basic_notification, push_notif_to_specific_users
+from common.utils.onesignal_notif import push_basic_notification
 from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
@@ -84,14 +84,6 @@ class AnswerController(Controller):
             controller = AnswerBookmarkController()
             controller.create(answer_id=answer.id)
             result = answer._asdict()
-
-            if answer.question.user:
-                
-                if answer.question.user.is_online and answer.question.user.my_question_notify_settings and answer.question.user.new_answer_notify_settings:
-
-                    display_name = answer.user.display_name if answer.user else 'Khách'
-                    message = display_name + ' đã trả lời câu hỏi của bạn!'
-                    push_notif_to_specific_users(message, [answer.question.user_id])
 
             result['up_vote'] = False
             result['down_vote'] = False

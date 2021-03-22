@@ -61,7 +61,7 @@ class ArticleController(Controller):
 
             current_user = g.current_user
             data['user_id'] = current_user.id
-            data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
+            #data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
             data['title'] = data['title'].strip()
 
             article = Article.query.filter(Article.title == data['title']).first()
@@ -76,7 +76,7 @@ class ArticleController(Controller):
             article, topic_ids = self._parse_article(data=data, article=None)
 
             # check number of words
-            text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
+            text = ' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings)
             if len(text.split()) < 500:
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))
 
