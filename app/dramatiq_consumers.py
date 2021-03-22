@@ -12,7 +12,7 @@ from flask_dramatiq import Dramatiq
 from common.db import db
 from common.enum import FrequencySettingEnum, VotingStatusEnum
 from common.utils.onesignal_notif import push_notif_to_specific_users
-from common.utils.util import send_answer_notif_email, send_article_notif_email, send_email, send_question_notif_email
+from common.utils.util import send_email
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
