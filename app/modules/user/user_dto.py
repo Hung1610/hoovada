@@ -82,6 +82,8 @@ class UserDto(Dto):
         'allow_answer_comment': fields.Boolean(required=False, default=True),
         'allow_question_comment': fields.Boolean(required=False, default=True),
         'allow_article_comment': fields.Boolean(required=False, default=True),
+
+        'is_first_log_in': fields.Boolean(required=False, default=True),
     })
 
     model_response = api.model('user_response', {
@@ -221,6 +223,8 @@ class UserDto(Dto):
         'allow_answer_comment': fields.Boolean(required=False, default=True),
         'allow_question_comment': fields.Boolean(required=False, default=True),
         'allow_article_comment': fields.Boolean(required=False, default=True),
+
+        'is_first_log_in': fields.Boolean(required=False, default=True),
     })
 
     model_social_response = api.model('user_social_response', {

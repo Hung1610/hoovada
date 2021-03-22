@@ -76,8 +76,10 @@ class CommentController(BaseCommentController):
         article = Article.query.filter(Article.id == article_id).first()
         if not article:
             return send_error(message='The article does not exist.')
-        if (not article.user.allow_article_comment):
+        
+        if article.allow_comment is not None and (not article.allow_comment):
             return send_error(message='This article does not allow commenting.')
+
         data['article_id'] = article_id
 
         try:

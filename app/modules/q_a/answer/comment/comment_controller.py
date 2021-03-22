@@ -94,8 +94,10 @@ class CommentController(BaseCommentController):
         answer = Answer.query.filter(Answer.id == answer_id).first()
         if not answer:
             return send_error(message='The answer does not exist.')
-        if (not answer.allow_comments) or (not answer.user.allow_answer_comment):
+        
+        if (not answer.allow_comments):
             return send_error(message='This answer does not allow commenting.')
+
         data['answer_id'] = answer_id
 
         try:

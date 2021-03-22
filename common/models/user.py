@@ -145,8 +145,7 @@ class User(Model):
     answer_downvoted_count = db.Column(db.Integer, server_default='0')
     answer_report_count = db.Column(db.Integer, server_default='0')
     answer_reported_count = db.Column(db.Integer, server_default='0')
-    is_first_log_in = db.Column(db.SmallInteger, server_default='0',
-                                comment='Cho biết có phải user login làn đầu hay không (0: không, 1: phải)')
+    is_first_log_in = db.Column(db.SmallInteger, server_default='0', comment='Determine if this is the first time user logged in (0: No, 1: Yes)')
 
     followed_topics = db.relationship('Topic', secondary='topic_follow', lazy='dynamic')
 
