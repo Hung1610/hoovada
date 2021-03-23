@@ -218,7 +218,6 @@ class AnswerController(Controller):
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
-            # lay thong tin up_vote down_vote cho current user
             current_user, _ = current_app.get_logged_user(request)
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
@@ -228,12 +227,12 @@ class AnswerController(Controller):
                 favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
                                                 AnswerFavorite.answer_id == answer.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
-            # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(data=marshal(result, AnswerDto.model_response))
 
     def update(self, object_id, data):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
+
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         # if not 'question_id' in data:
