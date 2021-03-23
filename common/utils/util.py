@@ -75,7 +75,7 @@ def send_password_reset_email(to):
 def send_friend_request_notif_email(user, requester):
     if user and not (user.is_deactivated):
         html = render_template('notif_friend_request.html', requester=requester, user=user)
-        send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
+        send_email(user.email, 'Bạn nhận được lời mời kết bạn từ cộng đồng Hoovada.com', html, sender=(CommonBaseConfig.NOTIFICATION_MAIL_USERNAME, CommonBaseConfig.NOTIFICATION_MAIL_SENDER))
 
 def get_response_message(message):    
     html = render_template('response.html', message=message)

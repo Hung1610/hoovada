@@ -159,7 +159,7 @@ def send_weekly_recommendation_mails():
     User = db.get_model('User')
 
     users = User.query.with_entities(User.id)\
-        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
+        .filter(User.active == True, User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
     for user_id in users:
         send_recommendation_mail.send(user_id[0])
@@ -169,7 +169,7 @@ def send_daily_recommendation_mails():
     User = db.get_model('User')
 
     users = User.query.with_entities(User.id)\
-        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
+        .filter(User.active == True, User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
     for user_id in users:
         send_recommendation_mail.send(user_id[0])
@@ -179,7 +179,7 @@ def send_daily_similar_mails():
     User = db.get_model('User')
 
     users = User.query.with_entities(User.id)\
-        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
+        .filter(User.active == True, User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
     for user_id in users:
         send_similar_mail.send(user_id[0])
@@ -189,7 +189,7 @@ def send_weekly_similar_mails():
     User = db.get_model('User')
 
     users = User.query.with_entities(User.id)\
-        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
+        .filter(User.active == True, User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
     for user_id in users:
         send_similar_mail.send(user_id[0])
@@ -313,7 +313,7 @@ def send_daily_new_topics():
     User = db.get_model('User')
 
     users = User.query.with_entities(User.id)\
-        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
+        .filter(User.active == True, User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
 
     for user_id in users:
         send_new_topics.send(user_id[0])
@@ -323,7 +323,7 @@ def send_weekly_new_topics():
     User = db.get_model('User')
 
     users = User.query.with_entities(User.id)\
-        .filter(User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
+        .filter(User.active == True, User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
 
     for user_id in users:
         send_new_topics.send(user_id[0])
