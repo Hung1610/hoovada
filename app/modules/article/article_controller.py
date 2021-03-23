@@ -61,7 +61,6 @@ class ArticleController(Controller):
 
             current_user = g.current_user
             data['user_id'] = current_user.id
-            #data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
             data['title'] = data['title'].strip()
 
             article = Article.query.filter(Article.title == data['title']).first()
@@ -69,7 +68,7 @@ class ArticleController(Controller):
                 return send_error(message=messages.ERR_ARTICLE_ALREADY_EXISTS.format(data['title']))
 
             # check sensitive words for title
-            is_sensitive = check_sensitive(data['title'])
+            is_sensitive = check_sensitive(re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
             if is_sensitive:
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 

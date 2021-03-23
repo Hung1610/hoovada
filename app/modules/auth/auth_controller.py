@@ -63,14 +63,22 @@ def save_social_account(provider, extra_data):
     if not user:
         user = User.query.filter_by(email=email).first()
         if not user:
-            user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
+            #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
             user_name = AuthController.create_user_name(user_name)
-            first_name = extra_data.get('first_name', '')
-            last_name = extra_data.get('last_name', '')
-            middle_name = extra_data.get('middle_name', '')
+
+            first_name = extra_data.get('first_name', '').strip()
+            last_name = extra_data.get('last_name', '').strip()
+            middle_name = extra_data.get('middle_name', '').strip()
+
+            if 'name' in  extra_data:
+                user_name = extra_data.get('name')
+            else:
+                user_name = (first_name + " " + middle_name + " " + last_name)
+
+            user_name = user_name.strip()
             user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
             user.set_password(password=provider + '_' + str(user_name))
-            
+            user.is_deactivated == False
             try:
                 db.session.add(user)
                 db.session.commit()
@@ -322,11 +330,11 @@ class AuthController:
                     self.resend_confirmation_sms(data)
                     return send_error(message='Tài khoản với số điện thoại của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực.')
                 
-                auth_token = encode_auth_token(user_id=user.id)
+                user.is_deactivated = False
                 user.active = True
                 db.session.commit()
-                # if user.blocked:
-                #     return None  # error(message='User has been blocked')
+
+                auth_token = encode_auth_token(user_id=user.id)
                 if auth_token:
                     return send_result(data={'access_token': auth_token.decode('utf8')})
                     
@@ -350,11 +358,10 @@ class AuthController:
                 if not user.confirmed:
                     self.resend_confirmation_sms(data)
                     return send_error(message='Tài khoản với số điệnt thoại của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực!') 
-               
+                
                 code = send_verification_sms(data['phone_number'])
                 if code is not None:
-                    return send_result(message='Chúng tôi đã gửi mã xác nhận tới số điện thoại {}, vui lòng kiểm tra!'.format(
-                data['phone_number']))
+                    return send_result(message='Chúng tôi đã gửi mã xác nhận tới số điện thoại {}, vui lòng kiểm tra!'.format(data['phone_number']))
             else:
                 return send_error(message='Số điện thoại không đúng, vui lòng thử lại!') 
         
@@ -388,11 +395,10 @@ class AuthController:
                 return send_error(message='Tài khoản của bạn chưa được xác nhận. Vui lòng kiểm tra tin nhắn để tiến hành xác thực!')
             
             if check_verification(phone_number, code):
-                auth_token = encode_auth_token(user_id=user.id)
                 user.active = True
+                user.is_deactivated = False
                 db.session.commit()
-                # if user.blocked:
-                #     return None  # error(message='User has been blocked')
+                auth_token = encode_auth_token(user_id=user.id)
                 if auth_token:
                     return {'access_token': auth_token.decode('utf8')}
             else:
@@ -721,7 +727,6 @@ class AuthController:
             message = 'Mã xác thực reset password của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_error(message=message)
 
-    # @staticmethod
     def resend_confirmation(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -741,7 +746,6 @@ class AuthController:
             print(e.__str__())
             return send_error(message='Không thể gửi thư kích hoạt vào email của bạn. Vui lòng thử lại!')
 
-    # @staticmethod
     def confirm_email(self, token):
         email = confirm_token(token)
         user = User.query.filter_by(email=email).first()
@@ -755,17 +759,13 @@ class AuthController:
             db.session.commit()
             html = render_template('welcome.html', user=user)
             send_email(user.email, 'Chào mừng bạn tham gia vào cộng đồng hoovada.com', html)
-            message = 'Tài khoản email của bạn đã được kích hoạt. Vui lòng đăng nhập.'
-            return send_result(message=message)
+            return send_result(message=messages.MSG_ACC_ALREADY_ACTIVATED)
         
         else:
             message = 'Mã kich hoat của bạn không đúng hoặc đã hết hạn. Vui lòng vào trang hoovada.com để yêu cầu mã xác thực mới.'
             return send_result(message=message) 
 
-    # @staticmethod
     def login_user(self, data):
-        """ Login user handling."""
-
         try:
             banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
             if banned:
@@ -775,24 +775,26 @@ class AuthController:
             if user and user.check_password(data['password']):
                 if not user.confirmed:
                     self.resend_confirmation(data=data)
-                    return send_error( message='Tài khoản email của ban chưa được xác thực. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực.')  # Tài khoản email của bạn chưa được xác nhận. Vui lòng đăng nhập hộp thư của bạn để tiến hành xác thực (Trong trường hợp không thấy thư kích hoạt trong hộp thư đến, vui long kiểm tra mục thư rác).')
+                    return send_error( message=messages.ERR_EMAIL_NOT_CONFIRMED)
                 
+                # activate when user re-login
+                if user.is_deactivated is True:
+                    user.is_deactivated = False
+                    db.session.commit()
+
                 auth_token = encode_auth_token(user_id=user.id)
 
                 if auth_token:
                     return send_result(data={'access_token': auth_token.decode('utf8')})
 
             else:
-                return send_error(message='Email hoặc mật khẩu không đúng, vui lòng thử lại!')
+                return send_error(message=messages.ERR_INCORRECT_EMAIL_OR_PASSWORD)
         
         except Exception as e:
             print(e.__str__())
             return send_error(message='Không thể đăng nhập, vui lòng thử lại!')
 
-    # @staticmethod
     def logout_user(self, req):
-        """Logout user handling"""
-
         auth_token = None
         api_key = None
         if 'X-API-KEY' in req.headers:

@@ -70,10 +70,9 @@ class QuestionController(Controller):
             if not data['title'].strip().endswith('?'):
                 return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
             
-            #data['title'] = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])
             data['title'] = data['title'].strip()
             
-            is_sensitive = check_sensitive(data['title'])
+            is_sensitive = check_sensitive(re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
             if is_sensitive:
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
