@@ -131,7 +131,7 @@ class AuthController:
             db.session.commit()
 
             send_confirmation_email(to=user.email, user=user)
-            return send_result(message=messages.MSG_MSG_EMAIL_REGISTER_SUCCESS)
+            return send_result(message=messages.MSG_EMAIL_REGISTER_SUCCESS)
                 
         except Exception as e:
             print(e.__str__())
@@ -186,7 +186,7 @@ class AuthController:
         
         try:
             send_confirmation_email(to=email, user=user)
-            return send_result(message=messages.MSG_MSG_EMAIL_REGISTER_SUCCESS)
+            return send_result(message=messages.MSG_EMAIL_REGISTER_SUCCESS)
             
         except Exception as e:
             print(e.__str__())
