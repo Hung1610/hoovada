@@ -292,7 +292,7 @@ class AuthController:
                     user.confirmed = True
                     db.session.commit()
                     html = render_template('welcome.html', user=user)
-                    send_email(user.email, 'Chào mừng bạn tham gia vào cộng đồng hoovada.com', html)
+                    send_email(user.email, 'Hoovada - Chào mừng bạn tham gia vào cộng đồng!', html)
                     return send_result(message=messages.MSG_ACC_ALREADY_ACTIVATED)
 
                 return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
@@ -347,6 +347,7 @@ class AuthController:
             print(e.__str__())
             return send_error(message=messages.ERR_CODE_FAILED_TO_SEND)
 
+
     def reset_password_by_sms_confirm(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -367,9 +368,12 @@ class AuthController:
             if check_verification(phone_number, code):
                 message = "Xác thực thành công. Hãy nhập mật khẩu mới."
                 return send_result(data={'reset_token':generate_confirmation_token(phone_number)},message=message)
+            
             return send_error(message='Mã không đúng hoặc đã hết hạn. Vui lòng thử lại!')
+        
         else:
             return send_error(message='Số điện thoại {} chưa đăng kí, vui lòng kiểm tra lại!'.format(phone_number))
+
 
     def reset_password_by_email(self, data):
         """Reset password request. Send password reset confirmation link to email."""
@@ -722,7 +726,6 @@ def check_user_name_exist(user_name):
     return user is not None
 
 
-
 def create_user_name(user_name):
     """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
 
@@ -779,7 +782,7 @@ def save_social_account(provider, data):
     data['first_name'] = data.get('first_name', '').strip()
     data['last_name'] = data.get('last_name', '').strip()
     data['middle_name'] = data.get('middle_name', '').strip()
-    data['display_name'] = create_user_name(data.get('name', first_name + " " + middle_name + " " + last_name)).strip()
+    data['display_name'] = create_user_name(data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
     data['email'] = data.get('email', '').strip()
 
     banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
