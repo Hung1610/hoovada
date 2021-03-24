@@ -226,14 +226,10 @@ class AuthController:
             return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
         
         if data['password_confirm'] != data['password']:
-            return send_error(message=messages.ERR_WRONG_CONFIMED_PASSWORD)
+            return send_error(message=messages.ERR_INVALID_CONFIMED_PASSWORD)
         
         if len(check_password(data['password'])) > 0:
             return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
-        
-        is_policy_accepted = data['is_policy_accepted']
-        if not is_policy_accepted:
-            return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
 
         display_name = data['display_name']
         if check_user_name_exist(display_name):
@@ -790,7 +786,7 @@ def save_social_account(provider, data):
     banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
     if banned is not None:
         raise Exception(messages.ERR_BANNED_ACCOUNT)
-        
+
     try:
         user = User.query.filter_by(email=data['email']).first()
         if user is None:
