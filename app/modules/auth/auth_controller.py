@@ -790,32 +790,25 @@ def save_social_account(provider, data):
         raise Exception(messages.ERR_BANNED_ACCOUNT)
 
     try:
-        user = User.query.filter_by(email=data['email']).first()
+        user = g.current_user
         if user is None:
             data['password'] = create_random_string(8)
             user = create_user_with_email(data, is_confirmed=True)
         
-        elif user.confirmed == False:
+        if user.confirmed == False:
             user.confirmed = True
             user.email_confirmed_at = datetime.now()
-            db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        raise e
 
-    try:
         social_account = SocialAccount.query.filter_by(user_id=user.id).first()
         if social_account is not None:
-            if social_account.user_id is None:
-                social_account.user_id = user.id
-                db.session.commit()
+            social_account.user_id = user.id
         else:    
             social_account = SocialAccount(provider=provider, uid=data.get('id'), extra_data=json.dumps(data), user_id=user.id)
             db.session.add(social_account)
-            db.session.commit()
+        
+        db.session.commit()
         return user
 
     except Exception as e:
-        db.session.rollback()
         raise e      
 
