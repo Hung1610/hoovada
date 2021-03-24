@@ -53,7 +53,6 @@ ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 # common
 ERR_FAILED_REGISTER = "Failed to Register with the issue {}"
 ERR_REGISTRATION_CONFIRMATION_FAILED = "Registration confirmation failed with issue {}!"
-
 ERR_NO_TOKEN = "PLease provide access token!"
 
 ERR_FAILED_LOGIN = "Failed to login. Please try again!"
