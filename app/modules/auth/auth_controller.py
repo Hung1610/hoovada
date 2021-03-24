@@ -747,8 +747,6 @@ def save_token(token):
 def create_user_with_email(data, is_confirmed=False):
     try: 
         #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-        user_name = user_name.strip()
-
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
         middle_name = data.get('middle_name', '')
@@ -793,9 +791,9 @@ def save_social_account(provider, data):
             user = create_user_with_email(data, is_confirmed=True)
         
         elif user.confirmed == False:
-                user.confirmed = True
-                user.email_confirmed_at = datetime.now()
-                db.session.commit()
+            user.confirmed = True
+            user.email_confirmed_at = datetime.now()
+            db.session.commit()
     except Exception as e:
         db.session.rollback()
         raise e
