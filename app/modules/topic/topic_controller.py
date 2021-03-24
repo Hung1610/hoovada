@@ -207,7 +207,7 @@ class TopicController(Controller):
             return send_result(data=marshal(result, TopicDto.model_topic_response), message='Success')
         else:
             return send_result(
-                message='The topic with the ID {} does not contain any sub-topics (Hint: send the ID of the fixed topic.')
+                message='The topic with the ID {} does not contain any sub-topics (Hint: send the ID of the fixed topic)')
 
     def update(self, object_id, data):
         try:

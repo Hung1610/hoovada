@@ -29,7 +29,7 @@ ERR_DELETE_FAILED = 'Failed to delete {}. Issue: {}'
 # File Messages
 ERR_NO_FILE = 'No file found in the request.'
 
-# # General Errors
+# General Errors
 ERR_WRONG_DATA_FORMAT = 'Wrong data format.'
 ERR_LACKING_QUERY_PARAMS = 'Query parameters not provided.'
 ERR_PLEASE_PROVIDE = 'Please provide {}.'
@@ -44,61 +44,55 @@ ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_SPELLING = 'Please check spelling errors!'
 
-# TOpics
+# Topics
 ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
 ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 
 ########### Authentication Module #################
 
+# common
+ERR_FAILED_LOGIN = "Failed to login. Please try again!"
+ERR_BANNED_EMAIL = "This account is banned!"
+ERR_CODE_INCORRECT_EXPIRED = "The code is incorrect or expired! Please access Hoovada.com to request for new code!"
+ERR_CODE_FAILED_TO_SEND = "Failed to send code!"
+
 # Mail
-ERR_BANNED_EMAIL = "This email is banned."
-ERR_NO_POLICY_STATUS = "PLease accept or decline the policy."
-ERR_NO_POLICY_ACCEPTED = "You need to accept the policy."
+ERR_NO_POLICY_STATUS = "PLease accept or decline the policy!"
+ERR_NO_POLICY_ACCEPTED = "You need to accept the policy!"
 ERR_REGISTRATION_FAILED = "Registration failed."
-ERR_NO_PASSWORD = "Please provide a password."
-ERR_NO_CONFIRMED_PASSWORD = "Please provide a confirmed password."
-ERR_NO_NAME = "Please provide a display name."
-ERR_WRONG_CONFIMED_PASSWORD = "The confirmed password is not correct."
+ERR_NO_PASSWORD = "Please provide a password!"
+ERR_NO_CONFIRMED_PASSWORD = "Please provide confirmed password!"
+ERR_NO_NAME = "Please provide a display name!"
+ERR_WRONG_CONFIMED_PASSWORD = "The confirmed password is not correct!"
 ERR_INVALID_INPUT_PASSWORD = "The password length must have at least 8!"
-ERR_NAME_ALREADY_EXISTED = "The display name {} has already existed."
-ERR_NO_MAIL = "Please provide an Email."
-ERR_MAIL_INVALID = "The input Email is invalid."
-ERR_EMAIL_EXISTED = "The Email {} has already existed, please log in."
-ERR_NAME_ALREADY_EXISTED = "The account with the name {} has already existed."
-ERR_ACCOUNT_NOT_REGISTERED = "Your account is not registered yet."
-ERR_ACC_NOT_REGISTERED = "The account has not been registered."
-MSG_ACC_ALREADY_ACTIVATED = "Your account has been activated. Please log in."
-ERR_FAILED_LOGIN = "Failed to login."
-MSG_LOGOUT_SUCESS = "Successfully logged out."
+ERR_NAME_ALREADY_EXISTED = "The display name {} has already existed!"
+ERR_NO_MAIL = "Please provide an Email!"
+ERR_MAIL_INVALID = "The input Email is invalid!"
+ERR_EMAIL_EXISTED = "The Email {} has already existed, please log in!"
+ERR_NAME_ALREADY_EXISTED = "The account with the name {} has already existed!"
+ERR_ACCOUNT_NOT_REGISTERED = "Your account is not registered yet!"
+ERR_ACC_NOT_REGISTERED = "The account has not been registered!"
 ERR_EMAIL_NOT_CONFIRMED = "Account is not confirmed. Please check your email to confirm the account!"
 ERR_INCORRECT_EMAIL_OR_PASSWORD = "Email or password is incorrect!"
+MSG_ACC_ALREADY_ACTIVATED = "Your account has been activated. Please log in."
+MSG_LOGOUT_SUCESS = "Successfully logged out."
+MSG_REGISTER_SUCESS = "Please check your confirmation Email to complete the registration."
 
 # phone
-ERR_NO_PHONE = "Please provide a phone number."
-ERR_PHONE_INCORRECT = "The phone number format is incorrect."
-ERR_PHONE_ALREADY_EXISTED = "The phone number has already existed. Please log in."
-ERR_PHONE_NOT_REGISTERER = "The phone number {} is not registered. Please register."
-ERR_PHONE_FAILED_TO_SEND = "Activation message failed to send."
-ERR_PHONE_NOT_CONFIRMED = "Account related to this phone number is not confirmed. Please check the message to confirm the account."
-ERR_PHONE_OR_PASS_INCORRECT = "The phone number or the password is incorrect. "
-ERR_PHONE_CODE_INCORRECT = "Login code is incorrect or expired."
-
-# RESET PASSWORD
-ERR_RESET_CODE_FAILED_TO_SENT = "Reset code failed to send."
-ERR_RESET_PASS_INCORRECT = "Reset password code is incorrect or expired. Please go to hoovada.com to request for new reset code."
+ERR_NO_PHONE = "Please provide a phone number!"
+ERR_PHONE_INCORRECT = "The phone number format is incorrect!"
+ERR_PHONE_ALREADY_EXISTED = "The phone number has already existed. Please log in!"
+ERR_PHONE_NOT_REGISTERER = "The phone number {} is not registered. Please register!"
+ERR_PHONE_NOT_CONFIRMED = "Account related to this phone number is not confirmed. Please check your message to confirm the account!"
+ERR_PHONE_OR_PASS_INCORRECT = "The phone number or the password is incorrect!"
+ERR_PHONE_NO_CODE = "Please provide phone code!"
+MSG_PHONE_CODE_SENT = "Activation code has been sent to the phone number {}. Please check the message."
+MSG_CODE_SENT = "Activation code has been sent. Please check your Email."
+ERR_NO_TOKEN = "PLease provide access token!"
 MSG_RESET_CODE_SENT = "Reset code has been sent. Please check your Email."
 MSG_RESET_PASS_SUCCESS = "Password reset successfully. PLease input a new password."
 MSG_OTP_SENT = "OTP has been sent."
-ERR_NO_TOKEN = "PLease provide access token."
-ERR_TOKEN_INCORRECT = "Token is incorrect or expired"
 
-# code
-ERR_CODE_INCORRECT = "The code is incorrect or expired."
-ERR_CODE_FAILED_TO_SEND = "Activation code failed to send."
-MSG_CODE_SENT = "Activation code has been sent. Please check your Email."
-ERR_PHONE_CODE_INCORRECT = "Activation code is incorrect or expired."
-ERR_PHONE_NO_CODE = "Please provide phone code."
-MSG_PHONE_CODE_SENT = "Activation code has been sent to the phone number {}. Please check the message."
 
 ########### Article Module #################
 
@@ -106,5 +100,5 @@ ERR_ARTICLE_ALREADY_EXISTS = 'Article with the title {} already exists!'
 ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current time!'
 
 ########### Article Module #################
-ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark ("?")!'
+ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark "?"!'
 ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'
