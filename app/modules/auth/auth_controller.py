@@ -27,7 +27,8 @@ from common.utils.util import (check_password, check_verification,
                                is_valid_email,
                                send_confirmation_email, send_email,
                                send_password_reset_email,
-                               send_verification_sms, validate_phone_number)
+                               send_verification_sms, validate_phone_number,
+                               create_random_string)
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -788,6 +789,7 @@ def save_social_account(provider, data):
     try:
         user = User.query.filter_by(email=data['email']).first()
         if user is None:
+            data['password'] = create_random_string(8)
             user = create_user_with_email(data, is_confirmed=True)
         
         elif user.confirmed == False:
