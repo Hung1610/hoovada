@@ -35,45 +35,48 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-def save_social_account(provider, data):
 
-    first_name = data.get('first_name', '')
-    last_name = data.get('last_name', '')
-    middle_name = data.get('middle_name', '')
-    display_name= create_user_name(data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
-    email = data.get('email', '').strip()
-
+def save_social_account(provider, extra_data):
+    social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
+    if social_account:
+        user = User.query.filter_by(id=social_account.user_id).first()
+        if not user:
+            raise Exception(messages.ERR_FAILED_LOGIN)
+        return user
+        
+    email = extra_data.get('email', '')
+    
     banned = UserBan.query.filter(UserBan.ban_by == email).first()
-    if banned is not None:
-        raise Exception(messages.ERR_BANNED_ACCOUNT)
-
+    if banned:
+        raise Exception(messages.ERR_BANNED_EMAIL)
+    
+    user = g.current_user
+    if not user:
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
+            user_name = AuthController.create_user_name(user_name)
+            first_name = extra_data.get('first_name', '')
+            last_name = extra_data.get('last_name', '')
+            middle_name = extra_data.get('middle_name', '')
+            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
+            user.set_password(password=provider + '_' + str(user_name))
+            
+            try:
+                db.session.add(user)
+                db.session.commit()
+            except Exception as e:
+                print(e)
+                raise e
+    
     try:
-        user = check_user_exist(email)
-        if user is None:
-            password = create_random_string(8)
-            user = User(display_name=display_name, email=email, confirmed=True, email_confirmed_at = datetime.now(), first_name=first_name, middle_name=middle_name, last_name=last_name)
-            user.set_password(password=password)
-            db.session.add(user)
-
-            #user = create_user_with_email(data, is_confirmed=True)
-        
-        if user.confirmed is False:
-            user.confirmed = True
-            user.email_confirmed_at = datetime.now()
-
-        social_account = SocialAccount.query.filter_by(user_id=data.get('id')).first()
-        if social_account is None:            
-            social_account = SocialAccount(provider=provider, uid=data.get('id'), extra_data=json.dumps(data), user_id=user.id)
-            db.session.add(social_account)
-        
-        social_account.user_id = user.id
+        social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
+        db.session.add(social_account)
         db.session.commit()
         return user
-
     except Exception as e:
-        db.session.rollback()
-        raise e      
-
+        print(e)
+        raise e
 
 class AuthController:
 
@@ -817,3 +820,46 @@ def create_user_with_email(data, is_confirmed=False):
             query.delete()
             db.session.commit()
         raise e
+
+"""
+def save_social_account(provider, data):
+
+    first_name = data.get('first_name', '')
+    last_name = data.get('last_name', '')
+    middle_name = data.get('middle_name', '')
+    display_name= create_user_name(data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
+    email = data.get('email', '').strip()
+
+    banned = UserBan.query.filter(UserBan.ban_by == email).first()
+    if banned is not None:
+        raise Exception(messages.ERR_BANNED_ACCOUNT)
+
+    try:
+        user = check_user_exist(email)
+        if user is None:
+            password = create_random_string(8)
+            user = User(display_name=display_name, email=email, confirmed=True, email_confirmed_at = datetime.now(), first_name=first_name, middle_name=middle_name, last_name=last_name)
+            user.set_password(password=password)
+            db.session.add(user)
+
+            #user = create_user_with_email(data, is_confirmed=True)
+        
+        if user.confirmed is False:
+            user.confirmed = True
+            user.email_confirmed_at = datetime.now()
+
+        social_account = SocialAccount.query.filter_by(user_id=data.get('id')).first()
+        if social_account is None:            
+            social_account = SocialAccount(provider=provider, uid=data.get('id'), extra_data=json.dumps(data), user_id=user.id)
+            db.session.add(social_account)
+        
+        social_account.user_id = user.id
+        db.session.commit()
+        return user
+
+    except Exception as e:
+        db.session.rollback()
+        raise e      
+
+
+"""
