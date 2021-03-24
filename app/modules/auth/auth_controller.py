@@ -36,6 +36,53 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+def check_user_exist(email):
+    """ Check user exist by its email. One email on one register """
+
+    user = User.query.filter_by(email=email).first()
+    return user
+
+
+def check_phone_number_exist(phone_number):
+    """ Check phone number exist by its phone_number. One phone number on one register"""
+
+    user = User.query.filter_by(phone_number=phone_number).first()
+    if user is not None: 
+        return True
+    else:
+        return False
+
+
+def check_user_name_exist(user_name):
+    """ Check user exist by its user_name. Return True is existed else return False if not existed"""
+
+    user = User.query.filter_by(display_name=user_name).first()
+    return user is not None
+
+
+def create_user_name(user_name):
+    """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
+
+    if (not check_user_name_exist(user_name)):
+        return user_name
+    
+    count = 1
+    while check_user_name_exist(user_name + '_' + str(count)):
+        count += 1
+    return user_name + '_' + str(count)
+
+
+def save_token(token):
+    blacklist_token = BlacklistToken(token=token)
+    try:
+        db.session.add(blacklist_token)
+        db.session.commit()
+        return send_result(message=messages.MSG_LOGOUT_SUCESS)
+    except Exception as e:
+        db.session.rollback()
+        return send_error(message=e)
+
+
 def save_social_account(provider, extra_data):
     social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
     if social_account:
@@ -215,6 +262,7 @@ class AuthController:
 
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Google", str(e)))
 
 
@@ -244,6 +292,7 @@ class AuthController:
         
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Facebook", str(e)))
 
 
@@ -741,52 +790,6 @@ class AuthController:
             return send_error(message='You are not logged in.')
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
 
-
-def check_user_exist(email):
-    """ Check user exist by its email. One email on one register """
-
-    user = User.query.filter_by(email=email).first()
-    return user
-
-
-def check_phone_number_exist(phone_number):
-    """ Check phone number exist by its phone_number. One phone number on one register"""
-
-    user = User.query.filter_by(phone_number=phone_number).first()
-    if user is not None: 
-        return True
-    else:
-        return False
-
-
-def check_user_name_exist(user_name):
-    """ Check user exist by its user_name. Return True is existed else return False if not existed"""
-
-    user = User.query.filter_by(display_name=user_name).first()
-    return user is not None
-
-
-def create_user_name(user_name):
-    """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
-
-    if (not check_user_name_exist(user_name)):
-        return user_name
-    
-    count = 1
-    while check_user_name_exist(user_name + '_' + str(count)):
-        count += 1
-    return user_name + '_' + str(count)
-
-
-def save_token(token):
-    blacklist_token = BlacklistToken(token=token)
-    try:
-        db.session.add(blacklist_token)
-        db.session.commit()
-        return send_result(message=messages.MSG_LOGOUT_SUCESS)
-    except Exception as e:
-        db.session.rollback()
-        return send_error(message=e)
 
 def create_user_with_email(data, is_confirmed=False):
     try: 
