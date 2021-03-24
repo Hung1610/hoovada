@@ -227,6 +227,21 @@ class UserDto(Dto):
         'is_first_log_in': fields.Boolean(required=False, default=True),
     })
 
+    model_base_feed_data_response = api.model('base_feed_data_response', {
+        'feedId': fields.Integer(required=True),
+        'feedType': fields.String(required=False),
+        'questionId': fields.Integer(required=False),
+        'userId': fields.Integer(required=False),
+        'createdDate': fields.DateTime(required=False),
+    })
+    model_user_feed_response = api.model('user_feed_response', {
+        'article': fields.List(fields.Nested(model_base_feed_data_response, required=True), required=True),
+        'qAPostFeed': fields.List(fields.Nested(model_base_feed_data_response, required=True), required=True),
+        'pageId': fields.Integer(required=True),
+        'limit': fields.Integer(required=True),
+        'totalItems': fields.Integer(required=True),
+    })
+
     model_social_response = api.model('user_social_response', {
         'id': fields.Integer(readonly=True),
         'user_id': fields.Integer(required=False),
