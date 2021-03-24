@@ -36,42 +36,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-def check_user_exist(email):
-    """ Check user exist by its email. One email on one register """
-
-    user = User.query.filter_by(email=email).first()
-    return user
-
-
-def check_phone_number_exist(phone_number):
-    """ Check phone number exist by its phone_number. One phone number on one register"""
-
-    user = User.query.filter_by(phone_number=phone_number).first()
-    if user is not None: 
-        return True
-    else:
-        return False
-
-
-def check_user_name_exist(user_name):
-    """ Check user exist by its user_name. Return True is existed else return False if not existed"""
-
-    user = User.query.filter_by(display_name=user_name).first()
-    return user is not None
-
-
-def create_user_name(user_name):
-    """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
-
-    if (not check_user_name_exist(user_name)):
-        return user_name
-    
-    count = 1
-    while check_user_name_exist(user_name + '_' + str(count)):
-        count += 1
-    return user_name + '_' + str(count)
-
-
 def save_token(token):
     blacklist_token = BlacklistToken(token=token)
     try:
@@ -102,7 +66,7 @@ def save_social_account(provider, extra_data):
         user = User.query.filter_by(email=email).first()
         if not user:
             user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-            user_name = create_user_name(user_name)
+            user_name = AuthController.create_user_name(extra_data.get('name').strip())
             first_name = extra_data.get('first_name', '')
             last_name = extra_data.get('last_name', '')
             middle_name = extra_data.get('middle_name', '')
@@ -126,6 +90,43 @@ def save_social_account(provider, extra_data):
         raise e
 
 class AuthController:
+
+    @staticmethod
+    def check_user_exist(email):
+        """ Check user exist by its email. One email on one register """
+
+        user = User.query.filter_by(email=email).first()
+        return user
+
+    @staticmethod
+    def check_phone_number_exist(phone_number):
+        """ Check phone number exist by its phone_number. One phone number on one register"""
+
+        user = User.query.filter_by(phone_number=phone_number).first()
+        if user is not None: 
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def check_user_name_exist(user_name):
+        """ Check user exist by its user_name. Return True is existed else return False if not existed"""
+
+        user = User.query.filter_by(display_name=user_name).first()
+        return user is not None
+
+    @staticmethod
+    def create_user_name(user_name):
+        """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
+
+        if (not AuthController.check_user_name_exist(user_name)):
+            return user_name
+        
+        count = 1
+        while AuthController.check_user_name_exist(user_name + '_' + str(count)):
+            count += 1
+        return user_name + '_' + str(count)
+
 
     def register(self, data):
 
@@ -166,10 +167,10 @@ class AuthController:
             if banned:
                 raise send_error(message=messages.ERR_BANNED_ACCOUNT)
 
-            if check_user_exist(email=email) is not None:
+            if AuthController.check_user_exist(email=email) is not None:
                 return send_error(message=messages.ERR_EMAIL_EXISTED.format(email))
 
-            if check_user_name_exist(display_name):
+            if AuthController.check_user_name_exist(display_name):
                 return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
             
             user = User(display_name=display_name, email=email, confirmed=False)
@@ -195,7 +196,7 @@ class AuthController:
     def confirm_email(self, token):
 
         email = confirm_token(token)
-        user = check_user_exist(email=email)
+        user = AuthController.check_user_exist(email=email)
         if user is not None and user.confirmed is True:
             return send_result(message=messages.MSG_ACCOUNT_ACTIVATED)
 
@@ -222,7 +223,7 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
         
         email = data['email']
-        user = check_user_exist(email=email)
+        user = AuthController.check_user_exist(email=email)
         
         if not user:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
@@ -322,7 +323,7 @@ class AuthController:
             return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
 
         display_name = data['display_name']
-        if check_user_name_exist(display_name):
+        if AuthController.check_user_name_exist(display_name):
             return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
 
         phone_number = data['phone_number']
@@ -333,7 +334,7 @@ class AuthController:
         if banned:
             raise send_error(message=messages.ERR_BANNED_ACCOUNT)
         
-        if check_phone_number_exist(phone_number):
+        if AuthController.check_phone_number_exist(phone_number):
             return send_error(message=messages.ERR_PHONE_ALREADY_EXISTED)
 
         password = data['password']
@@ -399,7 +400,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_INCORRECT)
         
-        if not check_phone_number_exist(phone_number=phone_number):
+        if not AuthController.check_phone_number_exist(phone_number=phone_number):
             return send_error(message='Người dùng chưa đăng kí!')
         
         try:
@@ -426,7 +427,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_INCORRECT)
         
-        if not check_phone_number_exist(phone_number):
+        if not AuthController.check_phone_number_exist(phone_number):
             return send_error(message='Người dùng chưa tồn tại, vui lòng đăng ký!')
 
         try:
@@ -475,7 +476,7 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
 
         email = data['email']
-        if not check_user_exist(email):
+        if not AuthController.check_user_exist(email):
             return send_error(message='Người dùng chưa đăng ký!')
         try:
             send_password_reset_email(to=email)
