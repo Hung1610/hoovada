@@ -215,7 +215,6 @@ class AuthController:
 
         except Exception as e:
             print(e.__str__())
-            db.session.rollback()
             return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Google", str(e)))
 
 
@@ -245,7 +244,6 @@ class AuthController:
         
         except Exception as e:
             print(e.__str__())
-            db.session.rollback()
             return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Facebook", str(e)))
 
 
