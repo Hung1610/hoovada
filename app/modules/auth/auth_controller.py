@@ -48,7 +48,7 @@ def save_social_account(provider, extra_data):
     
     banned = UserBan.query.filter(UserBan.ban_by == email).first()
     if banned:
-        raise Exception(messages.ERR_BANNED_EMAIL)
+        raise Exception(messages.ERR_BANNED_ACCOUNT)
     
     user = g.current_user
     if not user:
