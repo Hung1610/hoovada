@@ -761,10 +761,12 @@ def create_user_with_email(data, is_confirmed=False):
         if is_valid_email(email) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
 
-        user = User(display_name=display_name, email=email, confirmed=is_confirmed, first_name=first_name, middle_name=middle_name, last_name=last_name, is_deactivated=False)
+        user = User(display_name=display_name, email=email, confirmed=is_confirmed, first_name=first_name, middle_name=middle_name, last_name=last_name)
         user.set_password(password=password)
-        if is_confirmed == True:
+        
+        if is_confirmed is True:
             user.email_confirmed_at = datetime.now()
+
         db.session.add(user)
         db.session.commit()
         return user
@@ -779,36 +781,40 @@ def create_user_with_email(data, is_confirmed=False):
 
 def save_social_account(provider, data):
 
-    data['first_name'] = data.get('first_name', '').strip()
-    data['last_name'] = data.get('last_name', '').strip()
-    data['middle_name'] = data.get('middle_name', '').strip()
-    data['display_name'] = create_user_name(data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
-    data['email'] = data.get('email', '').strip()
+    first_name = data.get('first_name', '')
+    last_name = data.get('last_name', '')
+    middle_name = data.get('middle_name', '')
+    display_name= create_user_name(data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
+    email = data.get('email', '').strip()
 
-    banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
+    banned = UserBan.query.filter(UserBan.ban_by == email).first()
     if banned is not None:
         raise Exception(messages.ERR_BANNED_ACCOUNT)
 
     try:
-        user = g.current_user
+        user = check_user_exist(email)
         if user is None:
-            data['password'] = create_random_string(8)
-            user = create_user_with_email(data, is_confirmed=True)
+            password = create_random_string(8)
+            user = User(display_name=display_name, email=email, confirmed=True, email_confirmed_at = datetime.now(), first_name=first_name, middle_name=middle_name, last_name=last_name)
+            user.set_password(password=password)
+            db.session.add(user)
+
+            #user = create_user_with_email(data, is_confirmed=True)
         
-        if user.confirmed == False:
+        if user.confirmed is False:
             user.confirmed = True
             user.email_confirmed_at = datetime.now()
 
-        social_account = SocialAccount.query.filter_by(user_id=user.id).first()
-        if social_account is not None:
-            social_account.user_id = user.id
-        else:    
+        social_account = SocialAccount.query.filter_by(user_id=data.get('id')).first()
+        if social_account is None:            
             social_account = SocialAccount(provider=provider, uid=data.get('id'), extra_data=json.dumps(data), user_id=user.id)
             db.session.add(social_account)
         
+        social_account.user_id = user.id
         db.session.commit()
         return user
 
     except Exception as e:
+        db.session.rollback()
         raise e      
 
