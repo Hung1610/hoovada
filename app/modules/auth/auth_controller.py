@@ -37,42 +37,121 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class AuthController:
 
-    def check_user_exist(email):
-        """ Check user exist by its email. One email on one register """
+    def register(self, data):
 
-        user = User.query.filter_by(email=email).first()
-        return user
+        try:
+            if not isinstance(data, dict):
+                return send_error(
+                    message=messages.ERR_WRONG_DATA_FORMAT)
+            
+            if not 'email' in data or str(data['email']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_MAIL)
+            
+            if not 'password' in data or str(data['password']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_PASSWORD)
+            
+            if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            
+            if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_DISPLAY_NAME)
+            
+            if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
+                return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
+
+            if is_valid_email(data['email']) is False:
+                return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
+
+            if len(check_password(data['password'])) > 0:
+                return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
+
+            if data['password_confirm'] != data['password']:
+                return send_error(message=messages.ERR_INVALID_CONFIMED_PASSWORD)
+            
+            email = data['email']
+            display_name = data['display_name']
+            password = data['password']
+
+            banned = UserBan.query.filter(UserBan.ban_by == email).first()
+            if banned:
+                raise send_error(message=messages.ERR_BANNED_ACCOUNT)
+
+            if check_user_exist(email=email) is not None:
+                return send_error(message=messages.ERR_EMAIL_EXISTED.format(email))
+
+            if check_user_name_exist(display_name):
+                return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
+            
+            user = User(display_name=display_name, email=email, confirmed=False)
+            user.set_password(password=password)
+            db.session.add(user)
+            db.session.commit()
+
+            send_confirmation_email(to=user.email, user=user)
+            return send_result(message=messages.MSG_MSG_EMAIL_REGISTER_SUCCESS)
+                
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+
+            query = db.session.query(User).filter(User.email == email)
+            if query is None:
+                query.delete()
+                db.session.commit()
+            
+            return send_error(message=messages.ERR_FAILED_REGISTER.format(str(e)))
 
 
-    def check_phone_number_exist(phone_number):
-        """ Check phone number exist by its phone_number. One phone number on one register"""
+    def confirm_email(self, token):
 
-        user = User.query.filter_by(phone_number=phone_number).first()
-        if user is not None: 
-            return True
-        else:
-            return False
+        email = confirm_token(token)
+        user = check_user_exist(email=email)
+        if user is not None and user.confirmed is True:
+            return send_result(message=messages.MSG_ACCOUNT_ACTIVATED)
+
+        try:
+            user.confirmed = True
+            user.email_confirmed_at = datetime.now()
+            db.session.commit()
+            html = render_template('welcome.html', user=user)
+            send_email(user.email, 'Hoovada - Chào mừng bạn tham gia vào cộng đồng!', html)
+            return send_result(message=messages.MSG_ACCOUNT_ACTIVATED)
+        
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_result(message=messages.ERR_REGISTRATION_CONFIRMATION_FAILED.format(str(e))) 
 
 
-    def check_user_name_exist(user_name):
-        """ Check user exist by its user_name. Return True is existed else return False if not existed"""
+    def resend_confirmation(self, data):
 
-        user = User.query.filter_by(display_name=user_name).first()
-        return user is not None
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
+        if not 'email' in data or str(data['email']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_MAIL)
+        
+        email = data['email']
+        user = check_user_exist(email=email)
+        
+        if not user:
+            return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
-
-    def create_user_name(user_name):
-        """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
-
-        if (not AuthController.check_user_name_exist(user_name)):
-            return user_name
-        count = 1
-        while AuthController.check_user_name_exist(user_name + '_' + str(count)):
-            count += 1
-        return user_name + '_' + str(count)
+        # if already activated, do not send confirm email
+        if user.confirmed is True:
+            return send_result(message=messages.MSG_ACCOUNT_ACTIVATED)        
+        
+        try:
+            send_confirmation_email(to=email, user=user)
+            return send_result(message=messages.MSG_MSG_EMAIL_REGISTER_SUCCESS)
+            
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_REGISTRATION_CONFIRMATION_FAILED.format(str(e)))
 
 
     def login_with_google(self, data):
+
         try:
             if not isinstance(data, dict):
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -86,11 +165,15 @@ class AuthController:
             resp.raise_for_status()
             extra_data = resp.json()
             user = save_social_account('google', extra_data)
+            
             auth_token = encode_auth_token(user_id=user.id)
             if auth_token:
                 return send_result(data={'access_token': auth_token.decode('utf8')})
+
         except Exception as e:
-            return send_error(message=messages.ERR_ISSUE.format(e))
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Google", str(e)))
 
 
     def login_with_facebook(self, data):
@@ -102,25 +185,25 @@ class AuthController:
                 return send_error(message=messages.ERR_NO_TOKEN)
 
             access_token = str(data['access_token'])
-            # key = current_app.config['FACEBOOK_SECRET'].encode('utf-8')
-            # msg = access_token.encode('utf-8')
-            # appsecret_proof = hmac.new(key, msg, hashlib.sha256).hexdigest()
             resp = requests.get(
                 Config.GRAPH_API_URL,
                 params={
                     'fields': ','.join(Config.FACEBOOK_FIELDS),
                     'access_token': access_token,
-                    # 'appsecret_proof': appsecret_proof
                 })
 
             resp.raise_for_status()
             extra_data = resp.json()
             user = save_social_account('facebook', extra_data)
+        
             auth_token = encode_auth_token(user_id=user.id)
             if auth_token:
                 return send_result(data={'access_token': auth_token.decode('utf8')})
+        
         except Exception as e:
-            return send_error(message=messages.ERR_ISSUE.format(e))
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Facebook", str(e)))
 
 
     def sms_register(self, data):
@@ -137,10 +220,10 @@ class AuthController:
             return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
 
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_NAME)
+            return send_error(message=messages.ERR_NO_DISPLAY_NAME)
         
         if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_POLICY_STATUS)
+            return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
         
         if data['password_confirm'] != data['password']:
             return send_error(message=messages.ERR_WRONG_CONFIMED_PASSWORD)
@@ -153,8 +236,8 @@ class AuthController:
             return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
 
         display_name = data['display_name']
-        if AuthController.check_user_name_exist(display_name):
-            return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
+        if check_user_name_exist(display_name):
+            return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -162,9 +245,9 @@ class AuthController:
 
         banned = UserBan.query.filter(UserBan.ban_by == phone_number).first()
         if banned:
-            raise send_error(message=messages.ERR_BANNED_EMAIL)
+            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
         
-        if AuthController.check_phone_number_exist(phone_number):
+        if check_phone_number_exist(phone_number):
             return send_error(message=messages.ERR_PHONE_ALREADY_EXISTED)
 
         password = data['password']
@@ -184,6 +267,7 @@ class AuthController:
                 return send_error(message=messages.ERR_REGISTRATION_FAILED)
         else:
            return send_error(message=messages.ERR_PHONE_INCORRECT)
+
 
     def confirm_sms(self, data):
         if not isinstance(data, dict):
@@ -229,7 +313,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_INCORRECT)
         
-        if not AuthController.check_phone_number_exist(phone_number=phone_number):
+        if not check_phone_number_exist(phone_number=phone_number):
             return send_error(message='Người dùng chưa đăng kí!')
         
         try:
@@ -241,90 +325,7 @@ class AuthController:
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messagesERR_CODE_FAILED_TO_SEND)
-    
-    def create_user(self, user, password):
-        try:
-            user.set_password(password=password)
-            db.session.add(user)
-            db.session.commit()
-            return True
-        except Exception as e:
-            db.session.rollback()
-            e.__setattr__("is_rollback", True)
-            return e
-
-    def delete_user(self, email):
-        try:
-            query = db.session.query(User).filter(User.email == email)
-            query.delete()
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-
-    def register(self, data):
-        try:
-            if not isinstance(data, dict):
-                return send_error(
-                    message=messages.ERR_WRONG_DATA_FORMAT)
-            
-            if not 'email' in data or str(data['email']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_MAIL)
-            
-            if not 'password' in data or str(data['password']).strip().__eq__(''):
-                return send_error(message='Password is missing!')
-            
-            if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
-            
-            if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-                return send_error(message='Display_name is missing!')
-            
-            if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_POLICY_STATUS)
-
-            if is_valid_email(data['email']) is False:
-                return send_error(message='Password is not valid!')
-            
-            if data['password_confirm'] != data['password']:
-                return send_error(message='Password confirmation failed!')
-
-            if len(check_password(data['password'])) > 0:
-                return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
-            
-            email = data['email']
-            display_name = data['display_name']
-            password = data['password']
-            is_policy_accepted = data['is_policy_accepted']
-
-            banned = UserBan.query.filter(UserBan.ban_by == email).first()
-            if banned:
-                raise send_error(message=messages.ERR_BANNED_EMAIL)
-
-            if not is_policy_accepted:
-                return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
-
-            if AuthController.check_user_exist(email=email):
-                return send_error(message='Địa chi email {} đã tồn tại, vui lòng đăng nhập!'.format(email))
-
-            if AuthController.check_user_name_exist(display_name):
-                return send_error(message=messages.ERR_NAME_ALREADY_EXISTED.format(display_name))
-            
-            user = User(display_name=display_name, email=email, confirmed=False)
-            create_result = self.create_user(user=user, password=password)
-            if create_result is True:
-                send_confirmation_email(to=user.email, user=user)
-                return send_result(message=messages.MSG_REGISTER_SUCESS)
-            else:
-                raise Exception(create_result)
-                
-        except Exception as e:
-            print(e.__str__())
-            # if has error and data did not rollback then manual delete user
-            if not hasattr(e, 'is_rollback'):
-                self.delete_user(data.get('email'))
-
-            return send_error(message=messages.ERR_FAILED_LOGIN)
+            return send_error(message=messagesERR_CODE_FAILED_TO_SEND.format(str(e)))
 
     def reset_password_by_sms(self, data):
         """Reset password request by SMS OTP"""
@@ -339,7 +340,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_INCORRECT)
         
-        if not AuthController.check_phone_number_exist(phone_number):
+        if not check_phone_number_exist(phone_number):
             return send_error(message='Người dùng chưa tồn tại, vui lòng đăng ký!')
 
         try:
@@ -384,7 +385,7 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
 
         email = data['email']
-        if not AuthController.check_user_exist(email):
+        if not check_user_exist(email):
             return send_error(message='Người dùng chưa đăng ký!')
         try:
             send_password_reset_email(to=email)
@@ -453,7 +454,7 @@ class AuthController:
         try:
             banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
             if banned:
-                raise send_error(message=messages.ERR_BANNED_EMAIL)
+                raise send_error(message=messages.ERR_BANNED_ACCOUNT)
             user = User.query.filter_by(phone_number=data['phone_number']).first()
             if user and user.check_password(data['password']):
                 if not user.confirmed:
@@ -469,7 +470,7 @@ class AuthController:
                     return send_result(data={'access_token': auth_token.decode('utf8')})
                     
             else:
-                return send_error(message='Số điện thoại hoặc mật khẩu không đúng, vui lòng thử lại')  # Email or Password does not match')
+                return send_error(message='Số điện thoại hoặc mật khẩu không đúng, vui lòng thử lại')
         
         except Exception as e:
             print(e.__str__())
@@ -482,7 +483,7 @@ class AuthController:
         try:
             banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
             if banned:
-                raise send_error(message=messages.ERR_BANNED_EMAIL)
+                raise send_error(message=messages.ERR_BANNED_ACCOUNT)
             
             user = User.query.filter_by(phone_number=data['phone_number']).first()
             if user:
@@ -499,7 +500,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_FAILED_LOGIN)
-    
+
 
     def sms_login_with_code_confirm(self, data):
         if not isinstance(data, dict):
@@ -510,7 +511,7 @@ class AuthController:
         
         banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
         if banned:
-            raise send_error(message=messages.ERR_BANNED_EMAIL)
+            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
         phone_number = data['phone_number']
         code = data['code']
         if not validate_phone_number(phone_number):
@@ -640,50 +641,11 @@ class AuthController:
             return send_error(message=messages.ERR_CODE_INCORRECT_EXPIRED)
 
 
-    def resend_confirmation(self, data):
-        if not isinstance(data, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        
-        if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
-        
-        email = data['email']
-        user = AuthController.check_user_exist(email=email)
-        if not user:
-            return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
-        try:
-            send_confirmation_email(to=email, user=user)
-            return send_result(message=messages.MSG_REGISTER_SUCESS)
-            
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_CODE_FAILED_TO_SEND)
-
-
-    def confirm_email(self, token):
-        email = confirm_token(token)
-        user = User.query.filter_by(email=email).first()
-        if user:
-            if user.confirmed:
-                message = 'Tài khoản của bạn đã được kích hoạt trước đó, vui lòng đăng nhập.'
-                return send_result(message=message)
-
-            user.confirmed = True
-            user.email_confirmed_at = datetime.now()
-            db.session.commit()
-            html = render_template('welcome.html', user=user)
-            send_email(user.email, 'Chào mừng bạn tham gia vào cộng đồng hoovada.com', html)
-            return send_result(message=messages.MSG_ACC_ALREADY_ACTIVATED)
-        
-        else:
-            return send_result(message=messages.ERR_CODE_INCORRECT_EXPIRED) 
-
-
     def login_user(self, data):
         try:
             banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
             if banned:
-                raise send_error(message=messages.ERR_BANNED_EMAIL)
+                raise send_error(message=messages.ERR_BANNED_ACCOUNT)
 
             user = User.query.filter_by(email=data['email']).first()
             if user and user.check_password(data['password']):
@@ -739,6 +701,42 @@ class AuthController:
         return send_result(data=marshal(user, UserDto.model_response), message='Success')
 
 
+def check_user_exist(email):
+    """ Check user exist by its email. One email on one register """
+
+    user = User.query.filter_by(email=email).first()
+    return user
+
+
+def check_phone_number_exist(phone_number):
+    """ Check phone number exist by its phone_number. One phone number on one register"""
+
+    user = User.query.filter_by(phone_number=phone_number).first()
+    if user is not None: 
+        return True
+    else:
+        return False
+
+
+def check_user_name_exist(user_name):
+    """ Check user exist by its user_name. Return True is existed else return False if not existed"""
+
+    user = User.query.filter_by(display_name=user_name).first()
+    return user is not None
+
+
+
+def create_user_name(user_name):
+    """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
+
+    if (not check_user_name_exist(user_name)):
+        return user_name
+    
+    count = 1
+    while check_user_name_exist(user_name + '_' + str(count)):
+        count += 1
+    return user_name + '_' + str(count)
+
 
 def save_token(token):
     blacklist_token = BlacklistToken(token=token)
@@ -750,48 +748,75 @@ def save_token(token):
         db.session.rollback()
         return send_error(message=e)
 
-def save_social_account(provider, extra_data):
-    social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
-    if social_account:
-        user = User.query.filter_by(id=social_account.user_id).first()
-        if not user:
-            raise Exception(messages.ERR_FAILED_LOGIN)
-        return user
-        
-    email = extra_data.get('email', '')   
-    banned = UserBan.query.filter(UserBan.ban_by == email).first()
-    if banned:
-        raise Exception(messages.ERR_BANNED_EMAIL)
-    user = g.current_user
-    if not user:
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-            
-            first_name = extra_data.get('first_name', '').strip()
-            last_name = extra_data.get('last_name', '').strip()
-            middle_name = extra_data.get('middle_name', '').strip()
+def create_user_with_email(data, is_confirmed=False):
+    try: 
+        #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
+        user_name = user_name.strip()
 
-            if 'name' in  extra_data:
-                user_name = AuthController.create_user_name(extra_data.get('name'))
-            else:
-                user_name = (first_name + " " + middle_name + " " + last_name)
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        middle_name = data.get('middle_name', '')
+        display_name =  data.get('display_name', '')
+        email = data.get('email', '')
+        password = data.get('password', '')
 
-            user_name = user_name.strip()
-            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
-            user.set_password(password=provider + '_' + str(user_name))
-            user.is_deactivated == False
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except Exception as e:
-                print(e)
-                raise e
-    try:
-        social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
-        db.session.add(social_account)
+        if is_valid_email(email) is False:
+            return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
+
+        user = User(display_name=display_name, email=email, confirmed=is_confirmed, first_name=first_name, middle_name=middle_name, last_name=last_name, is_deactivated=False)
+        user.set_password(password=password)
+        if is_confirmed == True:
+            user.email_confirmed_at = datetime.now()
+        db.session.add(user)
         db.session.commit()
         return user
+
     except Exception as e:
-        print(e)
+        db.session.rollback()
+        query = db.session.query(User).filter(User.email == email)
+        if query is None:
+            query.delete()
+            db.session.commit()
         raise e
+
+def save_social_account(provider, data):
+
+    data['first_name'] = data.get('first_name', '').strip()
+    data['last_name'] = data.get('last_name', '').strip()
+    data['middle_name'] = data.get('middle_name', '').strip()
+    data['display_name'] = create_user_name(data.get('name', first_name + " " + middle_name + " " + last_name)).strip()
+    data['email'] = data.get('email', '').strip()
+
+    banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
+    if banned is not None:
+        raise Exception(messages.ERR_BANNED_ACCOUNT)
+        
+    try:
+        user = User.query.filter_by(email=data['email']).first()
+        if user is None:
+            user = create_user_with_email(data, is_confirmed=True)
+        
+        elif user.confirmed == False:
+                user.confirmed = True
+                user.email_confirmed_at = datetime.now()
+                db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
+    try:
+        social_account = SocialAccount.query.filter_by(user_id=user.id).first()
+        if social_account is not None:
+            if social_account.user_id is None:
+                social_account.user_id = user.id
+                db.session.commit()
+        else:    
+            social_account = SocialAccount(provider=provider, uid=data.get('id'), extra_data=json.dumps(data), user_id=user.id)
+            db.session.add(social_account)
+            db.session.commit()
+        return user
+
+    except Exception as e:
+        db.session.rollback()
+        raise e      
+
