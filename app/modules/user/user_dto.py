@@ -234,8 +234,10 @@ class UserDto(Dto):
         'userId': fields.Integer(required=False),
         'createdDate': fields.DateTime(required=False),
     })
+    article_feed_response = model_base_feed_data_response.copy()
+    article_feed_response['title'] = fields.String(required=False)
     model_user_feed_response = api.model('user_feed_response', {
-        'article': fields.List(fields.Nested(model_base_feed_data_response, required=True), required=True),
+        'article': fields.List(fields.Nested(article_feed_response, required=True), required=True),
         'qAPostFeed': fields.List(fields.Nested(model_base_feed_data_response, required=True), required=True),
         'pageId': fields.Integer(required=True),
         'limit': fields.Integer(required=True),
