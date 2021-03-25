@@ -23,6 +23,7 @@ user_get_parser = UserDto.model_get_parser
 user_get_social_parser = UserDto.model_get_social_account_parser
 user_request = UserDto.model_request
 user_response = UserDto.model_response
+user_feed_response = UserDto.model_user_feed_response
 
 
 @api.route('')
@@ -53,14 +54,12 @@ class UserList(Resource):
 
 @api.route('/<int:user_id>/feed')
 # @api.expect(user_get_parser)
-@api.response(code=200, description='Model for user response.')
+@api.response(code=200, model=user_feed_response, description='Model for feed of user response.')
 class UserGetFeed(Resource):
     def get(self, user_id):
         """
         Get user's feed
         """
-
-        # args = user_get_parser.parse_args()
         controller = UserController()
         return controller.get_feed(user_id=user_id)
 

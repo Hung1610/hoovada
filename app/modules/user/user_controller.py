@@ -379,12 +379,12 @@ class UserController(Controller):
         
         try:
             api_endpoint = '/api/feed'
-            param = 'user_id={}'.format(user_id)
-            get_feed_url = '{}{}?{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint, param)
-            response = requests.get(url=get_feed_url)
+            get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
+            response = requests.get(url=get_feed_url, params={'user_id': user_id})
             if response.status_code == HTTPStatus.OK:
-                response = json.loads(response.content)
-                return response
+                resp = json.loads(response.content)
+                feed_data = resp.get('result')
+                return send_result(data=marshal(feed_data, UserDto.model_user_feed_response), message='Success')
             else:
                 txt = json.loads(response.text)
                 raise send_error(message=messages.ERR_ISSUE.format(txt))
