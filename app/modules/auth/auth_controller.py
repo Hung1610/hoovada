@@ -84,10 +84,6 @@ class AuthController:
         if check_user_by_display_name(display_name):
             return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
             
-            #user = User(display_name=display_name, email=email, confirmed=False)
-            #user.set_password(password=password)
-            #db.session.add(user)
-            #db.session.commit()
         try:
             user = create_user_by_email(data)
             send_confirmation_email(to=user.email, user=user)

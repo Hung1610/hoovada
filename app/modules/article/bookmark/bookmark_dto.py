@@ -62,8 +62,6 @@ class ArticleBookmarkDto(Dto):
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search all bookmarks by finish voting date.')
     model_get_parser.add_argument('bookmarkd_user_id', type=str, required=False, help='Search bookmarks by user owner of the article')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)

@@ -27,7 +27,6 @@ Topic = db.get_model('Topic')
 TopicBookmark = db.get_model('TopicBookmark')
 User = db.get_model('User')
 
-
 class TopicBookmarkController(Controller):
     query_classname = 'TopicBookmark'
     special_filtering_fields = ['from_date', 'to_date']

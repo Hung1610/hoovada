@@ -26,9 +26,7 @@ _vote_get_params = TopicBookmarkDto.model_get_parser
 class BookmarkTopicAll(Resource):
     @api.expect(_vote_get_params)
     def get(self):
-        """
-        Search all bookmark that satisfy conditions.
-        """
+        """Search all topic bookmark"""
 
         args = _vote_get_params.parse_args()
         controller = TopicBookmarkController()
@@ -38,9 +36,7 @@ class BookmarkTopicAll(Resource):
 class BookmarkTopic(Resource):
     @api.expect(_vote_get_params)
     def get(self, topic_id):
-        """
-        Search all bookmark that satisfy conditions.
-        """
+        """Search all bookmark of a particular topic"""
 
         args = _vote_get_params.parse_args()
         args['topic_id'] = topic_id
@@ -50,18 +46,14 @@ class BookmarkTopic(Resource):
     @token_required
     @api.response(code=200, model=_bookmark_response, description='The model for bookmark.')
     def post(self, topic_id):
-        """
-        Create a bookmark on current user.
-        """
+        """Create a bookmark on current user"""
 
         controller = TopicBookmarkController()
         return controller.create(topic_id=topic_id)
 
     @token_required
     def delete(self, topic_id):
-        """
-        Delete bookmark on current user.
-        """
+        """Delete bookmark on current user"""
         
         controller = TopicBookmarkController()
         return controller.delete(topic_id=topic_id)

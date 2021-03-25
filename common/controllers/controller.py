@@ -17,9 +17,8 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class Controller(ABC):
-    """
-    This class will control all interactions between clients, database server and other things.
-    """
+    """ This class will control all interactions between clients, database server and other things"""
+    
     query_classname = ''
     allowed_ordering_fields = []
     special_filtering_fields = ['from_date', 'to_date']

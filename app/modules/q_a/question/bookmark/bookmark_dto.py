@@ -33,8 +33,8 @@ class QuestionBookmarkDto(Dto):
 
     model_response = api.model('bookmark_question_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
-        'user_id': fields.Integer(required=True, description='The user ID who bookmarkd'),
-        'question_id': fields.Integer(required=False, description='The user ID who has been bookmarkd'),
+        'user_id': fields.Integer(required=True, description='The user ID who bookmarked'),
+        'question_id': fields.Integer(required=False, description='The user ID who has been bookmarked'),
         'question':fields.Nested(model_bookmark_question, description='The information of the question'),
         'created_date': fields.DateTime(required=False, description='The created date'),
         'updated_date': fields.DateTime(required=False, description='The updated date')

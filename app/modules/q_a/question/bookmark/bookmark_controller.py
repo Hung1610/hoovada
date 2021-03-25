@@ -28,13 +28,14 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class QuestionBookmarkController(Controller):
-    def get(self, question_id, args):
+    def get(self, args):
         
         try:
             user_id = args.get('user_id', None)
             bookmarkd_user_id = args.get('bookmarkd_user_id', None)
             from_date = args.get('from_date', None)
             to_date = args.get('to_date', None)
+            question_id = args.get('question_id', None)
 
             query = QuestionBookmark.query
             if question_id is not None:
@@ -58,6 +59,7 @@ class QuestionBookmarkController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format("all question bookmark", str(e)))
 
+
     def create(self, question_id):
         data = {}
         current_user, _ = current_app.get_logged_user(request)
@@ -75,11 +77,12 @@ class QuestionBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            return send_result(message=constants.msg_create_success,
-                               data=marshal(bookmark, QuestionBookmarkDto.model_response))
+            return send_result(message=constants.msg_create_success, data=marshal(bookmark, QuestionBookmarkDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message=constants.msg_create_failed)
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -105,9 +108,11 @@ class QuestionBookmarkController(Controller):
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
                 return send_result(message=constants.msg_delete_success_with_id.format(bookmark.id))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=constants.msg_delete_failed)
+
 
     def _parse_bookmark(self, data, bookmark=None):
         if bookmark is None:
