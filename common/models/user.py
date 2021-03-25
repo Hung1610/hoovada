@@ -89,8 +89,7 @@ class User(Model):
 
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False,
-                                                  server_default='weekly')
+    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False,server_default='weekly')
 
     new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.true())
     new_answer_email_settings = db.Column(db.Boolean, server_default=expression.true())

@@ -765,14 +765,12 @@ class AuthController:
             return send_error(message=messages.ERR_NO_TOKEN)
         
         try:  
-            #user_id, _ = decode_auth_token(auth_token=auth_token)
-            #user = User.get_user_by_id(user_id)
-
-            user = g.current_user
+            user_id, _ = decode_auth_token(auth_token=auth_token)
+            user = User.get_user_by_id(user_id)
             if user is None:
                 return send_error(message=messages.ERR_NOT_LOGIN)
 
-            user.active = False
+            user.active = 0
             user.last_seen = datetime.now()
             db.session.commit()
 
