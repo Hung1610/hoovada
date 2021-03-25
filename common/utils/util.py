@@ -156,18 +156,23 @@ def convert_vietnamese_diacritics(s):
 
 
 def send_verification_sms(to=''):
-    user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=to).first()
-    service = CommonBaseConfig.VERIFICATION_SID
-    verification = client.verify \
-        .services(service) \
-        .verifications \
-        .create(to=to, channel='sms')
+    try: 
+        user = db.get_model(current_app.config['USER_MODEL_NAME']).query.filter_by(phone_number=to).first()
+        service = CommonBaseConfig.VERIFICATION_SID
+        verification = client.verify \
+            .services(service) \
+            .verifications \
+            .create(to=to, channel='sms')
 
-    if verification and verification.sid and user:
-        user.verification_sms_time = datetime.utcnow()
-        db.session.commit()
-    
-    return verification.sid
+        if verification and verification.sid and user:
+            user.verification_sms_time = datetime.utcnow()
+            db.session.commit()
+        
+        return verification.sid
+    except Exception as e:
+        print(e.__str__())
+        db.session.rollback()
+        raise e
 
 
 def is_valid_username(user_name):

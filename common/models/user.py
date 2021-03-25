@@ -294,6 +294,14 @@ class User(Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_user_by_email(email):
+        user = User.query.filter_by(email=email).first()
+        return user
+
+    def get_user_by_phone_number(phone_number):
+        user = User.query.filter_by(phone_number=phone_number).first()
+        return user
+
     @property
     def is_online(self):
         return abs(self.last_seen - datetime.now()).total_seconds() < 60

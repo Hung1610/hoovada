@@ -44,24 +44,11 @@ ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_SPELLING = 'Please check spelling errors!'
 
-# Topics
-ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
-ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 
 ########### Authentication Module #################
 
 # common
-ERR_FAILED_REGISTER = "Failed to Register with the issue {}"
-ERR_REGISTRATION_CONFIRMATION_FAILED = "Registration confirmation failed with issue {}!"
-ERR_NO_TOKEN = "PLease provide access token!"
 
-ERR_FAILED_LOGIN = "Failed to login. Please try again!"
-ERR_BANNED_ACCOUNT = "This account is banned!"
-ERR_CODE_INCORRECT_EXPIRED = "The code is incorrect or expired! Please access Hoovada.com to request for new code!"
-ERR_CODE_FAILED_TO_SEND = "Failed to send code with issue {}!"
-
-# Mail
-## Registration
 ERR_NO_POLICY_ACCEPTED = "You need to accept the policy!"
 ERR_NO_PASSWORD = "Please provide a password!"
 ERR_NO_CONFIRMED_PASSWORD = "Please provide confirmed password!"
@@ -70,35 +57,39 @@ ERR_NO_EMAIL = "Please provide an Email!"
 ERR_INVALID_INPUT_EMAIL = "Email is not valid!"
 ERR_INVALID_CONFIMED_PASSWORD = "The confirmed password is not correct!"
 ERR_INVALID_INPUT_PASSWORD = "The password length must have at least 8!"
-ERR_EMAIL_EXISTED = "The Email '{}'' has already existed, please log in!"
-ERR_DISPLAY_NAME_EXISTED = "The display name '{}'' has already existed!"
-MSG_EMAIL_REGISTER_SUCCESS = "Please check your confirmation Email to complete the registration."
-MSG_ACCOUNT_ACTIVATED = "Your account has been activated, please log in."
+ERR_DISPLAY_NAME_EXISTED = "The display name '{}' has already existed!"
+ERR_INCORRECT_EMAIL_OR_PASSWORD = "Email or password is incorrect!"
+ERR_BANNED_ACCOUNT = "This account is banned!"
+ERR_CODE_INCORRECT_EXPIRED = "The code is incorrect or expired!"
+ERR_ACCOUNT_EXISTED = "The account with this email or number has already existed!"
+ERR_ACCOUNT_NOT_REGISTERED = "Your account is not registered yet!"
+ERR_ACCOUNT_NOT_CONFIRMED = "Account is not confirmed!"
+
+ERR_REGISTRATION_FAILED = "Registration failed with issue {}!"
+MSG_REGISTRATION_SUCCESS = "Account registration is successful."
+
+ERR_RESET_PASSWORD_FAILED = "Password reset or change failed with issue {}!"
+MSG_RESET_PASSWORD_SUCCESS = "Password reset or change is successful."
+MSG_PASS_INPUT_PROMPT = "Please input a new password."
+
+MSG_EMAIL_SENT = "Please check your Email."
+MSG_PHONE_SENT = "Please check your phone message."
+
+ERR_NO_TOKEN = "PLease provide a token!"
 
 ## Authentication
-ERR_ACCOUNT_NOT_REGISTERED = "Your account is not registered yet!"
-ERR_EMAIL_NOT_CONFIRMED = "Account is not confirmed. Please check your email to confirm the account!"
-ERR_INCORRECT_EMAIL_OR_PASSWORD = "Email or password is incorrect!"
+ERR_LOGIN_FAILED = "Failed to login!"
+ERR_NOT_LOGIN = "You are not logged in!" 
 MSG_LOGOUT_SUCESS = "Successfully logged out."
 
 # Social login
 ERR_SOCIAL_LOGIN_FAILED = "{} login failed with issue {}!"
 
-
 # phone
-ERR_NO_PHONE = "Please provide a phone number!"
-ERR_PHONE_INCORRECT = "The phone number format is incorrect!"
-ERR_PHONE_ALREADY_EXISTED = "The phone number has already existed. Please log in!"
-ERR_PHONE_NOT_REGISTERER = "The phone number {} is not registered. Please register!"
-ERR_PHONE_NOT_CONFIRMED = "Account related to this phone number is not confirmed. Please check your message to confirm the account!"
-ERR_PHONE_OR_PASS_INCORRECT = "The phone number or the password is incorrect!"
-ERR_PHONE_NO_CODE = "Please provide phone code!"
-MSG_PHONE_CODE_SENT = "Activation code has been sent to the phone number {}. Please check the message."
-MSG_CODE_SENT = "Activation code has been sent. Please check your Email."
-MSG_RESET_CODE_SENT = "Reset code has been sent. Please check your Email."
-MSG_RESET_PASS_SUCCESS = "Password reset successfully. PLease input a new password."
-MSG_OTP_SENT = "OTP has been sent."
-
+ERR_INVALID_NUMBER = "Please provide a valid phone number!"
+ERR_NO_PHONE_CODE = "Please provide a valid code!"
+ERR_CHANGE_NUMBER_FAILED = "Changing phone number failed with issue {}!"
+MSG_CHANGE_NUMBER_SUCCESS = "Changing phone number is successful."
 
 ########### Article Module #################
 
@@ -108,3 +99,8 @@ ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current t
 ########### Question Module #################
 ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark "?"!'
 ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'
+
+
+########### Topics Module #################
+ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
+ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
