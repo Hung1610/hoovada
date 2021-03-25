@@ -776,7 +776,7 @@ def save_social_account(provider, data):
     first_name = data.get('first_name', '')
     last_name = data.get('last_name', '')
     middle_name = data.get('middle_name', '')
-    display_name= create_user_name(data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
+    display_name= create_user_name(data.get('name', (first_name+ " " + middle_name + " " + last_name).strip()))
     email = data.get('email', '').strip()
 
     banned = UserBan.query.filter(UserBan.ban_by == email).first()
@@ -790,8 +790,6 @@ def save_social_account(provider, data):
             user = User(display_name=display_name, email=email, confirmed=True, email_confirmed_at=datetime.now(), first_name=first_name, middle_name=middle_name, last_name=last_name)
             user.set_password(password=password)
             db.session.add(user)
-
-            #user = create_user_with_email(data, is_confirmed=True)
         
         if user.confirmed is False:
             user.confirmed = True
