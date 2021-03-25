@@ -41,66 +41,61 @@ class AuthController:
     ##### EMAIL REGISTRATION #####
     def register(self, data):
 
+        
+        if not isinstance(data, dict):
+            return send_error(
+                message=messages.ERR_WRONG_DATA_FORMAT)
+        
+        if not 'email' in data or str(data['email']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_MAIL)
+        
+        if not 'password' in data or str(data['password']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_PASSWORD)
+        
+        if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+        
+        if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_DISPLAY_NAME)
+        
+        if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
+
+        if is_valid_email(data['email']) is False:
+            return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
+
+        if len(check_password(data['password'])) > 0:
+            return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
+
+        if data['password_confirm'] != data['password']:
+            return send_error(message=messages.ERR_INVALID_CONFIMED_PASSWORD)
+        
+        email = data['email']
+        display_name = data['display_name']
+        password = data['password']
+
+        banned = UserBan.query.filter(UserBan.ban_by == email).first()
+        if banned:
+            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
+
+        if User.get_user_by_email(email=email) is not None:
+            return send_error(message=messages.ERR_ACCOUNT_EXISTED)
+
+        if check_user_by_display_name(display_name):
+            return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
+            
+            #user = User(display_name=display_name, email=email, confirmed=False)
+            #user.set_password(password=password)
+            #db.session.add(user)
+            #db.session.commit()
         try:
-            if not isinstance(data, dict):
-                return send_error(
-                    message=messages.ERR_WRONG_DATA_FORMAT)
-            
-            if not 'email' in data or str(data['email']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_MAIL)
-            
-            if not 'password' in data or str(data['password']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_PASSWORD)
-            
-            if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
-            
-            if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_DISPLAY_NAME)
-            
-            if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
-
-            if is_valid_email(data['email']) is False:
-                return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
-
-            if len(check_password(data['password'])) > 0:
-                return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
-
-            if data['password_confirm'] != data['password']:
-                return send_error(message=messages.ERR_INVALID_CONFIMED_PASSWORD)
-            
-            email = data['email']
-            display_name = data['display_name']
-            password = data['password']
-
-            banned = UserBan.query.filter(UserBan.ban_by == email).first()
-            if banned:
-                raise send_error(message=messages.ERR_BANNED_ACCOUNT)
-
-            if User.get_user_by_email(email=email) is not None:
-                return send_error(message=messages.ERR_ACCOUNT_EXISTED)
-
-            if check_user_by_display_name(display_name):
-                return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
-            
-            user = User(display_name=display_name, email=email, confirmed=False)
-            user.set_password(password=password)
-            db.session.add(user)
-            db.session.commit()
-
+            user = create_user_by_email(data)
             send_confirmation_email(to=user.email, user=user)
             return send_result(message=messages.MSG_EMAIL_SENT)
                 
         except Exception as e:
             print(e.__str__())
-            db.session.rollback()
-
-            query = db.session.query(User).filter(User.email == email)
-            if query is None:
-                query.delete()
-                db.session.commit()
-            
+            db.session.rollback()            
             return send_error(message=messages.ERR_REGISTRATION_FAILED.format(str(e)))
 
 
@@ -342,7 +337,6 @@ class AuthController:
 
 
     ##### SMS registration #####
-
     def sms_register(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -821,25 +815,16 @@ def create_unique_display_name(display_name):
     return display_name + '_' + str(count)
 
 
-def create_user(data):
+def create_user_by_email(data):
     try: 
         #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-        first_name = data.get('first_name', '')
-        last_name = data.get('last_name', '')
-        middle_name = data.get('middle_name', '')
-        display_name =  data.get('display_name', '')
+        email = data['email']
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        middle_name = data.get('middle_name')
+        display_name =  data.get('display_name')
         password = data.get('password', create_random_string(8))
         confirmed = data.get('confirmed', False)
-
-        if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
-
-        if is_valid_email(data['email']) is False:
-            return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
-
-        email = data['email']
-        if is_valid_email(email) is False:
-            return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
 
         user = User(display_name=display_name, email=email, confirmed=confirmed, first_name=first_name, middle_name=middle_name, last_name=last_name)
         user.set_password(password=password)
@@ -863,10 +848,6 @@ def create_user(data):
 
 def save_social_account(provider, data):
 
-    data['first_name'] = data.get('first_name', '')
-    data['last_name'] = data.get('last_name', '')
-    data['middle_name'] = data.get('middle_name', '')
-
     if not 'email' in data or str(data['email']).strip().__eq__(''):
         return send_error(message=messages.ERR_NO_MAIL)
 
@@ -878,7 +859,7 @@ def save_social_account(provider, data):
     if banned is not None:
         raise Exception(messages.ERR_BANNED_ACCOUNT)
 
-    display_name = data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name']).strip()
+    display_name = data.get('name', email).strip()
     data['display_name'] = create_unique_display_name(display_name)
 
     try:
@@ -886,7 +867,7 @@ def save_social_account(provider, data):
         user = g.current_user
         if not user:
             data['confirmed'] = True
-            user = create_user(data)
+            user = create_user_by_email(data)
         
         if user.confirmed is False:
             user.confirmed = True
