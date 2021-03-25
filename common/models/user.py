@@ -302,6 +302,10 @@ class User(Model):
         user = User.query.filter_by(phone_number=phone_number).first()
         return user
 
+    def get_user_by_id(user_id):
+        user = User.query.filter_by(id=user_id).first()
+        return user
+
     @property
     def is_online(self):
         return abs(self.last_seen - datetime.now()).total_seconds() < 60

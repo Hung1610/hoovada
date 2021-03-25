@@ -746,6 +746,7 @@ class AuthController:
 
     ##### logout ####
     def logout_user(self, req):
+
         auth_token = None
         api_key = None
         if 'X-API-KEY' in req.headers:
@@ -760,21 +761,27 @@ class AuthController:
         if api_key is not None:
             auth_token = api_key
 
-        if auth_token:
-            
+        if auth_token is None:
+            return send_error(message=messages.ERR_NO_TOKEN)
+        
+        try:  
             user_id, _ = decode_auth_token(auth_token=auth_token)
-            user = User.query.filter_by(id=user_id).first()
-            
-            if user is not None:
-                user.active = False
-                user.last_seen = datetime.now()
-                db.session.commit()
+            user = User.get_user_by_id(user_id)
+
+            if user is None:
+                return send_error(message=messages.ERR_NOT_LOGIN)
+
+            user.active = False
+            user.last_seen = datetime.now()
+            db.session.commit()
 
             return send_result(message=messages.MSG_LOGOUT_SUCESS)
-        else:
-            return send_error(message=messages.ERR_NO_TOKEN)
-
-
+        
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message=messages.ERR_LOGOUT_FAILED.format(str(e)))        
+            
     def get_user_info(self, req):
         """Get user information"""
 

@@ -80,6 +80,7 @@ ERR_NO_TOKEN = "PLease provide a token!"
 ERR_LOGIN_FAILED = "Failed to login!"
 ERR_NOT_LOGIN = "You are not logged in!" 
 MSG_LOGOUT_SUCESS = "Successfully logged out."
+ERR_LOGOUT_FAILED = "Failed to log out with issue {}"
 
 # Social login
 ERR_SOCIAL_LOGIN_FAILED = "{} login failed with issue {}!"
