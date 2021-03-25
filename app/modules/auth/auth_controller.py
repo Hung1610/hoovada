@@ -452,10 +452,6 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_INVALID_NUMBER)
 
-        banned = UserBan.query.filter(UserBan.ban_by == phone_number).first()
-        if banned:
-            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
-
         user = User.get_user_by_phone_number(phone_number)
         if user is None:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
@@ -504,15 +500,10 @@ class AuthController:
 
         if token_type == 'email':
             email = confirm_token(token)
-            banned = UserBan.query.filter(UserBan.ban_by == email).first()
             user = User.get_user_by_email(email)
         else:
             phone_number = confirm_token(token)
-            banned = UserBan.query.filter(UserBan.ban_by == phone_number).first()
             user = User.get_user_by_phone_number(phone_number)
-
-        if banned:
-            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
 
         if user is None:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)        
@@ -539,11 +530,7 @@ class AuthController:
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
-
-        banned = UserBan.query.filter(UserBan.ban_by == phone_number).first()
-        if banned:
-            raise send_error(message=messages.ERR_BANNED_ACCOUNT)        
+            return send_error(message=messages.ERR_INVALID_NUMBER)      
         
         user = User.get_user_by_phone_number(phone_number)
         if user is None:
@@ -695,10 +682,6 @@ class AuthController:
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_PHONE)
-        
-        banned = UserBan.query.filter(UserBan.ban_by == data['phone_number']).first()
-        if banned:
-            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
 
         phone_number = data['phone_number']
         code = data['code']
