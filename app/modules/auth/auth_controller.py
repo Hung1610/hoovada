@@ -36,98 +36,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-def save_token(token):
-    blacklist_token = BlacklistToken(token=token)
-    try:
-        db.session.add(blacklist_token)
-        db.session.commit()
-        return send_result(message=messages.MSG_LOGOUT_SUCESS)
-    except Exception as e:
-        db.session.rollback()
-        return send_error(message=e)
-
-
-def save_social_account(provider, extra_data):
-    social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
-    if social_account:
-        user = User.query.filter_by(id=social_account.user_id).first()
-        if not user:
-            raise Exception(messages.ERR_FAILED_LOGIN)
-        return user
-        
-    email = extra_data.get('email', '')
-    
-    banned = UserBan.query.filter(UserBan.ban_by == email).first()
-    if banned:
-        raise Exception(messages.ERR_BANNED_ACCOUNT)
-    
-    user = g.current_user
-    if not user:
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-            user_name = extra_data.get('name', '').strip()
-
-            first_name = extra_data.get('first_name', '')
-            last_name = extra_data.get('last_name', '')
-            middle_name = extra_data.get('middle_name', '')
-            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
-            user.set_password(password=provider + '_' + str(user_name))
-            
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except Exception as e:
-                print(e)
-                raise e
-    
-    try:
-        social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
-        db.session.add(social_account)
-        db.session.commit()
-        return user
-    except Exception as e:
-        print(e)
-        raise e
-
 class AuthController:
-
-    @staticmethod
-    def check_user_exist(email):
-        """ Check user exist by its email. One email on one register """
-
-        user = User.query.filter_by(email=email).first()
-        return user
-
-    @staticmethod
-    def check_phone_number_exist(phone_number):
-        """ Check phone number exist by its phone_number. One phone number on one register"""
-
-        user = User.query.filter_by(phone_number=phone_number).first()
-        if user is not None: 
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def check_user_name_exist(user_name):
-        """ Check user exist by its user_name. Return True is existed else return False if not existed"""
-
-        user = User.query.filter_by(display_name=user_name).first()
-        return user is not None
-
-    @staticmethod
-    def create_user_name(user_name):
-        """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
-
-        if (not AuthController.check_user_name_exist(user_name)):
-            return user_name
-        
-        count = 1
-        while AuthController.check_user_name_exist(user_name + '_' + str(count)):
-            count += 1
-        return user_name + '_' + str(count)
-
 
     def register(self, data):
 
@@ -168,10 +77,10 @@ class AuthController:
             if banned:
                 raise send_error(message=messages.ERR_BANNED_ACCOUNT)
 
-            if AuthController.check_user_exist(email=email) is not None:
+            if get_user_by_email(email=email) is not None:
                 return send_error(message=messages.ERR_EMAIL_EXISTED.format(email))
 
-            if AuthController.check_user_name_exist(display_name):
+            if check_user_by_display_name(display_name):
                 return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
             
             user = User(display_name=display_name, email=email, confirmed=False)
@@ -197,7 +106,7 @@ class AuthController:
     def confirm_email(self, token):
 
         email = confirm_token(token)
-        user = AuthController.check_user_exist(email=email)
+        user = get_user_by_email(email=email)
         if user is not None and user.confirmed is True:
             return send_result(message=messages.MSG_ACCOUNT_ACTIVATED)
 
@@ -224,7 +133,7 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
         
         email = data['email']
-        user = AuthController.check_user_exist(email=email)
+        user = get_user_by_email(email=email)
         
         if not user:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
@@ -324,7 +233,7 @@ class AuthController:
             return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
 
         display_name = data['display_name']
-        if AuthController.check_user_name_exist(display_name):
+        if check_user_by_display_name(display_name):
             return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
 
         phone_number = data['phone_number']
@@ -335,7 +244,7 @@ class AuthController:
         if banned:
             raise send_error(message=messages.ERR_BANNED_ACCOUNT)
         
-        if AuthController.check_phone_number_exist(phone_number):
+        if check_user_by_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_ALREADY_EXISTED)
 
         password = data['password']
@@ -401,7 +310,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_INCORRECT)
         
-        if not AuthController.check_phone_number_exist(phone_number=phone_number):
+        if not check_user_by_phone_number(phone_number=phone_number):
             return send_error(message='Người dùng chưa đăng kí!')
         
         try:
@@ -428,7 +337,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_PHONE_INCORRECT)
         
-        if not AuthController.check_phone_number_exist(phone_number):
+        if not check_user_by_phone_number(phone_number):
             return send_error(message='Người dùng chưa tồn tại, vui lòng đăng ký!')
 
         try:
@@ -477,7 +386,7 @@ class AuthController:
             return send_error(message=messages.ERR_NO_MAIL)
 
         email = data['email']
-        if not AuthController.check_user_exist(email):
+        if not get_user_by_email(email):
             return send_error(message='Người dùng chưa đăng ký!')
         try:
             send_password_reset_email(to=email)
@@ -824,7 +733,44 @@ def create_user_with_email(data, is_confirmed=False):
             db.session.commit()
         raise e
 
-"""
+
+
+def get_user_by_email(email):
+    """ Check user exist by its email. One email on one register """
+
+    user = User.query.filter_by(email=email).first()
+    return user
+
+
+def check_user_by_phone_number(phone_number):
+    """ Check phone number exist by its phone_number. One phone number on one register"""
+
+    user = User.query.filter_by(phone_number=phone_number).first()
+    if user is not None: 
+        return True
+    else:
+        return False
+
+
+def check_user_by_display_name(display_name):
+    """ Check user exist by its user_name. Return True is existed else return False if not existed"""
+
+    user = User.query.filter_by(display_name=display_name).first()
+    return user is not None
+
+
+def create_user_name(display_name):
+    """ Create a unique user_name, if it exists in DB we will add "_1", "_2"... until it not exists in DB"""
+
+    if (not check_user_by_display_name(display_name)):
+        return display_name
+    
+    count = 1
+    while check_user_by_display_name(display_name + '_' + str(count)):
+        count += 1
+    return display_name + '_' + str(count)
+
+
 def save_social_account(provider, data):
 
     first_name = data.get('first_name', '')
@@ -838,10 +784,10 @@ def save_social_account(provider, data):
         raise Exception(messages.ERR_BANNED_ACCOUNT)
 
     try:
-        user = check_user_exist(email)
+        user = get_user_by_email(email)
         if user is None:
             password = create_random_string(8)
-            user = User(display_name=display_name, email=email, confirmed=True, email_confirmed_at = datetime.now(), first_name=first_name, middle_name=middle_name, last_name=last_name)
+            user = User(display_name=display_name, email=email, confirmed=True, email_confirmed_at=datetime.now(), first_name=first_name, middle_name=middle_name, last_name=last_name)
             user.set_password(password=password)
             db.session.add(user)
 
@@ -851,9 +797,9 @@ def save_social_account(provider, data):
             user.confirmed = True
             user.email_confirmed_at = datetime.now()
 
-        social_account = SocialAccount.query.filter_by(user_id=data.get('id')).first()
+        social_account = SocialAccount.query.filter_by(uid=data['id']).first()
         if social_account is None:            
-            social_account = SocialAccount(provider=provider, uid=data.get('id'), extra_data=json.dumps(data), user_id=user.id)
+            social_account = SocialAccount(provider=provider, uid=data['id'], extra_data=json.dumps(data), user_id=user.id)
             db.session.add(social_account)
         
         social_account.user_id = user.id
@@ -864,5 +810,61 @@ def save_social_account(provider, data):
         db.session.rollback()
         raise e      
 
+
+"""
+
+def save_token(token):
+    blacklist_token = BlacklistToken(token=token)
+    try:
+        db.session.add(blacklist_token)
+        db.session.commit()
+        return send_result(message=messages.MSG_LOGOUT_SUCESS)
+    except Exception as e:
+        db.session.rollback()
+        return send_error(message=e)
+
+
+def save_social_account(provider, extra_data):
+    social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
+    if social_account:
+        user = User.query.filter_by(id=social_account.user_id).first()
+        if not user:
+            raise Exception(messages.ERR_FAILED_LOGIN)
+        return user
+        
+    email = extra_data.get('email', '')
+    
+    banned = UserBan.query.filter(UserBan.ban_by == email).first()
+    if banned:
+        raise Exception(messages.ERR_BANNED_ACCOUNT)
+    
+    user = g.current_user
+    if not user:
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
+            user_name = extra_data.get('name', '').strip()
+
+            first_name = extra_data.get('first_name', '')
+            last_name = extra_data.get('last_name', '')
+            middle_name = extra_data.get('middle_name', '')
+            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
+            user.set_password(password=provider + '_' + str(user_name))
+            
+            try:
+                db.session.add(user)
+                db.session.commit()
+            except Exception as e:
+                print(e)
+                raise e
+    
+    try:
+        social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
+        db.session.add(social_account)
+        db.session.commit()
+        return user
+    except Exception as e:
+        print(e)
+        raise e
 
 """
