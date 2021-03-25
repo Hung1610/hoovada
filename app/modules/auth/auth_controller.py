@@ -710,11 +710,9 @@ class AuthController:
             return send_error(message=messages.ERR_FAILED_LOGIN)
 
     ##### Change phone number #####
-
     def change_phone_number_confirm(self, data):
         """Change phone number for current user"""
 
-        
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
@@ -863,8 +861,7 @@ def save_social_account(provider, data):
     data['display_name'] = create_unique_display_name(display_name)
 
     try:
-        #user = User.get_user_by_email(email)
-        user = g.current_user
+        user = User.get_user_by_email(email)
         if not user:
             data['confirmed'] = True
             user = create_user_by_email(data)
