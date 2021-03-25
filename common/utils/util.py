@@ -209,6 +209,7 @@ def check_verification(phone, code):
         return False
     
     except Exception as e:
+        print(e.__str__())
         return False
 
 
@@ -261,5 +262,5 @@ def get_logged_user(self, req):
 def create_random_string(length):
     from string import ascii_letters, digits
     from random import choices
-    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k = length))
+    random_string = ''.join(choices(string.ascii_letters + string.digits, k = length))
     return random_string
