@@ -745,10 +745,14 @@ def create_user(data):
         last_name = data.get('last_name', '')
         middle_name = data.get('middle_name', '')
         display_name =  data.get('display_name', '')
-        email = data.get('email', '')
         password = data.get('password', create_random_string(8))
         confirmed = data.get('confirmed', False)
 
+
+        if not 'email' in data or str(data['email']).strip().__eq__(''):
+            return send_error(message=messages.ERR_NO_MAIL)
+
+        email = data['email']
         if is_valid_email(email) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
 
@@ -776,13 +780,17 @@ def save_social_account(provider, data):
     data['first_name'] = data.get('first_name', '')
     data['last_name'] = data.get('last_name', '')
     data['middle_name'] = data.get('middle_name', '')
-    display_name = data.get('name', (data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
-    data['display_name'] = create_unique_display_name(display_name)
-    data['email'] = data.get('email', '').strip()
 
-    banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
+    if not 'email' in data or str(data['email']).strip().__eq__(''):
+        return send_error(message=messages.ERR_NO_MAIL)
+    
+    email = data['email']
+    banned = UserBan.query.filter(UserBan.ban_by == email).first()
     if banned is not None:
         raise Exception(messages.ERR_BANNED_ACCOUNT)
+
+    display_name = data.get('name', (data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
+    data['display_name'] = create_unique_display_name(display_name)
 
     try:
         user = get_user_by_email(email)
