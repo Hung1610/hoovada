@@ -674,7 +674,7 @@ class AuthController:
         if user is None:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
-        if user.confirmed if False:
+        if user.confirmed is False:
             self.resend_confirmation_sms(data)
             return send_error(message=messages.MSG_PHONE_SENT) 
          
