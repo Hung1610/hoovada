@@ -251,34 +251,35 @@ class AuthController:
 
     ### EMAIL/PASS login
     def login_user(self, data):
-        try:
-            banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
-            if banned:
-                raise send_error(message=messages.ERR_BANNED_ACCOUNT)
-
-            user = User.get_user_by_email(data['email'])
-            if user and user.check_password(data['password']):
-
-                if not user.confirmed:
-                    self.resend_confirmation(data=data)
-                    return send_error( message=messages.ERR_ACCOUNT_NOT_CONFIRMED)
-                
-                # activate when user re-login
-                if user.is_deactivated is True:
-                    user.is_deactivated = False
-
-                user.active = True
-                db.session.commit()
-
-                auth_token = encode_auth_token(user_id=user.id)
-                if auth_token:
-                    return send_result(data={'access_token': auth_token.decode('utf8')})
-
-            else:
-                return send_error(message=messages.ERR_INCORRECT_EMAIL_OR_PASSWORD)
         
+        banned = UserBan.query.filter(UserBan.ban_by == data['email']).first()
+        if banned:
+            raise send_error(message=messages.ERR_BANNED_ACCOUNT)
+
+        user = User.get_user_by_email(data['email'])
+        if user is None:
+            return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)   
+
+        if user.check_password(data['password']) is False:
+            return send_error(message=messages.ERR_INCORRECT_EMAIL_OR_PASSWORD)      
+
+        try:
+            if not user.confirmed:
+                self.resend_confirmation(data=data)
+                return send_error(message=messages.MSG_EMAIL_SENT)
+            
+            # activate when user re-login
+            user.is_deactivated = False
+            user.active = True
+            db.session.commit()
+
+            auth_token = encode_auth_token(user_id=user.id)
+            if auth_token:
+                return send_result(data={'access_token': auth_token.decode('utf8')})
+
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message=messages.ERR_FAILED_LOGIN)
 
 
@@ -345,7 +346,6 @@ class AuthController:
     def sms_register(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
 
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_DISPLAY_NAME)
@@ -435,7 +435,7 @@ class AuthController:
             send_email(user.email, 'Hoovada - Chào mừng bạn tham gia vào cộng đồng!', html)
             return send_result(message=messages.MSG_REGISTRATION_SUCCESS)
                 
-        else:
+        except Exception as e:
             print(e.__str__())
             db.session.rollback()
             return send_error(message=messages.ERR_REGISTRATION_FAILED.format(str(e)))           

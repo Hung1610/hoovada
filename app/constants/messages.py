@@ -63,7 +63,6 @@ ERR_BANNED_ACCOUNT = "This account is banned!"
 ERR_CODE_INCORRECT_EXPIRED = "The code is incorrect or expired!"
 ERR_ACCOUNT_EXISTED = "The account with this email or number has already existed!"
 ERR_ACCOUNT_NOT_REGISTERED = "Your account is not registered yet!"
-ERR_ACCOUNT_NOT_CONFIRMED = "Account is not confirmed!"
 
 ERR_REGISTRATION_FAILED = "Registration failed with issue {}!"
 MSG_REGISTRATION_SUCCESS = "Account registration is successful."
