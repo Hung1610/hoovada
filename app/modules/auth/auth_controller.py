@@ -770,7 +770,7 @@ class AuthController:
             if user is None:
                 return send_error(message=messages.ERR_NOT_LOGIN)
 
-            user.active = 0
+            user.active = False
             user.last_seen = datetime.now()
             db.session.commit()
 
