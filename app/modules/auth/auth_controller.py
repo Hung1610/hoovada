@@ -65,8 +65,9 @@ def save_social_account(provider, extra_data):
     if not user:
         user = User.query.filter_by(email=email).first()
         if not user:
-            user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-            user_name = AuthController.create_user_name(extra_data.get('name').strip())
+            #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
+            user_name = extra_data.get('name', '').strip()
+
             first_name = extra_data.get('first_name', '')
             last_name = extra_data.get('last_name', '')
             middle_name = extra_data.get('middle_name', '')
