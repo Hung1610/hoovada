@@ -748,7 +748,6 @@ def create_user(data):
         password = data.get('password', create_random_string(8))
         confirmed = data.get('confirmed', False)
 
-
         if not 'email' in data or str(data['email']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_MAIL)
 
@@ -768,7 +767,7 @@ def create_user(data):
 
     except Exception as e:
         db.session.rollback()
-        query = db.session.query(User).filter(User.email == email)
+        query = db.session.query(User).filter(User.email == data['email'])
         if query is None:
             query.delete()
             db.session.commit()
@@ -789,14 +788,14 @@ def save_social_account(provider, data):
     if banned is not None:
         raise Exception(messages.ERR_BANNED_ACCOUNT)
 
-    display_name = data.get('name', (data['first_name'] + " " + data['middle_name'] + " " + data['last_name'])).strip()
+    display_name = data.get('name', data['first_name'] + " " + data['middle_name'] + " " + data['last_name']).strip()
     data['display_name'] = create_unique_display_name(display_name)
 
     try:
         user = get_user_by_email(email)
         if user is None:
             data['confirmed'] = True
-            user  = create_user(data)
+            user = create_user(data)
         
         if user.confirmed is False:
             user.confirmed = True
