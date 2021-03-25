@@ -792,8 +792,9 @@ def save_social_account(provider, data):
     data['display_name'] = create_unique_display_name(display_name)
 
     try:
-        user = get_user_by_email(email)
-        if user is None:
+        #user = get_user_by_email(email)
+        user = g.current_user
+        if not user:
             data['confirmed'] = True
             user = create_user(data)
         
@@ -807,15 +808,10 @@ def save_social_account(provider, data):
             social_account = SocialAccount(provider=provider, extra_data=json.dumps(data), user_id=user.id)
             db.session.add(social_account)
             db.session.commit()
-        
-        if social_account.user_id != user.id:
-            social_account.user_id = user.id
-            db.session.commit()
 
         return user
 
     except Exception as e:
-        db.session.rollback()
         raise e      
 
 
