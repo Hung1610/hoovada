@@ -11,6 +11,7 @@ from flask_restx import marshal
 
 # own modules
 from common.db import db
+from app.constants import messages
 from app.modules.article.bookmark import constants
 from app.modules.article.bookmark.bookmark_dto import ArticleBookmarkDto
 from common.utils.response import paginated_result
@@ -51,7 +52,16 @@ class ArticleBookmarkController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load article bookmarks.")
+            return send_error(messages.ERR_GET_FAILED.format("all article bookmark", str(e)))
+
+    def get_by_id(self, object_id):
+        if object_id is None:
+            return send_error(message=constants.msg_lacking_id)
+        bookmark = ArticleBookmark.query.filter_by(id=object_id).first()
+        if bookmark is None:
+            return send_error(message=constants.msg_article_bookmark_not_found)
+        else:
+            return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
 
     def create(self, article_id):
         data = {}
@@ -70,20 +80,11 @@ class ArticleBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
 
-            return send_result(message=constants.msg_create_success,
-                               data=marshal(bookmark, ArticleBookmarkDto.model_response))
+            return send_result(message=constants.msg_create_success, data=marshal(bookmark, ArticleBookmarkDto.model_response))
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message=constants.msg_create_failed)
-
-    def get_by_id(self, object_id):
-        if object_id is None:
-            return send_error(message=constants.msg_lacking_id)
-        bookmark = ArticleBookmark.query.filter_by(id=object_id).first()
-        if bookmark is None:
-            return send_error(message=constants.msg_article_bookmark_not_found)
-        else:
-            return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
 
     def update(self, object_id, data):
         pass
@@ -101,6 +102,7 @@ class ArticleBookmarkController(Controller):
                 return send_result(message=constants.msg_delete_success_with_id.format(bookmark.id))
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message=constants.msg_delete_failed)
 
     def _parse_bookmark(self, data, bookmark=None):
