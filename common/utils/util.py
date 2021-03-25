@@ -262,5 +262,5 @@ def get_logged_user(self, req):
 def create_random_string(length):
     from string import ascii_letters, digits
     from random import choices
-    random_string = ''.join(choices(string.ascii_letters + string.digits, k = length))
+    random_string = ''.join(choices(ascii_letters + digits, k = length))
     return random_string
