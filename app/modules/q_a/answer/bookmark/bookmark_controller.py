@@ -12,6 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from common.db import db
+from app.constants import messages
 from app.modules.q_a.answer.bookmark import constants
 from app.modules.q_a.answer.bookmark.bookmark_dto import AnswerBookmarkDto
 from common.controllers.controller import Controller
@@ -31,48 +32,33 @@ User = db.get_model('User')
 class AnswerBookmarkController(Controller):
     def get(self, answer_id, args):
         
-        user_id, bookmarkd_user_id, from_date, to_date = None, None, None, None
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'bookmarkd_user_id' in args:
-            try:
-                bookmarkd_user_id = int(args['bookmarkd_user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'from_date' in args:
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'to_date' in args:
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        try:
+            user_id = args.get('user_id', None)
+            bookmarkd_user_id = args.get('bookmarkd_user_id', None)
+            from_date = args.get('from_date', None)
+            to_date = args.get('to_date', None)
 
-        query = AnswerBookmark.query
-        if answer_id is not None:
-            query = query.filter(AnswerBookmark.answer_id == answer_id)
-        if user_id is not None:
-            query = query.filter(AnswerBookmark.user_id == user_id)
-        if bookmarkd_user_id is not None:
-            query = query.filter(AnswerBookmark.answer.user_id == bookmarkd_user_id)
-        if from_date is not None:
-            query = query.filter(AnswerBookmark.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(AnswerBookmark.created_date <= to_date)
-        bookmarks = query.all()
-        if bookmarks is not None and len(bookmarks) > 0:
-            return send_result(data=marshal(bookmarks, AnswerBookmarkDto.model_response), message='Success')
-        else:
-            return send_result(message=constants.msg_answer_bookmark_not_found)
+            query = AnswerBookmark.query
+            if answer_id is not None:
+                query = query.filter(AnswerBookmark.answer_id == answer_id)
+            if user_id is not None:
+                query = query.filter(AnswerBookmark.user_id == user_id)
+            if bookmarkd_user_id is not None:
+                query = query.filter(AnswerBookmark.answer.user_id == bookmarkd_user_id)
+            if from_date is not None:
+                query = query.filter(AnswerBookmark.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(AnswerBookmark.created_date <= to_date)
+            bookmarks = query.all()
+            if bookmarks is not None and len(bookmarks) > 0:
+                return send_result(data=marshal(bookmarks, AnswerBookmarkDto.model_response), message='Success')
+            else:
+                return send_result(message=constants.msg_answer_bookmark_not_found)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format("all answer bookmark", str(e)))
+
 
     def create(self, answer_id):
         data = {}

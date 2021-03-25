@@ -135,8 +135,9 @@ $ docker-compose rm
 - adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
 
 #### Generate new migration file
-When you have changes for database. E.g: adding new table, you hate to do migration
-https://flask-migrate.readthedocs.io/.
+
+When you have changes for database. E.g: adding new table, you hate to do [migration](https://flask-migrate.readthedocs.io/)
+
 Firstly, access the backend environment to have flask-migrate already. Start db container and access it
 ```
 docker-compose start backend
