@@ -148,6 +148,7 @@ class AuthController:
             
         except Exception as e:
             print(e.__str__())
+            db.session.rollback()
             return send_error(message=messages.ERR_REGISTRATION_CONFIRMATION_FAILED.format(str(e)))
 
 
@@ -766,11 +767,12 @@ def create_user(data):
         return user
 
     except Exception as e:
-        #db.session.rollback()
-        #query = db.session.query(User).filter(User.email == data['email'])
-        #if query is None:
-        #    query.delete()
-        #    db.session.commit()
+        print(e.__str__())
+        db.session.rollback()
+        query = db.session.query(User).filter(User.email == data['email'])
+        if query is None:
+            query.delete()
+            db.session.commit()
         raise e
 
 
@@ -812,6 +814,7 @@ def save_social_account(provider, data):
         return user
 
     except Exception as e:
+        print(e.__str__())
         raise e      
 
 
