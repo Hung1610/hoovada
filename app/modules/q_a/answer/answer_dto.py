@@ -81,7 +81,7 @@ class AnswerDto(Dto):
         'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
         'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        'question': fields.Nested(answer_question, description='The user information'),
+        'question': fields.Nested(answer_question, description='The question information'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),

@@ -82,10 +82,12 @@ class UserController(Controller):
             query = query.filter(\
                 (User.display_name.like('%' + params.get('email_or_name') + '%')) | \
                 (User.email.like('%' + params.get('email_or_name') + '%')))
+        
         if params.get('is_endorsed') and g.endorsed_topic_id:
             topic = Topic.query.get(g.endorsed_topic_id)
             user_ids = [user.id for user in topic.endorsed_users]
             query = query.filter(User.id.in_(user_ids))
+
         if params.get('is_mutual_friend') and g.current_user:
             g.friend_belong_to_user_id = g.current_user.id
             my_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\

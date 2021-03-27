@@ -257,7 +257,7 @@ class FacebookLogin(Resource):
 
     @api.expect(_auth_social_login)
     def post(self):
-        """Create or social Login user with FB Account"""
+        """Create or Login user with FB Account"""
 
         post_data = request.json
         controller = AuthController()
@@ -269,7 +269,7 @@ class GoogleLogin(Resource):
 
     @api.expect(_auth_social_login)
     def post(self):
-        """Create or social Login user with Google Account"""
+        """Create or Login user with Google Account"""
 
         post_data = request.json
         controller = AuthController()
@@ -280,8 +280,8 @@ class GoogleLogin(Resource):
 class Logout(Resource):
 
     @token_required
-    def get(self):
-        """ Logout"""
+    def post(self):
+        """Logout and update the active status of user"""
 
         # auth_header = request.headers.get('Authorization')
         # return ControllerAuth.logout_user(data=auth_header)
