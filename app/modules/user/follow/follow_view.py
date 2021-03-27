@@ -4,9 +4,8 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.user.follow.follow_controller import UserFollowController
 # own modules
-# from common.decorator import token_required
+from app.modules.user.follow.follow_controller import UserFollowController
 from app.modules.user.follow.follow_dto import UserFollowDto
 from common.utils.decorator import admin_token_required, token_required
 
@@ -34,26 +33,6 @@ class FollowUserAll(Resource):
         args = _vote_get_params.parse_args()
         controller = UserFollowController()
         return controller.get(object_id=None, args=args)
-
-@api.route('/all/follow/<int:object_id>/approve')
-class FollowUserApprove(Resource):
-    def put(self, object_id):
-        """
-        Approve follow request.
-        """
-        
-        controller = UserFollowController()
-        return controller.approve(object_id=object_id)
-
-@api.route('/all/follow/<int:object_id>/disapprove')
-class FollowUserDisapprove(Resource):
-    def put(self, object_id):
-        """
-        Disapprove follow request.
-        """
-        
-        controller = UserFollowController()
-        return controller.disapprove(object_id=object_id)
 
 @api.route('/<int:user_id>/follow')
 class FollowUser(Resource):
@@ -99,3 +78,20 @@ class FollowRecommendedUsers(Resource):
         args = _top_user_followee_args_parser.parse_args()
         controller = UserFollowController()
         return controller.get_top_users(object_id=user_id, args= args)
+
+"""
+@api.route('/all/follow/<int:object_id>/approve')
+class FollowUserApprove(Resource):
+    def put(self, object_id):
+
+        
+        controller = UserFollowController()
+        return controller.approve(object_id=object_id)
+
+@api.route('/all/follow/<int:object_id>/disapprove')
+class FollowUserDisapprove(Resource):
+    def put(self, object_id):
+        
+        controller = UserFollowController()
+        return controller.disapprove(object_id=object_id)
+"""

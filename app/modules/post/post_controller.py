@@ -38,7 +38,7 @@ PostVote = db.get_model('PostVote')
 
 
 class PostController(Controller):
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'favorite_count']
 
     def create(self, data):
         if not isinstance(data, dict):

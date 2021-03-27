@@ -46,6 +46,9 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     @aggregated('post_shares', db.Column(db.Integer))
     def share_count(self):
         return db.func.count('1')
+    @aggregated('question_favorites', db.Column(db.Integer, server_default="0", nullable=False))
+    def favorite_count(self):
+        return db.func.count('1')
     @aggregated('post_comments', db.Column(db.Integer))
     def comment_count(self):
         return db.func.count('1')

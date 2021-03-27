@@ -57,7 +57,10 @@ class PostComment(Model, BaseComment):
     
     post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), index=True)
     post = db.relationship('Post', lazy=True) 
-    
+    favorites = db.relationship("PostCommentFavorite", cascade='all,delete-orphan')
+    @aggregated('favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')  
 
 class AnswerComment(Model, BaseComment):
     __tablename__ = 'answer_comment'

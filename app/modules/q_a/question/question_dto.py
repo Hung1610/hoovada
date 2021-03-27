@@ -39,7 +39,7 @@ class QuestionDto(Dto):
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
         'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
-
+"""
     question_top_answer = api.model('question_top_answer', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the answer'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
@@ -62,7 +62,7 @@ class QuestionDto(Dto):
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
-
+"""
     model_answer_request = api.model('answer_question_request', {
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
@@ -106,7 +106,6 @@ class QuestionDto(Dto):
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comment'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
@@ -118,7 +117,7 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
-        'top_answer': fields.List(fields.Nested(question_top_answer), description='The list of invited users'),
+        #'top_answer': fields.List(fields.Nested(question_top_answer), description='The list of invited users'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 

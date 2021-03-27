@@ -68,7 +68,6 @@ class ArticleDto(Dto):
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),

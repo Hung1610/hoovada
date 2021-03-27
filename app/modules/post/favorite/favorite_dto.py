@@ -36,6 +36,7 @@ class FavoriteDto(Dto):
         'user_id': fields.Integer(required=True, description='The user ID who favorited'),
         'post_id': fields.Integer(required=False, description='The user ID who has been favorited'),
         'post':fields.Nested(model_favorite_post, description='The information of the post'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'created_date': fields.DateTime(required=False, description='The created date'),
         'updated_date': fields.DateTime(required=False, description='The updated date')
     })

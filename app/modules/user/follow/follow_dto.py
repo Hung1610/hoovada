@@ -41,7 +41,6 @@ class UserFollowDto(Dto):
         'follower':fields.Nested(model_follow_user, description='The information of the following user'),
         'followed_id': fields.Integer(required=False, description='The user ID who has been followed'),
         'followed':fields.Nested(model_follow_user, description='The information of the followed user'),
-        'is_approved': fields.Boolean(default=False, description='This follow request is approved or not'),
         'created_date': fields.DateTime(required=False, description='The created date'),
         'updated_date': fields.DateTime(required=False, description='The updated date')
     })
