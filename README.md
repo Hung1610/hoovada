@@ -59,7 +59,7 @@ $ git push -u origin <your branch name>
 
 ```bash
 $ docker build -f ./docker/app/Dockerfile .
-$ docker run <name of image>
+$ docker run <name of image> -p 5000:5000
 ```
 
 #### Running API services on Linux

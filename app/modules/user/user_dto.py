@@ -227,24 +227,25 @@ class UserDto(Dto):
         'is_first_log_in': fields.Boolean(required=False, default=True),
     })
 
-    model_base_feed_data_response = api.model('base_feed_data_response', {
-        'feedId': fields.Integer(required=True),
-        'feedType': fields.String(required=False),
-        'questionId': fields.Integer(required=False),
-        'userId': fields.Integer(required=False),
-        'createdDate': fields.DateTime(required=False),
+
+    model_article_feed_response = api.model('article_feed_response', {
+        'article_list': fields.List(fields.Integer(required=False), required=False),
+        'blog_name': fields.String(required=False),
+        'total': fields.Integer(required=False),
     })
-    
-    article_feed_response = model_base_feed_data_response.copy()
-    article_feed_response['title'] = fields.String(required=False)
+
+    model_feed_data_response = api.model('feed_data_response', {
+        'feed_type': fields.String(required=False),
+        'article': fields.List(fields.Nested(model_article_feed_response, required=False), required=False),
+        'question_id': fields.Integer(required=False),
+        'answer_id': fields.Integer(required=False),
+        'post_id': fields.Integer(required=False),
+    })
 
     model_user_feed_response = api.model('user_feed_response', {
-        #'article': fields.List(fields.Nested(article_feed_response, required=True), required=True),
-        'article': fields.List(fields.Nested(model_base_feed_data_response, required=True), required=True),
-        'qAPostFeed': fields.List(fields.Nested(model_base_feed_data_response, required=True), required=True),
-        'pageId': fields.Integer(required=True),
-        'limit': fields.Integer(required=True),
-        'totalItems': fields.Integer(required=True),
+        'feed': fields.List(fields.Nested(model_feed_data_response, required=False), required=False),
+        'limit': fields.Integer(required=False),
+        'total': fields.Integer(required=False),
     })
 
     model_social_response = api.model('user_social_response', {

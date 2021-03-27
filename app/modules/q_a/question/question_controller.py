@@ -313,8 +313,9 @@ class QuestionController(Controller):
             data = {}
             data['emails_or_usernames'] = emails_or_usernames
             return self.invite(object_id, data)
+        
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
 
     #@cache.memoize()
@@ -365,7 +366,7 @@ class QuestionController(Controller):
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
     def get_recommended_users(self, args):
@@ -393,7 +394,7 @@ class QuestionController(Controller):
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
             return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
     def get_recommended_topics(self, args):
@@ -419,7 +420,8 @@ class QuestionController(Controller):
             return send_result(data=marshal(topics, QuestionDto.model_topic), message='Success')
         
         except Exception as e:
-            print(e)
+            db.session.rollback()
+            print(e.__str__())
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
     def get_proposals(self, object_id, args):
@@ -458,6 +460,7 @@ class QuestionController(Controller):
             return send_result(message='Question update proposal was created successfully.',
                                 data=marshal(proposals, QuestionDto.model_question_proposal_response))
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message='Could not get proposals. Error: ' + e.__str__())
     

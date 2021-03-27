@@ -48,7 +48,6 @@ ERR_SPELLING = 'Please check spelling errors!'
 ########### Authentication Module #################
 
 # common
-
 ERR_NO_POLICY_ACCEPTED = "You need to accept the policy!"
 ERR_NO_PASSWORD = "Please provide a password!"
 ERR_NO_CONFIRMED_PASSWORD = "Please provide confirmed password!"

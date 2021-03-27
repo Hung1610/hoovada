@@ -318,6 +318,7 @@ class UserController(Controller):
                 db.session.commit()
                 return send_result(data=marshal(user, UserDto.model_response), message='Upload cover successfully.')
             except Exception as e:
+                db.session.rollback()
                 print(e.__str__())
                 return send_error(message='Could not save your avatar.')
         else:
@@ -376,6 +377,7 @@ class UserController(Controller):
         else:
             return send_result(message='Could not find any users')
 
+
     def get_feed(self, user_id):
         """ Get feed for user by user id"""
         
@@ -383,12 +385,13 @@ class UserController(Controller):
             api_endpoint = '/api/feed'
             get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
             response = requests.get(url=get_feed_url, params={'user_id': user_id})
+
+            resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
-                resp = json.loads(response.content)
-                feed_data = resp.get('result')
-                return send_result(data=marshal(feed_data, UserDto.model_user_feed_response), message='Success')
+                return send_result(data=marshal(resp.get('result'), UserDto.model_user_feed_response), message='Success')
             else:
-                txt = json.loads(response.text)
-                raise send_error(message=messages.ERR_ISSUE.format(txt))
+                return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
+        
         except Exception as e:
-            raise send_error(message=messages.ERR_ISSUE.format(e))
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format('user feed', str(e)))
