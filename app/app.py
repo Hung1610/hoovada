@@ -17,7 +17,6 @@ from app.settings import config_by_name
 # Flask plugins
 from common.models import *
 from common.utils.util import get_logged_user
-from common.bcrypt import bcrypt
 from common.cache import cache
 from common.mail import mail
 from common.db import db, migrate
@@ -89,8 +88,6 @@ def init_app():
     db.init_app(app)
     # Config Flask-Migrate
     migrate.init_app(app, db)
-    # Config Flask-Bycrypt
-    bcrypt.init_app(app)
     # Config Flask-Mail
     mail.init_app(app)
     return app
