@@ -15,7 +15,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class BaseFollow(object):
     id = db.Column(db.Integer, primary_key=True)
-    is_approved = db.Column(db.Boolean, default=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 

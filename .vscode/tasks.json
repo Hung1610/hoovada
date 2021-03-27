@@ -20,6 +20,24 @@
           "label": "build",
           "dependsOrder": "sequence",
           "dependsOn": ["dramatiq:workers"]
-        }
+        },
+        {
+            "type": "docker-run",
+            "label": "docker-run: debug",
+            "dockerRun": {
+              "containerName": "hoovada-services",
+                "volumes": [
+                    {
+                    "containerPath": "/app", "localPath": "${workspaceFolder}"
+                    }
+                ]
+            },
+            "python": {
+              "args": [
+                "run",
+              ],
+              "module": "flask"
+            }
+          }
     ]
 }
