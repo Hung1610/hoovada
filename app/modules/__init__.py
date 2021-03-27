@@ -22,7 +22,7 @@ from app.modules.q_a import (
     ns_question_comment_report, ns_question_favorite,
     ns_question_report, ns_question_share, ns_question_vote)
 from app.modules.search import ns_search
-from app.modules.topic import (ns_topic, ns_topic_bookmark, ns_topic_follow,
+from app.modules.topic import (ns_topic, ns_topic_bookmark,
                                ns_topic_report, ns_topic_share)
 # own modules
 #from app.modules.user import api as ns_user, ns_user_employment, ns_reputation

@@ -5,6 +5,34 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Docker: Python - Flask",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "containerName": "hoovada-services",
+            "python": {
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+                ],
+                "projectType": "flask"
+            },
+            "dockerServerReadyAction": {
+                "action": "openExternally",
+                "pattern": "Starting development server at (https?://\\S+|[0-9]+)",
+                "uriFormat": "%s://localhost:%s/about.html"
+            }
+        },
+        {
+            "name": "Attach (Remote Debug)",
+            "type": "python",
+            "request": "attach",
+            "port": 5000,
+            "host": "localhost"
+        },
+        {
             "name": "Python: Flask",
             "type": "python",
             "request": "launch",

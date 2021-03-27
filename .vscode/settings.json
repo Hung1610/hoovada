@@ -15,5 +15,8 @@
             "server": "localhost",
             "username": "root"
         }
-    ]
+    ],
+    "terminal.integrated.allowMnemonics": true,
+    "terminal.explorerKind": "external",
+    "python.pythonPath": "venv/bin/python"
 }
