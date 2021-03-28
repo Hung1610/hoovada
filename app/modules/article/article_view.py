@@ -32,8 +32,7 @@ class ArticleList(Resource):
     @api.expect(_article_get_params)
     @cache.cached(query_string=True)
     def get(self):
-        """Get all articles that satisfy conditions
-        """
+        """Get all articles that satisfy conditions"""
 
         args = _article_get_params.parse_args()
         controller = ArticleController()
@@ -44,8 +43,7 @@ class ArticleList(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def post(self):
-        """Create new article and save to database.
-        """
+        """Create new article"""
 
         data = api.payload
         controller = ArticleController()
@@ -56,9 +54,7 @@ class ArticleList(Resource):
 @api.expect(_article_get_params)
 class ArticleListCount(Resource):
     def get(self):
-        """ 
-        Get list of topics from database.
-        """
+        """Count number of articles that satisfy conditions"""
 
         args = _article_get_params.parse_args()
         controller = ArticleController()
@@ -73,8 +69,7 @@ class Article(Resource):
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     @cache.cached(key_prefix=get_article_key_prefix)
     def get(self, id_or_slug):
-        """Get specific article by its ID.
-        """
+        """Get an article by article id or slug"""
 
         controller = ArticleController()
         return controller.get_by_id(object_id=id_or_slug)
@@ -83,8 +78,7 @@ class Article(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def put(self, id_or_slug):
-        """Update existing article by its ID.
-        """
+        """Update existing article by article Id or slug"""
 
         data = api.payload
         controller = ArticleController()
@@ -96,8 +90,7 @@ class Article(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def patch(self, id_or_slug):
-        """Update existing article by its ID.
-        """
+        """Update existing article by article Id or slug"""
 
         data = api.payload
         controller = ArticleController()
@@ -108,8 +101,7 @@ class Article(Resource):
 
     @token_required
     def delete(self, id_or_slug):
-        """ Delete the article by its ID.
-        """
+        """ Delete the article by article Id or slug"""
 
         controller = ArticleController()
         result = controller.delete(object_id=id_or_slug)
@@ -123,8 +115,8 @@ class ArticleSimilar(Resource):
     @api.expect(_article_get_similar_params)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def get(self):
-        """ Get similar articles.
-        """
+        """ Get similar articles"""
+        
         args = _article_get_similar_params.parse_args()
         controller = ArticleController()
         return controller.get_similar(args=args)
@@ -135,8 +127,7 @@ class UpdateArticleSlug(Resource):
     @admin_token_required()
     @api.response(code=200, model=_article_dto_response, description='Model for question response.')
     def post(self):
-        """ Update Slug for articles in DB
-        """
+        """ Update Slug for article"""
 
         controller = ArticleController()
         return controller.update_slug()

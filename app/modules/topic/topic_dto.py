@@ -65,7 +65,7 @@ class TopicDto(Dto):
     # define the model for response
     model_topic_response = api.model('topic_response', {
         'id': fields.Integer(requried=False, readonly=True, description='The ID of the topic'),
-        'slug': fields.String(description='The slug of the question'),
+        'slug': fields.String(description='The slug of the topic'),
         'name': fields.String(description='The name of the topic'),
         'color_code': fields.String(description='The color code for topic'),
         'file_url': fields.String(description='The file url for topic'),
@@ -103,8 +103,7 @@ class TopicDto(Dto):
     })
 
     upload_parser = api.parser()
-    upload_parser.add_argument('file', location='files',
-                        type=FileStorage, required=True)
+    upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
 
     @classmethod
     def get_endorsed_users_parser(cls):

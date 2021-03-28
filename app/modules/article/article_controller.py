@@ -44,8 +44,7 @@ UserFriend = db.get_model('UserFriend')
 
 class ArticleController(Controller):
     query_classname = 'Article'
-    #special_filtering_fields = ['from_date', 'to_date', 'draft', 'topic_id', 'title', 'is_created_by_friend', 'hot']
-    special_filtering_fields = ['from_date', 'to_date', 'draft', 'topic_id', 'title']    
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft', 'is_created_by_friend']    
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
 
     def create(self, data):
@@ -108,8 +107,8 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                ArticleFavorite.article_id == article.id).first()
+
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
                 
                 #if article.user:
@@ -161,23 +160,22 @@ class ArticleController(Controller):
             query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
         if params.get('topic_id'):
             query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
+        if params.get('article_ids'):
+            query = query.filter(Article.id.in_(params.get('article_ids')))
         if params.get('draft') is not None:
             if params.get('draft'):
                 query = query.filter(Article.is_draft == True)
             else:
                 query = query.filter(Article.is_draft != True)
-        # if params.get('is_created_by_friend') and g.current_user:
-        #     query = query\
-        #         .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
-        #         .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
-        #         .filter(
-        #             (UserFollow.follower_id == g.current_user.id) |
-        #             ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
-        #             (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
-        #         )
-        # if params.get('hot'):
-        #     query = query.order_by(desc(text("updated_date")))
-
+        if params.get('is_created_by_friend') and g.current_user:
+             query = query\
+                 .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
+                 .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
+                 .filter(
+                     (UserFollow.follower_id == g.current_user.id) |
+                     ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
+                     (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
+                 )
         return query
 
     def get(self, args):
@@ -203,8 +201,7 @@ class ArticleController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                    ArticleFavorite.article_id == article.id).first()
+                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
 
@@ -214,7 +211,8 @@ class ArticleController(Controller):
         except Exception as e:
             print(e)
             return send_error(message=messages.ERR_GET_FAILED.format('Article', str(e)))
-    
+
+ 
     def get_count(self, args):
         
         try:

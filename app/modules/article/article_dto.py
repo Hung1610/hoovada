@@ -82,20 +82,18 @@ class ArticleDto(Dto):
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('title', type=str, required=False, help='Search article by its title')
     model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search all articles related to fixed-topic.')
-    model_get_parser.add_argument('topic_id', type=int, required=False, action='append', help='Search all articles related to topic.')
+    model_get_parser.add_argument('topic_id', type=int, required=False, action='append', help='Search all articles from the list of topic ids')
+    model_get_parser.add_argument('article_ids', type=int, required=False, action='append', help='Search all articles from the list of article ids')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
     model_get_parser.add_argument('draft', type=inputs.boolean, required=False, help='Search articles that are drafts.')
     model_get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search articles that are deleted.')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search all articles created by user.')
-    #model_get_parser.add_argument('is_created_by_friend', type=inputs.boolean, required=False, help='Search questions that are created by friend/followee.')
-    #model_get_parser.add_argument('hot', type=inputs.boolean, required=False, help='Search articles that are hot.')
+    model_get_parser.add_argument('is_created_by_friend', type=inputs.boolean, required=False, help='Search articles that are created by friends and followee.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
-                        )
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
-                        )
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',)
 
     get_similar_articles_parser = reqparse.RequestParser()
     get_similar_articles_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
