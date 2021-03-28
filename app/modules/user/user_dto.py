@@ -60,7 +60,6 @@ class UserDto(Dto):
         'followed_new_publication_notify_settings': fields.Boolean(required=False, default=False),
         'followed_new_publication_email_settings': fields.Boolean(required=False, default=False),
 
-
         'friend_request_notify_settings': fields.Boolean(required=False, default=True),
         'friend_request_email_settings': fields.Boolean(required=False, default=True),
 
