@@ -56,6 +56,14 @@ class TopicBookmarkDto(Dto):
         'updated_date': fields.DateTime(required=False, description='The updated date')
     })
 
+    model_bookmark_multiple_topics_request = api.model('bookmark_multiple_topics_request', {
+        'topic_ids': fields.List(fields.Integer, description='The list of topics'),
+    })
+
+    model_bookmark_multiple_topics_request = api.model('bookmark_multiple_topics_response', {
+    })
+
+
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('user_id', type=str, required=False, help='Search bookmarks by user_id')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search all bookmarks by start voting date.')

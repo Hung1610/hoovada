@@ -58,14 +58,25 @@ class TopicBookmarkController(Controller):
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
 
+
+    def create_multiple_topics_bookmarks(self, args):
+        try;
+            if topic_ids in args:
+                for topic_id in args['topic_ids']:
+                    self.create(topic_id)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=constants.msg_create_failed)       
+
+
     def create(self, topic_id):
         data = {}
         current_user = g.current_user
         data['user_id'] = current_user.id
         data['topic_id'] = topic_id
         try:
-            bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == data['user_id'],
-                                             TopicBookmark.topic_id == data['topic_id']).first()
+            bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == data['user_id'], TopicBookmark.topic_id == data['topic_id']).first()
             if bookmark:
                 return send_result(message=constants.msg_already_bookmarkd)
 
@@ -75,8 +86,7 @@ class TopicBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
 
-            return send_result(message=constants.msg_create_success,
-                               data=marshal(bookmark, TopicBookmarkDto.model_response))
+            return send_result(message=constants.msg_create_success, data=marshal(bookmark, TopicBookmarkDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=constants.msg_create_failed)

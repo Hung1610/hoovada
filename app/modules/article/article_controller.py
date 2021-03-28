@@ -51,12 +51,12 @@ class ArticleController(Controller):
         try:
             if not isinstance(data, dict):
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
             if not 'title' in data:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+
             if not 'fixed_topic_id' in data:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
-            if not 'topic_ids' in data:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('topic_ids'))
 
             current_user = g.current_user
             data['user_id'] = current_user.id
@@ -71,7 +71,7 @@ class ArticleController(Controller):
             if is_sensitive:
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
-            article, topic_ids = self._parse_article(data=data, article=None)
+            article = self._parse_article(data=data, article=None)
 
             # check number of words
             text = ' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings)
@@ -86,6 +86,10 @@ class ArticleController(Controller):
             if article.scheduled_date and article.scheduled_date < datetime.now():
                 return send_error(message=messages.ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT)
 
+            if article.topics is not None:
+                if len(article.topics) > 5:
+                    return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
+
             db.session.add(article)
             db.session.commit()
 
@@ -98,10 +102,9 @@ class ArticleController(Controller):
             try:
                 result = article._asdict()
                 result['user'] = article.user
-                result['topics'] = article.topics
 
-                if article.topics is not None and len(article.topics) > 5:
-                    return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
+                if article.topics is not None:
+                    result['topics'] = article.topics
 
                 vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                 if vote is not None:
@@ -127,13 +130,12 @@ class ArticleController(Controller):
                 return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
             
             except Exception as e:
-                print(e)
-                return send_result(data=marshal(article, ArticleDto.model_article_response),
-                                    message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Article', 'failed to add topics'))
+                print(e.__str__())
+                return send_result(data=marshal(article, ArticleDto.model_article_response), message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Article', 'failed to add topics'))
         
         except Exception as e:
+            print(e.__str__())
             db.session.rollback()
-            print(e)
             return send_error(message=messages.ERR_CREATE_FAILED.format("Article", str(e)))
 
     def get_query(self):
@@ -209,7 +211,7 @@ class ArticleController(Controller):
             return res, code
 
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('Article', str(e)))
 
  
@@ -249,15 +251,14 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id,
-                                                ArticleFavorite.article_id == article.id).first()
+                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
                 result['is_favorited_by_me'] = True if favorite else False
                 update_seen_articles.send(article.id, current_user.id)
             
             return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
         
         except Exception as e:
-            print(e)
+            print(e.__str__())
             pass
     
     def get_similar(self, args):
@@ -269,10 +270,8 @@ class ArticleController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
         
         fixed_topic_id = args.get('fixed_topic_id')
-        if not 'topic_id' in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('topic_ids'))
-        
-        topic_ids = args.get('topic_id')
+        topic_ids = args.get('topic_id', None)
+
         if 'limit' in args:
             limit = int(args['limit'])
         else:
@@ -286,14 +285,14 @@ class ArticleController(Controller):
                 query = query.filter(Article.id != args.get('exclude_article_id'))
             
             title_similarity = db.func.SIMILARITY_STRING(Article.title, title).label('title_similarity')
-            query = query.with_entities(Article, title_similarity)\
-                .filter(title_similarity > 50)
+            query = query.with_entities(Article, title_similarity).filter(title_similarity > 50)
             
-            if fixed_topic_id:
+            if fixed_topic_id is not None:
                 query = query.filter(Article.fixed_topic_id == fixed_topic_id)
             
-            if topic_ids:
+            if topic_ids is not None:
                 query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
+            
             articles = query\
                 .order_by(desc(title_similarity))\
                 .limit(limit)\
@@ -339,21 +338,9 @@ class ArticleController(Controller):
             if article is None:
                 return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
 
-            article, _ = self._parse_article(data=data, article=article)
-            if 'topic_ids' in data:
-                topic_ids = data['topic_ids']
-                topics = []
-                for topic_id in topic_ids:
-                    try:
-                        topic = Topic.query.filter_by(id=topic_id).first()
-                        topics.append(topic)
-                    except Exception as e:
-                        print(e)
-                        pass
-                article.topics = topics
-
-                if article.topics is not None and len(article.topics) > 5:
-                    return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
+            article = self._parse_article(data=data, article=article)
+            if article.topics is not None and len(article.topics) > 5:
+                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             # check sensitive for article title
             is_sensitive = check_sensitive(article.title)
@@ -392,6 +379,7 @@ class ArticleController(Controller):
             except Exception as e:
                 print(e)
                 pass
+
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
@@ -480,7 +468,6 @@ class ArticleController(Controller):
                 print(e)
                 pass
             
-        topic_ids = None
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
             topics = []
@@ -489,7 +476,7 @@ class ArticleController(Controller):
                     topic = Topic.query.filter_by(id=topic_id).first()
                     topics.append(topic)
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             article.topics = topics
 
@@ -500,4 +487,5 @@ class ArticleController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
-        return article, topic_ids
+
+        return article

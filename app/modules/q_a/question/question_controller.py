@@ -50,7 +50,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_ids', 'is_shared', 'is_created_by_friend']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answers_count']
     
     def create(self, data):
@@ -59,6 +59,9 @@ class QuestionController(Controller):
         
         if not 'title' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+
+        if not 'fixed_topic_id' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
 
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
@@ -81,8 +84,8 @@ class QuestionController(Controller):
             question = Question.query.filter(Question.title == title).first()
 
             if not question:
-                question, topic_ids = self._parse_question(data=data, question=None)
-                if question.topics.count('1') > 5:
+                question = self._parse_question(data=data, question=None)
+                if question.topics is not None and len(question.topics) > 5:
                     return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
                 topic = Topic.query.filter(Topic.id == question.fixed_topic_id).first()
@@ -172,10 +175,8 @@ class QuestionController(Controller):
             query = query.filter(Question.created_date >= params.get('from_date'))
         if params.get('to_date'):
             query = query.filter(Question.created_date <= params.get('to_date'))
-        if params.get('topic_id'):
-            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
-        # if params.get('for_me') and current_user:
-        #     query = query.filter((Question.invited_users.any(User.id==current_user.id)) | (Question.bookmarked_users.any(User.id==current_user.id)))
+        if params.get('topic_ids'):
+            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_ids'))))
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
         if params.get('is_created_by_friend') and current_user:
@@ -209,17 +210,20 @@ class QuestionController(Controller):
                 result['fixed_topic'] = question.fixed_topic
                 result['topics'] = question.topics
                 if current_user:
+                    
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,
-                                                    QuestionFavorite.question_id == question.id).first()
+                    
+                    favorite = QuestionFavorite.query.filter(QuestionFavorite.user_id == current_user.id,QuestionFavorite.question_id == question.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
+                    
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
                     result['is_bookmarked_by_me'] = True if bookmark else False
+                
                 results.append(result)
+            
             res['data'] = marshal(results, QuestionDto.model_question_response)
 
             return res, code
@@ -537,6 +541,7 @@ class QuestionController(Controller):
             proposal = QuestionProposal.query.filter_by(id=object_id).first()
             if proposal is None:
                 return send_error(message="Proposal with the ID {} not found".format(object_id))
+            
             if proposal.is_approved:
                 return send_result(message="Proposal with the ID {} is already approved".format(object_id))
 
@@ -544,10 +549,12 @@ class QuestionController(Controller):
             if proposal.is_parma_delete:
                 proposal.is_approved = True
                 return self.delete(str(proposal.question_id))
+            
             related_question = Question.query.filter_by(id=proposal.question_id).first()
             if related_question is None:
                 return send_error(message="Question with the ID {} not found".format(proposal.question_id))
-            question, _ = self._parse_question(data=question_data, question=related_question)
+            
+            question = self._parse_question(data=question_data, question=related_question)
             question.last_activity = datetime.utcnow()
             proposal.is_approved = True
             db.session.commit()
@@ -567,7 +574,10 @@ class QuestionController(Controller):
         
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        
+
+        if not 'fixed_topic_id' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
         else:
@@ -576,9 +586,9 @@ class QuestionController(Controller):
         if question is None:
             return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
         
-        question, _ = self._parse_question(data=data, question=question)
+        question = self._parse_question(data=data, question=question)
         try:
-            if question.topics.count('1') > 5:
+            if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
             # check sensitive after updating
@@ -729,7 +739,7 @@ class QuestionController(Controller):
                     pass
             question.topics = topics
 
-        return question, topic_ids
+        return question
 
     def _parse_proposal(self, data, proposal=None):
         if proposal is None:
