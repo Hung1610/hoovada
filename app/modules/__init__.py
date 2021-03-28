@@ -35,10 +35,10 @@ from app.modules.q_a import ( ns_answer,
 from app.modules.post import (ns_post, 
                               ns_post_comment, 
                               ns_post_comment_favorite,
-                              ns_post_comment_report, 
+                              ns_post_comment_report,
+                              ns_post_report, 
                               ns_post_favorite,
-                              ns_post_share, 
-                              ns_post_vote)
+                              ns_post_share)
 
 from app.modules.topic import (ns_topic, 
                                ns_topic_bookmark,
