@@ -60,15 +60,13 @@ class TopicBookmarkController(Controller):
 
 
     def create_multiple_topics_bookmarks(self, args):
-        try;
-            if topic_ids in args:
-                for topic_id in args['topic_ids']:
+        if topic_ids in args:
+            for topic_id in args['topic_ids']:
+                try: 
                     self.create(topic_id)
-
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=constants.msg_create_failed)       
-
+                except Exception as e:
+                    print(e.__str__())
+                    pass
 
     def create(self, topic_id):
         data = {}
