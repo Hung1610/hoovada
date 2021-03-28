@@ -77,8 +77,13 @@ class ArticleCommentReport(Model, BaseReport):
 
 class PostReport(Model, BaseReport):
     __tablename__ = 'post_report'
-    
     post_id = db.Column(db.Integer, index=True)
+
+class PostCommentReport(Model, BaseReport):
+    __tablename__ = 'post_comment_report'
+
+    comment_id = db.Column(db.Integer, db.ForeignKey('post_comment.id', ondelete='CASCADE'), nullable=False, index=True)
+    comment = db.relationship('PostComment', lazy=True) # one-to-many relationship with table Comment
 
 
 class TopicReport(Model, BaseReport):
