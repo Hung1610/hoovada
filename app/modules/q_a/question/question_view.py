@@ -42,9 +42,8 @@ class QuestionList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """
-        Get list of questions from database.
-        """
+        """Get list of questions from params query"""
+
         args = get_parser.parse_args()
         controller = QuestionController()
         return controller.get(args=args)
@@ -53,9 +52,7 @@ class QuestionList(Resource):
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        """ 
-        Create new question and save to database.
-        """
+        """ Create new question"""
 
         data = api.payload
         controller = QuestionController()
@@ -68,9 +65,8 @@ class QuestionRecommendedUsers(Resource):
     @api.expect(top_user_reputation_args_parser)
     @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
     def get(self):
-        """ 
-        Get recommended users for question specifications.
-        """
+        """ Get recommended users for question."""
+
         args = top_user_reputation_args_parser.parse_args()
         controller = QuestionController()
         return controller.get_recommended_users(args=args)
@@ -81,9 +77,8 @@ class QuestionRecommendedTopics(Resource):
     @api.expect(get_relevant_topics_parser)
     @api.response(code=200, model=model_topic, description='Model for topic response.')
     def get(self):
-        """ 
-        Get recommended topics based on title.
-        """
+        """ Get recommended topics based on title."""
+
         args = get_relevant_topics_parser.parse_args()
         controller = QuestionController()
         return controller.get_recommended_topics(args=args)
@@ -94,9 +89,8 @@ class QuestionSimilar(Resource):
     @api.expect(get_similar_questions_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """ 
-        Get similar questions.
-        """
+        """ Get similar questions."""
+
         args = get_similar_questions_parser.parse_args()
         controller = QuestionController()
         return controller.get_similar(args=args)
@@ -110,9 +104,7 @@ class Question(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
     @cache.cached(key_prefix=get_question_key_prefix)
     def get(self, id_or_slug):
-        """ 
-        Get specific question by its ID.
-        """
+        """ Get specific question by question Id or slug"""
 
         controller = QuestionController()
         return controller.get_by_id(object_id=id_or_slug)
@@ -121,9 +113,7 @@ class Question(Resource):
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id_or_slug):
-        """ 
-        Update existing question by its ID.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids.
-        """
+        """ Update existing question by question Id or slug.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids."""
 
         data = api.payload
         controller = QuestionController()
@@ -133,9 +123,7 @@ class Question(Resource):
 
     @admin_token_required()
     def delete(self, id_or_slug):
-        """ 
-        Delete the question by its ID.
-        """
+        """ Delete the question by question Id or slug"""
 
         controller = QuestionController()
         result = controller.delete(object_id=id_or_slug)
@@ -147,9 +135,7 @@ class QuestionInvite(Resource):
     @token_required
     @api.expect(question_invite_request)
     def post(self, id_or_slug):
-        """ 
-        Delete the question by its ID.
-        """
+        """ Delete the question by question Id or slug"""
 
         data = api.payload
         controller = QuestionController()
@@ -159,9 +145,7 @@ class QuestionInvite(Resource):
 class QuestionFriendInvite(Resource):
     @token_required
     def post(self, id_or_slug):
-        """ 
-        Delete the question by its ID.
-        """
+        """Create the invited question enrity by question Id or slug"""
 
         controller = QuestionController()
         return controller.invite_friends(object_id=id_or_slug)
@@ -176,8 +160,8 @@ class QuestionProposal(Resource):
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
     @cache.cached(key_prefix=get_question_proposal_key_prefix)
     def get(self, id_or_slug):
-        """ Get list of questions from database.
-        """
+        """ Get list of questions proposal by question Id or slug"""
+
         args = proposal_get_parser.parse_args()
         controller = QuestionController()
         return controller.get_proposals(object_id=id_or_slug, args=args)
@@ -185,8 +169,7 @@ class QuestionProposal(Resource):
     @token_required
     @api.expect(model_request)
     def post(self, id_or_slug):
-        """ Create question change proposal by its ID.
-        """
+        """ Create question proposal by question Id or slug"""
 
         data = api.payload
         controller = QuestionController()
@@ -198,8 +181,7 @@ class QuestionProposal(Resource):
 class QuestionDeleteProposal(Resource):
     @token_required
     def post(self, id_or_slug):
-        """ Create question delete proposal by its ID.
-        """
+        """ Create question delete proposal by question Id or slug"""
 
         controller = QuestionController()
         result = controller.create_delete_proposal(object_id=id_or_slug)
@@ -212,8 +194,8 @@ class QuestionApprove(Resource):
     @admin_token_required()
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
     def put(self, id):
-        """ Approve question change proposal
-        """
+        """ Approve question change proposal"""
+
         controller = QuestionController()
         return controller.approve_proposal(object_id=id)
 
@@ -222,8 +204,7 @@ class UpdateSlug(Resource):
     @admin_token_required()
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        """ Update Slug for questions in DB
-        """
+        """ Update Slug for questionsquestion Id or slug"""
 
         controller = QuestionController()
         controller.update_slug()

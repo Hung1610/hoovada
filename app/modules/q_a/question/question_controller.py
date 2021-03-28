@@ -50,8 +50,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    #special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend', 'hot', 'for_me']
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answers_count']
     
     def create(self, data):
@@ -179,19 +178,15 @@ class QuestionController(Controller):
         #     query = query.filter((Question.invited_users.any(User.id==current_user.id)) | (Question.bookmarked_users.any(User.id==current_user.id)))
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-        # if params.get('is_created_by_friend') and current_user:
-        #     query = query\
-        #         .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
-        #         .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
-        #         .filter(
-        #             (UserFollow.follower_id == current_user.id) |
-        #             ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
-        #             (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-        #         )
-
-        # if params.get('hot'):
-        #     query = query.order_by(desc(text("updated_date")))
-
+        if params.get('is_created_by_friend') and current_user:
+             query = query\
+                 .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
+                 .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
+                 .filter(
+                     (UserFollow.follower_id == current_user.id) |
+                     ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
+                     (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+                 )
         return query
 
     def get_query(self):

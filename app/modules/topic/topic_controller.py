@@ -146,7 +146,7 @@ class TopicController(Controller):
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
         if params.get('topic_ids'):
-            query = query.filter(Article.id.in_(params.get('topic_ids')))
+            query = query.filter(Topic.id.in_(params.get('topic_ids')))
         if params.get('hot'):
             query = query.order_by(desc(text("article_count + question_count")))
 

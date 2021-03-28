@@ -44,7 +44,7 @@ UserFriend = db.get_model('UserFriend')
 
 class ArticleController(Controller):
     query_classname = 'Article'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft', 'is_created_by_friend']    
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_ids', 'article_ids', 'draft', 'is_created_by_friend']    
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
 
     def create(self, data):
@@ -158,8 +158,8 @@ class ArticleController(Controller):
             query = query.filter(Article.created_date >= dateutil.parser.isoparse(params.get('from_date')))
         if params.get('to_date'):
             query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
-        if params.get('topic_id'):
-            query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
+        if params.get('topic_ids'):
+            query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_ids'))))
         if params.get('article_ids'):
             query = query.filter(Article.id.in_(params.get('article_ids')))
         if params.get('draft') is not None:
