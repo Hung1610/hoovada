@@ -40,7 +40,7 @@ TopicBookmark = db.get_model('TopicBookmark')
 
 class TopicController(Controller):
     query_classname = 'Topic'
-    special_filtering_fields = ['hot']
+    special_filtering_fields = ['hot', 'topic_ids']
     allowed_ordering_fields = ['created_date', 'updated_date']
     
     def create_fixed_topics(self):
@@ -145,6 +145,8 @@ class TopicController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
+        if params.get('topic_ids'):
+            query = query.filter(Article.id.in_(params.get('topic_ids')))
         if params.get('hot'):
             query = query.order_by(desc(text("article_count + question_count")))
 
