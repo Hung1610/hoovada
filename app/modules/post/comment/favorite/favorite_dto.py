@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class PostCommentFavoriteDto(Dto):
     name = 'post_comment_favorite'
-    api = Namespace(name, description="PostComment-Favorite operations")
+    api = Namespace(name, description="Post comment favorite operations")
 
     model_favorite_post_comment = api.model('favorite_post_comment', {
         'title': fields.String(description='The title of the post_comment'),
