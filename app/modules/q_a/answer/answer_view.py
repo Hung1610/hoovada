@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask import request
 from flask_restx import Resource, reqparse
 
 # own modules
 from app.modules.q_a.answer.answer_controller import AnswerController
 from app.modules.q_a.answer.answer_dto import AnswerDto
+from common.cache import cache
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -63,11 +65,14 @@ class AnswerList(Resource):
         controller = AnswerController()
         return controller.create(data=data)
 
+def get_article_proposal_key_prefix():
+    return '{}{}'.format('get.article.proposals', request.view_args['id'])
 
 @api.route('/<int:id>')
 class Answer(Resource):
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
+    @cache.cached(key_prefix=get_article_proposal_key_prefix)
     def get(self, id):
         """
         Get the answer by its ID.
@@ -87,7 +92,9 @@ class Answer(Resource):
 
         data = api.payload
         controller = AnswerController()
-        return controller.update(object_id=id, data=data)
+        result = controller.update(object_id=id, data=data)
+        cache.clear_cache(get_article_proposal_key_prefix())
+        return result
 
     @token_required
     def delete(self, id):
@@ -96,4 +103,6 @@ class Answer(Resource):
         """
 
         controller = AnswerController()
-        return controller.delete(object_id=id)
+        result = controller.delete(object_id=id)
+        cache.clear_cache(get_article_proposal_key_prefix())
+        return result
