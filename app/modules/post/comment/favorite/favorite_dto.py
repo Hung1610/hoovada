@@ -15,17 +15,11 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class PostCommentFavoriteDto(Dto):
     name = 'post_comment_favorite'
-    api = Namespace(name, description="postComment-Favorite operations")
-
-    model_topic_post_comment_favorite = api.model('topic_post_comment_favorite', {
-        'id': fields.Integer(readonly=True, description='The ID of the topic'),
-        'name': fields.String(description='The name of the topic')
-    })
+    api = Namespace(name, description="PostComment-Favorite operations")
 
     model_favorite_post_comment = api.model('favorite_post_comment', {
         'title': fields.String(description='The title of the post_comment'),
-        'user_id': fields.Integer(description='The user information'),
-        'topics': fields.List(fields.Nested(model_topic_post_comment_favorite), description='The list of topics')
+        'user_id': fields.Integer(description='The user information')
     })
 
     model_request = api.model('favorite_post_comment_request', {
