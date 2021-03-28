@@ -43,32 +43,26 @@ class UserDto(Dto):
         'hoovada_digests_setting': fields.Boolean(required=False, default=0),
         'hoovada_digests_frequency_setting': fields.String(required=False, default=''),
 
-        'new_answer_notify_settings': fields.Boolean(required=False, default=True),
-        'new_answer_email_settings': fields.Boolean(required=False, default=True),
+        'new_answer_notify_settings': fields.Boolean(required=False, default=False),
+        'new_answer_email_settings': fields.Boolean(required=False, default=False),
+        'my_question_notify_settings': fields.Boolean(required=False, default=False),
+        'my_question_email_settings': fields.Boolean(required=False, default=False),
+        'new_question_comment_notify_settings': fields.Boolean(required=False, default=False),
+        'new_question_comment_email_settings': fields.Boolean(required=False, default=False),
+        'new_answer_comment_notify_settings': fields.Boolean(required=False, default=False),
+        'new_answer_comment_email_settings': fields.Boolean(required=False, default=False),
+        'new_article_comment_notify_settings': fields.Boolean(required=False, default=False),
+        'new_article_comment_email_settings': fields.Boolean(required=False, default=False),
+        'question_invite_notify_settings': fields.Boolean(required=False, default=False),
+        'question_invite_email_settings': fields.Boolean(required=False, default=False),
+        'follow_notify_settings': fields.Boolean(required=False, default=False),
+        'follow_email_settings': fields.Boolean(required=False, default=False),
+        'followed_new_publication_notify_settings': fields.Boolean(required=False, default=False),
+        'followed_new_publication_email_settings': fields.Boolean(required=False, default=False),
 
-        'my_question_notify_settings': fields.Boolean(required=False, default=True),
-        'my_question_email_settings': fields.Boolean(required=False, default=True),
-
-        'new_question_comment_notify_settings': fields.Boolean(required=False, default=True),
-        'new_question_comment_email_settings': fields.Boolean(required=False, default=True),
-
-        'new_answer_comment_notify_settings': fields.Boolean(required=False, default=True),
-        'new_answer_comment_email_settings': fields.Boolean(required=False, default=True),
-
-        'new_article_comment_notify_settings': fields.Boolean(required=False, default=True),
-        'new_article_comment_email_settings': fields.Boolean(required=False, default=True),
-
-        'question_invite_notify_settings': fields.Boolean(required=False, default=True),
-        'question_invite_email_settings': fields.Boolean(required=False, default=True),
 
         'friend_request_notify_settings': fields.Boolean(required=False, default=True),
         'friend_request_email_settings': fields.Boolean(required=False, default=True),
-
-        'follow_notify_settings': fields.Boolean(required=False, default=True),
-        'follow_email_settings': fields.Boolean(required=False, default=True),
-
-        'followed_new_publication_notify_settings': fields.Boolean(required=False, default=True),
-        'followed_new_publication_email_settings': fields.Boolean(required=False, default=True),
 
         'admin_interaction_notify_settings': fields.Boolean(required=False, default=True),
         'admin_interaction_email_settings': fields.Boolean(required=False, default=True),
@@ -78,10 +72,6 @@ class UserDto(Dto):
         'show_nsfw': fields.Boolean(default=True, description='The user wants nsfw topics shown or not'),
 
         'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
-
-        'allow_answer_comment': fields.Boolean(required=False, default=True),
-        'allow_question_comment': fields.Boolean(required=False, default=True),
-        'allow_article_comment': fields.Boolean(required=False, default=True),
 
         'is_first_log_in': fields.Boolean(required=False, default=True),
     })
@@ -129,32 +119,26 @@ class UserDto(Dto):
         'hoovada_digests_setting': fields.Boolean(required=False),
         'hoovada_digests_frequency_setting': fields.String(required=False),
 
-        'new_answer_notify_settings': fields.Boolean(required=False, default=True),
-        'new_answer_email_settings': fields.Boolean(required=False, default=True),
+        'new_answer_notify_settings': fields.Boolean(required=False, default=False),
+        'new_answer_email_settings': fields.Boolean(required=False, default=False),
+        'my_question_notify_settings': fields.Boolean(required=False, default=False),
+        'my_question_email_settings': fields.Boolean(required=False, default=False),
+        'new_question_comment_notify_settings': fields.Boolean(required=False, default=False),
+        'new_question_comment_email_settings': fields.Boolean(required=False, default=False),
+        'new_answer_comment_notify_settings': fields.Boolean(required=False, default=False),
+        'new_answer_comment_email_settings': fields.Boolean(required=False, default=False),
+        'new_article_comment_notify_settings': fields.Boolean(required=False, default=False),
+        'new_article_comment_email_settings': fields.Boolean(required=False, default=False),
+        'question_invite_notify_settings': fields.Boolean(required=False, default=False),
+        'question_invite_email_settings': fields.Boolean(required=False, default=False),
+        'follow_notify_settings': fields.Boolean(required=False, default=False),
+        'follow_email_settings': fields.Boolean(required=False, default=False),
+        'followed_new_publication_notify_settings': fields.Boolean(required=False, default=False),
+        'followed_new_publication_email_settings': fields.Boolean(required=False, default=False),
 
-        'my_question_notify_settings': fields.Boolean(required=False, default=True),
-        'my_question_email_settings': fields.Boolean(required=False, default=True),
-
-        'new_question_comment_notify_settings': fields.Boolean(required=False, default=True),
-        'new_question_comment_email_settings': fields.Boolean(required=False, default=True),
-
-        'new_answer_comment_notify_settings': fields.Boolean(required=False, default=True),
-        'new_answer_comment_email_settings': fields.Boolean(required=False, default=True),
-
-        'new_article_comment_notify_settings': fields.Boolean(required=False, default=True),
-        'new_article_comment_email_settings': fields.Boolean(required=False, default=True),
-
-        'question_invite_notify_settings': fields.Boolean(required=False, default=True),
-        'question_invite_email_settings': fields.Boolean(required=False, default=True),
 
         'friend_request_notify_settings': fields.Boolean(required=False, default=True),
         'friend_request_email_settings': fields.Boolean(required=False, default=True),
-
-        'follow_notify_settings': fields.Boolean(required=False, default=True),
-        'follow_email_settings': fields.Boolean(required=False, default=True),
-
-        'followed_new_publication_notify_settings': fields.Boolean(required=False, default=True),
-        'followed_new_publication_email_settings': fields.Boolean(required=False, default=True),
 
         'admin_interaction_notify_settings': fields.Boolean(required=False, default=True),
         'admin_interaction_email_settings': fields.Boolean(required=False, default=True),
@@ -219,10 +203,6 @@ class UserDto(Dto):
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
         
         'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
-        
-        'allow_answer_comment': fields.Boolean(required=False, default=True),
-        'allow_question_comment': fields.Boolean(required=False, default=True),
-        'allow_article_comment': fields.Boolean(required=False, default=True),
 
         'is_first_log_in': fields.Boolean(required=False, default=True),
     })

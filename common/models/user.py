@@ -83,40 +83,31 @@ class User(Model):
     # Settings
     show_fullname_instead_of_display_name = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
-    allow_answer_comment = db.Column(db.Boolean, nullable=False, server_default=expression.true())
-    allow_question_comment = db.Column(db.Boolean, nullable=False, server_default=expression.true())
-    allow_article_comment = db.Column(db.Boolean, nullable=False, server_default=expression.true())
-
     show_email_publicly_setting = db.Column(db.Boolean, default=False)
     hoovada_digests_setting = db.Column(db.Boolean, default=True)
     hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False,server_default='weekly')
 
-    new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    new_answer_email_settings = db.Column(db.Boolean, server_default=expression.true())
-
-    my_question_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    my_question_email_settings = db.Column(db.Boolean, server_default=expression.true())
-
-    new_question_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    # these fields are deprecated, set false by default
+    new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.false())
+    new_answer_email_settings = db.Column(db.Boolean, server_default=expression.false())
+    my_question_notify_settings = db.Column(db.Boolean, server_default=expression.false())
+    my_question_email_settings = db.Column(db.Boolean, server_default=expression.false())
+    new_question_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false())
     new_question_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-
-    new_answer_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_answer_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false())
     new_answer_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-
-    new_article_comment_notify_settings = db.Column(db.Boolean, server_default=expression.true())
+    new_article_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false())
     new_article_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
+    question_invite_notify_settings = db.Column(db.Boolean, server_default=expression.false())
+    question_invite_email_settings = db.Column(db.Boolean, server_default=expression.false())
+    follow_notify_settings = db.Column(db.Boolean, server_default=expression.false())
+    follow_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
+    followed_new_publication_notify_settings = db.Column(db.Boolean, server_default=expression.false())
+    followed_new_publication_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
-    question_invite_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    question_invite_email_settings = db.Column(db.Boolean, server_default=expression.true())
 
     friend_request_notify_settings = db.Column(db.Boolean, server_default=expression.true())
     friend_request_email_settings = db.Column(db.Boolean, server_default=expression.true())
-
-    follow_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    follow_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-
-    followed_new_publication_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    followed_new_publication_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
 
     admin_interaction_notify_settings = db.Column(db.Boolean, server_default=expression.true())
     admin_interaction_email_settings = db.Column(db.Boolean, server_default=expression.true())

@@ -40,6 +40,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     html = db.Column(db.UnicodeText)
     allow_voting = db.Column(db.Boolean, default=True)
     views_count = db.Column(db.Integer, default=0)
+    allow_comments = db.Column(db.Boolean, server_default=expression.true())
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):

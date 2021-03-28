@@ -49,6 +49,7 @@ class ArticleDto(Dto):
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'allow_comments': fields.Boolean(default=True, description='The article allows commenting or not'),
     })
 
     model_article_response = api.model('article_response', {
@@ -75,6 +76,7 @@ class ArticleDto(Dto):
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
+        'allow_comments': fields.Boolean(default=True, description='The article allows commenting or not'),
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()
