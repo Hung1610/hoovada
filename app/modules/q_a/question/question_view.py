@@ -35,14 +35,13 @@ model_response = QuestionDto.model_question_response
 proposal_get_parser = QuestionDto.proposal_get_parser
 
 
-
 @api.route('')
 class QuestionList(Resource):
 
     @api.expect(get_parser)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def get(self):
-        """Get list of questions from params query"""
+        """Get list of questions from params"""
 
         args = get_parser.parse_args()
         controller = QuestionController()

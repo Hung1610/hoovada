@@ -140,8 +140,10 @@ class TopicController(Controller):
             print(e.__str__())
             return send_error(message='Could not create topic, please try again!')
 
+
     def get_query(self):
         return self.get_model_class().query.order_by(desc(func.field(Topic.name, "Những lĩnh vực khác")))
+
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
@@ -149,7 +151,6 @@ class TopicController(Controller):
             query = query.filter(Topic.id.in_(params.get('topic_ids')))
         if params.get('hot'):
             query = query.order_by(desc(text("article_count + question_count")))
-
         return query
 
     def get(self, args):
