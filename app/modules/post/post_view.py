@@ -5,11 +5,13 @@
 from datetime import datetime
 
 # third-party modules
+from flask import request
 from flask_restx import Resource, reqparse
 
 # own modules
 from app.modules.post.post_controller import PostController
 from app.modules.post.post_dto import PostDto
+from common.cache import cache
 from common.utils.decorator import admin_token_required, token_required
 
 __author__ = "hoovada.com team"
@@ -52,9 +54,14 @@ class PostList(Resource):
         return controller.create(data=data)
 
 
+def get_post_proposal_key_prefix():
+    return '{}{}'.format('get.post.proposals', request.view_args['id_or_slug'])
+
+
 @api.route('/<string:id_or_slug>')
 class Post(Resource):
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
+    @cache.cached(key_prefix=get_post_proposal_key_prefix)
     def get(self, id_or_slug):
         """
         Get specific post by its ID.
@@ -73,7 +80,9 @@ class Post(Resource):
 
         data = api.payload
         controller = PostController()
-        return controller.update(object_id=id_or_slug, data=data, is_put=True)
+        result = controller.update(object_id=id_or_slug, data=data, is_put=True)
+        cache.clear_cache(get_post_proposal_key_prefix())
+        return result
 
     @token_required
     @api.expect(_post_dto_request)
@@ -85,7 +94,9 @@ class Post(Resource):
 
         data = api.payload
         controller = PostController()
-        return controller.update(object_id=id_or_slug, data=data)
+        result = controller.update(object_id=id_or_slug, data=data)
+        cache.clear_cache(get_post_proposal_key_prefix())
+        return result
 
     @admin_token_required()
     def delete(self, id_or_slug):
@@ -94,7 +105,9 @@ class Post(Resource):
         """
 
         controller = PostController()
-        return controller.delete(object_id=id_or_slug)
+        result = controller.delete(object_id=id_or_slug)
+        cache.clear_cache(get_post_proposal_key_prefix())
+        return result
 
         
 @api.route('/similar')
