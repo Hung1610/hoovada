@@ -85,5 +85,5 @@ class PostFavorite(Model, BaseFavorite):
 class PostCommentFavorite(Model, BaseFavorite):
     __tablename__ = 'post_comment_favorite'
 
-    article_comment_id = db.Column(db.Integer, db.ForeignKey('post_comment.id', ondelete='CASCADE'), nullable=False)
-    article_comment = db.relationship('PostComment', lazy=True) # one-to-many relationship with table QuestionComment
+    post_comment_id = db.Column(db.Integer, db.ForeignKey('post_comment.id', ondelete='CASCADE'), nullable=False)
+    post_comment = db.relationship('PostComment', lazy=True) # one-to-many relationship with table QuestionComment

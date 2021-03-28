@@ -62,6 +62,7 @@ class PostComment(Model, BaseComment):
     def favorite_count(self):
         return db.func.count('1')  
 
+
 class AnswerComment(Model, BaseComment):
     __tablename__ = 'answer_comment'
     
