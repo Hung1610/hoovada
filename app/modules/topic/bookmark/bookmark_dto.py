@@ -60,7 +60,7 @@ class TopicBookmarkDto(Dto):
         'topic_ids': fields.List(fields.Integer, description='The list of topics'),
     })
 
-    model_bookmark_multiple_topics_request = api.model('bookmark_multiple_topics_response', {
+    model_bookmark_multiple_topics_response = api.model('bookmark_multiple_topics_response', {
     })
 
 

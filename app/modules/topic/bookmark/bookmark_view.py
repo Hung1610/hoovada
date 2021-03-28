@@ -20,7 +20,6 @@ _bookmark_request = TopicBookmarkDto.model_request
 _bookmark_response = TopicBookmarkDto.model_response
 _vote_get_params = TopicBookmarkDto.model_get_parser
 _model_bookmark_multiple_topics_request = TopicBookmarkDto.model_bookmark_multiple_topics_request
-_model_bookmark_multiple_topics_response = TopicBookmarkDto.model_bookmark_multiple_topics_response
 
 
 @api.route('/all/bookmark')
