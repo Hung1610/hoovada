@@ -32,14 +32,6 @@ PostFavorite = db.get_model('PostFavorite')
 
 class FavoriteController(Controller):
     def get(self, post_id, args):
-        '''
-        Get/Search favorites.
-
-        Args:
-             The dictionary-like parameters.
-
-        Returns:
-        '''
         
         user_id, favorited_user_id, from_date, to_date = None, None, None, None
         if 'user_id' in args:
