@@ -94,11 +94,9 @@ class TopicDto(Dto):
     model_get_parser.add_argument('is_fixed', type=inputs.boolean, required=False, help='Get all fixed topics in database.')
     model_get_parser.add_argument('hot', type=inputs.boolean, required=False, help='Search topics that are hot.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)
 
     topic_endorse_user_request = api.model('topic_endorse_user_request', {
         'user_id': fields.Integer(required=True, description='User id to endorse'),

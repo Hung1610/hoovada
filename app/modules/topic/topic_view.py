@@ -33,9 +33,9 @@ class TopicFile(Resource):
     @api.expect(upload_parser)
     @api.response(code=200, model=topic_response, description='Model for answer response.')
     def post(self, topic_id_or_slug):
+        """Create media for topic.
         """
-        Create media for topic.
-        """
+        
         controller = TopicController()
         return controller.create_with_file(object_id=topic_id_or_slug)
 

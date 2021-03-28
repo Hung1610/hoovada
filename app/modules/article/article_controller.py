@@ -354,7 +354,7 @@ class ArticleController(Controller):
                         pass
                 article.topics = topics
 
-                if article.topicsis not None and len(article.topics) > 5:
+                if article.topics is not None and len(article.topics) > 5:
                     return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             # check sensitive for article title
