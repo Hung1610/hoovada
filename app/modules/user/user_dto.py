@@ -215,14 +215,14 @@ class UserDto(Dto):
 
     model_feed_data_response = api.model('feed_data_response', {
         'feed_type': fields.String(required=False),
-        'article': fields.List(fields.Nested(model_article_feed_response, required=False), required=False),
+        'article': fields.Nested(model_article_feed_response, required=False),
         'question_id': fields.Integer(required=False),
         'answer_id': fields.Integer(required=False),
         'post_id': fields.Integer(required=False),
     })
 
     model_user_feed_response = api.model('user_feed_response', {
-        'feed': fields.List(fields.Nested(model_feed_data_response, required=False), required=False),
+        'feed': fields.Nested(model_feed_data_response, required=False),
         'limit': fields.Integer(required=False),
         'total': fields.Integer(required=False),
     })
@@ -246,8 +246,6 @@ class UserDto(Dto):
     model_get_parser.add_argument('is_endorsed', type=inputs.boolean, required=False, help='Get all endorsed users in database.')
     model_get_parser.add_argument('is_mutual_friend', type=inputs.boolean, required=False, help='Get mutual friends in database.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'question_count', 'post_count', 'answer_count', 'reputation'", type=str,
-                            choices=('question_count', 'post_count', 'answer_count', 'reputation'), action='append',
-                        )
+                            choices=('question_count', 'post_count', 'answer_count', 'reputation'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields:  'question_count', 'post_count', 'answer_count', 'reputation'", type=str,
-                            choices=( 'question_count', 'post_count', 'answer_count', 'reputation'), action='append',
-                        )
+                            choices=( 'question_count', 'post_count', 'answer_count', 'reputation'), action='append',)
