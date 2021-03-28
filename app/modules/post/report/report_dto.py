@@ -33,7 +33,7 @@ class ReportDto(Dto):
 
     get_parser = reqparse.RequestParser()
     get_parser.add_argument('user_id', type=str, required=False, help='Search reports by user_id')
-    get_parser.add_argument('post_id', type=str, required=False, help='Search all reports by question_id.')
+    get_parser.add_argument('post_id', type=str, required=False, help='Search all reports by post_id.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search all reports by start created date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search all reports by finish created date.')
 

@@ -29,21 +29,12 @@ PostComment = db.get_model('PostComment')
 
 
 class CommentController(BaseCommentController):
-    '''
-    Controller for post comments
-    '''
+
     query_classname = 'PostComment'
     related_field_name = 'post_id'
 
     def get(self, post_id, args):
-        """
-        Search comments by params.
 
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
-        # user_id, question_id, answer_id = None, None, None
         user_id = None 
         if 'user_id' in args:
             try:

@@ -12,8 +12,7 @@ from sqlalchemy import and_
 
 # own modules
 from common.db import db
-from app.modules.q_a.post.comment.favorite.favorite_dto import \
-    PostCommentFavoriteDto
+from app.modules.post.comment.favorite.favorite_dto import PostCommentFavoriteDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
 
