@@ -33,8 +33,7 @@ class TopicFile(Resource):
     @api.expect(upload_parser)
     @api.response(code=200, model=topic_response, description='Model for answer response.')
     def post(self, topic_id_or_slug):
-        """Create media for topic.
-        """
+        """Create media for topic by topic Id or slug"""
         
         controller = TopicController()
         return controller.create_with_file(object_id=topic_id_or_slug)
@@ -45,9 +44,7 @@ class TopicList(Resource):
     @api.expect(parser)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
-        """ 
-        Get list of topics from database.
-        """
+        """ Get list of topics satisfying query params """
 
         args = parser.parse_args()
         controller = TopicController()
@@ -58,9 +55,7 @@ class TopicList(Resource):
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def post(self):
-        """ 
-        Create new topic.
-        """
+        """ Create new topic."""
         
         data = api.payload
         controller = TopicController()
@@ -71,28 +66,19 @@ class TopicList(Resource):
 @api.expect(parser)
 class TopicListCount(Resource):
     def get(self):
-        """ 
-        Get list of topics from database.
-        """
+        """Get count of topics satisfying query params """
 
         args = parser.parse_args()
         controller = TopicController()
         return controller.get_count(args=args)
 
 
-# @api.route('/fixed_topic')
-# class FixedTopicList(Resource):
-#     def get(self):
-#
-
 @api.route('/<string:topic_id_or_slug>')
 class Topic(Resource):
     # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self, topic_id_or_slug):
-        """ 
-        Get topic by its ID.
-        """
+        """ Get topic by topic Id or slug"""
 
         controller = TopicController()
         return controller.get_by_id(object_id=topic_id_or_slug)
@@ -103,10 +89,7 @@ class Topic(Resource):
     # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def put(self, topic_id_or_slug):
-        """ 
-        Update existing topic by its ID.
-
-        """
+        """Update existing topic by topic Id or slug"""
 
         data = api.payload
         controller = TopicController()
@@ -114,9 +97,7 @@ class Topic(Resource):
 
     @admin_token_required()
     def delete(self, topic_id_or_slug):
-        """ 
-        Delete topic by its ID.
-        """
+        """ Delete topic by topic Id or slug"""
 
         controller = TopicController()
         return controller.delete(object_id=topic_id_or_slug)
@@ -127,9 +108,7 @@ class SubTopic(Resource):
     # @api.param(name='topic_id_or_slug', description='The ID of fixed topic.')
     @api.response(code=200, model=topic_response, description='Get sub topics')
     def get(self, topic_id_or_slug):
-        """ 
-        Get sub-topics of fixed-topics.
-        """
+        """ Get sub-topics of fixed-topics by fix_topic Id or slug"""
 
         controller = TopicController()
         return controller.get_sub_topics(object_id=topic_id_or_slug)
@@ -140,9 +119,7 @@ class EndorseUserTopic(Resource):
     @api.expect(get_endorsed_users_parser)
     @api.response(code=200, model=endorsed_user_dto, description='Endorsed users')
     def get(self, topic_id_or_slug):
-        """ 
-        Get endorsed users for topic.
-        """
+        """ Get endorsed users for topic by topic Id or slug"""
 
         args = get_endorsed_users_parser.parse_args()
         controller = TopicController()
@@ -152,9 +129,7 @@ class EndorseUserTopic(Resource):
     @api.expect(topic_endorse_user_request)
     @api.response(code=200, model=endorsed_user_dto, description='Endorsed users')
     def post(self, topic_id_or_slug):
-        """ 
-        Create endorsed users for topic.
-        """
+        """ Create endorsed users for topic by topic Id or slug"""
 
         data = api.payload
         controller = TopicController()
@@ -164,9 +139,7 @@ class EndorseUserTopic(Resource):
 class EndorseUserTopicDelete(Resource):
     @token_required
     def delete(self, topic_id_or_slug, user_id):
-        """ 
-        Delete endorsed users for topic.
-        """
+        """ Delete endorsed users for topic by topic Id or slug"""
         
         controller = TopicController()
         return controller.delete_endorsed_users(object_id=topic_id_or_slug, user_id=user_id)
@@ -177,9 +150,7 @@ class BookmarkUserTopic(Resource):
     @api.expect(get_endorsed_users_parser)
     @api.response(code=200, model=endorsed_user_dto, description='Bookmarked users')
     def get(self, topic_id_or_slug):
-        """ 
-        Get endorsed users for topic.
-        """
+        """ Get endorsed users for topic by topic Id or slug"""
 
         args = get_endorsed_users_parser.parse_args()
         controller = TopicController()
@@ -189,9 +160,7 @@ class BookmarkUserTopic(Resource):
 @api.route('/create_topics')
 class CreateFixedTopic(Resource):
     def post(self):
-        """ 
-        Create fixed topics
-        """
+        """ Create fixed topics"""
 
         controller = TopicController()
         return controller.create_fixed_topics()
@@ -201,9 +170,7 @@ class CreateFixedTopic(Resource):
 class UpdateTopicSlug(Resource):
     @admin_token_required()
     def post(self):
-        """
-        Update Slug for topics in DB
-        """
+        """Update Slug for topics """
 
         controller = TopicController()
         return controller.update_slug()
@@ -213,9 +180,7 @@ class UpdateTopicSlug(Resource):
 class UpdateTopicColor(Resource):
     @admin_token_required()
     def post(self):
-        """
-        Randomize color for fix topics
-        """
+        """Randomize color for fix topics"""
 
         controller = TopicController()
         return controller.update_color()
