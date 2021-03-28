@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from sqlalchemy.ext.declarative import declared_attr
 # third-party modules
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
