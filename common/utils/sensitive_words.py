@@ -9,10 +9,11 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 sensitive_words = ['du me', 'đu me', 'đủ mẹ', 'đủ má', 'đéo', 'địt', 'dâm đãng', 'làm tình',
                    'cuto', 'chat sex', 'loạn luân', 'giao lưu sex', 'nc sex', 'nc dâm',
-                   'fuck ', 'chat xxx', 'sax', 'phá trinh', 'tùm gái', 'tìm trai', 'tìm bạn nữ', 
-                   'childporn', 'bắn tinh', 'việt cộng', 'web sex', 'phim sex', 'film sex', 'child porn',
-                   'gái dâm', 'trai dâm', 'cặc', 'vãi đái', 'nứng lồn', 'quay tay', 'sục', 'kèo nhà cái', 
-                   'video sex', 'chat nude', 'casino online', 'nung lon', 'video xxx', 'chát sex', 'chơi casino', 'ảnh sex']
+                   'chat xxx', 'phá trinh', 'tùm gái', 'tìm trai', 'tìm bạn nữ', 
+                   'childporn', 'bắn tinh', 'việt cộng', 'web sex', 'phim sex', 'film sex', 
+                   'child porn','gái dâm', 'trai dâm', 'vãi đái', 'nứng lồn', 'quay tay', 
+                   'kèo nhà cái', 'video sex', 'chat nude', 'casino online', 'nung lon', 
+                   'video xxx', 'chát sex', 'chơi casino', 'ảnh sex']
 
 
 def check_sensitive(text):

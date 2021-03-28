@@ -101,7 +101,7 @@ class ArticleController(Controller):
                 result['user'] = article.user
                 result['topics'] = article.topics
 
-                if len(article.topics) > 5:
+                if article.topics is not None and len(article.topics) > 5:
                     return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
                 vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
@@ -354,7 +354,7 @@ class ArticleController(Controller):
                         pass
                 article.topics = topics
 
-                if len(article.topics) > 5:
+                if article.topicsis not None and len(article.topics) > 5:
                     return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             # check sensitive for article title
