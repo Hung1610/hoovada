@@ -56,8 +56,8 @@ class AnswerController(Controller):
             answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
             if answer:
                 if answer.is_deleted:
-                    return send_error(message=messages.ERR_ISSUE.format('This has a hidden answer for this question. Consider recovering this.'), data={'answer_id': answer.id})
-                return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question'), data={'answer_id': answer.id})
+                    return send_error(message=messages.ERR_ISSUE.format('This user already answered the question but it is hidden!'), data={'answer_id': answer.id})
+                return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question!'), data={'answer_id': answer.id})
 
         try:
             answer = self._parse_answer(data=data, answer=None)
@@ -78,11 +78,15 @@ class AnswerController(Controller):
             db.session.add(answer)
             db.session.commit()
 
+
+            # TODO: if this is invited question then update status in invited_question table
+
+
+
             # Add bookmark for the creator
             controller = AnswerBookmarkController()
             controller.create(answer_id=answer.id)
             result = answer._asdict()
-
             result['up_vote'] = False
             result['down_vote'] = False
             
@@ -103,7 +107,7 @@ class AnswerController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         
         except Exception as e:
-            db.session.commit()
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Answer', str(e)))
 
@@ -146,22 +150,22 @@ class AnswerController(Controller):
             db.session.commit()
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
-            # update user information for answer
             result['user'] = user
             result['up_vote'] = False
             result['down_vote'] = False
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(result, AnswerDto.model_response))
         
         except Exception as e:
-            db.session.commit()
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Answer media', e))
+
 
     def get_query(self):
         query = self.get_model_class().query
         query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated != True))
-        
         return query
+
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
@@ -178,6 +182,7 @@ class AnswerController(Controller):
             query = query.filter(Answer.created_date <= dateutil.parser.isoparse(params.get('to_date')))
 
         return query
+
 
     def get(self, args):
 
@@ -223,6 +228,7 @@ class AnswerController(Controller):
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
             return send_result(data=marshal(result, AnswerDto.model_response))
 
+
     def update(self, object_id, data):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
@@ -241,8 +247,7 @@ class AnswerController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            # Check is admin or has permission
-            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
+            if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             answer = self._parse_answer(data=data, answer=answer)
@@ -255,6 +260,7 @@ class AnswerController(Controller):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question_id'))
             if answer.user_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.commit()
@@ -272,22 +278,29 @@ class AnswerController(Controller):
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         
         except Exception as e:
-            db.session.commit()
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format('Answer', e))
+
 
     def delete(self, object_id):
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
-            else:
-                db.session.delete(answer)
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS)
+            
+            current_user, _ = current_app.get_logged_user(request)
+            if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+            db.session.delete(answer)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format('Answer', e))
+
 
     def _parse_answer(self, data, answer=None):
         if answer is None:

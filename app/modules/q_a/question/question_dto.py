@@ -60,7 +60,6 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
-        # the list of IDs of topics that question belongs to.
     })
 
     model_question_response = api.model('question_response', {
@@ -100,7 +99,6 @@ class QuestionDto(Dto):
         'id': fields.Integer(readonly=True, description=''),
         'question_id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the question'),
-        # 'user_id': fields.Integer(description='The user ID'),
         'user': fields.Nested(model_question_user, description='The user information'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),

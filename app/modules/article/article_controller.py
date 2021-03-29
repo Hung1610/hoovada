@@ -15,6 +15,7 @@ from slugify import slugify
 from sqlalchemy import desc, func, text
 
 # own modules
+from common.utils.types import UserRole
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.bookmark.bookmark_controller import ArticleBookmarkController
 from app.constants import messages
@@ -324,6 +325,7 @@ class ArticleController(Controller):
 
     def update(self, object_id, data, is_put=False):
         try:
+
             if object_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Article Id'))
             
@@ -337,6 +339,10 @@ class ArticleController(Controller):
             
             if article is None:
                 return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+
+            current_user, _ = current_app.get_logged_user(request)
+            if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             article = self._parse_article(data=data, article=article)
             if article.topics is not None and len(article.topics) > 5:
@@ -365,13 +371,10 @@ class ArticleController(Controller):
             result['topics'] = article.topics
 
             try:
-                current_user, _ = current_app.get_logged_user(request)
-                if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    
-                    if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()                    
+                if vote is not None:
+                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
             
             except Exception as e:
                 print(e)
@@ -392,15 +395,20 @@ class ArticleController(Controller):
                 article = Article.query.filter_by(slug=object_id).first()
             if article is None:
                 return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
-            else:
-                db.session.delete(article)
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format(object_id))
+
+            current_user, _ = current_app.get_logged_user(request)
+            if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+                
+            db.session.delete(article)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS.format(object_id))
 
         except Exception as e:
             db.session.rollback()
             print(e)
             return send_error(message=messages.ERR_DELETE_FAILED.format(object_id, str(e)))
+
 
     def update_slug(self):
         articles = Article.query.all()
@@ -414,6 +422,7 @@ class ArticleController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=e)
+
 
     def _parse_article(self, data, article=None):
         

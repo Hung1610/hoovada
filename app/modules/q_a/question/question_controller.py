@@ -120,8 +120,7 @@ class QuestionController(Controller):
                     result['up_vote'] = False
                     result['down_vote'] = False
                     
-                    #followers = UserFollow.query.with_entities(UserFollow.follower_id)\
-                    #    .filter(UserFollow.followed_id == question.user.id).all()
+                    #followers = UserFollow.query.with_entities(UserFollow.follower_id)\.filter(UserFollow.followed_id == question.user.id).all()
                     #follower_ids = [follower[0] for follower in followers]
                     #new_question_notify_user_list.send(question.id, follower_ids)
                     #g.friend_belong_to_user_id = question.user.id
@@ -137,8 +136,7 @@ class QuestionController(Controller):
                 
                 except Exception as e:
                     print(e.__str__())
-                    return send_result(data=marshal(question, QuestionDto.model_question_response),
-                                       message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Question', 'failed to add topics'))
+                    return send_result(data=marshal(question, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Question', 'failed to add topics'))
         
             else:
                 return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(data['title']))
@@ -248,8 +246,8 @@ class QuestionController(Controller):
                         return send_error(message='Question is invitations only.')
             else:
                 return send_error(message='Question is invitations only.') 
-        result = question._asdict()
 
+        result = question._asdict()
         result['user'] = question.user
         result['topics'] = question.topics
         result['fixed_topic'] = question.fixed_topic
@@ -260,12 +258,12 @@ class QuestionController(Controller):
                 result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                 result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                            QuestionBookmark.question_id == question.id).first()
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
             
             update_seen_questions.send(question.id, current_user.id)
         return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+
 
     def invite(self, object_id, data):
         try:
@@ -277,11 +275,23 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
+            
             if question is None:
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
             current_user, _ = current_app.get_logged_user(request)
 
+            emails_or_usernames = data['emails_or_usernames']
+            for email_or_username in emails_or_usernames:
+                try:
+                    user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
+                    if user:
+                        question.invited_users.append(user)
+                except Exception as e:
+                    print(e)
+                    pass
+
             db.session.commit()
+
             result = question._asdict()
             result['user'] = question.user
             result['topics'] = question.topics
@@ -293,13 +303,16 @@ class QuestionController(Controller):
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
-                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                QuestionBookmark.question_id == question.id).first()
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,QuestionBookmark.question_id == question.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
+
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        
         except Exception as e:
-            print(e)
+            db.session.rollback()
+            print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
+
 
     def invite_friends(self, object_id):
         try:
@@ -310,6 +323,7 @@ class QuestionController(Controller):
             return self.invite(object_id, data)
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
 
@@ -386,6 +400,7 @@ class QuestionController(Controller):
                 .limit(limit).all()
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
             return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
+
         except Exception as e:
             print(e.__str__())
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
@@ -594,7 +609,7 @@ class QuestionController(Controller):
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
                 if is_sensitive:
                     return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-            
+
             question.updated_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
@@ -614,12 +629,10 @@ class QuestionController(Controller):
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
 
-                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                QuestionBookmark.question_id == question.id).first()
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
             
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"),
-                                data=marshal(result, QuestionDto.model_question_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
             print(e.__str__())

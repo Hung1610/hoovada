@@ -30,15 +30,8 @@ QuestionVote = db.get_model('QuestionVote')
 Reputation = db.get_model('Reputation')
 
 class QuestionVoteController(Controller):
+    
     def get(self, args, question_id = None):
-        """ Search votes.
-
-        Args:
-             The dictionary-like
-
-        Returns
-            A list of votes that satisfy conditions.
-        """
         
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
