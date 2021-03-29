@@ -60,9 +60,10 @@ class TopicBookmarkController(Controller):
 
 
     def create_multiple_topics_bookmarks(self, args):
+        
         if topic_ids in args:
             for topic_id in args['topic_ids']:
-                try: 
+                try:
                     self.create(topic_id)
                 except Exception as e:
                     print(e.__str__())
