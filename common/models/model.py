@@ -23,9 +23,8 @@ def catch(func, *args, **kwargs):
         return None
 
 class Model(db.Model):
-    """
-    Class entity is parent class for all other class
-    """
+    """Class entity is parent class for all other class"""
+    
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)

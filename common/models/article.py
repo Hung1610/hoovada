@@ -66,9 +66,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
-    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan',
-                    primaryjoin="and_(Article.id == remote(ArticleComment.article_id),\
-                        remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
+    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan', primaryjoin="and_(Article.id == remote(ArticleComment.article_id), remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
     @property
