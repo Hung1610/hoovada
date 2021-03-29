@@ -223,7 +223,6 @@ class UserDto(Dto):
 
     model_user_feed_response = api.model('user_feed_response', {
         'feed': fields.Nested(model_feed_data_response, required=False),
-        'limit': fields.Integer(required=False),
         'total': fields.Integer(required=False),
     })
 

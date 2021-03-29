@@ -42,7 +42,7 @@ Topic = db.get_model('Topic')
 
 class UserController(Controller):
     query_classname = 'User'
-    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name', 'is_mutual_friend']
+    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name', 'is_mutual_friend', 'is_hot_articles_only']
     allowed_ordering_fields = ['question_count', 'answer_count', 'post_count', 'reputation']
 
     def create(self, data):
