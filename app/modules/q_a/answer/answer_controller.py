@@ -33,7 +33,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 User = db.get_model('User')
 Answer = db.get_model('Answer')
-AnswerFavorite = db.get_model('AnswerFavorite')
 AnswerVote = db.get_model('AnswerVote')
 UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
@@ -41,7 +40,7 @@ UserFollow = db.get_model('UserFollow')
 
 class AnswerController(Controller):
     query_classname = 'Answer'
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -197,9 +196,7 @@ class AnswerController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
-                                                    AnswerFavorite.answer_id == answer.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
+
                 results.append(result)
             res['data'] = marshal(results, AnswerDto.model_response)
             return res, code
@@ -224,9 +221,6 @@ class AnswerController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
-                                                AnswerFavorite.answer_id == answer.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
             return send_result(data=marshal(result, AnswerDto.model_response))
 
     def update(self, object_id, data):
@@ -273,9 +267,7 @@ class AnswerController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = AnswerFavorite.query.filter(AnswerFavorite.user_id == current_user.id,
-                                                AnswerFavorite.answer_id == answer.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
+
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
         

@@ -33,7 +33,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 Article = db.get_model('Article')
-ArticleFavorite = db.get_model('ArticleFavorite')
 ArticleShare = db.get_model('ArticleShare')
 Topic = db.get_model('Topic')
 TopicBookmark = db.get_model('TopicBookmark')
@@ -45,7 +44,7 @@ UserFriend = db.get_model('UserFriend')
 class ArticleController(Controller):
     query_classname = 'Article'
     special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_ids', 'article_ids', 'draft', 'is_created_by_friend']    
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
 
     def create(self, data):
         try:
@@ -110,9 +109,6 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
                 
                 #if article.user:
                 #    followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(UserFollow.followed_id == article.user.id).all()
@@ -211,8 +207,7 @@ class ArticleController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
+                
                 results.append(result)
 
             res['data'] = marshal(results, ArticleDto.model_article_response)
@@ -259,8 +254,6 @@ class ArticleController(Controller):
                 if vote is not None:
                     result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
                 update_seen_articles.send(article.id, current_user.id)
             
             return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
@@ -320,9 +313,7 @@ class ArticleController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()
-                    
-                    result['is_favorited_by_me'] = True if favorite else False
+
                 results.append(result)
         
             return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
@@ -381,9 +372,6 @@ class ArticleController(Controller):
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    
-                    favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == current_user.id, ArticleFavorite.article_id == article.id).first()    
-                    result['is_favorited_by_me'] = True if favorite else False
             
             except Exception as e:
                 print(e)

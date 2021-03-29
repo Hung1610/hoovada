@@ -86,7 +86,6 @@ class AnswerDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
-        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
@@ -108,9 +107,9 @@ class AnswerDto(Dto):
     get_parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
     get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search answers that are deleted.')
-    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append',
                         )
-    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count'), action='append',
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append',
                         )

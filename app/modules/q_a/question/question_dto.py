@@ -85,7 +85,6 @@ class QuestionDto(Dto):
         'comment_count': fields.Integer(default=0, description='The amount of comment'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
-        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
@@ -115,7 +114,6 @@ class QuestionDto(Dto):
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'slug': fields.String(description='The slug of the question'),
@@ -167,32 +165,8 @@ class QuestionDto(Dto):
     get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search questions that are deleted.')
     get_parser.add_argument('is_shared', type=inputs.boolean, required=False, help='Search questions that are shared.')
     get_parser.add_argument('is_created_by_friend', type=inputs.boolean, required=False, help='Search questions that are created by friend/followee.')
-    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'), action='append',)
-    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'favorite_count', 'answer_count'), action='append',)
-
-"""
-    question_top_answer = api.model('question_top_answer', {
-        'id': fields.Integer(required=False, readonly=True, description='The ID of the answer'),
-        'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
-        'updated_date': fields.DateTime(default=datetime.utcnow, description='The date answer was updated'),
-        'last_activity': fields.DateTime(default=datetime.utcnow, description='The last time answer was updated'),
-        'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
-        'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
-        'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
-        'answer': fields.String(description='The content of the answer'),
-        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
-        'user': fields.Nested(model_question_user, description='The user information', attribute='display_user'),
-        'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
-        'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorites on this answer'),
-        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
-        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
-        'file_url': fields.String(description='The file url'),
-        'file_type': fields.String(description='The file type', attribute='file_type.name'),
-        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
-    })
-"""                    
+    get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answer_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count',  'answer_count'), action='append',)
+    get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answer_count'", type=str,
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count',  'answer_count'), action='append',)
+                  
