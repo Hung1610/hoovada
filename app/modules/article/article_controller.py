@@ -163,7 +163,7 @@ class ArticleController(Controller):
         if params.get('topic_ids'):
             query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_ids'))))
         if params.get('article_ids'):
-            query = query.filter(Article.id.in_(params.get('article_ids')))
+            query = query.filter(Article.id.any(Article.id.in_(params.get('article_ids'))))
         if params.get('draft') is not None:
             if params.get('draft'):
                 query = query.filter(Article.is_draft == True)
