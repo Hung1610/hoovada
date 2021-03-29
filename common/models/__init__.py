@@ -7,10 +7,10 @@ from common.models.ban import UserBan
 from common.models.bookmark import QuestionBookmark, AnswerBookmark, TopicBookmark
 from common.models.comment import (AnswerComment, ArticleComment, PostComment,
                                    QuestionComment)
-from common.models.favorite import (ArticleFavorite, ArticleCommentFavorite,
-                                    AnswerFavorite, AnswerCommentFavorite, 
+from common.models.favorite import (ArticleCommentFavorite,
+                                    AnswerCommentFavorite, 
                                     PostFavorite,
-                                    QuestionFavorite, QuestionCommentFavorite)
+                                    QuestionCommentFavorite)
 from common.models.follow import (UserFollow, TopicFollow)
 from common.models.friend import UserFriend
 from common.models.language import Language
@@ -25,7 +25,8 @@ from common.models.topic import Topic, TopicUserEndorse
 from common.models.user import (User, SocialAccount, UserEducation, UserLanguage, UserLocation,
                                     UserTopic, UserEmployment, UserPermission,
                                     UserSeenQuestion, UserSeenArticle)
-from common.models.vote import (ArticleVote, AnswerVote,
+from common.models.vote import (ArticleVote, 
+                                AnswerVote,
                                 AnswerImprovementVote,
                                 QuestionVote)
 from common.models.timeline import Timeline
