@@ -211,14 +211,15 @@ class PostController(Controller):
         if post is None:
             return send_error(message=messages.msg_not_found_with_id.format(object_id))
         else:
-            post.views_count += 1
-            db.session.commit()
-            result = post.__dict__
-            result['user'] = post.user
+            try:
+                post.views_count += 1
+                db.session.commit()
+                result = post.__dict__
+                result['user'] = post.user
+                return send_result(data=marshal(result, PostDto.model_post_response), message='Success')
             except Exception as e:
                 print(e)
                 pass
-            return send_result(data=marshal(result, PostDto.model_post_response), message='Success')
     
     def update(self, object_id, data, is_put=False):
         if object_id is None:
