@@ -57,10 +57,3 @@ class ArticleVote(Model, BaseVote):
 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), index=True)
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
-
-
-class PostVote(Model, BaseVote):
-    __tablename__ = 'post_vote'
-    
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), index=True)
-    post = db.relationship('Post', lazy=True) # one-to-many relationship with table Post

@@ -20,7 +20,6 @@ class ShareDto(Dto):
     model_post = api.model('share_post',{
         'id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the post'),
-        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'html': fields.String(description='The content of the post'),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),

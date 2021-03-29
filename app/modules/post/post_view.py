@@ -24,7 +24,6 @@ api = PostDto.api
 _post_dto_request = PostDto.model_post_request
 _post_dto_response = PostDto.model_post_response
 _post_get_params = PostDto.model_get_parser
-_post_get_similar_params = PostDto.get_similar_posts_parser
 
 @api.route('')
 class PostList(Resource):
@@ -32,9 +31,7 @@ class PostList(Resource):
     @api.expect(_post_get_params)
     #@cache.cached(query_string=True)
     def get(self):
-        """
-        Get all posts that satisfy conditions
-        """
+        """Get all posts that satisfy conditions"""
 
         args = _post_get_params.parse_args()
         controller = PostController()
@@ -45,9 +42,7 @@ class PostList(Resource):
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def post(self):
-        """
-        Create new post and save to database.
-        """
+        """Create new post"""
 
         data = api.payload
         controller = PostController()
@@ -62,78 +57,45 @@ def get_post_proposal_key_prefix():
 class Post(Resource):
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     @cache.cached(key_prefix=get_post_proposal_key_prefix)
-    def get(self, id_or_slug):
-        """
-        Get specific post by its ID.
-        """
+    def get(self, post_id):
+        """Get specific post by id"""
 
         controller = PostController()
-        return controller.get_by_id(object_id=id_or_slug)
+        return controller.get_by_id(object_id=post_id)
 
     @token_required
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
-    def put(self, id_or_slug):
-        """
-        Update existing post by its ID.
-        """
+    def put(self, post_id):
+        """Update existing post by its ID."""
 
         data = api.payload
         controller = PostController()
-        result = controller.update(object_id=id_or_slug, data=data, is_put=True)
+        result = controller.update(object_id=post_id, data=data, is_put=True)
         cache.clear_cache(get_post_proposal_key_prefix())
         return result
 
     @token_required
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
-    def patch(self, id_or_slug):
-        """
-        Update existing post by its ID.
-        """
+    def patch(self, post_id):
+        """Update existing post by post id"""
 
         data = api.payload
         controller = PostController()
-        result = controller.update(object_id=id_or_slug, data=data)
+        result = controller.update(object_id=post_id, data=data)
         cache.clear_cache(get_post_proposal_key_prefix())
         return result
 
-    @admin_token_required()
-    def delete(self, id_or_slug):
-        """
-        Delete the post by its ID.
-        """
+    @token_required
+    def delete(self, post_id):
+        """Delete the post by post id"""
 
         controller = PostController()
-        result = controller.delete(object_id=id_or_slug)
+        result = controller.delete(object_id=post_id)
         cache.clear_cache(get_post_proposal_key_prefix())
         return result
 
-        
-@api.route('/similar')
-class PostSimilar(Resource):
-    @api.expect(_post_get_similar_params)
-    @api.response(code=200, model=_post_dto_response, description='Model for post response.')
-    def get(self):
-        """ 
-        Get similar posts.
-        """
-        args = _post_get_similar_params.parse_args()
-        controller = PostController()
-        return controller.get_similar(args=args)
-
-
-@api.route('/update_slug')
-class UpdatePostSlug(Resource):
-    @admin_token_required()
-    @api.response(code=200, model=_post_dto_response, description='Model for post response.')
-    def post(self):
-        """ 
-        Update Slug for posts in DB
-        """
-
-        controller = PostController()
-        return controller.update_slug()
 
 parser_post_of_friend = reqparse.RequestParser()
 parser_post_of_friend.add_argument('page', type=int, required=False, help='Search posts by page.')
@@ -145,8 +107,6 @@ class PostOfFriend(Resource):
     @token_required
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def get(self):
-        """ Lay danh sach post of freind and of follow
-        """
 
         args = parser_post_of_friend.parse_args()
         controller = PostController()

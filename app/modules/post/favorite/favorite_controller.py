@@ -79,8 +79,10 @@ class FavoriteController(Controller):
         data['user_id'] = current_user.id
         data['post_id'] = post_id
         post = Post.query.get(post_id)
+        
         if not post:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Topic'))
+            return send_error(message=messages.ERR_NOT_FOUND.format('Post'))
+
         if not post.allow_favorite:
             return send_error(message=messages.ERR_ISSUE.format('Post does not allow voting.'))
         try:

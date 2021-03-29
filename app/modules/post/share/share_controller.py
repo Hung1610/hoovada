@@ -107,10 +107,10 @@ class ShareController(Controller):
                 post = Post.query.filter_by(id=share.post_id).first()
                 if not post:
                     return send_error(message=messages.ERR_NOT_FOUND.format('Post'))
-                user_voted = User.query.filter_by(id=post.user_id).first()
-                if not user_voted:
+                user_shared = User.query.filter_by(id=post.user_id).first()
+                if not user_shared:
                     return send_error(message=messages.ERR_NOT_FOUND.format('User'))
-                user_voted.post_shared_count += 1
+                user_shared.post_shared_count += 1
                 if current_user:
                     share.user_id = current_user.id
                     current_user.post_share_count += 1

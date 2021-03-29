@@ -93,11 +93,9 @@ class CommentController(BaseCommentController):
 
             try:
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
-                return send_result(message='PostComment was created successfully',
-                                   data=marshal(result, CommentDto.model_response))
+                return send_result(message='PostComment was created successfully', data=marshal(result, CommentDto.model_response))
             except Exception as e:
                 print(e.__str__())
                 return send_result(data=marshal(comment, CommentDto.model_response))
@@ -114,7 +112,6 @@ class CommentController(BaseCommentController):
         else:
             try:
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 return send_result(data=marshal(result, CommentDto.model_response), message='Success')
@@ -139,7 +136,6 @@ class CommentController(BaseCommentController):
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
@@ -155,10 +151,7 @@ class CommentController(BaseCommentController):
                 return send_error(message='PostComment with the ID {} not found.'.format(object_id))
             else:
                 # ---------Delete from other tables----------#
-                # delete from vote
-
                 # delete from share
-
                 # delete favorite
 
                 db.session.delete(comment)

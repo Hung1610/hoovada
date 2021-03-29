@@ -17,15 +17,9 @@ class FavoriteDto(Dto):
     name = 'post_favorite'
     api = Namespace(name, description="Post favorite operations")
 
-    model_topic_post_favorite = api.model('topic_post_favorite', {
-        'id': fields.Integer(readonly=True, description='The ID of the topic'),
-        'name': fields.String(description='The name of the topic')
-    })
-
     model_favorite_post = api.model('favorite_post', {
         'title': fields.String(description='The title of the post'),
         'user_id': fields.Integer(description='The user information'),
-        'topics': fields.List(fields.Nested(model_topic_post_favorite), description='The list of topics')
     })
 
     model_request = api.model('favorite_post_request', {

@@ -27,9 +27,7 @@ class ReportUser(Resource):
     @api.expect(_get_parser)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, post_id):
-        """
-        Search all votes that satisfy conditions.
-        """
+        """Search all report that satisfy conditions."""
 
         args = _get_parser.parse_args()
         controller = ReportController()
@@ -39,9 +37,7 @@ class ReportUser(Resource):
     @api.expect(report_request)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, post_id):
-        """
-        Make report
-        """
+        """Create report"""
 
         controller = ReportController()
         data = api.payload

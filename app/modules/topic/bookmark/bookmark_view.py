@@ -34,7 +34,7 @@ class BookmarkTopicAll(Resource):
 
     @token_required
     @api.expect(_model_bookmark_multiple_topics_request)
-    def create(self):
+    def post(self):
         """Create multiple bookmarks for current user"""
 
         args = api.payload

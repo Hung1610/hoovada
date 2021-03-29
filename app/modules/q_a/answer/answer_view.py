@@ -31,9 +31,8 @@ class AnswerFile(Resource):
     @api.expect(answer_upload_parser)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def post(self, id):
-        """
-        Create new answer with files (video/audio).
-        """
+        """Create new answer with files (video/audio)"""
+
         controller = AnswerController()
         return controller.create_with_file(object_id=id)
 
@@ -43,11 +42,9 @@ class AnswerList(Resource):
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     #@cache.cached(query_string=True)
     def get(self):
+        """Get the list of answers from database.
         """
-        Get the list of answers from database.
 
-        :return: List of answers.
-        """
         args = get_parser.parse_args()
         controller = AnswerController()
         return controller.get(args=args)
@@ -74,9 +71,7 @@ class Answer(Resource):
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     @cache.cached(key_prefix=get_article_proposal_key_prefix)
     def get(self, id):
-        """
-        Get the answer by its ID.
-        """
+        """Get the answer by answer id"""
 
         controller = AnswerController()
         return controller.get_by_id(object_id=id)
@@ -86,9 +81,7 @@ class Answer(Resource):
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def put(self, id):
-        """
-        Update the existing answer by its ID.
-        """
+        """Update the existing answer by answer id"""
 
         data = api.payload
         controller = AnswerController()
@@ -98,9 +91,7 @@ class Answer(Resource):
 
     @token_required
     def delete(self, id):
-        """
-        Delete existing answer by its ID.
-        """
+        """Delete existing answer by answer id"""
 
         controller = AnswerController()
         result = controller.delete(object_id=id)

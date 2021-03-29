@@ -165,9 +165,7 @@ class ArticleController(Controller):
         
         if params.get('topic_ids'):
             topic_ids = [int(i.strip()) for i in params.get('topic_ids')[0].split(",")]
-            
-            #query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
-            query = query.filter(Topic.id.in_(Article.topics._in(topic_ids)))
+            query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
 
         if params.get('article_ids'):
             article_ids = [int(i.strip()) for i in params.get('article_ids')[0].split(",")]
