@@ -26,7 +26,7 @@ from common.models.user import (User, SocialAccount, UserEducation, UserLanguage
                                     UserTopic, UserEmployment, UserPermission,
                                     UserSeenQuestion, UserSeenArticle)
 from common.models.vote import (ArticleVote, AnswerVote,
-                                AnswerImprovementVote, PostVote,
+                                AnswerImprovementVote,
                                 QuestionVote)
 from common.models.timeline import Timeline
 from common.models.permission import Permission

@@ -31,7 +31,7 @@ class PostList(Resource):
     @api.expect(_post_get_params)
     #@cache.cached(query_string=True)
     def get(self):
-        """Get all posts that satisfy conditions"""
+        """Get all posts that satisfy param queries"""
 
         args = _post_get_params.parse_args()
         controller = PostController()
@@ -50,15 +50,15 @@ class PostList(Resource):
 
 
 def get_post_proposal_key_prefix():
-    return '{}{}'.format('get.post.proposals', request.view_args['id_or_slug'])
+    return '{}{}'.format('get.post.proposals', request.view_args['post_id'])
 
 
-@api.route('/<string:id_or_slug>')
+@api.route('/<string:post_id>')
 class Post(Resource):
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     @cache.cached(key_prefix=get_post_proposal_key_prefix)
     def get(self, post_id):
-        """Get specific post by id"""
+        """Get specific post by post Id"""
 
         controller = PostController()
         return controller.get_by_id(object_id=post_id)
@@ -67,7 +67,7 @@ class Post(Resource):
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def put(self, post_id):
-        """Update existing post by its ID."""
+        """Update existing post by post Id"""
 
         data = api.payload
         controller = PostController()
@@ -79,7 +79,7 @@ class Post(Resource):
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def patch(self, post_id):
-        """Update existing post by post id"""
+        """Update existing post by post Id"""
 
         data = api.payload
         controller = PostController()
