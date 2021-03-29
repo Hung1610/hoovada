@@ -6,7 +6,6 @@ import json
 import os
 from datetime import datetime
 from http import HTTPStatus
-
 import dateutil.parser
 
 # third-party modules
@@ -379,7 +378,7 @@ class UserController(Controller):
 
 
     def get_feed(self, args):
-        """ Get feed for user by user id"""
+        """ Get feed for current user"""
         
         try:
             api_endpoint = '/api/feed'

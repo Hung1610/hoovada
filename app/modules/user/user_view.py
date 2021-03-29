@@ -31,9 +31,7 @@ class UserList(Resource):
     @api.expect(user_get_parser)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
-        """ 
-        Returns all users in the system.
-        """
+        """ Returns all users in the system"""
         
         args = user_get_parser.parse_args()
         controller = UserController()
@@ -43,9 +41,7 @@ class UserList(Resource):
     @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
-        """
-        Create new user.
-        """
+        """Create new user"""
 
         data = api.payload
         controller = UserController()
@@ -97,7 +93,6 @@ class User(Resource):
         """Get all information for specific user with ID `id`"""
 
         controller = UserController()
-            # return controller.get_by_id(object_id=id)
         return controller.get_by_user_name(user_name)
 
     @api.expect(user_request, validate=True)
@@ -138,9 +133,7 @@ class UserCover(Resource):
     @token_required
     @api.expect(cover_upload)
     def post(self):
-        """
-        Upload cover.
-        """
+        """Upload cover"""
         
         args = cover_upload.parse_args()
         controller = UserController()
