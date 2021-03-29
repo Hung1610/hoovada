@@ -24,7 +24,7 @@ user_get_social_parser = UserDto.model_get_social_account_parser
 user_request = UserDto.model_request
 user_response = UserDto.model_response
 user_feed_response = UserDto.model_user_feed_response
-
+user_feed_request = UserDto.model_user_feed_request
 
 @api.route('')
 class UserList(Resource):
@@ -52,25 +52,24 @@ class UserList(Resource):
         return controller.create(data=data)
 
 
-@api.route('/<int:user_id>/feed')
-# @api.expect(user_get_parser)
+@api.route('/feed')
+@api.expect(user_feed_request)
 @api.response(code=200, model=user_feed_response, description='Model for feed of user response.')
 class UserGetFeed(Resource):
-    def get(self, user_id):
-        """
-        Get user's feed
-        """
+    @token_required
+    def get(self):
+        """Get user's feed"""
+
+        args = user_feed_request.parse_args()
         controller = UserController()
-        return controller.get_feed(user_id=user_id)
+        return controller.get_feed(args)
 
 
 @api.route('/all/count')
 @api.expect(user_get_parser)
 class UserListCount(Resource):
     def get(self):
-        """ 
-        Get list of topics from database.
-        """
+        """ Get list of topics """
 
         args = user_get_parser.parse_args()
         controller = UserController()
@@ -82,9 +81,7 @@ class UserSocialAccount(Resource):
     @api.expect(user_get_social_parser)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
-        """
-        Get all information for specific user with ID `id`
-        """
+        """Get all information for specific user with ID `id`"""
 
         controller = UserController()
         args = user_get_social_parser.parse_args()
@@ -97,9 +94,7 @@ class User(Resource):
     # @api.marshal_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
-        """
-        Get all information for specific user with ID `id`
-        """
+        """Get all information for specific user with ID `id`"""
 
         controller = UserController()
             # return controller.get_by_id(object_id=id)
@@ -108,9 +103,7 @@ class User(Resource):
     @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def put(self, user_name):
-        """
-        Update an existed user in the system.
-        """
+        """Update an existed user in the system"""
 
         data = api.payload
         controller = UserController()
@@ -118,9 +111,7 @@ class User(Resource):
 
     @admin_token_required(role=[UserRole.SUPER_ADMIN])
     def delete(self, user_name):
-        """ 
-        Delete the user with the user_name `user_name`
-        """
+        """ Delete the user with the user_name `user_name`"""
 
         controller = UserController()
         return controller.delete(user_name=user_name)
@@ -133,9 +124,7 @@ class UserAvatar(Resource):
     @token_required
     @api.expect(avatar_upload)
     def post(self):
-        """
-        Upload avatar.
-        """
+        """Upload avatar"""
         
         args = avatar_upload.parse_args()
         controller = UserController()

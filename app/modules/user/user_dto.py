@@ -227,6 +227,9 @@ class UserDto(Dto):
         'total': fields.Integer(required=False),
     })
 
+    model_user_feed_request = Dto.paginated_request_parser.copy()
+    model_get_parser.add_argument('is_hot_articles_only', type=str, required=False, help='Get hot articles only')
+
     model_social_response = api.model('user_social_response', {
         'id': fields.Integer(readonly=True),
         'user_id': fields.Integer(required=False),
@@ -234,6 +237,7 @@ class UserDto(Dto):
         'uid': fields.String(required=False),
         'extra_data': fields.String(required=False),
     })
+
 
     model_get_social_account_parser = api.parser()
     model_get_social_account_parser.add_argument('provider', type=str, required=False, help='Search social account by provider name')

@@ -378,13 +378,13 @@ class UserController(Controller):
             return send_result(message='Could not find any users')
 
 
-    def get_feed(self, user_id):
+    def get_feed(self, args):
         """ Get feed for user by user id"""
         
         try:
             api_endpoint = '/api/feed'
             get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
-            response = requests.get(url=get_feed_url, params={'user_id': user_id})
+            response = requests.get(url=get_feed_url, params={'user_id': g.current_user.id})
 
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
