@@ -384,15 +384,21 @@ class UserController(Controller):
         try:
             api_endpoint = '/api/feed'
             get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
-            response = requests.get(url=get_feed_url, params={'user_id': g.current_user.id})
 
-            resp = json.loads(response.content)
+            params={'user_id': g.current_user.id}
+
+            if "is_hot_articles_only" in args and args["is_hot_articles_only"] == True:
+                params['is_hot_articles_only'] = True
+            
+            response = requests.get(url=get_feed_url, params=params)
+            
+
             if response.status_code == HTTPStatus.OK:
-                
                 query = self.get_query_results(args)
                 res, code = paginated_result(query)
-                res['data'] = marshal(resp.get('result'), UserDto.model_user_feed_response)
 
+                resp = json.loads(response.content)
+                res['data'] = marshal(resp.get('result'), UserDto.model_user_feed_response)
                 return res, code
             else:
                 return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
