@@ -391,7 +391,6 @@ class UserController(Controller):
             
             response = requests.get(url=get_feed_url, params=params)
             
-
             if response.status_code == HTTPStatus.OK:
                 query = self.get_query_results(args)
                 res, code = paginated_result(query)
