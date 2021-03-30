@@ -390,12 +390,10 @@ class UserController(Controller):
                 params['is_hot_articles_only'] = True
             
             response = requests.get(url=get_feed_url, params=params)
-            
+            resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
                 query = self.get_query_results(args)
                 res, code = paginated_result(query)
-
-                resp = json.loads(response.content)
                 res['data'] = marshal(resp.get('result'), UserDto.model_user_feed_response)
                 return res, code
             else:
