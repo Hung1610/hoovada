@@ -21,6 +21,7 @@ from common.db import db
 from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
+from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
@@ -376,6 +377,32 @@ class UserController(Controller):
         else:
             return send_result(message='Could not find any users')
 
+    def notify_user_mention(self, args):
+        """
+        Mention user
+        Args:
+            args:
+                user_mention_id: user mention
+                user_mentioned_id: user has been mentioned
+        Returns:
+
+        """
+        user_mention_id = args.get('user_mention_id')
+        user_mentioned_id = args.get('user_mentioned_id')
+        if not user_mention_id:
+            return send_error(message='User mention id is not set')
+        if not user_mentioned_id:
+            return send_error(message='User mentioned id is not set')
+        if user_mention_id == user_mentioned_id:
+            return send_error(message='You can not mention yourself')
+
+        user_mention_info = User.query.filter_by(id=user_mention_id).first()
+        if not user_mention_info:
+            return send_error(message='Could not find user by id {}'.format(user_mention_id))
+        push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name,
+                                                                                         user_mention_info.display_name),
+                                     user_ids=[user_mentioned_id])
+        return send_result(message='Success')
 
     def get_feed(self, args):
         """ Get feed for current user"""

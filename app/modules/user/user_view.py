@@ -25,6 +25,8 @@ user_request = UserDto.model_request
 user_response = UserDto.model_response
 user_feed_response = UserDto.model_user_feed_response
 user_feed_request = UserDto.model_user_feed_request
+user_mention_request = UserDto.model_user_mention_request
+
 
 @api.route('')
 class UserList(Resource):
@@ -46,6 +48,18 @@ class UserList(Resource):
         data = api.payload
         controller = UserController()
         return controller.create(data=data)
+
+
+@api.route('/mention')
+@api.expect(user_mention_request)
+@api.response(code=200, description='Model for notify that user has been mentioned.')
+class UserMention(Resource):
+    def post(self):
+        """Notify that user has been mentioned"""
+
+        args = user_mention_request.parse_args()
+        controller = UserController()
+        return controller.notify_user_mention(args)
 
 
 @api.route('/feed')
