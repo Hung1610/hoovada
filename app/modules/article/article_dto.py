@@ -78,8 +78,6 @@ class ArticleDto(Dto):
         'allow_comments': fields.Boolean(default=True, description='The article allows commenting or not'),
     })
 
-    mode_
-
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('title', type=str, required=False, help='Search article by its title')
     model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search all articles related to fixed-topic.')
