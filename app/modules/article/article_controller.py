@@ -161,15 +161,11 @@ class ArticleController(Controller):
             query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
         
         if params.get('topic_ids'):
-            #topic_ids = [int(i.strip()) for i in params.get('topic_ids')[0].split(",")]
-            #query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
             query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
 
         if params.get('article_ids'):
-            
             #article_ids = [int(i.strip()) for i in params.get('article_ids')[0].split(",")]
-            #query = query.filter(Article.id.in_(article_ids))
-            query = query.filter(Article.topics.any(Topic.id.in_(params.get('article_ids'))))
+            query = query.filter(Article.id.in_(params.get('article_ids')))
         
         if params.get('draft') is not None:
             if params.get('draft'):
