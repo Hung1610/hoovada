@@ -92,7 +92,7 @@ class TopicDto(Dto):
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search topic by user_id (who created topic)')
     model_get_parser.add_argument('parent_id', type=int, required=False, help='Search all sub-topics which belongs to the parent ID.')
     model_get_parser.add_argument('is_fixed', type=inputs.boolean, required=False, help='Get all fixed topics in database.')
-    model_get_parser.add_argument('topic_ids', type=str, required=False, help='Get topics by list of ids')
+    model_get_parser.add_argument('topic_ids', type=int, required=False, action='split', help='Get topics by list of ids')
     model_get_parser.add_argument('hot', type=inputs.boolean, required=False, help='Search topics that are hot.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str, choices=('created_date', 'updated_date'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str, choices=('created_date', 'updated_date'), action='append',)

@@ -174,8 +174,7 @@ class QuestionController(Controller):
             query = query.filter(Question.created_date <= params.get('to_date'))
         
         if params.get('topic_ids'):
-            topic_ids = [int(i.strip()) for i in params.get('topic_ids')[0].split(",")]
-            query = query.filter(Question.topics.any(Topic.id.in_(topic_ids)))
+            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_ids'))))
 
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))

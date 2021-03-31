@@ -141,48 +141,50 @@ class ArticleController(Controller):
         return query
 
     def apply_filtering(self, query, params):
-        
-        query = super().apply_filtering(query, params)
-        if params.get('user_id'):
-            get_my_own = False
-            if g.current_user:
-                if params.get('user_id') == str(g.current_user.id):
-                    get_my_own = True
-            if not get_my_own:
-                query = query.filter(db.func.coalesce(Article.is_anonymous, False) != True)
-        
-        if params.get('title'):
-            query = query.filter(Article.title.like(params.get('title')))
-        
-        if params.get('from_date'):
-            query = query.filter(Article.created_date >= dateutil.parser.isoparse(params.get('from_date')))
-        
-        if params.get('to_date'):
-            query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
-        
-        if params.get('topic_ids'):
-            query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
+        try:  
+            query = super().apply_filtering(query, params)
+            if params.get('user_id'):
+                get_my_own = False
+                if g.current_user:
+                    if params.get('user_id') == str(g.current_user.id):
+                        get_my_own = True
+                if not get_my_own:
+                    query = query.filter(db.func.coalesce(Article.is_anonymous, False) != True)
+            
+            if params.get('title'):
+                query = query.filter(Article.title.like(params.get('title')))
+            
+            if params.get('from_date'):
+                query = query.filter(Article.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+            
+            if params.get('to_date'):
+                query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+            
+            if params.get('topic_ids'):
+                query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
 
-        if params.get('article_ids'):
-            #article_ids = [int(i.strip()) for i in params.get('article_ids')[0].split(",")]
-            query = query.filter(Article.id.in_(params.get('article_ids')))
-        
-        if params.get('draft') is not None:
-            if params.get('draft'):
-                query = query.filter(Article.is_draft == True)
-            else:
-                query = query.filter(Article.is_draft != True)
+            if params.get('article_ids'):
+                query = query.filter(Article.id.in_(params.get('article_ids')))
+            
+            if params.get('draft') is not None:
+                if params.get('draft'):
+                    query = query.filter(Article.is_draft == True)
+                else:
+                    query = query.filter(Article.is_draft != True)
 
-        if params.get('is_created_by_friend') and g.current_user:
-             query = query\
-                 .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
-                 .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
-                 .filter(
-                     (UserFollow.follower_id == g.current_user.id) |
-                     ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
-                     (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
-                 )
-        return query
+            if params.get('is_created_by_friend') and g.current_user:
+                 query = query\
+                     .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
+                     .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
+                     .filter(
+                         (UserFollow.follower_id == g.current_user.id) |
+                         ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
+                         (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
+                     )
+            return query
+        except Exception as e:
+            print(e.__str__())
+            raise e
 
     def get(self, args):
 
