@@ -79,7 +79,7 @@ class AnswerController(Controller):
             db.session.commit()
 
 
-            # TODO: if this is invited question then update status in invited_question table
+            # TODO: if this is invited question then update status in invited_question_table
 
 
 
