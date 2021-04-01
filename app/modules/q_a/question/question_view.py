@@ -134,7 +134,7 @@ class QuestionInvite(Resource):
     @token_required
     @api.expect(question_invite_request)
     def post(self, id_or_slug):
-        """ Delete the question by question Id or slug"""
+        """Create invited question by question Id or slug"""
 
         data = api.payload
         controller = QuestionController()
@@ -144,7 +144,7 @@ class QuestionInvite(Resource):
 class QuestionFriendInvite(Resource):
     @token_required
     def post(self, id_or_slug):
-        """Create the invited question enrity by question Id or slug"""
+        """Create the invited question to friends by question Id or slug"""
 
         controller = QuestionController()
         return controller.invite_friends(object_id=id_or_slug)
