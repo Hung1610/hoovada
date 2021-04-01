@@ -17,6 +17,6 @@
         }
     ],
     "terminal.integrated.allowMnemonics": true,
-    "terminal.explorerKind": "external",
-    "python.pythonPath": "venv/bin/python"
+    "python.pythonPath": "venv/bin/python",
+    "terminal.integrated.shell.linux": "/bin/bash"
 }
