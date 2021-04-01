@@ -39,7 +39,8 @@
             "module": "flask",
             "envFile": "${workspaceFolder}/.env",
             "args": [
-                "run"
+                "run",
+                "--port=5100"
             ],
             "jinja": true
         },

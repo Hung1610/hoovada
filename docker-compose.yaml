@@ -39,7 +39,21 @@ services:
         - db
     environment:
       - FLASK_APP=app.manage:flask_app
-    env_file: ./docker.env
+    env_file: ./.env
+
+  backend_dev:
+    build:
+        context: .
+        dockerfile: ./docker/app/Dockerfile
+    ports:
+        - "5100:5100"
+    depends_on:
+        - redis
+        - rabbitmq
+        - db
+    environment:
+      - FLASK_APP=app.manage:flask_app
+    env_file: ./.env
       
   scheduled_jobs:
     build:
@@ -49,7 +63,7 @@ services:
         - redis
         - rabbitmq
         - db
-    env_file: ./docker.env
+    env_file: ./.env
 
   socketio:
     build:
@@ -64,4 +78,4 @@ services:
     environment:
       - PORT=5001
       - FLASK_APP=app_socketio
-    env_file: ./docker.env
+    env_file: ./.env
