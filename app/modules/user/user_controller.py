@@ -98,8 +98,7 @@ class UserController(Controller):
                 .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
             mutual_friend_ids = [friend.adaptive_friend_id for friend in mutual_friends_query]
             mutual_friend_ids = [friend_id for friend_id in mutual_friend_ids if friend_id not in friend_ids]
-            query = query.filter(User.id.in_(mutual_friend_ids))
-            
+            query = query.filter(User.id.in_(mutual_friend_ids))   
 
         return query
 
@@ -378,8 +377,7 @@ class UserController(Controller):
             return send_result(message='Could not find any users')
 
     def notify_user_mention(self, args):
-        """
-        Mention user
+        """Mention user
         Args:
             args:
                 user_mention_id: user mention

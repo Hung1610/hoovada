@@ -54,6 +54,7 @@ class UserList(Resource):
 @api.expect(user_mention_request)
 @api.response(code=200, description='Model for notify that user has been mentioned.')
 class UserMention(Resource):
+    @token_required
     def post(self):
         """Notify that user has been mentioned"""
 
@@ -66,6 +67,7 @@ class UserMention(Resource):
 @api.expect(user_feed_request)
 @api.response(code=200, model=user_feed_response, description='Model for feed of user response.')
 class UserGetFeed(Resource):
+    @token_required
     def get(self):
         """Get user's feed"""
 
@@ -100,7 +102,6 @@ class UserSocialAccount(Resource):
 #@api.route('/<int:id>')
 @api.route('/<string:user_name>')
 class User(Resource):
-    # @api.marshal_with(_user)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
         """Get all information for specific user with ID `id`"""
@@ -132,7 +133,7 @@ class UserAvatar(Resource):
     @token_required
     @api.expect(avatar_upload)
     def post(self):
-        """Upload avatar"""
+        """Upload avatar in profile home"""
         
         args = avatar_upload.parse_args()
         controller = UserController()
@@ -146,7 +147,7 @@ class UserCover(Resource):
     @token_required
     @api.expect(cover_upload)
     def post(self):
-        """Upload cover"""
+        """Upload cover page in profile home"""
         
         args = cover_upload.parse_args()
         controller = UserController()
@@ -160,9 +161,7 @@ class UserDoc(Resource):
     @token_required
     @api.expect(doc_upload)
     def post(self):
-        """
-        Upload doc.
-        """
+        """Upload doc to verify in settings"""
         
         args = doc_upload.parse_args()
         controller = UserController()
