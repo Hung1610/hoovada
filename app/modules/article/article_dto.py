@@ -81,7 +81,7 @@ class ArticleDto(Dto):
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('title', type=str, required=False, help='Search article by its title')
     model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search all articles related to fixed-topic.')
-    model_get_parser.add_argument('topic_ids', type=int, required=False, action='split', help='Search all articles from the list of topic ids')
+    model_get_parser.add_argument('topic_id', type=int, required=False, action='split', help='Search all articles from the list of topic ids')
     model_get_parser.add_argument('article_ids', type=int, required=False, action='split', help='Search all articles from the list of article ids')
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')

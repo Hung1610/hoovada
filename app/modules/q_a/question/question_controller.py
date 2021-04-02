@@ -49,7 +49,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_ids', 'is_shared', 'is_created_by_friend']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answers_count']
     
     def create(self, data):
@@ -173,8 +173,8 @@ class QuestionController(Controller):
         if params.get('to_date'):
             query = query.filter(Question.created_date <= params.get('to_date'))
         
-        if params.get('topic_ids'):
-            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_ids'))))
+        if params.get('topic_id'):
+            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
 
         if params.get('is_shared') and current_user:
             query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))

@@ -160,7 +160,7 @@ class ArticleController(Controller):
             if params.get('to_date'):
                 query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
             
-            if params.get('topic_ids'):
+            if params.get('topic_id'):
                 query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
 
             if params.get('article_ids'):
