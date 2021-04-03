@@ -380,26 +380,25 @@ class UserController(Controller):
         """Mention user
         Args:
             args:
-                user_mention_id: user mention
                 user_mentioned_id: user has been mentioned
         Returns:
 
         """
-        user_mention_id = args.get('user_mention_id')
-        user_mentioned_id = args.get('user_mentioned_id')
-        if not user_mention_id:
-            return send_error(message='User mention id is not set')
-        if not user_mentioned_id:
+        user_mention_id = g.current_user.id
+        user_mentioned_ids = args.get('user_mentioned_id')
+        if not user_mentioned_ids:
             return send_error(message='User mentioned id is not set')
-        if user_mention_id == user_mentioned_id:
-            return send_error(message='You can not mention yourself')
+        for user_mentioned_id in user_mentioned_ids:
+            if user_mention_id == user_mentioned_id:
+                return send_error(message='You can not mention yourself')
 
-        user_mention_info = User.query.filter_by(id=user_mention_id).first()
-        if not user_mention_info:
-            return send_error(message='Could not find user by id {}'.format(user_mention_id))
-        push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name,
-                                                                                         user_mention_info.display_name),
-                                     user_ids=[user_mentioned_id])
+            user_mention_info = User.query.filter_by(id=user_mention_id).first()
+            if not user_mention_info:
+                return send_error(message='Could not find user by id {}'.format(user_mention_id))
+            push_notif_to_specific_users(
+                message="{} has mention you to {}'s comment".format(user_mention_info.display_name,
+                                                                    user_mention_info.display_name),
+                user_ids=[user_mentioned_id])
         return send_result(message='Success')
 
     def get_feed(self, args):
