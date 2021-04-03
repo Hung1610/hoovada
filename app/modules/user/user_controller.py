@@ -433,12 +433,9 @@ class UserController(Controller):
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
                 query = self.get_query_results(args)
-                
                 res, code = paginated_result(query)
-                
                 data = resp.get('result',{}).get('feed', [])
-
-                res['data'] = marshal(, UserDto.model_user_feed_response)
+                res['data'] = marshal(data, UserDto.model_user_feed_response)
                 return res, code
             else:
                 return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
