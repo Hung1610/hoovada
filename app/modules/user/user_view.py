@@ -69,7 +69,7 @@ class UserMention(Resource):
 class UserGetFeed(Resource):
     @token_required
     def get(self):
-        """Get user's feed"""
+        """Get current user's feed"""
 
         args = user_feed_request.parse_args()
         controller = UserController()

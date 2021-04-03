@@ -213,17 +213,12 @@ class UserDto(Dto):
         'total': fields.Integer(required=False),
     })
 
-    model_feed_data_response = api.model('feed_data_response', {
+    model_user_feed_response = api.model('user_feed_response', {
         'feed_type': fields.String(required=False),
         'article': fields.Nested(model_article_feed_response, required=False),
         'question_id': fields.Integer(required=False),
         'answer_id': fields.Integer(required=False),
         'post_id': fields.Integer(required=False),
-    })
-
-    model_user_feed_response = api.model('user_feed_response', {
-        'feed': fields.Nested(model_feed_data_response, required=False),
-        'total': fields.Integer(required=False),
     })
 
     model_user_feed_request = Dto.paginated_request_parser.copy()

@@ -24,7 +24,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 question_user_invite = db.Table('question_user_invite',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True),
-    db.Column('status', db.SmallInteger, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)'),
+    db.Column('status', db.SmallInteger, default=0, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)'),
 )
 
 question_proposal_topics = db.Table('question_proposal_topic',
@@ -94,6 +94,7 @@ class Question(Model, BaseQuestion):
         return db.func.count('1')
     topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery')
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
+    
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
     question_comments = db.relationship("QuestionComment", cascade='all,delete-orphan', primaryjoin="and_(Question.id == remote(QuestionComment.question_id),remote(QuestionComment.user_id) == User.id, remote(User.is_deactivated) == False)")

@@ -242,9 +242,9 @@ class QuestionController(Controller):
             if current_user:
                 if not current_user == question.user:
                     if not question.invited_users.contains(current_user):
-                        return send_error(message='Question is invitations only.')
+                        return send_error(message='Question can be seen by invitations only!')
             else:
-                return send_error(message='Question is invitations only.') 
+                return send_error(message='Question can be seen by invitations only!') 
 
         result = question._asdict()
         result['user'] = question.user

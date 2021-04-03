@@ -49,8 +49,10 @@ class UserController(Controller):
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary type")
+        
         if not 'email' in data and not 'password' in data:
             return send_error(message="Please fill email and password")
+        
         try:
             exist_user = User.query.filter_by(email=data['email']).first()
             if not exist_user:
@@ -335,9 +337,8 @@ class UserController(Controller):
         # else:
         #     return send_error(message='Avatar does not exist. Upload it first.')
         user, _ = current_app.get_logged_user(request)
-        # user = User.query.filter_by(id=id).first()
         if user is None:
-            return send_error('You are not logged in')
+            return send_error(message=messages.ERR_NOT_LOGIN)
         return user.profile_pic_url
 
 
@@ -376,6 +377,7 @@ class UserController(Controller):
         else:
             return send_result(message='Could not find any users')
 
+
     def notify_user_mention(self, args):
         """Mention user
         Args:
@@ -389,21 +391,34 @@ class UserController(Controller):
         user_mentioned_id = args.get('user_mentioned_id')
         if not user_mention_id:
             return send_error(message='User mention id is not set')
+        
         if not user_mentioned_id:
             return send_error(message='User mentioned id is not set')
+        
         if user_mention_id == user_mentioned_id:
             return send_error(message='You can not mention yourself')
 
         user_mention_info = User.query.filter_by(id=user_mention_id).first()
         if not user_mention_info:
             return send_error(message='Could not find user by id {}'.format(user_mention_id))
-        push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name,
-                                                                                         user_mention_info.display_name),
-                                     user_ids=[user_mentioned_id])
-        return send_result(message='Success')
+        
+        try: 
+            push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name,
+                                                                                             user_mention_info.display_name),
+                                         user_ids=[user_mentioned_id])
+
+            return send_result(message='Success')
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format('mention', str(e)))
+
 
     def get_feed(self, args):
         """ Get feed for current user"""
+
+        if g.current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
         
         try:
             api_endpoint = '/api/feed'
@@ -418,8 +433,12 @@ class UserController(Controller):
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
                 query = self.get_query_results(args)
+                
                 res, code = paginated_result(query)
-                res['data'] = marshal(resp.get('result'), UserDto.model_user_feed_response)
+                
+                data = resp.get('result',{}).get('feed', [])
+
+                res['data'] = marshal(, UserDto.model_user_feed_response)
                 return res, code
             else:
                 return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
