@@ -234,9 +234,7 @@ class UserDto(Dto):
     })
 
     model_user_mention_request = reqparse.RequestParser().copy()
-    model_user_mention_request.add_argument('user_mention_id', type=int, required=False,
-                                            help='User mention')
-    model_user_mention_request.add_argument('user_mentioned_id', type=int, required=False, help='user mention to')
+    model_user_mention_request.add_argument('user_mentioned_id', type=list, required=True, help='user mention to')
 
     model_get_social_account_parser = api.parser()
     model_get_social_account_parser.add_argument('provider', type=str, required=False, help='Search social account by provider name')

@@ -22,7 +22,7 @@ from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
 from common.utils.onesignal_notif import push_notif_to_specific_users
-from common.utils.response import paginated_result, send_error, send_result
+from common.utils.response import paginated_result, send_error, send_result, send_paginated_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import delete_file, upload_file
@@ -379,35 +379,28 @@ class UserController(Controller):
 
 
     def notify_user_mention(self, args):
-        """Mention user
-        Args:
-            args:
-                user_mention_id: user mention
-                user_mentioned_id: user has been mentioned
-        Returns:
 
-        """
-        user_mention_id = args.get('user_mention_id')
-        user_mentioned_id = args.get('user_mentioned_id')
-        if not user_mention_id:
-            return send_error(message='User mention id is not set')
-        
-        if not user_mentioned_id:
+        if g.current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
+
+        user_mention_id = g.current_user.id
+        user_mentioned_ids = args.get('user_mentioned_id')
+        if not user_mentioned_ids:
             return send_error(message='User mentioned id is not set')
         
-        if user_mention_id == user_mentioned_id:
-            return send_error(message='You can not mention yourself')
+        try:
+            for user_mentioned_id in user_mentioned_ids:
+                if user_mention_id == user_mentioned_id:
+                    return send_error(message='You can not mention yourself')
 
-        user_mention_info = User.query.filter_by(id=user_mention_id).first()
-        if not user_mention_info:
-            return send_error(message='Could not find user by id {}'.format(user_mention_id))
-        
-        try: 
-            push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name,
-                                                                                             user_mention_info.display_name),
-                                         user_ids=[user_mentioned_id])
-
-            return send_result(message='Success')
+                user_mention_info = User.query.filter_by(id=user_mention_id).first()
+                if not user_mention_info:
+                    return send_error(message='Could not find user by id {}'.format(user_mention_id))
+                
+                push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
+                                                                                                user_mention_info.display_name),
+                                                                                                user_ids=[user_mentioned_id])
+                return send_result(message='Success')
 
         except Exception as e:
             print(e.__str__())
@@ -415,7 +408,6 @@ class UserController(Controller):
 
 
     def get_feed(self, args):
-        """ Get feed for current user"""
 
         if g.current_user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
@@ -426,17 +418,22 @@ class UserController(Controller):
 
             params={'user_id': g.current_user.id}
 
-            if "is_hot_articles_only" in args and args["is_hot_articles_only"] == True:
+            if 'is_hot_articles_only' in args and args['is_hot_articles_only'] == True:
                 params['is_hot_articles_only'] = True
+
+            page = None
+            if 'page' in args:
+                params['page'] = args['page']
+                page = args['page']
+
+            if 'per_page' in args:
+                params['per_page'] = args['per_page']
             
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
-                query = self.get_query_results(args)
-                res, code = paginated_result(query)
-                data = resp.get('result',{}).get('feed', [])
-                res['data'] = marshal(data, UserDto.model_user_feed_response)
-                return res, code
+                data = marshal(resp['data'], UserDto.model_user_feed_response)
+                return send_paginated_result(data=data, page, len(data), message='Success')
             else:
                 return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
         

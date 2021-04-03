@@ -193,7 +193,7 @@ class QuestionApprove(Resource):
     @admin_token_required()
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
     def put(self, id):
-        """ Approve question change proposal"""
+        """Approve question change proposal"""
 
         controller = QuestionController()
         return controller.approve_proposal(object_id=id)
@@ -203,7 +203,7 @@ class UpdateSlug(Resource):
     @admin_token_required()
     @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
-        """ Update Slug for questionsquestion Id or slug"""
+        """ Update Slug using question Id or slug"""
 
         controller = QuestionController()
         controller.update_slug()
