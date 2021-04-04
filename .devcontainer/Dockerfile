@@ -25,5 +25,3 @@ RUN ./configure && make && make install
 WORKDIR /opt
 
 USER app
-
-ENTRYPOINT ["/opt/docker/app/entrypoint.sh"]
