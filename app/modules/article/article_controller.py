@@ -44,7 +44,7 @@ UserFriend = db.get_model('UserFriend')
 
 class ArticleController(Controller):
     query_classname = 'Article'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_ids', 'article_ids', 'draft', 'is_created_by_friend']    
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft', 'is_created_by_friend']    
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
 
     def create(self, data):
