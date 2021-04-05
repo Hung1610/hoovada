@@ -68,8 +68,9 @@ class PostController(Controller):
         
         except Exception as e:
             db.session.rollback()
-            print(e)
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Post', e))
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Post', str(e)))
+
 
     def get(self, args):
 
@@ -81,43 +82,43 @@ class PostController(Controller):
                 try:
                     user_id = int(args['user_id'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             if args.get('created_date'):
                 try:
                     created_date = dateutil.parser.isoparse(args['created_date'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             if args.get('updated_date'):
                 try:
                     updated_date = dateutil.parser.isoparse(args['updated_date'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             if args.get('from_date'):
                 try:
                     from_date = dateutil.parser.isoparse(args['from_date'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             if args.get('to_date'):
                 try:
                     to_date = dateutil.parser.isoparse(args['to_date'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             if args.get('draft'):
                 try:
                     draft = bool(args['draft'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
             if args.get('is_deleted'):
                 try:
                     is_deleted = bool(args['is_deleted'])
                 except Exception as e:
-                    print(e)
+                    print(e.__str__())
                     pass
 
             query = Post.query.join(User, isouter=True).filter(db.or_(Post.scheduled_date == None, datetime.utcnow() >= Post.scheduled_date))
@@ -163,7 +164,7 @@ class PostController(Controller):
                 result['user'] = user
             return send_result(marshal(results, PostDto.model_post_response), message='Success')
         except Exception as e:
-            return send_error(message=messages.ERR_GET_FAILED.format('Post', e))
+            return send_error(message=messages.ERR_GET_FAILED.format('Post', str(e)))
 
 
     def create_with_file(self, object_id):
@@ -200,9 +201,11 @@ class PostController(Controller):
             result = post._asdict()
             result['user'] = post.user
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post media'), data=marshal(result, PostDto.model_response))
+        
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Post media', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Post media', str(e)))
 
 
     def get_by_id(self, object_id):
@@ -257,8 +260,9 @@ class PostController(Controller):
             result['user'] = post.user
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Post'), data=marshal(result, PostDto.model_post_response))
         except Exception as e:
+            db.session.rollback()
             print(e)
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('Post', e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format('Post', str(e)))
 
 
     def delete(self, object_id):
@@ -273,9 +277,11 @@ class PostController(Controller):
                 db.session.delete(post)
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
+        
         except Exception as e:
+            db.session.rollback()
             print(e)
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Post', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Post', str(e)))
 
 
     def get_post_of_friend(self,args):
@@ -323,7 +329,7 @@ class PostController(Controller):
             try:
                 post.user_id = data['user_id']
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
 
         if 'html' in data:
@@ -333,21 +339,21 @@ class PostController(Controller):
             try:
                 post.scheduled_date = data['scheduled_date']
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
             
         if 'is_draft' in data:
             try:
                 post.is_draft = bool(data['is_draft'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
             
         if 'is_deleted' in data:
             try:
                 post.is_deleted = bool(data['is_deleted'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
 
         if g.current_user_is_admin:
