@@ -33,7 +33,6 @@ class PostDto(Dto):
 
     model_post_request = api.model('post_request', {
         'html': fields.String(description='The content of the post'),
-        'scheduled_date': fields.DateTime(description='The scheduled date'),
         'allow_favorite': fields.Boolean(default=False, description='The post allows favoriting or not'),
         'is_draft': fields.Boolean(default=False, description='The post is a draft or not'),
         'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),

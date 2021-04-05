@@ -334,13 +334,6 @@ class PostController(Controller):
 
         if 'html' in data:
             post.html = data['html']
-
-        if 'scheduled_date' in data:
-            try:
-                post.scheduled_date = data['scheduled_date']
-            except Exception as e:
-                print(e.__str__())
-                pass
             
         if 'is_draft' in data:
             try:
