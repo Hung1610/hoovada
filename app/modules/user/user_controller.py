@@ -329,13 +329,6 @@ class UserController(Controller):
 
 
     def get_avatar(self):
-        # upload here
-        # filename = request.args.get('filename')
-        # filename = os.path.join(AVATAR_FOLDER, filename)
-        # if os.path.exists(filename):
-        #     return send_file(filename)
-        # else:
-        #     return send_error(message='Avatar does not exist. Upload it first.')
         user, _ = current_app.get_logged_user(request)
         if user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
@@ -383,10 +376,11 @@ class UserController(Controller):
         if g.current_user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
 
+        if 'user_mentioned_id' not in args:
+            return send_error(message=messages.ERR_LACKING_GET_PARAMS.format('User mentioned id'))
+
         user_mention_id = g.current_user.id
         user_mentioned_ids = args.get('user_mentioned_id')
-        if not user_mentioned_ids:
-            return send_error(message='User mentioned id is not set')
         
         try:
             for user_mentioned_id in user_mentioned_ids:
@@ -395,7 +389,7 @@ class UserController(Controller):
 
                 user_mention_info = User.query.filter_by(id=user_mention_id).first()
                 if not user_mention_info:
-                    return send_error(message='Could not find user by id {}'.format(user_mention_id))
+                    return send_error(message=messages.ERR_NOT_FOUND.format(user_mention_id))
                 
                 push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
                                                                                                 user_mention_info.display_name),
@@ -421,19 +415,21 @@ class UserController(Controller):
             if 'is_hot_articles_only' in args and args['is_hot_articles_only'] == True:
                 params['is_hot_articles_only'] = True
 
-            page = None
-            if 'page' in args:
-                params['page'] = args['page']
-                page = args['page']
+            if 'page' not in args or args['page'] is None:
+                page = 1
 
-            if 'per_page' in args:
-                params['per_page'] = args['per_page']
+            if 'per_page' not in args or args['per_page'] is None:
+                per_page = 250
+
+            params['page'] = page
+            params['per_page'] = per_page 
             
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
                 data = marshal(resp['data'], UserDto.model_user_feed_response)
                 return send_paginated_result(data=data, page=page, total=len(data), message='Success')
+            
             else:
                 return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
         
