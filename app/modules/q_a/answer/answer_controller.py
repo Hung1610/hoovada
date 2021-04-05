@@ -36,6 +36,7 @@ Answer = db.get_model('Answer')
 AnswerVote = db.get_model('AnswerVote')
 UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
+QuestionUserInvite = db.get_model('QuestionUserInvite')
 
 
 class AnswerController(Controller):
@@ -63,7 +64,7 @@ class AnswerController(Controller):
             answer = self._parse_answer(data=data, answer=None)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            
+
             text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
             if len(text.split()) < 100:
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('100'))
@@ -76,11 +77,17 @@ class AnswerController(Controller):
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
-            db.session.commit()
 
 
             # TODO: if this is invited question then update status in invited_question_table
+            question_user_invite = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).first()
+            if question_user_invite:
+                question_user_invite.status = 1
+            else:
+                question_user_invite = QuestionUserInvite(user_id=data['user_id'], question_id=data['question_id'], status=1)
+                db.session.add(question_user_invite)
 
+            db.session.commit()
 
 
             # Add bookmark for the creator
@@ -89,7 +96,7 @@ class AnswerController(Controller):
             result = answer._asdict()
             result['up_vote'] = False
             result['down_vote'] = False
-            
+
             #if answer.user:
             #    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
             #        .filter(UserFollow.followed_id == answer.user.id).all()
@@ -105,7 +112,7 @@ class AnswerController(Controller):
             #    new_answer_notify_user_list.send(answer.id, friend_ids)
 
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
-        
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -154,7 +161,7 @@ class AnswerController(Controller):
             result['up_vote'] = False
             result['down_vote'] = False
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(result, AnswerDto.model_response))
-        
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -276,7 +283,7 @@ class AnswerController(Controller):
 
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
-        
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -288,7 +295,7 @@ class AnswerController(Controller):
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
-            
+
             current_user, _ = current_app.get_logged_user(request)
             if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
@@ -325,7 +332,7 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-            
+
         if 'is_deleted' in data:
             try:
                 answer.is_deleted = bool(data['is_deleted'])

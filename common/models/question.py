@@ -21,12 +21,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-question_user_invite = db.Table('question_user_invite',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
-    db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True),
-    db.Column('status', db.SmallInteger, default=0, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)'),
-)
-
 question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE')),
@@ -40,6 +34,14 @@ question_topics = db.Table('question_topic',
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
+
+class QuestionUserInvite(db.Model):
+    __tablename__ = 'question_user_invite'
+
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
+    question_id = db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True)
+    status = db.Column('status', db.SmallInteger, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
+
 # pylint: disable=R0201
 class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +54,7 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
     last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     @declared_attr
     def fixed_topic_id(cls):
         return db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
@@ -60,7 +62,7 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
     @declared_attr
     def fixed_topic(cls):
         return db.relationship('Topic', lazy=True)
-    
+
     @declared_attr
     def user_id(cls):
         return db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
@@ -72,7 +74,7 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
 
 class Question(Model, BaseQuestion):
     __tablename__ = 'question'
-    
+
     views_count = db.Column(db.Integer, server_default="0")
     @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answers_count(self):
@@ -94,7 +96,7 @@ class Question(Model, BaseQuestion):
         return db.func.count('1')
     topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery')
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
-    
+
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
     question_comments = db.relationship("QuestionComment", cascade='all,delete-orphan', primaryjoin="and_(Question.id == remote(QuestionComment.question_id),remote(QuestionComment.user_id) == User.id, remote(User.is_deactivated) == False)")
@@ -107,7 +109,7 @@ class Question(Model, BaseQuestion):
 
 class QuestionProposal(Model, BaseQuestion):
     __tablename__ = 'question_proposal'
-    
+
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=True, index=True)
     question_id = db.Column(db.Integer, nullable=True, index=True)
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
