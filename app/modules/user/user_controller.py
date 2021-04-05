@@ -417,9 +417,13 @@ class UserController(Controller):
 
             if 'page' not in args or args['page'] is None:
                 page = 1
+            else:
+                page = args['page']
 
             if 'per_page' not in args or args['per_page'] is None:
                 per_page = 20
+            else:
+                per_page = args['per_page']
 
             params['page'] = page
             params['per_page'] = per_page 
