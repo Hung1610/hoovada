@@ -57,7 +57,7 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'title' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question title'))
 
         if not 'fixed_topic_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
@@ -67,18 +67,18 @@ class QuestionController(Controller):
             data['user_id'] = current_user.id
 
         try:
-    
-            if not data['title'].strip().endswith('?'):
+            title = data['title'].strip()
+
+            if not title.endswith('?'):
                 return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
             
-            data['title'] = data['title'].strip()
-            
-            is_sensitive = check_sensitive(re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
-            if is_sensitive:
+            only_words = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
+            if check_sensitive(only_words):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
-            data['title'] = data['title'] + ' ?'
-            title = data['title']
+            if len(only_words.split()) < 3:
+                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format(str(3)))
+            
             user_id = data.get('user_id')
             question = Question.query.filter(Question.title == title).first()
 

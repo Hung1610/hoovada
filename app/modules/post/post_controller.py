@@ -42,13 +42,15 @@ class PostController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
+        if not 'html' in data or len(post) == 0:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('post content'))
+
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         try:
 
-            post = self._parse_post(data=data, post=None) 
-            is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
-            if is_sensitive:
+            post = self._parse_post(data=data, post=None)
+            if check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)):
                 return send_error(message=messages.ERR_ISSUE.format('Post body is too sensitive'))
 
             post.created_date = datetime.utcnow()
@@ -163,6 +165,7 @@ class PostController(Controller):
         except Exception as e:
             return send_error(message=messages.ERR_GET_FAILED.format('Post', e))
 
+
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Post ID"))
@@ -201,6 +204,7 @@ class PostController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Post media', e))
 
+
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
@@ -220,7 +224,8 @@ class PostController(Controller):
             except Exception as e:
                 print(e)
                 pass
-    
+
+  
     def update(self, object_id, data, is_put=False):
         if object_id is None:
             return send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
@@ -255,6 +260,7 @@ class PostController(Controller):
             print(e)
             return send_error(message=messages.ERR_UPDATE_FAILED.format('Post', e))
 
+
     def delete(self, object_id):
         try:
             if object_id.isdigit():
@@ -270,6 +276,7 @@ class PostController(Controller):
         except Exception as e:
             print(e)
             return send_error(message=messages.ERR_DELETE_FAILED.format('Post', e))
+
 
     def get_post_of_friend(self,args):
             page = 1
@@ -306,6 +313,7 @@ class PostController(Controller):
                 return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
             else:
                 return send_result(message='Could not find any posts')
+
 
     def _parse_post(self, data, post=None):
         if post is None:
