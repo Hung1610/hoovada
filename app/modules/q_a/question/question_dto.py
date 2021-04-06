@@ -91,7 +91,6 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
-        #'top_answer': fields.List(fields.Nested(question_top_answer), description='The list of invited users'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 

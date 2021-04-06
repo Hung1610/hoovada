@@ -122,20 +122,21 @@ class CommentController(BaseCommentController):
                 # get thong tin user
                 result['user'] = comment.user
                 if comment.answer.user:
-                    if comment.answer.user.is_online\
-                        and comment.answer.user.new_answer_comment_notify_settings:
+                    
+                    if comment.answer.user.is_online and comment.answer.user.new_answer_comment_notify_settings:
                         display_name =  comment.user.display_name if comment.user else 'Khách'
-                        message = display_name + ' đã bình luận trong câu trả lời!'
+                        message = display_name + ' đã bình luận câu trả lời!'
                         push_notif_to_specific_users(message, [comment.answer.user_id])
 
-                return send_result(message='AnswerComment was created successfully',
-                                   data=marshal(result, CommentDto.model_response))
+                return send_result(message='AnswerComment was created successfully', data=marshal(result, CommentDto.model_response))
             except Exception as e:
                 print(e.__str__())
                 return send_result(data=marshal(comment, CommentDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create comment')
+
 
     def get_by_id(self, object_id):
         if object_id is None:

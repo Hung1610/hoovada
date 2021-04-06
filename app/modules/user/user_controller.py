@@ -198,9 +198,14 @@ class UserController(Controller):
 
                 if check_sensitive(user.about_me) or check_sensitive(user.display_name) or check_sensitive(user.first_name) or check_sensitive(user.last_name):
                     return send_error(message='User information contains word that is not allowed!')
+
+                full_name = user.first_name + user.last_name
+                if user.show_fullname_instead_of_display_name is True and len(full_name) > 0:
+                    user.display_name = full_name
                     
                 db.session.commit()
                 return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not update user')

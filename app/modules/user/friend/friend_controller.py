@@ -78,13 +78,15 @@ class UserFriendController(Controller):
             db.session.commit()
                         
             if friend.friended:
-                if friend.friended.is_online\
-                    and friend.friended.friend_request_notify_settings:
+                
+                if friend.friended.is_online and friend.friended.friend_request_notify_settings:
                     display_name =  current_user.display_name if current_user else 'Khách'
                     message = display_name + ' đã yêu cầu làm bạn!'
                     push_notif_to_specific_users(message, [friend.friended.id])
+                
                 elif friend.friended.friend_request_email_settings:
                     send_friend_request_notif_email(friend.friended, current_user)
+
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Friend'),
                                data=marshal(friend, UserFriendDto.model_response))
         except Exception as e:

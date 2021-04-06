@@ -55,17 +55,14 @@ class ArticleDto(Dto):
     model_article_response = api.model('article_response', {
         'id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the article'),
-        'slug': fields.String(description='The slug of the article'),
-        'user': fields.Nested(model_article_user, description='The user information'),
+        'slug': fields.String(description='The slug of the article'),   
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
-        'fixed_topic': fields.Nested(model_topic, description='The fixed topic'),
         'html': fields.String(description='The content of the article'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting on this article'),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of article views'),
         'last_activity': fields.DateTime(description='The last time this article was updated.'),
-        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
@@ -76,6 +73,11 @@ class ArticleDto(Dto):
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'allow_comments': fields.Boolean(default=True, description='The article allows commenting or not'),
+
+        'user': fields.Nested(model_article_user, description='The user information'),
+        'fixed_topic': fields.Nested(model_topic, description='The fixed topic'),
+        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()

@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
@@ -31,20 +31,13 @@ User = db.get_model('User')
 
 
 class CommentController(BaseCommentController):
-    '''
-    Controller for question comments
-    '''
+
     query_classname = 'QuestionComment'
     related_field_name = 'question_id'
 
     def get(self, question_id, args):
-        """
-        Search comments by params.
+        """Search comments by params"""
 
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
         # user_id, question_id, question_id = None, None, None
         user_id = None 
         if 'user_id' in args:
@@ -119,11 +112,10 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 result['user'] = comment.user
                 if comment.question.user:
-                    if comment.question.user.is_online\
-                        and comment.question.user.my_question_notify_settings\
-                        and comment.question.user.new_question_comment_notify_settings:
+                    if comment.question.user.is_online and comment.question.user.new_question_comment_notify_settings:
+                        
                         display_name =  comment.user.display_name if comment.user else 'Khách'
-                        message = display_name + ' đã bình luận trong câu hỏi!'
+                        message = display_name + ' đã bình luận câu hỏi!'
                         push_notif_to_specific_users(message, [comment.question.user_id])
 
                 return send_result(message='QuestionComment was created successfully',
