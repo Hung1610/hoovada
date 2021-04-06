@@ -39,13 +39,8 @@ class CommentController(BaseCommentController):
     related_field_name = 'answer_id'
 
     def get(self, answer_id, args):
-        """
-        Search comments by params.
+        """Search comments by params"""
 
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
         # user_id, question_id, answer_id = None, None, None
 
         current_user, _ = current_app.get_logged_user(request)
