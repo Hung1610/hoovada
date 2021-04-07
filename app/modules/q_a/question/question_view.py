@@ -153,7 +153,7 @@ class QuestionDeclineInvite(Resource):
 class QuestionFriendInvite(Resource):
     @token_required
     def post(self, id_or_slug):
-        """Create the invited question to friends by question Id or slug"""
+        """Create the invited question to all friends by question Id or slug"""
 
         controller = QuestionController()
         return controller.invite_friends(object_id=id_or_slug)

@@ -276,7 +276,10 @@ class QuestionController(Controller):
             
             if question is None:
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
+            
             current_user, _ = current_app.get_logged_user(request)
+            if current_user is None:
+                return send_error(message=messages.ERR_NOT_LOGIN)
 
             emails_or_usernames = data['emails_or_usernames']
             for email_or_username in emails_or_usernames:
@@ -284,6 +287,7 @@ class QuestionController(Controller):
                     user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
                     if user:
                         question.invited_users.append(user)
+
                 except Exception as e:
                     print(e)
                     pass
