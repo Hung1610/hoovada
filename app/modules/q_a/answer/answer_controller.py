@@ -36,12 +36,14 @@ Answer = db.get_model('Answer')
 AnswerVote = db.get_model('AnswerVote')
 UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
+Question = db.get_model('Question')
 QuestionUserInvite = db.get_model('QuestionUserInvite')
 
 
 class AnswerController(Controller):
     query_classname = 'Answer'
-    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
+    allowed_ordering_fields = [
+        'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -54,11 +56,12 @@ class AnswerController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
             data['user_id'] = current_user.id
-            answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
-            if answer:
-                if answer.is_deleted:
-                    return send_error(message=messages.ERR_ISSUE.format('This user already answered the question but it is hidden!'), data={'answer_id': answer.id})
-                return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question!'), data={'answer_id': answer.id})
+            answer = Answer.query.with_deleted().filter_by(
+                question_id=data['question_id'], user_id=data['user_id']).first()
+        if answer:
+            if answer.is_deleted:
+                return send_error(message=messages.ERR_ISSUE.format('This user already answered the question but it is hidden!'), data={'answer_id': answer.id})
+            return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question!'), data={'answer_id': answer.id})
 
         try:
             answer = self._parse_answer(data=data, answer=None)
@@ -78,26 +81,28 @@ class AnswerController(Controller):
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
 
-
             # TODO: if this is invited question then update status in invited_question_table
-            question_user_invite = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).first()
-            if question_user_invite:
-                question_user_invite.status = 1
+            question_user_invites = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).all()
+            if(len(question_user_invites) == 1):
+                question_user_invites[0].status = 1
+            elif(len(question_user_invites) == 0):
+                new_question_user_invite = QuestionUserInvite()
+                new_question_user_invite.user_id = data['user_id']
+                new_question_user_invite.question_id = data['question_id']
+                new_question_user_invite.status = 1
+                db.session.add(new_question_user_invite)
             else:
-                question_user_invite = QuestionUserInvite(user_id=data['user_id'], question_id=data['question_id'], status=1)
-                db.session.add(question_user_invite)
-
+                raise "Should have only one row"
             db.session.commit()
 
-
             # Add bookmark for the creator
-            controller = AnswerBookmarkController()
-            controller.create(answer_id=answer.id)
+            # controller = AnswerBookmarkController()
+            # controller.create(answer_id=answer.id)
             result = answer._asdict()
             result['up_vote'] = False
             result['down_vote'] = False
 
-            #if answer.user:
+            # if answer.user:
             #    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
             #        .filter(UserFollow.followed_id == answer.user.id).all()
             #    follower_ids = [follower[0] for follower in followers]
