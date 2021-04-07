@@ -81,42 +81,46 @@ class QuestionVoteController(Controller):
 
     def create(self, question_id, data):
         current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
+
+        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
+
         data['user_id'] = current_user.id
         data['question_id'] = question_id
         try:
             # add or update vote
             is_insert = True
             old_vote_status = None
-            vote = QuestionVote.query.filter(QuestionVote.user_id == data['user_id'], \
-                QuestionVote.question_id == data['question_id']).first()
+            vote = QuestionVote.query.filter(QuestionVote.user_id == data['user_id'], QuestionVote.question_id == data['question_id']).first()
+            
             if vote:
                 old_vote_status = vote.vote_status
                 is_insert = False
+            
             vote = self._parse_vote(data=data, vote=vote)
             vote.created_date = datetime.utcnow()
             vote.updated_date = datetime.utcnow()
+            
             if is_insert:
                 db.session.add(vote)
+            
             db.session.commit()
             question = vote.question
-            # get user who was created answer and was voted
             user_voted = question.user
             for topic in question.topics:
-                # Question creator rep
                 update_reputation.send(topic.id, user_voted.id)
-                # Question voter rep
                 update_reputation.send(topic.id, current_user.id, is_voter=True)
+        
             return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
+        
         except Exception as e:
             db.session.rollback()
             print(e)
             return send_error(message='Failed to create question vote.')
+
 
     def delete(self, question_id):
         current_user, _ = current_app.get_logged_user(request)
@@ -133,15 +137,9 @@ class QuestionVoteController(Controller):
             print(e.__str__())
             return send_error(message='Failed to delete question vote')
 
+
     def update(self, object_id, data):
-        """ Update object from search_data in database
-        
-        Args:
-            object_id:
-            data:
-        
-        Returns:
-        """
+        """ Update object from search_data in database"""
         pass
 
     def _parse_vote(self, data, vote=None):

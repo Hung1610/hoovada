@@ -48,7 +48,7 @@ class UserController(Controller):
 
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary type")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data and not 'password' in data:
             return send_error(message="Please fill email and password")
@@ -73,10 +73,12 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not create user. Check again')
 
+
     def get_query(self):
         query = super().get_query()
         query = query.filter(User.is_deactivated != True)
         return query    
+
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
@@ -103,6 +105,7 @@ class UserController(Controller):
             query = query.filter(User.id.in_(mutual_friend_ids))   
 
         return query
+
 
     def get(self, args):
         try:
@@ -176,11 +179,12 @@ class UserController(Controller):
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(user_name))
 
+
     def update(self, user_name, data):
         """ Does not allow to update `id`, `email`, `password`, `profile_views` """
 
         if not isinstance(data, dict):
-            return send_error(message='You must pass dictionary-like data.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         if 'id' in data:
             return send_error(message='Could not update ID.')
         if 'email' in data:
@@ -420,18 +424,11 @@ class UserController(Controller):
             if 'is_hot_articles_only' in args and args['is_hot_articles_only'] == True:
                 params['is_hot_articles_only'] = True
 
-            if 'page' not in args or args['page'] is None:
-                page = 1
-            else:
-                page = args['page']
+            if 'page' in args and args['page'] is not None:
+                params['page'] = page
 
-            if 'per_page' not in args or args['per_page'] is None:
-                per_page = 20
-            else:
-                per_page = args['per_page']
-
-            params['page'] = page
-            params['per_page'] = per_page 
+            if 'per_page' in args and args['per_page'] is not None:
+                params['per_page'] = per_page 
             
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
