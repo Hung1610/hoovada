@@ -311,6 +311,27 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
 
+    def decline_invited_question(self, object_id):
+        try:
+            current_user, _ = current_app.get_logged_user(request)
+            result = None
+            if not current_user:
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            user_id = current_user.id
+            question_user_invites = QuestionUserInvite.query.filter_by(user_id=user_id, question_id=object_id).all()
+            if(len(question_user_invites) == 1):
+                question_user_invites[0].status = 2
+                result = question_user_invites[0]._asdict()
+            elif(len(question_user_invites) == 0):
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('invited question', object_id))
+            else:
+                raise "Should have only one row"
+            db.session.commit()
+            return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        except Exception as e:
+            db.session.rollback()
+            print(e)
+            return send_error(message="Decline invite failed. Error: " + e.__str__())  
 
     def decline_invited_question(self, object_id):
         try:
