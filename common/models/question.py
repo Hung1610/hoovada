@@ -31,7 +31,6 @@ class QuestionUserInvite(Model):
     user = db.relationship('User', lazy=True)
 
 
-
 question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE')),
@@ -39,19 +38,13 @@ question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
+
 question_topics = db.Table('question_topic',
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False),
     db.Column('created_date', db.DateTime, default=datetime.utcnow),
 )
 
-
-class QuestionUserInvite(db.Model):
-    __tablename__ = 'question_user_invite'
-
-    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
-    question_id = db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True)
-    status = db.Column('status', db.SmallInteger, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
 
 # pylint: disable=R0201
 class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
@@ -116,6 +109,8 @@ class Question(Model, BaseQuestion):
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')
     question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
     bookmarked_users = db.relationship("User", secondary='question_bookmark')
+
+    
 class QuestionProposal(Model, BaseQuestion):
     __tablename__ = 'question_proposal'
 

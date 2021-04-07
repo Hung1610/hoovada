@@ -54,14 +54,13 @@ class AnswerController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer body'))
 
         current_user, _ = current_app.get_logged_user(request)
-        if current_user:
-            data['user_id'] = current_user.id
-            answer = Answer.query.with_deleted().filter_by(
-                question_id=data['question_id'], user_id=data['user_id']).first()
-        if answer:
-            if answer.is_deleted:
-                return send_error(message=messages.ERR_ISSUE.format('This user already answered the question but it is hidden!'), data={'answer_id': answer.id})
-            return send_error(message=messages.ERR_ISSUE.format('This user already answered for this question!'), data={'answer_id': answer.id})
+        if not current_user:
+            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
+
+        data['user_id'] = current_user.id
+        answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
+        if answer:            
+            return send_error(message=messages.ERR_CREATE_FAILED.format('answer', 'This user has already answered!'), data={'answer_id': answer.id})
 
         try:
             answer = self._parse_answer(data=data, answer=None)
@@ -83,16 +82,19 @@ class AnswerController(Controller):
 
             # TODO: if this is invited question then update status in invited_question_table
             question_user_invites = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).all()
-            if(len(question_user_invites) == 1):
+            if len(question_user_invites) == 1:
                 question_user_invites[0].status = 1
-            elif(len(question_user_invites) == 0):
+            
+            elif len(question_user_invites) == 0:
                 new_question_user_invite = QuestionUserInvite()
                 new_question_user_invite.user_id = data['user_id']
                 new_question_user_invite.question_id = data['question_id']
                 new_question_user_invite.status = 1
                 db.session.add(new_question_user_invite)
+            
             else:
                 raise "Should have only one row"
+            
             db.session.commit()
 
             # Add bookmark for the creator
