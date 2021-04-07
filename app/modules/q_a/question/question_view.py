@@ -140,6 +140,15 @@ class QuestionInvite(Resource):
         controller = QuestionController()
         return controller.invite(object_id=id_or_slug, data=data)
 
+@api.route('/<string:id_or_slug>/decline-invite')
+class QuestionDeclineInvite(Resource):
+    @token_required
+    @api.expect(question_invite_request)
+    def post(self, id_or_slug):
+        """Create invited question by question Id or slug"""
+        controller = QuestionController()
+        return controller.decline_invited_question(object_id=id_or_slug)
+
 @api.route('/<string:id_or_slug>/friend-invite')
 class QuestionFriendInvite(Resource):
     @token_required

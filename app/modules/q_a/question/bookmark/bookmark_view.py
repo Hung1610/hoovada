@@ -24,11 +24,11 @@ _vote_get_params = QuestionBookmarkDto.model_get_parser
 
 @api.route('/all/bookmark')
 class BookmarkQuestionAll(Resource):
-    @api.expect(_vote_get_params)
-    def get(self, question_id):
+    # @api.expect(_vote_get_params)
+    def get(self):
         """Get all bookmark that satisfy conditions"""
-
         args = _vote_get_params.parse_args()
+       
         controller = QuestionBookmarkController()
         return controller.get(args=args)
 
