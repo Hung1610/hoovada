@@ -24,7 +24,8 @@ from common.models.follow import (UserFollow, TopicFollow)
 from common.models.friend import UserFriend
 from common.models.language import Language
 from common.models.post import Post
-from common.models.question import QuestionUserInvite,Question, QuestionProposal
+from common.models.question import QuestionUserInvite
+from common.models.question import Question, QuestionProposal
 from common.models.report import (ArticleCommentReport, AnswerCommentReport, ArticleReport,
                                   AnswerReport, PostReport, QuestionReport, TopicReport)
 from common.models.reputation import Reputation
