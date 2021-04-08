@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implement logic for search APIs"""
-
-import ast
 # built-in modules
+import ast
 import re
 from datetime import datetime
-
 import dateutil.parser
-from flask_restx import marshal
+
 # third-party modules
+from flask_restx import marshal
 from sqlalchemy import or_
 
+# own modules
 from common.db import db
 from app.modules.search.search_dto import SearchDto
-# own modules
 from common.models import Article, Question, Topic, User
 from common.utils.response import send_error, send_result
 
