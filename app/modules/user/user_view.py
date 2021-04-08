@@ -43,7 +43,7 @@ class UserList(Resource):
     @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def post(self):
-        """Create new user"""
+        """Create new user - used by Super Admin"""
 
         data = api.payload
         controller = UserController()

@@ -52,9 +52,9 @@ class SearchController():
         queryArticle = queryArticle.filter(Article.title.like(valueSearch))
 
         if emailSearch == False:
-            queryUser = queryUser.filter(or_(User.email.like(valueSearch), User.display_name.like(valueSearch))).filter(User.is_deactivated == False)
+            queryUser = queryUser.filter(or_(User.email.like(valueSearch), User.display_name.like(valueSearch))).filter(User.is_deactivated == False, User.is_private == False)
         else:
-            queryUser = queryUser.filter(User.display_name.like(valueSearch)).filter(User.is_deactivated == False)
+            queryUser = queryUser.filter(User.display_name.like(valueSearch)).filter(User.is_deactivated == False, User.is_private == False)
         
         questions = queryQuestion.all()
         topics = queryTopic.all()

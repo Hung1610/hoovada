@@ -145,57 +145,61 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format("Question", str(e)))
 
+
     def apply_filtering(self, query, params):
-
-        query = super().apply_filtering(query, params)
-        current_user = g.current_user
-        if current_user:
-            if not current_user.show_nsfw:
-                query = query.filter(Question.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) != True))\
-                    .filter(db.or_(db.not_(Question.topics.any()), Question.topics.any(Topic.is_nsfw != True)))
-
-        get_my_own = False
-        if params.get('user_id'):
+        try: 
+            query = super().apply_filtering(query, params)
+            current_user = g.current_user
             if current_user:
-                if params.get('user_id') == str(current_user.id):
-                    get_my_own = True
+                if not current_user.show_nsfw:
+                    query = query.filter(Question.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) == False))\
+                        .filter(db.or_(db.not_(Question.topics.any()), Question.topics.any(Topic.is_nsfw == False)))
+
+            get_my_own = False
+            if params.get('user_id'):
+                if current_user:
+                    if params.get('user_id') == str(current_user.id):
+                        get_my_own = True
+                if not get_my_own:
+                    query = query.filter(db.func.coalesce(Question.is_anonymous, False) != True)
             if not get_my_own:
-                query = query.filter(db.func.coalesce(Question.is_anonymous, False) != True)
-        if not get_my_own:
-            query = query.filter(db.func.coalesce(Question.is_private, False) != True)
+                query = query.filter(db.func.coalesce(Question.is_private, False) != True)
 
-        if params.get('title'):
-            title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
-            query = query.filter(title_similarity > 50)
-        if params.get('from_date'):
-            query = query.filter(Question.created_date >= params.get('from_date'))
-        if params.get('to_date'):
-            query = query.filter(Question.created_date <= params.get('to_date'))
-        
-        if params.get('topic_id'):
-            query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
+            if params.get('title'):
+                title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
+                query = query.filter(title_similarity > 50)
+            if params.get('from_date'):
+                query = query.filter(Question.created_date >= params.get('from_date'))
+            if params.get('to_date'):
+                query = query.filter(Question.created_date <= params.get('to_date'))
+            
+            if params.get('topic_id'):
+                query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
 
-        if params.get('is_shared') and current_user:
-            query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-        if params.get('is_created_by_friend') and current_user:
-             query = query\
-                 .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
-                 .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
-                 .filter(
-                     (UserFollow.follower_id == current_user.id) |
-                     ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
-                     (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-                 )
-        return query
+            if params.get('is_shared') and current_user:
+                query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+            if params.get('is_created_by_friend') and current_user:
+                 query = query\
+                     .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
+                     .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
+                     .filter(
+                         (UserFollow.follower_id == current_user.id) |
+                         ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
+                         (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+                     )
+            return query
+
+        except Exception as e:
+            print(e.__str__())
+            raise e
 
 
     def get_query(self):
         query = super().get_query()
-        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated == False))
-        
+        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated == False))        
         return query
 
-    #@cache.memoize()
+
     def get(self, args):
         try:
             query = self.get_query_results(args)
@@ -383,7 +387,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
 
-    #@cache.memoize()
+
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
@@ -431,6 +435,7 @@ class QuestionController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+
 
     def get_recommended_users(self, args):
         try:
@@ -488,6 +493,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
+
     def get_proposals(self, object_id, args):
         try:
             if object_id is None:
@@ -527,7 +533,8 @@ class QuestionController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message='Could not get proposals. Error: ' + e.__str__())
-    
+
+
     def create_delete_proposal(self, object_id):
         try:
             if object_id is None:
@@ -551,7 +558,8 @@ class QuestionController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message='Could not create question. Contact administrator for solution.')
-    
+
+ 
     def create_proposal(self, object_id, data):
         try:
             if object_id is None:

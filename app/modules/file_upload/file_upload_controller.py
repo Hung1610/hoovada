@@ -5,8 +5,8 @@
 from flask import g
 from flask_restx import marshal
 
-from app.modules.file_upload.file_upload_dto import FileUploadDto
 # own modules
+from app.modules.file_upload.file_upload_dto import FileUploadDto
 from app.constants import messages
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension

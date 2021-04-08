@@ -16,7 +16,6 @@ ERR_CREATE_FAILED = 'Failed to create {}. Issue: {}!'
 # Get Messages
 MSG_GET_SUCCESS = '{} get successfully.'
 ERR_GET_FAILED = 'Failed to get {}. Issue: {}!'
-ERR_LACKING_GET_PARAMS = 'Please provide {}!'
 
 # Update Messages
 MSG_UPDATE_SUCCESS = '{} updated successfully.'
@@ -28,6 +27,7 @@ ERR_DELETE_FAILED = 'Failed to delete {}. Issue: {}!'
 
 # File Messages
 ERR_NO_FILE = 'No file found in the request.'
+ERR_FAILED_UPLOAD = 'Failed to upload file. Issue {}!'
 
 # General Errors
 ERR_WRONG_DATA_FORMAT = 'Wrong data format!'
@@ -42,6 +42,7 @@ ERR_CONTENT_TOO_SHORT = 'Content must be at least {} words!'
 # Filtering content
 ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
+ERR_USER_INAPPROPRIATE  = 'User information content is inappropriate!'
 ERR_SPELLING = 'Please check spelling errors!'
 
 
@@ -103,3 +104,8 @@ ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'
 ########### Topics Module #################
 ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
 ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
+
+
+########### User Module #################
+ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'
+ERR_USER_PRIVATE_OR_DEACTIVATED = 'The user is either private or deactivated!'

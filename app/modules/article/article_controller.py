@@ -143,11 +143,19 @@ class ArticleController(Controller):
     def apply_filtering(self, query, params):
         try:  
             query = super().apply_filtering(query, params)
+            
+            current_user = g.current_user
+            if current_user:
+                if not current_user.show_nsfw:
+                    query = query.filter(Article.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) == False))\
+                        .filter(db.or_(db.not_(Article.topics.any()), Article.topics.any(Topic.is_nsfw == False)))
+            
             if params.get('user_id'):
                 get_my_own = False
                 if g.current_user:
                     if params.get('user_id') == str(g.current_user.id):
                         get_my_own = True
+
                 if not get_my_own:
                     query = query.filter(db.func.coalesce(Article.is_anonymous, False) != True)
             
@@ -182,9 +190,11 @@ class ArticleController(Controller):
                          (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
                      )
             return query
+
         except Exception as e:
             print(e.__str__())
             raise e
+
 
     def get(self, args):
 

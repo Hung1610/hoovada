@@ -16,7 +16,6 @@ ERR_CREATE_FAILED = 'Failed to create {}. Issue: {}'
 # # Get Messages
 MSG_GET_SUCCESS_SUCCESS = '{} get successful.'
 ERR_GET_FAILED = 'Failed to get {}. Issue: {}'
-ERR_LACKING_GET_PARAMS = 'Please provide {}.'
 
 # # Get Single/Update Messages
 MSG_UPDATE_SUCCESS = '{} updated successful.'

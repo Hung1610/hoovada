@@ -51,24 +51,26 @@ class UserController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data and not 'password' in data:
-            return send_error(message="Please fill email and password")
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email and password'))
         
         try:
             exist_user = User.query.filter_by(email=data['email']).first()
-            if not exist_user:
-                user = self._parse_user(data, None)
+            if exist_user is not None:
+                return send_error(message=messages.ERR_EMAIL_ALREADY_EXIST)
 
-                if check_sensitive(user.about_me) or check_sensitive(user.display_name):
-                    return send_error(message='User information contains word that is not allowed!')
+            user = self._parse_user(data, None)
 
-                user.display_name = user.display_name or data['email']
-                user.password_hash = user.password_hash or data['email']
-                user.admin = UserRole.ADMIN
-                db.session.add(user)
-                db.session.commit()
-                return send_result(message='User was created successfully', data=marshal(user, UserDto.model_response))
-            else:
-                return send_error(message='User exists')
+            if check_sensitive(user.about_me) or check_sensitive(user.display_name):
+                return send_error(message=messages.ERR_USER_INAPPROPRIATE)
+
+            user.display_name = user.display_name or data['email']
+            user.password_hash = user.password_hash or data['email']
+            user.admin = UserRole.ADMIN
+            db.session.add(user)
+            db.session.commit()
+
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('User'), data=marshal(user, UserDto.model_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create user. Check again')
@@ -96,10 +98,12 @@ class UserController(Controller):
             g.friend_belong_to_user_id = g.current_user.id
             my_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\
                     .filter(UserFriend.is_approved == True)
+            
             friend_ids = [friend.adaptive_friend_id for friend in my_friends_query]
             g.mutual_friend_ids = friend_ids
             mutual_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
                 .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
+            
             mutual_friend_ids = [friend.adaptive_friend_id for friend in mutual_friends_query]
             mutual_friend_ids = [friend_id for friend_id in mutual_friend_ids if friend_id not in friend_ids]
             query = query.filter(User.id.in_(mutual_friend_ids))   
@@ -118,6 +122,7 @@ class UserController(Controller):
             print(e.__str__())
             return send_error("Could not load error, please try again later.")
     
+
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
@@ -126,21 +131,28 @@ class UserController(Controller):
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
 
+
     def get_by_id(self, object_id):
+        
         if object_id is None:
             return send_error(message="The user ID must not be null.")
+        
         try:
             current_user, _ = current_app.get_logged_user(request)
             user = User.query.filter_by(id=object_id).first()
             if user is None:
-                return send_error(data="Could not find user by this id")
-            if user.is_private:
-                return send_error(data="This user info is private")
+                return send_error(message=messages.ERR_NOT_LOGIN)
+            
+            if user.is_private is True or user.is_deactivated is True:
+                return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
+
             # when call to this function, increase the profile_views
             if current_user.id != user.id:
                 user.profile_views += 1
                 db.session.commit()
+
             return send_result(data=marshal(user, UserDto.model_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(object_id))
@@ -148,36 +160,45 @@ class UserController(Controller):
 
     def get_by_user_name(self, user_name):
         if user_name is None:
-            return send_error(message="The user_name must not be null.")
+            return send_error(message=messages.ERR_PLEASE_PROVIDE('user_name'))
+        
         try:
             user = User.query.filter_by(display_name=user_name).first()
             if user is None:
-                return send_error(data="Could not find user by this user name")
-            else:
-                # when call to this function, increase the profile_views
-                user.profile_views += 1
-                db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response))
+                return send_error(message=messages.ERR_NOT_LOGIN)
+
+            if user.is_private or user.is_deactivated is True:
+                return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
+
+            # when call to this function, increase the profile_views
+            user.profile_views += 1
+            db.session.commit()
+            return send_result(data=marshal(user, UserDto.model_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not get user by ID {}.'.format(user_name))
 
 
     def get_social_account(self, user_name, args):
+        
         if user_name is None:
-            return send_error(message="The user_name must not be null.")
+            return send_error(message=messages.ERR_PLEASE_PROVIDE('user_name'))
+        
         try:
             user = User.query.filter_by(display_name=user_name).first()
             if user is None:
-                return send_error(data="Could not find user by this user name")
+                return send_error(message=messages.ERR_NOT_LOGIN)
+
             social_accounts_query = SocialAccount.query.filter(SocialAccount.user_id == user.id)
             if args.get('provider'):
                 social_accounts_query.filter(SocialAccount.provider == args.get('provider'))
             
             return send_result(data=marshal(social_accounts_query, UserDto.model_social_response))
+
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not get user by ID {}.'.format(user_name))
+            return send_error(message=messages.ERR_GET_FAILED.format(user_name, str(e)))
 
 
     def update(self, user_name, data):
@@ -185,6 +206,7 @@ class UserController(Controller):
 
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+       
         if 'id' in data:
             return send_error(message='Could not update ID.')
         if 'email' in data:
@@ -193,24 +215,26 @@ class UserController(Controller):
             return send_error(message='Password update is now allowed here.')
         if 'profile_views' in data:
             return send_error(message='Profile views is not allowed to update.')
+        
         try:
             user = User.query.filter_by(display_name=user_name).first()
             if not user:
-                return send_error(message='User not found')
-            else:
-                user = self._parse_user(data=data, user=user)
+                return send_error(message=messages.ERR_NOT_LOGIN)
 
-                if check_sensitive(user.about_me) or check_sensitive(user.display_name) or check_sensitive(user.first_name) or check_sensitive(user.last_name):
-                    return send_error(message='User information contains word that is not allowed!')
+            user = self._parse_user(data=data, user=user)
 
-                full_name = user.last_name.strip() + " " + user.first_name.strip()
-                if user.show_fullname_instead_of_display_name is True and len(full_name) > 0:
-                    user.display_name = full_name
-                    
-                db.session.commit()
-                return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
+            if check_sensitive(user.about_me) or check_sensitive(user.display_name) or check_sensitive(user.first_name) or check_sensitive(user.last_name):
+                return send_error(message=messages.ERR_USER_INAPPROPRIATE)
+
+            full_name = user.last_name.strip() + " " + user.first_name.strip()
+            if user.show_fullname_instead_of_display_name is True and len(full_name) > 0:
+                user.display_name = full_name
+                
+            db.session.commit()
+            return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message='Could not update user')
 
@@ -219,24 +243,29 @@ class UserController(Controller):
         try:
             user = User.query.filter_by(display_name=user_name).first()
             if not user:
-                return send_error(message='User not found')
-            else:
-                db.session.delete(user)
-                db.session.commit()
-                return send_result(message='User was deleted successfully')
+                return send_error(message=messages.ERR_NOT_LOGIN)
+            
+            db.session.delete(user)
+            db.session.commit()
+            return send_result(message='User was deleted successfully')
+
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not delete user')
+            return send_error(message=ERR_DELETE_FAILED.format('user', str(e)))
 
 
     def upload_avatar(self, args):
-        if not isinstance(args, dict) or not 'avatar' in args:
-            return send_error(message='Your request does not contain avatar.')
-        # upload here
+
+        if not isinstance(args, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if  'avatar' not in args:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE('avatar'))
+
         user, _ = current_app.get_logged_user(request)
-        # user = User.query.filter_by(id=id).first()
         if user is None:
-            return send_error('You are not logged in')
+            return send_error(message=messages.ERR_NOT_LOGIN)
 
         photo = args['avatar']
         if photo:
@@ -250,15 +279,17 @@ class UserController(Controller):
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
-                return send_error(message='Could not save your media file.')
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
 
             try:
                 user.profile_pic_url = url
                 db.session.commit()
                 return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
             except Exception as e:
+                db.session.rollback()
                 print(e.__str__())
-                return send_error(message='Could not save your avatar.')
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
+
         else:
             user.profile_pic_url = None
             db.session.commit()
@@ -266,12 +297,16 @@ class UserController(Controller):
 
 
     def upload_document(self, args):
-        if not isinstance(args, dict) or not 'doc' in args:
-            return send_error(message='Your request does not contain doc.')
-        # upload here
+
+        if not isinstance(args, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if 'doc' not in args:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('document'))
+   
         user, _ = current_app.get_logged_user(request)
         if user is None:
-            return send_error('You are not logged in')
+            return send_error(message=messages.ERR_NOT_LOGIN)
 
         photo = args['doc']
         if photo:
@@ -283,17 +318,20 @@ class UserController(Controller):
                 if user.document_pic_url:
                     delete_file(file_path=user.document_pic_url)
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
+
             except Exception as e:
                 print(e.__str__())
-                return send_error(message='Could not save your media file.')
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
 
             try:
                 user.document_pic_url = url
                 db.session.commit()
                 return send_result(data=marshal(user, UserDto.model_response), message='Upload doc successfully.')
             except Exception as e:
+                db.session.rollback()
                 print(e.__str__())
-                return send_error(message='Could not save your doc.')
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
+        
         else:
             user.document_pic_url = None
             db.session.commit()
@@ -301,13 +339,17 @@ class UserController(Controller):
 
 
     def upload_cover(self, args):
-        if not isinstance(args, dict) or not 'cover' in args:
+
+        if not isinstance(args, dict):
             return send_error(message='Your request does not contain avatar.')
-        # upload here
+
+        if  'cover' not in args:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user cover photo'))
+
+
         user, _ = current_app.get_logged_user(request)
-        # user = User.query.filter_by(id=id).first()
         if user is None:
-            return send_error('You are not logged in')
+            return send_error(message=messages.ERR_NOT_LOGIN)
 
         photo = args['cover']
         if photo:
@@ -321,7 +363,7 @@ class UserController(Controller):
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
             except Exception as e:
                 print(e.__str__())
-                return send_error(message='Could not save your media file.')
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
 
             try:
                 user.cover_pic_url = url
@@ -330,7 +372,7 @@ class UserController(Controller):
             except Exception as e:
                 db.session.rollback()
                 print(e.__str__())
-                return send_error(message='Could not save your avatar.')
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
         else:
             user.cover_pic_url = None
             db.session.commit()
@@ -349,6 +391,7 @@ class UserController(Controller):
             user = User()
         user._from_dict(data)
         return user
+
 
     def get_user_hot(self,args):
         page = 1
