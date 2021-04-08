@@ -50,7 +50,7 @@ class CommentController(BaseCommentController):
         current_user, _ = current_app.get_logged_user(request)
 
         query = QuestionComment.query
-        query = query.join(User, isouter=True).filter(db.or_(QuestionComment.user == None, User.is_deactivated != True))
+        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
         if question_id is not None:
             query = query.filter(QuestionComment.question_id == question_id)
         if user_id is not None:
@@ -70,6 +70,7 @@ class CommentController(BaseCommentController):
             return send_result(marshal(results, CommentDto.model_response), message='Success')
         else:
             return send_result(message='Could not find any comments.')
+
 
     def create(self, question_id, data):
         current_user, _ = current_app.get_logged_user(request)

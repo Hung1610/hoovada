@@ -177,7 +177,7 @@ class AnswerController(Controller):
 
     def get_query(self):
         query = self.get_model_class().query
-        query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated != True))
+        query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated == False))
         return query
 
 

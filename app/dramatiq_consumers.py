@@ -293,19 +293,18 @@ def send_similar_mail(user_id):
                 .limit(10)\
                 .all()
             recommended_article_ids.update([article[0] for article in articles])
+        
         recommended_articles = Article.query\
             .filter(~Article.id.in_(mailed_article_ids))\
             .filter(Article.id.in_(recommended_article_ids))
-        
-        
         if (recommended_articles.count() + recommended_questions.count()) > 0:
             db.session.add_all([\
                 UserMailedQuestion(user_id=user.id, question_id=question.id) for question in recommended_questions])
             db.session.add_all([\
                 UserMailedArticle(user_id=user.id, article_id=article.id) for article in recommended_articles])
             db.session.commit()
-            html = render_template('similar_for_user.html', \
-                user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
+            html = render_template('similar_for_user.html', user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
+            
             send_email(user.email, 'Hoovada - Nội dung mà bạn có thể quan tâm!', html)
 
 @dramatiq.actor()

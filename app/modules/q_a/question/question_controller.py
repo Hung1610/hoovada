@@ -188,9 +188,10 @@ class QuestionController(Controller):
                  )
         return query
 
+
     def get_query(self):
         query = super().get_query()
-        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated != True))
+        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated == False))
         
         return query
 

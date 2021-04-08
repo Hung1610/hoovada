@@ -33,9 +33,7 @@ class CommentController(BaseCommentController):
     related_field_name = 'article_id'
     
     def get(self, article_id, args):
-        """
-        Search comments by params.
-        """
+        """Search comments by params"""
         # user_id, question_id, answer_id = None, None, None
         user_id = None 
         if 'user_id' in args:
@@ -46,6 +44,8 @@ class CommentController(BaseCommentController):
                 pass
 
         query = ArticleComment.query
+        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
+        if question_id is not None:
         if article_id is not None:
             query = query.filter(ArticleComment.article_id == article_id)
         if user_id is not None:
@@ -56,13 +56,13 @@ class CommentController(BaseCommentController):
             results = list()
             for comment in comments:
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 results.append(result)
             return send_result(marshal(results, CommentDto.model_response), message='Success')
         else:
             return send_result(message='Could not find any comments.')
+
 
     def create(self, article_id, data):
         if not isinstance(data, dict):
@@ -120,6 +120,7 @@ class CommentController(BaseCommentController):
             print(e.__str__())
             return send_error(message='Could not create comment')
 
+
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error('ArticleComment ID is null')
@@ -136,6 +137,7 @@ class CommentController(BaseCommentController):
             except Exception as e:
                 print(e.__str__())
                 return send_error(message='Could not get comment with the ID {}'.format(object_id))
+
 
     def update(self, object_id, data):
         if object_id is None:
