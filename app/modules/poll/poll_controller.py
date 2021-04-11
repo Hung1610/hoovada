@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
@@ -36,7 +36,7 @@ class PollController(Controller):
             poll = Poll()
         if 'title' in data:
             try:
-                poll.title = data['title']
+                poll.title = data['title'].capitalize()
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -56,6 +56,7 @@ class PollController(Controller):
                 pass
         return poll
 
+
     def get(self, args):
         try:
             query = self.get_query_results(args)
@@ -70,6 +71,7 @@ class PollController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('Answer', e))
+
     
     def get_by_id(self, object_id):
         if object_id is None:

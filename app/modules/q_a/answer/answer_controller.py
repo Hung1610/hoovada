@@ -327,8 +327,10 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if 'answer' in data:
             answer.answer = data['answer']
+
         if 'user_id' in data:
             try:
                 answer.user_id = int(data['user_id'])
@@ -348,6 +350,7 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e)
                 pass
+                
         if 'allow_comments' in data:
             try:
                 answer.allow_comments = bool(data['allow_comments'])
@@ -355,6 +358,7 @@ class AnswerController(Controller):
                 answer.allow_comments = True
                 print(e.__str__())
                 pass
+
         if 'allow_improvement' in data:
             try:
                 answer.allow_improvement = bool(data['allow_improvement'])
@@ -362,6 +366,7 @@ class AnswerController(Controller):
                 answer.allow_improvement = True
                 print(e.__str__())
                 pass
+
         if 'is_anonymous' in data:
             try:
                 answer.is_anonymous = bool(data['is_anonymous'])

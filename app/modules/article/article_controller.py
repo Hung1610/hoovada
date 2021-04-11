@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from logging import log
-import re
+from re import sub
 from datetime import datetime
 
 # third-party modules
@@ -68,7 +67,7 @@ class ArticleController(Controller):
                 return send_error(message=messages.ERR_ARTICLE_ALREADY_EXISTS.format(data['title']))
 
             # check sensitive words for title
-            is_sensitive = check_sensitive(re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
             if is_sensitive:
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
@@ -94,7 +93,7 @@ class ArticleController(Controller):
             db.session.add(article)
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
-            # author is seen and bookmark article
+
             update_seen_articles.send(article.id, current_user.id)
             controller = ArticleBookmarkController()
             controller.create(article_id=article.id)
@@ -136,10 +135,12 @@ class ArticleController(Controller):
             db.session.rollback()
             return send_error(message=messages.ERR_CREATE_FAILED.format("Article", str(e)))
 
+
     def get_query(self):
         query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
         query = query.filter(db.or_(Article.user == None, User.is_deactivated != True))
         return query
+
 
     def apply_filtering(self, query, params):
         try:  
@@ -444,7 +445,7 @@ class ArticleController(Controller):
         
         if 'title' in data:
             try:
-                article.title = data['title']
+                article.title = data['title'].capitalize()
             except Exception as e:
                 print(e)
                 pass
