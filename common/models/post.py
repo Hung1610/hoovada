@@ -6,6 +6,7 @@
 from datetime import datetime
 
 # third-party modules
+from flask import g
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
@@ -47,3 +48,12 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan', primaryjoin="and_(Post.id == remote(PostComment.post_id), remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
     post_favorites = db.relationship("PostFavorite", cascade='all,delete-orphan')
+
+    @property
+    def is_seen_by_me(self):
+        UserSeenPost = db.get_model('UserSeenPost')
+        if g.current_user:
+            seen = UserSeenPost.query.with_entities(UserSeenPost.id).filter(UserSeenPost.user_id == g.current_user.id,
+                                                                          UserSeenPost.post_id == self.id).first()
+            return True if seen else False
+        return False
