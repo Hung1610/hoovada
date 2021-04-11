@@ -27,5 +27,7 @@ class Timeline(Model):
     answer_comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id', ondelete='CASCADE'))
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), index=True)
     article_comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id', ondelete='CASCADE'))
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), index=True)
+    poll_comment_id = db.Column(db.Integer, db.ForeignKey('poll_comment.id', ondelete='CASCADE'))
     activity = db.Column(db.Enum(TimelineActivityEnum, validate_strings=True))
     activity_date = db.Column(db.DateTime, default=datetime.utcnow)

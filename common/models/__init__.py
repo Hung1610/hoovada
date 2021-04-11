@@ -41,6 +41,7 @@ from common.models.vote import (ArticleVote,
                                 QuestionVote)
 from common.models.timeline import Timeline
 from common.models.permission import Permission
+from common.models.poll import Poll, PollSelect, PollTopic, PollUserSelect
 
 # These tables/models will be ignored by Alembic/Flask-Migrate
 from common.models.ignored import ApschedulerJobs

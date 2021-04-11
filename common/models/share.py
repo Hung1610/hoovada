@@ -83,3 +83,11 @@ class TopicShare(Model, BaseShare):
     user = db.relationship('User', lazy=True) # one-to-many relationship with table Article
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
+
+class PollShare(Model, BaseShare):
+    __tablename__ = 'poll_share'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
+    user = db.relationship('User', lazy=True) # one-to-many relationship with table Poll
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), index=True)
+    poll = db.relationship('Poll', lazy=True) # one-to-many relationship with table Poll

@@ -91,3 +91,14 @@ class TopicReport(Model, BaseReport):
     
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
+
+
+class PollReport(Model, BaseReport):
+    __tablename__ = 'poll_report'
+    poll_id = db.Column(db.Integer, index=True)
+
+class PollCommentReport(Model, BaseReport):
+    __tablename__ = 'poll_comment_report'
+
+    comment_id = db.Column(db.Integer, db.ForeignKey('poll_comment.id', ondelete='CASCADE'), nullable=False, index=True)
+    comment = db.relationship('PollComment', lazy=True) # one-to-many relationship with table Comment

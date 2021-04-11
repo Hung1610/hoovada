@@ -59,3 +59,9 @@ class ArticleBookmark(Model, BaseBookmark):
 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), nullable=False)
     article = db.relationship('Article', lazy=True)  # one-to-many relationship with table Article
+
+class PollBookmark(Model, BaseBookmark):
+    __tablename__ = 'poll_bookmark'
+
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), nullable=False)
+    poll = db.relationship('Poll', lazy=True)  # one-to-many relationship with table Article

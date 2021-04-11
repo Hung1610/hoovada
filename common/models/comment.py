@@ -84,3 +84,12 @@ class QuestionComment(Model, BaseComment):
     def favorite_count(self):
         return db.func.count('1')
 
+class PollComment(Model, BaseComment):
+    __tablename__ = 'poll_comment'
+    
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), index=True)
+    post = db.relationship('Poll', lazy=True) 
+    favorites = db.relationship("PollCommentFavorite", cascade='all,delete-orphan')
+    @aggregated('favorites', db.Column(db.Integer))
+    def favorite_count(self):
+        return db.func.count('1')  
