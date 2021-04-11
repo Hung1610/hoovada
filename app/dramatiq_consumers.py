@@ -100,6 +100,16 @@ def update_seen_articles(article_id, user_id):
     new_cache.article_id = article_id
     db.session.add(new_cache)
     db.session.commit()
+        
+@dramatiq.actor()
+def update_seen_posts(post_id, user_id):
+    UserSeenPost = db.get_model('UserSeenPost')
+    
+    new_cache = UserSeenPost()
+    new_cache.user_id = user_id
+    new_cache.post_id = post_id
+    db.session.add(new_cache)
+    db.session.commit()
 
 @dramatiq.actor()
 def update_reputation(topic_id, voter_id, is_voter=False):

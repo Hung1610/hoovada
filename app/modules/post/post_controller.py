@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from app.dramatiq_consumers import update_seen_posts
 import json
 from datetime import datetime
 
@@ -20,7 +21,7 @@ from app.modules.post.post_dto import PostDto
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
 from common.models import UserFollow, UserFriend
-from common.utils.response import send_error, send_result
+from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.wasabi import upload_file
 from common.utils.util import encode_file_name
@@ -156,13 +157,17 @@ class PostController(Controller):
                         column_to_sort = getattr(Post, ordering_field)
                         query = query.order_by(db.asc(column_to_sort))
                         
-            posts = query.all()
+            res, code = paginated_result(query)
+            posts = res.get('data')
             results = []
             for post in posts:
                 result = post.__dict__
                 user = User.query.filter_by(id=post.user_id).first()
+                if g.current_user:
+                    update_seen_posts.send(post.id, g.current_user.id)
                 result['user'] = user
-            return send_result(marshal(results, PostDto.model_post_response), message='Success')
+            res['data'] = marshal(results, PostDto.model_post_response)
+            return res, code
         except Exception as e:
             return send_error(message=messages.ERR_GET_FAILED.format('Post', str(e)))
 

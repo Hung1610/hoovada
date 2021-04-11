@@ -56,6 +56,7 @@ class PostDto(Dto):
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
         'file_url': fields.String(description='The file url'),
+        'is_seen_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
     })
 
     model_get_parser = reqparse.RequestParser()

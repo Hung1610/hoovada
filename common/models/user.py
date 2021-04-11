@@ -489,6 +489,22 @@ class UserSeenQuestion(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class UserSeenPost(Model):
+    """
+    Define the posts that the user has seen.
+    """
+    __tablename__ = 'user_seen_posts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
+    user = db.relationship('User', backref=backref("seen_post_users", cascade="all, delete-orphan"),
+                           lazy=True)  # one-to-many relationship with table Post
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), nullable=True, index=True)
+    post = db.relationship('Post', backref=backref("seen_items", cascade="all, delete-orphan"),
+                              lazy=True)  # one-to-many relationship with table Post
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class UserSeenArticle(Model):
     """
     Define the articles that the user has seen.
