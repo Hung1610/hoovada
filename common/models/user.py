@@ -493,7 +493,7 @@ class UserSeenPost(Model):
     """
     Define the posts that the user has seen.
     """
-    __tablename__ = 'user_seen_posts'
+    __tablename__ = 'user_seen_post'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)

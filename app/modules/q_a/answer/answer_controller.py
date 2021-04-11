@@ -219,9 +219,11 @@ class AnswerController(Controller):
                 results.append(result)
             res['data'] = marshal(results, AnswerDto.model_response)
             return res, code
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('Answer', e))
+
 
     def get_by_id(self, object_id):
         if object_id is None:

@@ -15,6 +15,7 @@ from slugify import slugify
 from sqlalchemy import desc, func, text
 
 # own modules
+from common.cache import cache
 from common.utils.types import UserRole
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.bookmark.bookmark_controller import ArticleBookmarkController
@@ -92,7 +93,7 @@ class ArticleController(Controller):
 
             db.session.add(article)
             db.session.commit()
-
+            cache.clear_cache(Article.__class__.__name__)
             # author is seen and bookmark article
             update_seen_articles.send(article.id, current_user.id)
             controller = ArticleBookmarkController()
@@ -376,7 +377,7 @@ class ArticleController(Controller):
             article.updated_date = datetime.utcnow()
             article.last_activity = datetime.utcnow()
             db.session.commit()
-            
+            cache.clear_cache(Article.__class__.__name__)
             result = article._asdict()
             result['user'] = article.user
             result['topics'] = article.topics
@@ -413,6 +414,7 @@ class ArticleController(Controller):
                 
             db.session.delete(article)
             db.session.commit()
+            cache.clear_cache(Article.__class__.__name__)
             return send_result(message=messages.MSG_DELETE_SUCCESS.format(object_id))
 
         except Exception as e:

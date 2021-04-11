@@ -79,9 +79,7 @@ class AnswerDto(Dto):
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
         'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
-        'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        'question': fields.Nested(answer_question, description='The question information'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
@@ -92,14 +90,14 @@ class AnswerDto(Dto):
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
+        'question': fields.Nested(answer_question, description='The question information'), # is this needed?
+
     })
 
     upload_parser = api.parser()
-    upload_parser.add_argument('file', location='files',
-                        type=FileStorage, required=True)
-    upload_parser.add_argument('file_type', location='form', 
-                        choices=(1, 2), help='1 - Audio, 2 - Video',
-                        type=str, required=True)
+    upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
+    upload_parser.add_argument('file_type', location='form', choices=(1, 2), help='1 - Audio, 2 - Video', type=str, required=True)
 
     get_parser = Dto.paginated_request_parser.copy()
     get_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')

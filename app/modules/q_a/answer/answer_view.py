@@ -42,8 +42,7 @@ class AnswerList(Resource):
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     #@cache.cached(query_string=True)
     def get(self):
-        """Get the list of answers from database.
-        """
+        """Get the list of answers"""
 
         args = get_parser.parse_args()
         controller = AnswerController()
@@ -54,9 +53,7 @@ class AnswerList(Resource):
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def post(self):
-        """
-        Create new answer.
-        """
+        """Create new answer"""
 
         data = api.payload
         controller = AnswerController()
