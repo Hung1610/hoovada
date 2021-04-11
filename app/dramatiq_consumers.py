@@ -60,6 +60,27 @@ def update_seen_questions(question_id, user_id):
     db.session.commit()
         
 @dramatiq.actor()
+def update_seen_poll(user_id, poll_id):
+    UserSeenPoll = db.get_model('UserSeenPoll')
+
+    seen_count = UserSeenPoll.query.with_entities(db.func.count(UserSeenPoll.id))\
+        .filter(UserSeenPoll.user_id == user_id)\
+        .scalar()
+    
+    if seen_count > current_app.config['MAX_SEEN_CACHE']:
+        oldest_cache = UserSeenPoll.query\
+            .filter(UserSeenPoll.user_id == user_id)\
+            .order_by(db.asc(UserSeenPoll.created_date))\
+            .first()
+        db.session.delete(oldest_cache)
+    
+    new_cache = UserSeenPoll()
+    new_cache.user_id = user_id
+    new_cache.poll_id = poll_id
+    db.session.add(new_cache)
+    db.session.commit()
+
+@dramatiq.actor()
 def update_seen_articles(article_id, user_id):
     UserSeenArticle = db.get_model('UserSeenArticle')
 

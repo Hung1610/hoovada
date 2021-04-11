@@ -219,6 +219,7 @@ class UserDto(Dto):
         'question_id': fields.Integer(required=False),
         'answer_id': fields.Integer(required=False),
         'post_id': fields.Integer(required=False),
+        'poll_id': fields.Integer(required=False),
     })
 
     model_user_feed_request = Dto.paginated_request_parser.copy()

@@ -57,3 +57,9 @@ class ArticleVote(Model, BaseVote):
 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), index=True)
     article = db.relationship('Article', lazy=True) # one-to-many relationship with table Article
+
+class PollVote(Model, BaseVote):
+    __tablename__ = 'poll_vote'
+
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), index=True)
+    poll = db.relationship('Poll', lazy=True) # one-to-many relationship with table Poll

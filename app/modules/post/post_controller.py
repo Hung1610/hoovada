@@ -200,7 +200,7 @@ class PostController(Controller):
             db.session.commit()
             result = post._asdict()
             result['user'] = post.user
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post media'), data=marshal(result, PostDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post media'), data=marshal(result, PostDto.model_post_response))
         
         except Exception as e:
             db.session.rollback()
@@ -216,7 +216,7 @@ class PostController(Controller):
         else:
             post = Post.query.filter_by(slug=object_id).first()
         if post is None:
-            return send_error(message=messages.msg_not_found_with_id.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
         else:
             try:
                 post.views_count += 1

@@ -504,6 +504,20 @@ class UserSeenArticle(Model):
                               lazy=True)  # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
+class UserSeenPoll(Model):
+    """
+    Define the poll that the user has seen.
+    """
+    __tablename__ = 'user_seen_poll'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
+    user = db.relationship('User', backref=backref("seen_poll_users", cascade="all, delete-orphan"),
+                           lazy=True)  # one-to-many relationship with table Post
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), nullable=True, index=True)
+    poll = db.relationship('Poll', backref=backref("seen_items", cascade="all, delete-orphan"),
+                              lazy=True)  # one-to-many relationship with table Post
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class UserMailedQuestion(Model):
     """

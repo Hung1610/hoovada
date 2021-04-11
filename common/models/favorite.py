@@ -87,3 +87,15 @@ class PostCommentFavorite(Model, BaseFavorite):
 
     post_comment_id = db.Column(db.Integer, db.ForeignKey('post_comment.id', ondelete='CASCADE'), nullable=False)
     post_comment = db.relationship('PostComment', lazy=True) # one-to-many relationship with table QuestionComment
+
+class PollCommentFavorite(Model, BaseFavorite):
+    __tablename__ = 'poll_comment_favorite'
+
+    poll_comment_id = db.Column(db.Integer, db.ForeignKey('poll_comment.id', ondelete='CASCADE'), nullable=False)
+    poll_comment = db.relationship('PollComment', lazy=True)
+
+class PollFavorite(Model, BaseFavorite):
+    __tablename__ = 'poll_favorite'
+    
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), nullable=False)
+    poll = db.relationship('Poll', lazy=True) # one-to-many relationship with table Poll

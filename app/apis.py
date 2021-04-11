@@ -128,4 +128,16 @@ def init_api():
     api.add_namespace(ns_permission, '/permission')
     api.add_namespace(ns_user_permission, '/user_permission')
 
+    api.add_namespace(ns_poll, '/poll')
+    api.add_namespace(ns_poll_select, '/poll')
+    api.add_namespace(ns_poll_topic, '/poll')
+    api.add_namespace(ns_poll_user_select, '/poll/all/select')
+    api.add_namespace(ns_poll_comment, '/poll')
+    api.add_namespace(ns_poll_comment_favorite, '/poll/all/comment')
+    api.add_namespace(ns_poll_comment_report, '/poll/all/comment')
+    api.add_namespace(ns_poll_voting, '/poll')
+    api.add_namespace(ns_poll_share, '/poll')
+    api.add_namespace(ns_poll_report, '/poll')
+    api.add_namespace(ns_poll_bookmark, '/poll')
+
     return api

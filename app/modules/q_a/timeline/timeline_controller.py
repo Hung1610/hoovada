@@ -160,6 +160,18 @@ class TimelineController(Controller):
              except Exception as e:
                 print(e.__str__())
                 pass
+        if 'poll_id' in data:
+             try:
+                timeline.poll_id = int(data['poll_id'])
+             except Exception as e:
+                print(e.__str__())
+                pass
+        if 'poll_comment_id' in data:
+             try:
+                timeline.poll_comment_id = int(data['poll_comment_id'])
+             except Exception as e:
+                print(e.__str__())
+                pass
         if 'activity' in data:
             try:
                 activity = int(data['activity'])

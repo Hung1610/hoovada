@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
+from datetime import datetime
+
 # third-party modules
 from flask_restx import inputs
 from flask_restx import Namespace, fields, reqparse

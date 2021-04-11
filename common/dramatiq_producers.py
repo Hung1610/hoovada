@@ -39,6 +39,10 @@ def send_weekly_registered_users():
     pass
 
 @dramatiq.actor()
+def update_seen_poll(user_id, poll_id):
+    pass
+
+@dramatiq.actor()
 def update_seen_questions(question_id, user_id):
     pass
     

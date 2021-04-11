@@ -21,6 +21,7 @@ class TimelineDto(Dto):
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search timeline by user id')
     model_get_parser.add_argument('question_id', type=int, required=False, help='Search all timelines related to question id.')
     model_get_parser.add_argument('answer_id', type=int, required=False, help='Search all timelines related to answer id.')
+    model_get_parser.add_argument('poll_id', type=int, required=False, help='Search all timelines related to poll id.')
     model_get_parser.add_argument('comment_id', type=int, required=False, help='Search all timelines related to comment id.')
     model_get_parser.add_argument('article_id', type=int, required=False, help='Search all timelines related to article id.')
     model_get_parser.add_argument('article_comment_id', type=int, required=False, help='Search all timelines related to article comment id.')
@@ -44,6 +45,7 @@ class TimelineDto(Dto):
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'question_comment_id': fields.Integer(default=0, description='The ID of the question comment'),
         'answer_id': fields.Integer(default=0, description='The ID of the answer'),
+        'poll_id': fields.Integer(default=0, description='The ID of the poll'),
         'answer_comment_id': fields.Integer(default=0, description='The ID of the answer comment'),
         'article_id': fields.Integer(default=0, description='The ID of the article'),
         'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
@@ -59,6 +61,8 @@ class TimelineDto(Dto):
         'answer_comment_id': fields.Integer(default=0, description='The ID of the answer comment'),
         'article_id': fields.Integer(default=0, description='The ID of the article'),
         'article_comment_id': fields.Integer(default=0, description='The ID of the article comment'),
+        'poll_id': fields.Integer(default=0, description='The ID of the poll'),
+        'poll_comment_id': fields.Integer(default=0, description='The ID of the poll comment'),
         'activity': fields.Integer(enum=[x.value for x in TimelineActivityEnum], attribute='activity.value', default=False),
         'activity_date': fields.DateTime(description='The activity datetime'),
     })
