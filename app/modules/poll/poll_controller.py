@@ -144,6 +144,14 @@ class PollController(Controller):
 
         if not 'expire_after_seconds' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll expire_after_seconds'))
+        if not 'poll_selects' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll poll_selects'))
+        if not isinstance(data['poll_selects'], list):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        if not 'poll_topics' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll poll_topics'))
+        if not isinstance(data['poll_topics'], list):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         current_user, _ = current_app.get_logged_user(request)
         if not current_user:
@@ -158,6 +166,21 @@ class PollController(Controller):
             poll.updated_date = datetime.utcnow()
             poll.is_expire = False
             db.session.add(poll)
+            db.session.flush()
+
+            for poll_select_content in data['poll_selects']:
+                poll_select = PollSelect()
+                poll_select.content = poll_select_content
+                poll_select.poll_id = poll.id
+                poll_select.created_by_user_id = current_user.id
+                db.session.add(poll_select)
+    
+            for topic_id in data['poll_topics']:
+                poll_topic = PollTopic()
+                poll_topic.topic_id = int(topic_id)
+                poll_topic.poll_id = poll.id
+                db.session.add(poll_topic)
+
             db.session.commit()
             result = poll._asdict()
             update_seen_poll.send(current_user.id, poll.id)
