@@ -29,6 +29,7 @@ class LocationDto(Dto):
         'is_current': fields.Boolean(default=False, description='The location is current or not'),
         'start_year': fields.Integer(required=False, description='The ID of the user'),
         'end_year': fields.Integer(required=False, description='The ID of the user'),
+        'is_visible': fields.Boolean(default=False, description='Display the location or not')
     })
 
     model_response = api.model('user_location_response', {
@@ -40,7 +41,8 @@ class LocationDto(Dto):
         'user_id': fields.Integer(required=True, description='The ID of the user'),
         'user': fields.Nested(location_user, description='The information of the user'),
         'updated_date': fields.DateTime(description='The date location was updated'),
-        'created_date': fields.DateTime(required=True, description='The date location was created')
+        'created_date': fields.DateTime(required=True, description='The date location was created'),
+        'is_visible': fields.Boolean(default=False, description='Display the location or not')
     })
 
     model_get_parser = reqparse.RequestParser()

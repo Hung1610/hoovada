@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from flask import request
 # third-party modules
+from flask import request
 from flask_restx import marshal
 
 # own modules
@@ -127,26 +127,37 @@ class LocationController(Controller):
     def _parse_location(self, data, location=None):
         if location is None:
             location = UserLocation()
+        
         if 'user_id' in data:
             try:
                 location.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if 'location_detail' in data:
             location.location_detail = data['location_detail']
+
         if 'is_current' in data:
             try:
                 location.is_current = bool(data['is_current'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if 'is_visible' in data:
+            try:
+                education.is_visible = bool(data['is_visible'])
+            except Exception as e:
+                print(e.__str__())
+
         if 'start_year' in data:
             try:
                 location.start_year = int(data['start_year'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'end_year' in data:
             try:
                 location.end_year = int(data['end_year'])

@@ -4,11 +4,12 @@
 # built-in modules
 from datetime import datetime
 
-from flask import request
 # third-party modules
+from flask import request
 from flask_restx import marshal
 
 # own modules
+from app.constants import messages
 from common.db import db
 from app.modules.user.education.education_dto import EducationDto
 from common.controllers.controller import Controller
@@ -25,13 +26,6 @@ UserEducation = db.get_model('UserEducation')
 
 class EducationController(Controller):
     def get(self, args, user_id=None):
-        """
-        Search educations by params.
-
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
         school, primary_major, secondary_major = None, None, None 
         if 'school' in args:
             try:
@@ -71,18 +65,23 @@ class EducationController(Controller):
     def get_by_id(self, object_id):
         try:
             if object_id is None:
-                return send_error('UserEducation ID is null')
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('UserEducation ID'))
+        
             education = UserEducation.query.filter_by(id=object_id).first()
+            
             if education is None:
                 return send_error(message='Could not find education with the ID {}'.format(object_id))
+            
             return send_result(data=marshal(education, EducationDto.model_response), message='Success')
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not get education with the ID {}'.format(object_id))
 
+
     def create(self, user_id, data):
         if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form.")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         data['user_id'] = user_id
 
@@ -94,15 +93,18 @@ class EducationController(Controller):
             db.session.commit()
             return send_result(data=marshal(education, EducationDto.model_response))
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
+            print(e.__str__())
             return send_error(message='Could not create education. Error: ' + e.__str__())
+
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message='UserEducation ID is null')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('UserEducation ID'))
+        
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
         try:
             education = UserEducation.query.filter_by(id=object_id).first()
             if education is None:
@@ -112,14 +114,19 @@ class EducationController(Controller):
             education.updated_date = datetime.utcnow()
             if education.is_current:
                 UserEducation.query.filter(UserEducation.id != education.id, UserEducation.user_id == education.user_id).update({'is_current': False}, synchronize_session=False)
+            
             db.session.commit()
+            
             return send_result(message='Update successfully', data=marshal(education, EducationDto.model_response))
+        
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
+            print(e.__str__())
             return send_error(message='Could not update education. Error: ' + e.__str__())
 
+
     def delete(self, object_id):
+        
         try:
             education = UserEducation.query.filter_by(id=object_id).first()
             if education is None:
@@ -127,38 +134,55 @@ class EducationController(Controller):
             db.session.delete(education)
             db.session.commit()
             return send_result(message='UserEducation with the ID {} was deleted.'.format(object_id))
+        
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
             return send_error(message='Could not delete education with the ID {}.'.format(object_id))
 
+
     def _parse_education(self, data, education=None):
+        
         if education is None:
             education = UserEducation()
+        
         if 'user_id' in data:
             try:
                 education.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'school' in data:
             education.school = data['school']
+        
         if 'primary_major' in data:
             education.primary_major = data['primary_major']
+        
         if 'secondary_major' in data:
             education.secondary_major = data['secondary_major']
+        
         if 'is_current' in data:
             try:
                 education.is_current = bool(data['is_current'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if 'is_visible' in data:
+            try:
+                education.is_visible = bool(data['is_visible'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'start_year' in data:
             try:
                 education.start_year = int(data['start_year'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'end_year' in data:
             try:
                 education.end_year = int(data['end_year'])

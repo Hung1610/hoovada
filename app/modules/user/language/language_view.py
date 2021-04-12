@@ -37,11 +37,9 @@ class LanguageList(Resource):
     @api.expect(language_request)
     @api.response(code=200, model=language_response, description='Model for language response.')
     def post(self, user_id):
+        """Create new language - ADMIN API
         """
-        Create new language.
 
-        :return: The new language if it was created successfully and null vice versa.
-        """
         data = api.payload
         controller = LanguageController()
         return controller.create(data=data, user_id=user_id)
@@ -69,8 +67,6 @@ class LanguageMeList(Resource):
     def post(self):
         """
         Create new language.
-
-        :return: The new language if it was created successfully and null vice versa.
         """
         data = api.payload
         controller = LanguageController()
@@ -102,10 +98,6 @@ class LanguageAll(Resource):
     def get(self, id):
         """
         Get language by its ID.
-
-        :param id: The ID of the language.
-
-        :return: The language with the specific ID.
         """
         controller = LanguageController()
         return controller.get_by_id(object_id=id)
@@ -116,10 +108,6 @@ class LanguageAll(Resource):
     def put(self, id):
         """
         Update existing language by its ID.
-
-        :param id: The ID of the language which need to be updated.
-
-        :return: The updated language if success and null vice versa.
         """
         data = api.payload
         controller = LanguageController()
@@ -129,10 +117,6 @@ class LanguageAll(Resource):
     def delete(self, id):
         """
         Delete language by its ID.
-
-        :param id: The ID of the language.
-
-        :return:
         """
         controller = LanguageController()
         return controller.delete(object_id=id)

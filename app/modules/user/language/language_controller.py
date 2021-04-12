@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from flask import request
 # third-party modules
+from flask import request
 from flask_restx import marshal
 
 # own modules
@@ -25,13 +25,9 @@ UserLanguage = db.get_model('UserLanguage')
 
 class LanguageController(Controller):
     def get(self, args, user_id=None):
+        """Search languages by params.
         """
-        Search languages by params.
 
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
         language_id = None
         if 'language_id' in args:
             try:
@@ -119,24 +115,35 @@ class LanguageController(Controller):
     def _parse_language(self, data, language=None):
         if language is None:
             language = UserLanguage()
+        
         if 'user_id' in data:
             try:
                 language.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if 'level' in data:
             language.level = data['level']
+
         if 'language_id' in data:
             try:
                 language.language_id = int(data['language_id'])
             except Exception as e:
                 print(e)
                 pass
+
         if 'is_default' in data:
             try:
                 language.is_default = bool(data['is_default'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if 'is_visible' in data:
+            try:
+                education.is_visible = bool(data['is_visible'])
+            except Exception as e:
+                print(e.__str__())
+
         return language

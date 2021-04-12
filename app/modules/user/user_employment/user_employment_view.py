@@ -27,9 +27,7 @@ class UserEmploymentList(Resource):
     @api.expect(user_employment_request)
     @api.response(code=200, model=user_employment_response, description='Model for question topic response.')
     def post(self):
-        """ 
-        Create new user_employment.
-        """
+        """ Create new user_employment."""
 
         data = api.payload
         controller = UserEmploymentController()
@@ -45,10 +43,7 @@ parser.add_argument('is_default', type=int, required=False, help='Search default
 class UserEmploymentSearch(Resource):
     @api.response(code=200, model=user_employment_response, description='Model for user title response.')
     def get(self):
-        """ 
-        Search all employment that satisfy conditions.
-        
-        """
+        """ Search all employment that satisfy conditions."""
         
         args = parser.parse_args()
         controller = UserEmploymentController()
@@ -58,13 +53,8 @@ class UserEmploymentSearch(Resource):
 class UserEmploymentAll(Resource):
     @api.response(code=200, model=user_employment_response, description='Model for employment response.')
     def get(self, id):
-        """
-        Get employment by its ID.
+        """Get employment by user-employment ID"""
 
-        :param id: The ID of the employment.
-
-        :return: The employment with the specific ID.
-        """
         controller = UserEmploymentController()
         return controller.get_by_id(object_id=id)
 
@@ -72,25 +62,14 @@ class UserEmploymentAll(Resource):
     @api.expect(user_employment_request)
     @api.response(code=200, model=user_employment_response, description='Model for employment response.')
     def put(self, id):
-        """
-        Update existing employment by its ID.
-
-        :param id: The ID of the employment which need to be updated.
-
-        :return: The updated employment if success and null vice versa.
-        """
+        """Update existing employment by user-employment ID"""
         data = api.payload
         controller = UserEmploymentController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        """
-        Delete employment by its ID.
-
-        :param id: The ID of the employment.
-
-        :return:
+        """Delete employment by its ID.
         """
         controller = UserEmploymentController()
         return controller.delete(object_id=id)

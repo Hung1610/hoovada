@@ -23,7 +23,8 @@ class UserEmploymentDto(Dto):
         'company': fields.String(required=True, description='The company'),
         'start_year': fields.Integer(description='The start year'),
         'end_year': fields.Integer(description='The end year'),
-        'is_current': fields.Integer(description='The currently work')
+        'is_current': fields.Integer(description='The currently work'),
+        'is_visible': fields.Boolean(default=False, description='Display the user employment or not')
     })
 
 
@@ -35,5 +36,6 @@ class UserEmploymentDto(Dto):
         'start_year': fields.Integer(description='The start year'),
         'end_year': fields.Integer(description='The end year'),
         'is_current': fields.Integer(description='The currently work'),
-        'created_date':fields.DateTime(description='The date user_employment record was created.')
+        'created_date':fields.DateTime(description='The date user_employment record was created.'),
+        'is_visible': fields.Boolean(default=False, description='Display the user employment or not')
     })

@@ -38,11 +38,8 @@ class EducationList(Resource):
     @api.expect(education_request)
     @api.response(code=200, model=education_response, description='Model for education response.')
     def post(self, user_id):
-        """
-        Create new education.
+        """Create new education - ADMIN API"""
 
-        :return: The new education if it was created successfully and null vice versa.
-        """
         data = api.payload
         controller = EducationController()
         return controller.create(data=data, user_id=user_id)
@@ -68,11 +65,8 @@ class EducationMeList(Resource):
     @api.expect(education_request)
     @api.response(code=200, model=education_response, description='Model for education response.')
     def post(self):
-        """
-        Create new education.
-
-        :return: The new education if it was created successfully and null vice versa.
-        """
+        """Create new education"""
+        
         data = api.payload
         controller = EducationController()
 
@@ -88,9 +82,8 @@ class EducationAllList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=education_response, description='Model for education response.')
     def get(self):
-        """
-        Get all education.
-        """
+        """ Get all education for current logged-in user"""
+
         args = get_parser.parse_args()
         controller = EducationController()
         return controller.get(args=args)

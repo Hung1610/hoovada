@@ -185,4 +185,11 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if 'is_visible' in data:
+            try:
+                education.is_visible = bool(data['is_visible'])
+            except Exception as e:
+                print(e.__str__())
+                
         return topic

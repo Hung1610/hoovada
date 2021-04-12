@@ -402,9 +402,10 @@ class UserLocation(Model):
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', lazy=True)  # one-to-many relationship with table Article
+    user = db.relationship('User', lazy=True) 
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=False)
 
 
 class UserLanguage(Model):
@@ -412,13 +413,14 @@ class UserLanguage(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     language_id = db.Column(db.Integer, db.ForeignKey('language.id', ondelete='CASCADE'), nullable=False, index=True)
-    language = db.relationship('Language', lazy=True)  # one-to-many relationship with table Article
+    language = db.relationship('Language', lazy=True)  
     level = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', lazy=True)  # one-to-many relationship with table Article
+    user = db.relationship('User', lazy=True)  
     is_default = db.Column(db.Boolean, default=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=False)
 
 
 class UserEducation(Model):
@@ -432,9 +434,10 @@ class UserEducation(Model):
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', lazy=True)  # one-to-many relationship with table Article
+    user = db.relationship('User', lazy=True)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=False)
 
 
 class UserEmployment(Model):
@@ -448,6 +451,7 @@ class UserEmployment(Model):
     end_year = db.Column(db.Integer)
     is_current = db.Column(db.Integer)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=False)
 
 
 class UserPermission(Model):
@@ -464,13 +468,14 @@ class UserTopic(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
-    topic = db.relationship('Topic', foreign_keys=[topic_id], lazy=True)  # one-to-many relationship with table Article
+    topic = db.relationship('Topic', foreign_keys=[topic_id], lazy=True)
     description = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', lazy=True)  # one-to-many relationship with table Article
+    user = db.relationship('User', lazy=True)
     is_default = db.Column(db.Boolean, default=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=False)
 
 
 class UserSeenQuestion(Model):
@@ -481,11 +486,9 @@ class UserSeenQuestion(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', backref=backref("seen_question_users", cascade="all, delete-orphan"),
-                           lazy=True)  # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("seen_question_users", cascade="all, delete-orphan"), lazy=True) 
     question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=True, index=True)
-    question = db.relationship('Question', backref=backref("seen_items", cascade="all, delete-orphan"),
-                               lazy=True)  # one-to-many relationship with table Post
+    question = db.relationship('Question', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -497,11 +500,9 @@ class UserSeenPost(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', backref=backref("seen_post_users", cascade="all, delete-orphan"),
-                           lazy=True)  # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("seen_post_users", cascade="all, delete-orphan"), lazy=True)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), nullable=True, index=True)
-    post = db.relationship('Post', backref=backref("seen_items", cascade="all, delete-orphan"),
-                              lazy=True)  # one-to-many relationship with table Post
+    post = db.relationship('Post', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -513,12 +514,11 @@ class UserSeenArticle(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', backref=backref("seen_article_users", cascade="all, delete-orphan"),
-                           lazy=True)  # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("seen_article_users", cascade="all, delete-orphan"), lazy=True) 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), nullable=True, index=True)
-    article = db.relationship('Article', backref=backref("seen_items", cascade="all, delete-orphan"),
-                              lazy=True)  # one-to-many relationship with table Post
+    article = db.relationship('Article', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class UserSeenPoll(Model):
     """
@@ -528,12 +528,11 @@ class UserSeenPoll(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', backref=backref("seen_poll_users", cascade="all, delete-orphan"),
-                           lazy=True)  # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("seen_poll_users", cascade="all, delete-orphan"), lazy=True)
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), nullable=True, index=True)
-    poll = db.relationship('Poll', backref=backref("seen_items", cascade="all, delete-orphan"),
-                              lazy=True)  # one-to-many relationship with table Post
+    poll = db.relationship('Poll', backref=backref("seen_items", cascade="all, delete-orphan"), lazy=True)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class UserMailedQuestion(Model):
     """
