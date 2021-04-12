@@ -101,6 +101,16 @@ class PollUserSelectController(Controller):
         existing_poll_user_selects = PollUserSelect.query.filter_by(user_id=current_user.id, poll_select_id=poll_select_id).all()
         if existing_poll_user_selects is not None and len(existing_poll_user_selects) != 0:
             return send_error(message=messages.ERR_CREATE_FAILED.format('Poll User Select', 'This poll user select has already existed!'), data={'poll_select_id': int(poll_select_id), 'user_id': int(current_user.id)})
+        poll_select = PollSelect.query.filter_by(id=poll_select_id).first()
+        if not poll_select:
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Select', poll_select_id))
+        if not poll_select.poll:
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll'))
+        allow_multiple_user_select = poll_select.poll.allow_multiple_user_select
+        if allow_multiple_user_select is False:
+            poll_user_selects = PollUserSelect.query.filter_by(user_id=current_user.id).join(PollSelect).filter_by(poll_id=poll_select.poll.id).all()
+            if len(poll_user_selects) > 0:
+                return send_error(message=messages.ERR_ISSUE.format('You are not allowed to choose multiple options'))
         try:
             data = {}
             data['poll_select_id'] = poll_select_id
