@@ -63,9 +63,9 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     answer_reports = db.relationship("AnswerReport", cascade='all,delete-orphan')
     answer_favorites = db.relationship("AnswerFavorite", cascade='all,delete-orphan')
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
-    answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan',
-                    primaryjoin="and_(Answer.id == remote(AnswerComment.answer_id),\
+    answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan', primaryjoin="and_(Answer.id == remote(AnswerComment.answer_id),\
                         remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
+
 
 class AnswerImprovement(Model):
     __tablename__ = 'answer_improvement'

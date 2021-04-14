@@ -86,6 +86,7 @@ class PollController(Controller):
             result = poll._asdict()
             result['own_user'] = poll.own_user
             result['topics'] = poll.topics
+            result['fixed_topic'] = question.fixed_topic
             result['poll_selects'] = poll.poll_selects
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(data=marshal(result, PollDto.model_response))

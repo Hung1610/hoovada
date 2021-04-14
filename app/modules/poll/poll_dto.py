@@ -33,7 +33,6 @@ class PollDto(Dto):
         'color_code': fields.String(description='The color code for topic'),
         'name': fields.String(description='The name of the topic'),
         'description': fields.String(description='Description about topic'),
-        'is_fixed': fields.Boolean(description='Is a fixed topic'),
     })
 
     model_poll_user_select = api.model('model_poll_user_select', {
@@ -51,7 +50,7 @@ class PollDto(Dto):
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-        "own_user": fields.Nested(model_user, description='The detail of owner user'),
+        'own_user': fields.Nested(model_user, description='The detail of owner user'),
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
@@ -62,6 +61,8 @@ class PollDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
+
+        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
     })
 
     model_request = api.model('poll_request', {

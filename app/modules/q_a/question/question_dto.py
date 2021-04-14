@@ -3,8 +3,7 @@
 
 # third-party modules
 from datetime import datetime
-from flask_restx import inputs
-from flask_restx import Namespace, fields, reqparse
+from flask_restx import inputs, Namespace, fields, reqparse
 
 # own modules
 from common.dto import Dto

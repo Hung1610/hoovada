@@ -11,6 +11,7 @@ from common.models.model import Model
 # third-party modules
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
+from sqlalchemy.ext.declarative import declared_attr
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -24,8 +25,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
     allow_multiple_user_select = db.Column(db.Boolean, default=False)
-    owner_user_id = db.Column(db.Integer, db.ForeignKey(
-        'user.id', ondelete='CASCADE'), nullable=False, index=True)
+    owner_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     # one-to-many relationship with table User
     own_user = db.relationship('User', uselist=False, lazy=True)
     poll_selects = db.relationship("PollSelect", cascade='all,delete-orphan')
@@ -54,6 +54,10 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     @aggregated('poll_selects', db.Column(db.Integer, default="0",  nullable=False))
     def poll_select_count(self):
         return db.func.count('1')
+
+    @declared_attr
+    def fixed_topic(cls):
+        return db.relationship('Topic', lazy=True)
 
     votes = db.relationship("PollVote", cascade='all,delete-orphan')
     poll_comments = db.relationship("PollComment", cascade='all,delete-orphan', primaryjoin="and_(Poll.id == remote(PollComment.poll_id), remote(PollComment.user_id) == User.id, remote(User.is_deactivated) == False)")
