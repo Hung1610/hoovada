@@ -49,7 +49,6 @@ class PollTopicDto(Dto):
 
     model_request = api.model('poll_topic_request', {
         'topic_id': fields.String(default=None, description='The ID of the topic'),
-        'poll_id': fields.Integer(description='The ID of the poll'),
     })
     get_parser = Dto.paginated_request_parser.copy()
     get_parser.add_argument('topic_id', type=str, required=False, help='The ID of the choosen topic')

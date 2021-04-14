@@ -19,7 +19,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = PollSelectDto.api
 poll_select_response = PollSelectDto.model_response
-poll_select_request = PollSelectDto.model_request
+create_poll_select_request = PollSelectDto.model_create_poll_select_request
+update_poll_select_request = PollSelectDto.model_update_poll_select_request
 get_parser = PollSelectDto.get_parser
 
 
@@ -36,7 +37,7 @@ class PollSelectList(Resource):
         return controller.get(poll_id=id_or_slug , args=args)
 
     @token_required
-    @api.expect(poll_select_request)
+    @api.expect(create_poll_select_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=poll_select_response, description='Model for poll select response.')
     def post(self, id_or_slug):
@@ -51,7 +52,7 @@ class PollSelectList(Resource):
 @api.route('/all/select/<int:poll_select_id>')
 class PollSelect(Resource):
     @token_required
-    @api.expect(poll_select_request)
+    @api.expect(update_poll_select_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=poll_select_response, description='Model for poll select response.')
     def put(self, poll_select_id):
