@@ -44,9 +44,9 @@ def downgrade():
     op.add_column('poll', sa.Column('owner_user_id', mysql.INTEGER(), autoincrement=False, nullable=False))
     op.drop_constraint(None, 'poll', type_='foreignkey')
     op.drop_constraint(None, 'poll', type_='foreignkey')
-    op.create_foreign_key('poll_ibfk_1', 'poll', 'user', ['owner_user_id'], ['id'], ondelete='CASCADE')
-    op.create_index('ix_poll_owner_user_id', 'poll', ['owner_user_id'], unique=False)
-    op.drop_index(op.f('ix_poll_user_id'), table_name='poll')
-    op.drop_column('poll', 'user_id')
+    #op.create_foreign_key('poll_ibfk_1', 'poll', 'user', ['owner_user_id'], ['id'], ondelete='CASCADE')
+    #op.create_index('ix_poll_owner_user_id', 'poll', ['owner_user_id'], unique=False)
+    #op.drop_index(op.f('ix_poll_user_id'), table_name='poll')
+    #op.drop_column('poll', 'user_id')
     #op.drop_column('poll', 'fixed_topic_id')
     # ### end Alembic commands ###
