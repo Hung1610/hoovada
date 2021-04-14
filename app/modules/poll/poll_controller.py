@@ -27,6 +27,7 @@ PollSelect = db.get_model('PollSelect')
 PollUserSelect = db.get_model('PollUserSelect')
 User = db.get_model('User')
 Post = db.get_model('Post')
+Topic = db.get_model('Topic')
 
 class PollController(Controller):
     query_classname = 'Poll'
@@ -42,9 +43,15 @@ class PollController(Controller):
                 pass
         if 'allow_multiple_user_select' in data:
             poll.allow_multiple_user_select = bool(data['allow_multiple_user_select'])
-        if 'owner_user_id' in data:
+        if 'user_id' in data:
             try:
-                poll.owner_user_id = int(data['owner_user_id'])
+                poll.user_id = int(data['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'fixed_topic_id' in data:
+            try:
+                poll.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -86,7 +93,7 @@ class PollController(Controller):
             result = poll._asdict()
             result['own_user'] = poll.own_user
             result['topics'] = poll.topics
-            result['fixed_topic'] = question.fixed_topic
+            result['fixed_topic'] = poll.fixed_topic
             result['poll_selects'] = poll.poll_selects
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(data=marshal(result, PollDto.model_response))
@@ -102,7 +109,7 @@ class PollController(Controller):
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll.owner_user_id != current_user.id):
+            if current_user is None or (poll.user_id != current_user.id):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             poll = self._parse_poll(data=data, poll=poll)
             if poll.title.__str__().strip().__eq__(''):
@@ -124,7 +131,7 @@ class PollController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll.owner_user_id != current_user.id):
+            if current_user is None or (poll.user_id != current_user.id):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(poll)
@@ -145,6 +152,11 @@ class PollController(Controller):
 
         if not 'expire_after_seconds' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll expire_after_seconds'))
+        if not 'fixed_topic_id' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll fixed_topic_id'))
+        fixed_topic = Topic.query.filter_by(id=data['fixed_topic_id']).first()
+        if (not fixed_topic) or (fixed_topic and fixed_topic.is_fixed != 1):
+            return send_error(message=messages.ERR_ISSUE.format('Fixed topic is not found or not fixed'))
         if not 'poll_selects' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll poll_selects'))
         if not isinstance(data['poll_selects'], list):
@@ -158,7 +170,7 @@ class PollController(Controller):
         if not current_user:
             return send_error(code=401, message=messages.ERR_NOT_LOGIN)
 
-        data['owner_user_id'] = current_user.id
+        data['user_id'] = current_user.id
         try:
             poll = self._parse_poll(data=data, poll=None)
             if poll.title.__str__().strip().__eq__(''):
