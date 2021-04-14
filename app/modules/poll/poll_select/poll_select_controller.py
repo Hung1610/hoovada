@@ -92,7 +92,7 @@ class PollSelectController(Controller):
         poll = Poll.query.filter_by(id=poll_id).first()
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_id))
-        if current_user is None or (poll.owner_user_id != current_user.id):
+        if current_user is None or (poll.user_id != current_user.id):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         data['created_by_user_id'] = current_user.id
         data['poll_id'] = poll_id
@@ -128,7 +128,7 @@ class PollSelectController(Controller):
             poll = Poll.query.filter_by(id=poll_select.poll_id).first()
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_select.poll_id))
-            if current_user is None or (poll.owner_user_id != current_user.id):
+            if current_user is None or (poll.user_id != current_user.id):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             poll_select = self._parse_poll_select(data=data, poll_select=poll_select)
             if poll_select.content.__str__().strip().__eq__(''):

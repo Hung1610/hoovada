@@ -90,7 +90,7 @@ class PollTopicController(Controller):
         poll = Poll.query.filter_by(id=poll_id).first()
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_id))
-        if poll.owner_user_id != current_user.id:
+        if poll.user_id != current_user.id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         existing_poll_topics = PollTopic.query.filter_by(poll_id=poll_id, topic_id=data['topic_id']).all()
         if existing_poll_topics is not None and len(existing_poll_topics) != 0:
@@ -125,7 +125,7 @@ class PollTopicController(Controller):
             poll = poll_topic.poll
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_topic.poll_id))
-            if poll.owner_user_id != current_user.id:
+            if poll.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             poll_topic = self._parse_poll_topic(data=data, poll_topic=poll_topic)
             if poll_topic.content.__str__().strip().__eq__(''):

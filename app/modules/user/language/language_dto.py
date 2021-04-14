@@ -45,7 +45,7 @@ class LanguageDto(Dto):
         'user': fields.Nested(language_user, description='The information of the user'),
         'is_default': fields.Boolean(default=False, description='The location is default or not'),
         'updated_date': fields.DateTime(description='The date language was updated'),
-        'created_date': fields.DateTime(required=True, description='The date language was created')
+        'created_date': fields.DateTime(required=True, description='The date language was created'),
         'is_visible': fields.Boolean(default=False, description='Display the language or not')
     })
 

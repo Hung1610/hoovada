@@ -36,10 +36,12 @@ class PollDto(Dto):
     })
 
     model_poll_user_select = api.model('model_poll_user_select', {
+        'id': fields.Integer(readonly=True, description='The ID of the poll user select'),
         'user': fields.Nested(model_user, description='The detail of owner user'),
     })
 
     model_poll_select = api.model('poll_select', {
+        'id': fields.Integer(readonly=True, description='The ID of the poll select'),
         'content': fields.String(description='The content of selection of a poll'),
         'poll_user_selects': fields.List(fields.Nested(model_poll_user_select), description='The list of users selecting'),
         'created_by_user': fields.Nested(model_user, description='User that select this selection')
@@ -50,6 +52,7 @@ class PollDto(Dto):
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+        'fixed_topic': fields.Nested(model_topic, description='The detail of fixed topic'),
         'own_user': fields.Nested(model_user, description='The detail of owner user'),
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
@@ -74,7 +77,7 @@ class PollDto(Dto):
     })
     
     get_parser = Dto.paginated_request_parser.copy()
-    get_parser.add_argument('owner_user_id', type=str, required=False, help='ID of owner user. Default value is current user id')
+    get_parser.add_argument('user_id', type=str, required=False, help='ID of owner user. Default value is current user id')
     get_parser.add_argument('from_date', type=str, required=False, help='Search polls created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search polls created before this data.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
