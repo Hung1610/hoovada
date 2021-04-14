@@ -72,13 +72,12 @@ class PollDto(Dto):
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of poll selects'),
         'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of poll topics')
     })
+    
     get_parser = Dto.paginated_request_parser.copy()
     get_parser.add_argument('owner_user_id', type=str, required=False, help='ID of owner user. Default value is current user id')
     get_parser.add_argument('from_date', type=str, required=False, help='Search polls created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search polls created before this data.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)
     get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)
