@@ -72,8 +72,8 @@ class PollDto(Dto):
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
-        'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of poll selects'),
-        'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of poll topics')
+        'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
+        'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics')
     })
     get_parser = Dto.paginated_request_parser.copy()
     get_parser.add_argument('user_id', type=str, required=False, help='ID of owner user. Default value is current user id')

@@ -37,7 +37,6 @@ class PollUserSelectList(Resource):
 
 
     @token_required
-    @api.expect(poll_user_select_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=poll_user_select_response, description='Model for poll user select response.')
     def post(self, poll_select_id):
