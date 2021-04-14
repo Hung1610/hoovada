@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# built-in modules
-from datetime import datetime
 
 # own modules
-from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
+from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
 from common.db import db
 from common.models.model import Model
 
 # third-party modules
-from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 from sqlalchemy.ext.declarative import declared_attr
 

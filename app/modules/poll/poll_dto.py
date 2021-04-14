@@ -64,8 +64,6 @@ class PollDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
-
-        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
     })
 
     model_request = api.model('poll_request', {
