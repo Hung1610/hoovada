@@ -459,7 +459,7 @@ class UserController(Controller):
             return send_error(message=messages.ERR_NOT_LOGIN)
         
         try:
-            get_data = args.get(get_data, False)
+            get_data = args.get('get_data', False)
             api_endpoint = '/api/feed' if get_data is False else '/api/feed_all_data'
 
             get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
