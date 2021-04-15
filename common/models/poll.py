@@ -23,12 +23,11 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     title = db.Column(db.UnicodeText)
     allow_multiple_user_select = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    # one-to-many relationship with table User
     own_user = db.relationship('User', uselist=False, lazy=True)
     poll_selects = db.relationship("PollSelect", cascade='all,delete-orphan')
-    topics = db.relationship("Topic", secondary="poll_topic")
+    topics = db.relationship("Topic", secondary="poll_topic", backref='polls', lazy='subquery', uselist=True)
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False)
-    fixed_topic = db.relationship("Topic", uselist=False, secondary="poll_topic")
+    fixed_topic = db.relationship("Topic", uselist=False, secondary="poll_topic", lazy=True)
     expire_after_seconds = db.Column(db.Integer, default=86400) # 1 day
     is_expire = db.Column(db.Boolean, default=False)
 

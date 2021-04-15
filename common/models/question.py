@@ -102,7 +102,7 @@ class Question(Model, BaseQuestion):
     def comment_count(self):
         return db.func.count('1')
     
-    topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery')
+    topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery', uselist=True)
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')

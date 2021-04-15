@@ -30,7 +30,6 @@ class QuestionShareDto(Dto):
         'views_count': fields.Integer(default=0, description='The amount of question views'),
         'last_activity': fields.DateTime(description='The last time this question was updated.'),
         'answers_count': fields.Integer(default=0, description='The amount of answers on this question'),
-        'accepted_answer_id': fields.Integer(description='The ID of the answer which was accepted'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
