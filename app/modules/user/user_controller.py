@@ -459,7 +459,9 @@ class UserController(Controller):
             return send_error(message=messages.ERR_NOT_LOGIN)
         
         try:
-            api_endpoint = '/api/feed'
+            get_data = args.get(get_data, False)
+            api_endpoint = '/api/feed' if get_data is False else '/api/feed_all_data'
+
             get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
 
             params={'user_id': g.current_user.id}
@@ -478,7 +480,8 @@ class UserController(Controller):
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
-                data = marshal(resp['data'], UserDto.model_user_feed_response)
+                #data = marshal(resp['data'], UserDto.model_user_feed_response)
+                data = resp['data']
                 return send_paginated_result(data=data, page=page, total=len(data), message='Success')
             
             else:

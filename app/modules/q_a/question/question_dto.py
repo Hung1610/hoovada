@@ -52,12 +52,14 @@ class QuestionDto(Dto):
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'question': fields.String(description='The content of the question'),
         'topics': fields.List(fields.Integer, description='The list of topics'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
 
     model_question_response = api.model('question_response', {
@@ -82,13 +84,17 @@ class QuestionDto(Dto):
         'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
-        'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
-        'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
+        'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
+
+        # admin actions
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+
     })
 
     model_question_proposal_response = api.model('question_proposal_response', {

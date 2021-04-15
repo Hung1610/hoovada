@@ -75,6 +75,19 @@ class UserGetFeed(Resource):
         controller = UserController()
         return controller.get_feed(args)
 
+@api.route('/feed_all_data')
+@api.expect(user_feed_request)
+@api.response(code=200, model=user_feed_response, description='Model for feed of user response.')
+class UserGetFeed(Resource):
+    @token_required
+    def get(self):
+        """Get current user's feed"""
+
+        args = user_feed_request.parse_args()
+        args['get_data'] = True
+        controller = UserController()
+        return controller.get_feed(args)
+
 
 @api.route('/all/count')
 @api.expect(user_get_parser)

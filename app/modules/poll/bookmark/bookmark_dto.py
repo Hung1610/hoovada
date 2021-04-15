@@ -60,11 +60,10 @@ class PollBookmarkDto(Dto):
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
         'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),
-        'poll_select_count': fields.Integer(description='Total count of selections'),
+        'select_count': fields.Integer(default=0, description='Total count of selections'),
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
     })
 

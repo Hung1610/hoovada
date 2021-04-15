@@ -63,10 +63,11 @@ class AnswerDto(Dto):
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
         'question_id': fields.Integer(default=0, description='The ID of the question'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
-        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'is_anonymous': fields.Boolean(default=False, description='The answer is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
 
     model_response = api.model('answer_response', {
@@ -84,15 +85,15 @@ class AnswerDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
         'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
         'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
-        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
-        'question': fields.Nested(answer_question, description='The question information'), # is this needed?
-
+        'question': fields.Nested(answer_question, description='The question information'),
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),        
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
     })
 
     upload_parser = api.parser()

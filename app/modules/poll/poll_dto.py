@@ -22,9 +22,16 @@ class PollDto(Dto):
     api = Namespace(name, description="Poll operations")
 
     model_user = api.model('user', {
-        'id': fields.Integer(readonly=True, description='The ID of the user'),
-        'profile_pic_url': fields.String(description='The profile url of the user'),
-        'display_name': fields.String(description='The display name url of the user'),
+        'id': fields.Integer(readonly=True),
+        'display_name': fields.String(required=False),
+        'profile_pic_url': fields.String(required=False),
+        'profile_views': fields.Integer(default=False, description='User view count'),
+        'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
+        'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
+        'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
 
     model_topic = api.model('topic_for_poll', {
@@ -51,19 +58,25 @@ class PollDto(Dto):
         'id': fields.Integer(required=False, readonly=True, description='The ID of the poll'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
-        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-        'own_user': fields.Nested(model_user, description='The detail of owner user'),
+        'user': fields.Nested(model_user, description='The detail of poll creator'),
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
         'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),
-        'poll_select_count': fields.Integer(description='Total count of selections'),
+        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
+        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+
+        # count vote, share, comment, select
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
-        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
+        'select_count': fields.Integer(default=0, description='Total count of selections'),
+
+        # these fields are set by admin
+        'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+        'allow_selecting': fields.Boolean(default=True, description='Allow select or not'),
     })
 
     model_request = api.model('poll_request', {
@@ -73,6 +86,11 @@ class PollDto(Dto):
         'fixed_topic_id': fields.Integer(default=86400, description='The ID of the fixed topic'),
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
         'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics')
+    
+        # these fields are set by admin
+        'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+        'allow_selecting': fields.Boolean(default=True, description='Allow select or not'),
     })
     
     get_parser = Dto.paginated_request_parser.copy()

@@ -50,17 +50,16 @@ class ShareDto(Dto):
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-        "own_user": fields.Nested(model_user, description='The detail of owner user'),
+        'user': fields.Nested(model_user, description='The info of creator'),
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
         'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),
-        'poll_select_count': fields.Integer(description='Total count of selections'),
-        'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
-        'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
-        'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
-        'comment_count': fields.Integer(default=0, description='The amount of comments'),
+        'select_count': fields.Integer(default=0, description='Total count of selections'),
+        'upvote_count': fields.Integer(default=0, description='The number of upvote'),
+        'downvote_count': fields.Integer(default=0, description='The number of downvote'),
+        'share_count': fields.Integer(default=0, description='The number of sharing'),
+        'comment_count': fields.Integer(default=0, description='The number of comments'),
     })
 
     model_response = api.model('poll_share_response', {

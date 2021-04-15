@@ -202,10 +202,8 @@ class UserDto(Dto):
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
         
         'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
-
         'is_first_log_in': fields.Boolean(required=False, default=True),
     })
-
 
     model_article_feed_response = api.model('article_feed_response', {
         'article_list': fields.List(fields.Integer(required=False), required=False),
@@ -220,6 +218,7 @@ class UserDto(Dto):
         'answer_id': fields.Integer(required=False),
         'post_id': fields.Integer(required=False),
         'poll_id': fields.Integer(required=False),
+        'ranked_score': fields.Integer(required=False),
     })
 
     model_user_feed_request = Dto.paginated_request_parser.copy()

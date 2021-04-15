@@ -52,7 +52,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
         return db.func.count('1')
 
     @aggregated('poll_selects', db.Column(db.Integer, default="0",  nullable=False))
-    def poll_select_count(self):
+    def select_count(self):
         return db.func.count('1')
 
     @declared_attr

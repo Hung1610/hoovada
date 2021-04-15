@@ -36,9 +36,11 @@ class PostDto(Dto):
 
     model_post_request = api.model('post_request', {
         'html': fields.String(description='The content of the post'),
-        'allow_favorite': fields.Boolean(default=False, description='The post allows favoriting or not'),
         'is_draft': fields.Boolean(default=False, description='The post is a draft or not'),
         'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
+
+        'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
+        'allow_favorite': fields.Boolean(default=True, description='Allow favorite or not'),
     })
 
     model_post_response = api.model('post_response', {
@@ -49,7 +51,6 @@ class PostDto(Dto):
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of post views'),
         'last_activity': fields.DateTime(description='The last time this post was updated.'),
-        'allow_favorite': fields.Boolean(default=False, description='The post allows favoriting or not'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
@@ -57,6 +58,9 @@ class PostDto(Dto):
         'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
         'file_url': fields.String(description='The file url'),
         'is_seen_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+
+        'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
+        'allow_favorite': fields.Boolean(default=True, description='Allow favorite or not'),
     })
 
     model_get_parser = reqparse.RequestParser()
