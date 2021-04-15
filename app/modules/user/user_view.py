@@ -79,7 +79,7 @@ class UserGetFeed(Resource):
 
 @api.route('/feed_all_data')
 @api.expect(user_feed_request)
-@api.response(code=200, model=FeedDto.model_user_feed_response, description='Model for feed of user response.')
+@api.response(code=200, model=FeedDto.model_user_feed_all_response, description='Model for feed of user response.')
 class UserGetFeedAllData(Resource):
     @token_required
     def get(self):
