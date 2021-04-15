@@ -218,7 +218,7 @@ class UserDto(Dto):
         'answer_id': fields.Integer(required=False),
         'post_id': fields.Integer(required=False),
         'poll_id': fields.Integer(required=False),
-        'ranked_score': fields.Integer(required=False),
+        'ranked_score': fields.Float(required=False),
     })
 
     model_user_feed_request = Dto.paginated_request_parser.copy()
@@ -248,3 +248,8 @@ class UserDto(Dto):
                             choices=('question_count', 'post_count', 'answer_count', 'reputation'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields:  'question_count', 'post_count', 'answer_count', 'reputation'", type=str,
                             choices=( 'question_count', 'post_count', 'answer_count', 'reputation'), action='append',)
+
+class FeedDto(Dto):
+    name = 'feed'
+    api = Namespace(name, description='user feed related operations')
+
