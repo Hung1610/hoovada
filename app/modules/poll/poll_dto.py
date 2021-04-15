@@ -85,8 +85,7 @@ class PollDto(Dto):
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
         'fixed_topic_id': fields.Integer(default=86400, description='The ID of the fixed topic'),
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
-        'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics')
-    
+        'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics'),
         # these fields are set by admin
         'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
