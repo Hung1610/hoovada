@@ -222,7 +222,6 @@ class UserDto(Dto):
     })
 
     model_user_feed_request = Dto.paginated_request_parser.copy()
-    model_user_feed_request.add_argument('is_hot_articles_only', type=inputs.boolean, required=False, help='Get hot articles only')
     
     model_social_response = api.model('user_social_response', {
         'id': fields.Integer(readonly=True),
