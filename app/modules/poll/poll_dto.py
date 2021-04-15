@@ -52,7 +52,6 @@ class PollDto(Dto):
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-        'fixed_topic': fields.Nested(model_topic, description='The detail of fixed topic'),
         'own_user': fields.Nested(model_user, description='The detail of owner user'),
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
@@ -64,7 +63,6 @@ class PollDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
-
         'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
     })
 
@@ -72,6 +70,7 @@ class PollDto(Dto):
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
+        'fixed_topic_id': fields.Integer(default=86400, description='The ID of the fixed topic'),
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
         'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics')
     })
