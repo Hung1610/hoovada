@@ -476,7 +476,8 @@ class UserController(Controller):
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
-                data = marshal(resp['data'], UserDto.model_user_feed_response)
+                #data = marshal(resp['data'], UserDto.model_user_feed_response)
+                data = response.content['data']
                 return send_paginated_result(data=data, page=page, total=len(data), message='Success')
             
             else:
