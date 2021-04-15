@@ -18,7 +18,7 @@ from sqlalchemy import desc, func
 from app.constants import messages
 from app.settings.config import BaseConfig
 from common.db import db
-from app.modules.user.user_dto import UserDto
+from app.modules.user.user_dto import UserDto, FeedDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
 from common.utils.onesignal_notif import push_notif_to_specific_users
@@ -476,10 +476,12 @@ class UserController(Controller):
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
-                #data = marshal(resp['data'], UserDto.model_user_feed_response)
-                #data = response.content['data']
-                #return send_paginated_result(data=data, page=page, total=len(data), message='Success')
-                return response.content
+                if get_data is False:
+                    data = marshal(resp['data'], UserDto.model_user_feed_response)
+                else:
+                    data = marshal(resp['data'], UserDto.model_user_feed_all_response)
+                return send_paginated_result(data=data, page=page, total=len(data), message='Success')
+            
             else:
                 return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
         
