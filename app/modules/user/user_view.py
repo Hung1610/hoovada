@@ -7,7 +7,7 @@ from flask_restx import reqparse
 from werkzeug.datastructures import FileStorage
 
 from app.modules.user.user_controller import UserController
-from app.modules.user.user_dto import UserDto
+from app.modules.user.user_dto import UserDto, FeedDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.types import UserRole
 # own modules
@@ -79,7 +79,7 @@ class UserGetFeed(Resource):
 
 @api.route('/feed_all_data')
 @api.expect(user_feed_request)
-@api.response(code=200, model=user_feed_response, description='Model for feed of user response.')
+@api.response(code=200, model=FeedDto.model_user_feed_response, description='Model for feed of user response.')
 class UserGetFeedAllData(Resource):
     @token_required
     def get(self):
