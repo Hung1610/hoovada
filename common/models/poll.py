@@ -40,13 +40,15 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     def downvote_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0)), 0)
 
-    @aggregated('poll_shares', db.Column(db.Integer))
+    @aggregated('poll_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
         return db.func.count('1')
+    
     @aggregated('poll_favorites', db.Column(db.Integer, server_default="0", nullable=False))
     def favorite_count(self):
         return db.func.count('1')
-    @aggregated('poll_comments', db.Column(db.Integer))
+    
+    @aggregated('poll_comments', db.Column(db.Integer, server_default="0", nullable=False))
     def comment_count(self):
         return db.func.count('1')
 
@@ -67,10 +69,8 @@ class PollTopic(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'poll_topic'
 
     id = db.Column(db.Integer, primary_key=True)
-    poll_id = db.Column(db.Integer, db.ForeignKey(
-        'poll.id', ondelete='CASCADE'), nullable=False, index=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey(
-        'topic.id', ondelete='CASCADE'), nullable=False, index=True)
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), nullable=False, index=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     topic = db.relationship('Topic', uselist=False, lazy=True)
     poll = db.relationship('Poll', uselist=False, lazy=True)
 
@@ -78,13 +78,11 @@ class PollSelect(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'poll_select'
 
     id = db.Column(db.Integer, primary_key=True)
-    poll_id = db.Column(db.Integer, db.ForeignKey(
-        'poll.id', ondelete='CASCADE'), nullable=False, index=True)
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), nullable=False, index=True)
     poll = db.relationship('Poll', uselist=False, lazy=True)
     poll_user_selects = db.relationship('PollUserSelect', lazy=True)
     content = db.Column(db.UnicodeText, nullable=False)
-    created_by_user_id = db.Column(db.Integer, db.ForeignKey(
-        'user.id', ondelete='CASCADE'), nullable=False, index=True)
+    created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     created_by_user = db.relationship('User', uselist=False, lazy=True)
 
     @aggregated('poll_user_selects', db.Column(db.Integer))
@@ -94,9 +92,7 @@ class PollSelect(Model, AuditCreateMixin, AuditUpdateMixin):
 class PollUserSelect(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'poll_user_select'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'user.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User',uselist=False, lazy=True)
     poll_select = db.relationship('PollSelect', uselist=False, lazy=True)
-    poll_select_id = db.Column(db.Integer, db.ForeignKey(
-        'poll_select.id', ondelete='CASCADE'), nullable=False, index=True)
+    poll_select_id = db.Column(db.Integer, db.ForeignKey('poll_select.id', ondelete='CASCADE'), nullable=False, index=True)

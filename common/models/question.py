@@ -77,27 +77,33 @@ class Question(Model, BaseQuestion):
     __tablename__ = 'question'
 
     views_count = db.Column(db.Integer, server_default="0")
+    
     @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answers_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deleted, False) <> True'), 1, 0)), 0)
+    
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0)), 0)
+    
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def downvote_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'DOWNVOTED'"), 1, 0)), 0)
+    
     @aggregated('question_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
         return db.func.count('1')
+    
     @aggregated('question_favorites', db.Column(db.Integer, server_default="0", nullable=False))
     def favorite_count(self):
         return db.func.count('1')
+    
     @aggregated('question_comments', db.Column(db.Integer, server_default="0", nullable=False))
     def comment_count(self):
         return db.func.count('1')
+    
     topics = db.relationship('Topic', secondary='question_topic', backref='questions', lazy='subquery')
     invited_users = db.relationship('User', secondary='question_user_invite', lazy='subquery')
-
     answers = db.relationship("Answer", cascade='all,delete-orphan')
     votes = db.relationship("QuestionVote", cascade='all,delete-orphan')
     question_comments = db.relationship("QuestionComment", cascade='all,delete-orphan', primaryjoin="and_(Question.id == remote(QuestionComment.question_id),remote(QuestionComment.user_id) == User.id, remote(User.is_deactivated) == False)")

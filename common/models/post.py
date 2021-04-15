@@ -26,18 +26,20 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', lazy=True) # one-to-many relationship with table Post
+    user = db.relationship('User', lazy=True)
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
     views_count = db.Column(db.Integer, default=0)
 
-    @aggregated('post_shares', db.Column(db.Integer))
+    @aggregated('post_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
         return db.func.count('1')
+    
     @aggregated('post_favorites', db.Column(db.Integer, server_default="0", nullable=False))
     def favorite_count(self):
         return db.func.count('1')
-    @aggregated('post_comments', db.Column(db.Integer))
+
+    @aggregated('post_comments', db.Column(db.Integer, server_default="0", nullable=False))
     def comment_count(self):
         return db.func.count('1')
 
