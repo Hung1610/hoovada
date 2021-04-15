@@ -479,7 +479,7 @@ class UserController(Controller):
                 if get_data is False:
                     data = marshal(resp['data'], UserDto.model_user_feed_response)
                 else:
-                    data = marshal(resp['data'], UserDto.model_user_feed_all_response)
+                    data = marshal(resp['data'], FeedDto.model_user_feed_all_response)
                 return send_paginated_result(data=data, page=page, total=len(data), message='Success')
             
             else:
