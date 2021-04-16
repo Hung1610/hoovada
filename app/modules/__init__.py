@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 # q,a and article only has vote while post or comment only has favorite
 from app.modules.article import (ns_article, 
@@ -72,8 +77,3 @@ from app.modules.poll.poll_user_select import ns_poll_user_select
 from app.modules.poll import (
     ns_poll_comment, ns_poll_comment_favorite, ns_poll_comment_report, ns_poll_voting, ns_poll_share, ns_poll_report,ns_poll_bookmark)
 
-
-__author__ = "hoovada.com team"
-__maintainer__ = "hoovada.com team"
-__email__ = "admin@hoovada.com"
-__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."

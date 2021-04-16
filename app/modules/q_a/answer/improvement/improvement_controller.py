@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
 # built-in modules
-import os
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, g, request, url_for
+from flask import g
 from flask_restx import marshal
-from sqlalchemy import desc
-from werkzeug.utils import secure_filename
 
 # own modules
 from common.db import db
