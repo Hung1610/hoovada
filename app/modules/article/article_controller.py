@@ -19,7 +19,6 @@ from common.utils.types import UserRole
 from app.modules.article.article_dto import ArticleDto
 from app.modules.article.bookmark.bookmark_controller import ArticleBookmarkController
 from app.constants import messages
-from common.utils.checker import check_spelling
 from common.db import db
 from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller

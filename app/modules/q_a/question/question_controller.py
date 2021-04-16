@@ -20,7 +20,6 @@ from common.db import db
 from common.cache import cache
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
-from common.utils.checker import check_spelling
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.dramatiq_producers import update_seen_questions
@@ -58,8 +57,8 @@ class QuestionController(Controller):
         if not 'title' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question title'))
 
-        if not 'fixed_topic_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+        #if not 'fixed_topic_id' in data:
+        #    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
 
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
@@ -78,21 +77,14 @@ class QuestionController(Controller):
             if len(only_words.split()) < 3:
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format(str(3)))
             
-            user_id = data.get('user_id')
+            # Check if question already exists
             question = Question.query.filter(Question.title == title).first()
-
             if question is not None:
                 return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(data['title']))   
 
             question = self._parse_question(data=data, question=None)
             if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
-
-            topic = Topic.query.filter(Topic.id == question.fixed_topic_id).first()
-            if topic is not None and topic.name == 'Những lĩnh vực khác':
-                spelling_errors = check_spelling(question.title)
-                if len(spelling_errors) > 0:
-                    return send_error(message=messages.ERR_SPELLING, data=spelling_errors)
             
             if question.question:
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
@@ -585,12 +577,6 @@ class QuestionController(Controller):
                 return send_error(message='Question cannot have more than 5 topics.')
             if not proposal.title.strip().endswith('?'):
                 return send_error(message='Please end question title with question mark ("?")')
-            
-            topic = Topic.query.filter(Topic.id == question.fixed_topic_id).first()
-            if topic is not None and topic.name == 'Những lĩnh vực khác':      
-                spelling_errors = check_spelling(proposal.title)
-                if len(spelling_errors) > 0:
-                    return send_error(message='Please check question title for spelling errors', data=spelling_errors)
 
             if proposal.question:
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings))
@@ -641,6 +627,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message='Could approve question proposal. Contact administrator for solution.')
 
+
     def update(self, object_id, data):
 
         if object_id is None:
@@ -662,13 +649,21 @@ class QuestionController(Controller):
         
         question = self._parse_question(data=data, question=question)
         try:
+
+            title = data['title'].strip()
+
+            if not title.endswith('?'):
+                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+            
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
+            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
+            if len(only_words.split()) < 3:
+                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format(str(3)))
+
             if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
-            
-            # check sensitive after updating
-            is_sensitive = check_sensitive(question.title)
-            if is_sensitive:
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
             
             if question.question:
                 is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
@@ -702,6 +697,7 @@ class QuestionController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format("Question", str(e)))
+
 
     def delete(self, object_id):
 
@@ -826,20 +822,24 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'fixed_topic_id' in data:
             try:
                 proposal.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'question' in data:
             proposal.question = data['question']
+        
         if 'accepted_question_id' in data:
             try:
                 proposal.accepted_question_id = int(data['accepted_question_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if 'allow_video_question' in data:
             try:
                 proposal.allow_video_question = bool(data['allow_video_question'])
@@ -847,6 +847,7 @@ class QuestionController(Controller):
                 proposal.allow_video_question = True
                 print(e.__str__())
                 pass
+
         if 'allow_audio_question' in data:
             try:
                 proposal.allow_audio_question = bool(data['allow_audio_question'])
@@ -861,6 +862,7 @@ class QuestionController(Controller):
                 proposal.is_private = False
                 print(e.__str__())
                 pass
+
         if 'is_deleted' in data:
             try:
                 proposal.is_deleted = bool(data['is_deleted'])
@@ -868,6 +870,7 @@ class QuestionController(Controller):
                 proposal.is_deleted = False
                 print(e.__str__())
                 pass
+
         if 'is_anonymous' in data:
             try:
                 proposal.is_anonymous = bool(data['is_anonymous'])
@@ -875,6 +878,7 @@ class QuestionController(Controller):
                 proposal.is_anonymous = False
                 print(e.__str__())
                 pass
+
         if 'is_parma_delete' in data:
             try:
                 proposal.is_parma_delete = bool(data['is_parma_delete'])
@@ -882,6 +886,7 @@ class QuestionController(Controller):
                 proposal.is_parma_delete = False
                 print(e.__str__())
                 pass
+
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']

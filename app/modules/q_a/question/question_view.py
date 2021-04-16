@@ -103,16 +103,16 @@ class Question(Resource):
     @api.response(code=200, model=model_response, description='Model for question response.')
     @cache.cached(key_prefix=get_question_key_prefix)
     def get(self, id_or_slug):
-        """ Get specific question by question Id or slug"""
+        """ Get question by question Id or slug"""
 
         controller = QuestionController()
         return controller.get_by_id(object_id=id_or_slug)
 
-    @admin_token_required()
+    @token_required
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
     def put(self, id_or_slug):
-        """ Update existing question by question Id or slug.  NOTE: topic_ids does not be supported in update API. Please send question update format without topic_ids."""
+        """ Update question by question Id or slug"""
 
         data = api.payload
         controller = QuestionController()
@@ -122,7 +122,7 @@ class Question(Resource):
 
     @admin_token_required()
     def delete(self, id_or_slug):
-        """ Delete the question by question Id or slug"""
+        """ Delete question by question Id or slug"""
 
         controller = QuestionController()
         result = controller.delete(object_id=id_or_slug)
