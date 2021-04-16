@@ -181,11 +181,8 @@ class UserDto(Dto):
         'comment_reported_count': fields.Integer(required=False),
 
         'article_count': fields.Integer(required=False),
-
         'friend_count': fields.Integer(required=False),
-
         'endorsed_count': fields.Integer(required=False),
-
         'user_report_count': fields.Integer(required=False),
         'user_reported_count': fields.Integer(required=False),
         'is_private': fields.Boolean(default=False, description='The user is private or not'),
@@ -273,6 +270,18 @@ class UserDto(Dto):
     })
 
 
+    answer_question = api.model('answer_question', {
+        'id': fields.Integer(readonly=True, description=''),
+        'title': fields.String(description='The title of the question'),
+        'slug': fields.String(description='The slug of the question'),
+        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
+        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
+        'created_date': fields.DateTime(description='The created date'),
+        'updated_date': fields.DateTime(description='The updated date'),
+        'user': fields.Nested(model_user, description='The user information', attribute='display_user'),        
+        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+    })
+
     model_article = api.model('article', {
         'id': fields.Integer(readonly=True, description=''),
         'title': fields.String(description='The title of the article'),
@@ -327,18 +336,6 @@ class UserDto(Dto):
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
-    })
-
-    answer_question = api.model('answer_question', {
-        'id': fields.Integer(readonly=True, description=''),
-        'title': fields.String(description='The title of the question'),
-        'slug': fields.String(description='The slug of the question'),
-        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
-        'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
-        'created_date': fields.DateTime(description='The created date'),
-        'updated_date': fields.DateTime(description='The updated date'),
-        'user': fields.Nested(model_user, description='The user information', attribute='display_user'),        
-        'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
     })
 
     model_answer = api.model('answer', {
@@ -423,7 +420,7 @@ class UserDto(Dto):
         'total' : fields.Integer(required=False, allow_none=True, allow_empty=True, description='Number of blogs in this list')
     })
 
-    model_feed_all_response = api.model('feed_all_response', {
+    model_user_feed_all_response = api.model('feed_all_response', {
         'feed_type': fields.String(required=False),
         'article' : fields.Nested(model_article_list, required=False, allow_none=True, allow_empty=True),
         'question' : fields.Nested(model_question, required=False, allow_none=True, allow_empty=True),
@@ -431,8 +428,4 @@ class UserDto(Dto):
         'answer' : fields.Nested(model_answer, required=False, allow_none=True, allow_empty=True),
         'poll' : fields.Nested(model_poll, required=False, allow_none=True, allow_empty=True),
         'ranked_score': fields.Float(required=False),
-    })
-
-    model_user_feed_all_response = api.model('user_feed_all_response', {
-        'data' : fields.Nested(model_feed_all_response, description='Feed data', required=False)
     })
