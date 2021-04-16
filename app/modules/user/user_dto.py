@@ -249,9 +249,7 @@ class UserDto(Dto):
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields:  'question_count', 'post_count', 'answer_count', 'reputation'", type=str,
                             choices=( 'question_count', 'post_count', 'answer_count', 'reputation'), action='append',)
 
-class FeedDto(Dto):
-    name = 'user'
-    api = Namespace(name, description='user feed related operations')
+
 
     model_topic = api.model('topic', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),

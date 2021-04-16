@@ -18,7 +18,7 @@ from sqlalchemy import desc, func
 from app.constants import messages
 from app.settings.config import BaseConfig
 from common.db import db
-from app.modules.user.user_dto import UserDto, FeedDto
+from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
 from common.utils.onesignal_notif import push_notif_to_specific_users
@@ -465,13 +465,21 @@ class UserController(Controller):
             get_feed_url = '{}{}'.format(BaseConfig.FEED_SERVICE_URL, api_endpoint)
 
             params={'user_id': g.current_user.id}
+            
             page = 1
-            if 'page' in args and args['page'] is not None:
-                params['page'] = args['page']
-                page =  args['page']
+            if 'page' in args:
+                page = args.get('page', 1)
+                params['page'] = page
 
-            if 'per_page' in args and args['per_page'] is not None:
+            if 'per_page' in args:
                 params['per_page'] = args['per_page']
+
+            #if 'page' in args and args['page'] is not None:
+            #    params['page'] = args['page']
+            #    page =  args['page']
+
+            #if 'per_page' in args and args['per_page'] is not None:
+            #    params['per_page'] = args['per_page']
             
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
@@ -479,7 +487,7 @@ class UserController(Controller):
                 if get_data is False:
                     data = marshal(resp['data'], UserDto.model_user_feed_response)
                 else:
-                    data = marshal(resp['data'], FeedDto.model_user_feed_all_response)
+                    data = marshal(resp['data'], UserDto.model_user_feed_all_response)
                 return send_paginated_result(data=data, page=page, total=len(data), message='Success')
             
             else:
