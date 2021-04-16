@@ -34,6 +34,7 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False, index=True)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
+    allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_improvement = db.Column(db.Boolean, server_default=expression.true())
     file_url = db.Column(db.String(255))
     file_type = db.Column(db.Enum(FileTypeEnum, validate_strings=True), nullable=True)
@@ -71,8 +72,8 @@ class AnswerImprovement(Model):
     __tablename__ = 'answer_improvement'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
     content = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User

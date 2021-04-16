@@ -38,8 +38,8 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
-    allow_voting = db.Column(db.Boolean, default=True)
-    views_count = db.Column(db.Integer, default=0)
+    views_count = db.Column(db.Integer, server_default=0)
+    allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
@@ -63,10 +63,10 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
         return db.func.count('1')
 
     topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery', uselist=True)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')

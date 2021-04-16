@@ -29,7 +29,7 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     user = db.relationship('User', lazy=True)
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
-    views_count = db.Column(db.Integer, default=0)
+    views_count = db.Column(db.Integer, server_default=0)
 
     @aggregated('post_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
@@ -44,8 +44,9 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
         return db.func.count('1')
 
     scheduled_date = db.Column(db.DateTime)
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    allow_favorite = db.Column(db.Boolean, default=True, server_default=expression.true())
+    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
+    allow_favorite = db.Column(db.Boolean, server_default=expression.true())
+    allow_comments = db.Column(db.Boolean, server_default=expression.true())
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan', primaryjoin="and_(Post.id == remote(PostComment.post_id), remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')

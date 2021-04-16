@@ -25,21 +25,21 @@ class QuestionUserInvite(Model):
 
     user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     question_id = db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True)
-    status = db.Column('status', db.SmallInteger, default=0, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
+    status = db.Column('status', db.SmallInteger, server_default=0, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
 
 
 question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE')),
     db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id', ondelete='CASCADE')),
-    db.Column('created_date', db.DateTime, default=datetime.utcnow),
+    db.Column('created_date', db.DateTime, server_default=datetime.utcnow),
 )
 
 
 question_topics = db.Table('question_topic',
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False),
-    db.Column('created_date', db.DateTime, default=datetime.utcnow),
+    db.Column('created_date', db.DateTime, server_default=datetime.utcnow),
 )
 
 
@@ -50,11 +50,12 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
     slug = db.Column(db.String(255), index=True)
     question = db.Column(db.UnicodeText)
     accepted_answer_id = db.Column(db.Integer)
+    allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
 
     @declared_attr
     def fixed_topic_id(cls):
@@ -120,7 +121,7 @@ class QuestionProposal(Model, BaseQuestion):
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=True, index=True)
     question_id = db.Column(db.Integer, nullable=True, index=True)
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
-    proposal_created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    proposal_updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    proposal_created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+    proposal_updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
     is_parma_delete = db.Column(db.Boolean, server_default=expression.false())
     is_approved = db.Column(db.Boolean, server_default=expression.false())

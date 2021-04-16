@@ -21,15 +21,17 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    allow_multiple_user_select = db.Column(db.Boolean, default=False)
+    allow_multiple_user_select = db.Column(db.Boolean, server_default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     own_user = db.relationship('User', uselist=False, lazy=True)
     poll_selects = db.relationship("PollSelect", cascade='all,delete-orphan')
     topics = db.relationship("Topic", secondary="poll_topic", backref='polls', lazy='subquery', uselist=True)
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False)
     fixed_topic = db.relationship("Topic", uselist=False, secondary="poll_topic", lazy=True)
-    expire_after_seconds = db.Column(db.Integer, default=86400) # 1 day
-    is_expire = db.Column(db.Boolean, default=False)
+    expire_after_seconds = db.Column(db.Integer, server_default=86400) # 1 day
+    is_expire = db.Column(db.Boolean, server_default=False)
+    allow_voting = db.Column(db.Boolean, server_default=expression.true())
+    allow_comments = db.Column(db.Boolean, server_default=expression.true())
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):
@@ -63,6 +65,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     poll_comments = db.relationship("PollComment", cascade='all,delete-orphan', primaryjoin="and_(Poll.id == remote(PollComment.poll_id), remote(PollComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     poll_shares = db.relationship("PollShare", cascade='all,delete-orphan')
     poll_favorites = db.relationship("PollFavorite", cascade='all,delete-orphan')
+
 
 class PollTopic(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'poll_topic'
