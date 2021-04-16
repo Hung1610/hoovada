@@ -77,6 +77,7 @@ def init_api():
     api.add_namespace(ns_user_friend, '/user')
     api.add_namespace(ns_user_follow, '/user')
     api.add_namespace(ns_user_ban, '/user')
+    api.add_namespace(ns_user_feed, '/user')
     api.add_namespace(ns_reputation, '/user')
     api.add_namespace(ns_topic, '/topic')
     api.add_namespace(ns_topic_bookmark, '/topic')

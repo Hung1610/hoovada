@@ -53,7 +53,8 @@ from app.modules.user import (ns_user,
                               ns_user_friend,
                               ns_user_language, 
                               ns_user_location, 
-                              ns_user_topic)
+                              ns_user_topic,
+                              ns_user_feed)
 
 from app.modules.user.permission import ns_permission
 from app.modules.user.reputation import api as ns_reputation

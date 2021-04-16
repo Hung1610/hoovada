@@ -8,6 +8,7 @@ from app.modules.user.friend import api as ns_user_friend
 from app.modules.user.language import api as ns_user_language
 from app.modules.user.location import api as ns_user_location
 from app.modules.user.topic import api as ns_user_topic
+from app.modules.user.feed import api as ns_user_feed
 # own modules
 from app.modules.user.user_view import api as ns_user
 
