@@ -201,24 +201,6 @@ class UserDto(Dto):
         'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
         'is_first_log_in': fields.Boolean(required=False, default=True),
     })
-
-    model_article_feed_response = api.model('article_feed_response', {
-        'article_list': fields.List(fields.Integer(required=False), required=False),
-        'blog_name': fields.String(required=False),
-        'total': fields.Integer(required=False),
-    })
-
-    model_user_feed_response = api.model('user_feed_response', {
-        'feed_type': fields.String(required=False),
-        'article': fields.Nested(model_article_feed_response, required=False),
-        'question_id': fields.Integer(required=False),
-        'answer_id': fields.Integer(required=False),
-        'post_id': fields.Integer(required=False),
-        'poll_id': fields.Integer(required=False),
-        'ranked_score': fields.Float(required=False),
-    })
-
-    model_user_feed_request = Dto.paginated_request_parser.copy()
     
     model_social_response = api.model('user_social_response', {
         'id': fields.Integer(readonly=True),
@@ -429,3 +411,21 @@ class UserDto(Dto):
         'poll' : fields.Nested(model_poll, required=False, allow_none=True, allow_empty=True),
         'ranked_score': fields.Float(required=False),
     })
+
+    model_article_feed_response = api.model('article_feed_response', {
+        'article_list': fields.List(fields.Integer(required=False), required=False),
+        'blog_name': fields.String(required=False),
+        'total': fields.Integer(required=False),
+    })
+
+    model_user_feed_response = api.model('user_feed_response', {
+        'feed_type': fields.String(required=False),
+        'article': fields.Nested(model_article_feed_response, required=False),
+        'question_id': fields.Integer(required=False),
+        'answer_id': fields.Integer(required=False),
+        'post_id': fields.Integer(required=False),
+        'poll_id': fields.Integer(required=False),
+        'ranked_score': fields.Float(required=False),
+    })
+
+    model_user_feed_request = Dto.paginated_request_parser.copy()

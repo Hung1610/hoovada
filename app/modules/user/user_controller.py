@@ -473,13 +473,6 @@ class UserController(Controller):
 
             if 'per_page' in args:
                 params['per_page'] = args['per_page']
-
-            #if 'page' in args and args['page'] is not None:
-            #    params['page'] = args['page']
-            #    page =  args['page']
-
-            #if 'per_page' in args and args['per_page'] is not None:
-            #    params['per_page'] = args['per_page']
             
             response = requests.get(url=get_feed_url, params=params)
             resp = json.loads(response.content)
