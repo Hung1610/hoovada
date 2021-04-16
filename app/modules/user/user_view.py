@@ -3,7 +3,6 @@
 
 #third-party modules
 from flask import request
-from flask_restx import reqparse
 from werkzeug.datastructures import FileStorage
 
 from app.modules.user.user_controller import UserController
@@ -23,9 +22,6 @@ user_get_parser = UserDto.model_get_parser
 user_get_social_parser = UserDto.model_get_social_account_parser
 user_request = UserDto.model_request
 user_response = UserDto.model_response
-user_feed_response = UserDto.model_user_feed_response
-user_feed_all_response = UserDto.model_user_feed_all_response
-user_feed_request = UserDto.model_user_feed_request
 user_mention_request = UserDto.model_user_mention_request
 
 
@@ -62,34 +58,6 @@ class UserMention(Resource):
         args = user_mention_request.parse_args()
         controller = UserController()
         return controller.notify_user_mention(args)
-
-
-@api.route('/feed')
-@api.expect(user_feed_request)
-@api.response(code=200, model=user_feed_response, description='Model for feed of user response.')
-class UserGetFeed(Resource):
-    @token_required
-    def get(self):
-        """Get current user's feed"""
-
-        args = user_feed_request.parse_args()
-        args['get_data'] = False
-        controller = UserController()
-        return controller.get_feed(args)
-
-
-@api.route('/feed_all_data')
-@api.expect(user_feed_request)
-@api.response(code=200, model=user_feed_all_response, description='Model for feed of user response.')
-class UserGetFeedAllData(Resource):
-    @token_required
-    def get(self):
-        """Get current user's feed"""
-
-        args = user_feed_request.parse_args()
-        args['get_data'] = True
-        controller = UserController()
-        return controller.get_feed(args)
 
 
 @api.route('/all/count')

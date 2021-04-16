@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from app.modules.user.user_controller import UserController
+from app.modules.user.feed.feed_dto import UserFeedDto
+from common.utils.decorator import token_required
+
+# own modules
+from common.view import Resource
+
+__author__ = "hoovada.com team"
+__maintainer__ = "hoovada.com team"
+__email__ = "admin@hoovada.com"
+__copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+api = UserFeedDto.api
+user_feed_response = UserFeedDto.model_user_feed_response
+user_feed_all_response = UserFeedDto.model_user_feed_all_response
+user_feed_request = UserFeedDto.model_user_feed_request
+
+
+@api.route('/feed')
+@api.expect(user_feed_request)
+@api.response(code=200, model=user_feed_response, description='Model for feed of user response (only feed IDs).')
+class UserGetFeed(Resource):
+    @token_required
+    def get(self):
+        """Get current user's feed"""
+
+        args = user_feed_request.parse_args()
+        args['get_data'] = False
+        controller = UserController()
+        return controller.get(args)
+
+
+@api.route('/feed_all_data')
+@api.expect(user_feed_request)
+@api.response(code=200, model=user_feed_all_response, description='Model for feed of user response (all data).')
+class UserGetFeedAllData(Resource):
+    @token_required
+    def get(self):
+        """Get current user's feed"""
+
+        args = user_feed_request.parse_args()
+        args['get_data'] = True
+        controller = UserController()
+        return controller.get(args)
+
