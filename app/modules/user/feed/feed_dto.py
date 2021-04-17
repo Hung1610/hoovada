@@ -5,7 +5,7 @@
 from datetime import datetime
 
 # third-party modules
-from flask_restx import Namespace, fields, reqparse
+from flask_restx import Namespace, fields
 
 # own modules
 from common.dto import Dto

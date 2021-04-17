@@ -25,7 +25,7 @@ user_feed_request = UserFeedDto.model_user_feed_request
 class UserGetFeed(Resource):
     @token_required
     def get(self):
-        """Get current user's feed"""
+        """Get current user's feed with only feed type's data"""
 
         args = user_feed_request.parse_args()
         args['get_data'] = False
@@ -39,7 +39,7 @@ class UserGetFeed(Resource):
 class UserGetFeedAllData(Resource):
     @token_required
     def get(self):
-        """Get current user's feed"""
+        """Get current user's feed withn all feed type's data"""
 
         args = user_feed_request.parse_args()
         args['get_data'] = True
