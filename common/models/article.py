@@ -63,10 +63,10 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
         return db.func.count('1')
 
     topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery', uselist=True)
-    created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
-    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')

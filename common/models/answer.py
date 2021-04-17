@@ -72,8 +72,8 @@ class AnswerImprovement(Model):
     __tablename__ = 'answer_improvement'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     content = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
