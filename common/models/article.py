@@ -9,6 +9,7 @@ from slugify import slugify
 # third-party modules
 from sqlalchemy import event
 from sqlalchemy.sql import expression
+from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
 
 # own modules
@@ -38,7 +39,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     fixed_topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Article
     html = db.Column(db.UnicodeText)
-    views_count = db.Column(db.Integer, server_default=0)
+    views_count = db.Column(db.Integer, server_default="0")
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
 
@@ -63,10 +64,9 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
         return db.func.count('1')
 
     topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery', uselist=True)
-    created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+
     scheduled_date = db.Column(db.DateTime)
-    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, server_default=func.now())
     is_draft = db.Column(db.Boolean, server_default=expression.false())
     votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')

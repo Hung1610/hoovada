@@ -7,6 +7,7 @@ from datetime import datetime
 # third-party modules
 from flask import g
 from sqlalchemy.sql import expression
+from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
 from sqlalchemy.ext.declarative import declared_attr
 
@@ -25,21 +26,21 @@ class QuestionUserInvite(Model):
 
     user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     question_id = db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True)
-    status = db.Column('status', db.SmallInteger, server_default=0, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
+    status = db.Column('status', db.SmallInteger, server_default="0", comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
 
 
 question_proposal_topics = db.Table('question_proposal_topic',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE')),
     db.Column('question_proposal_id', db.Integer, db.ForeignKey('question_proposal.id', ondelete='CASCADE')),
-    db.Column('created_date', db.DateTime, server_default=datetime.utcnow),
+    db.Column('created_date', db.DateTime, server_default=func.now()),
 )
 
 
 question_topics = db.Table('question_topic',
     db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False),
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False),
-    db.Column('created_date', db.DateTime, server_default=datetime.utcnow),
+    db.Column('created_date', db.DateTime, server_default=func.now()),
 )
 
 
@@ -55,7 +56,7 @@ class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymou
     allow_video_answer = db.Column(db.Boolean, server_default=expression.false())
     allow_audio_answer = db.Column(db.Boolean, server_default=expression.false())
     is_private = db.Column(db.Boolean, server_default=expression.false())
-    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, server_default=func.now())
 
     @declared_attr
     def fixed_topic_id(cls):
@@ -121,7 +122,7 @@ class QuestionProposal(Model, BaseQuestion):
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=True, index=True)
     question_id = db.Column(db.Integer, nullable=True, index=True)
     topics = db.relationship('Topic', secondary='question_proposal_topic', lazy='subquery')
-    proposal_created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
-    proposal_updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
+    proposal_created_date = db.Column(db.DateTime, server_default=func.now())
+    proposal_updated_date = db.Column(db.DateTime, server_default=func.now())
     is_parma_delete = db.Column(db.Boolean, server_default=expression.false())
     is_approved = db.Column(db.Boolean, server_default=expression.false())
