@@ -59,6 +59,9 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     def favorite_count(self):
         return db.func.count('1')
 
+    user_education_id = db.Column(db.Integer, db.ForeignKey('user_education.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_education = db.relationship('UserEducation', lazy=True) # one-to-many relationship with table UserEducation
+
     votes = db.relationship("AnswerVote", cascade='all,delete-orphan')
     answer_shares = db.relationship("AnswerShare", cascade='all,delete-orphan')
     answer_reports = db.relationship("AnswerReport", cascade='all,delete-orphan')
@@ -68,12 +71,10 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
                         remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
 
 
-class AnswerImprovement(Model):
+class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'answer_improvement'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_date = db.Column(db.DateTime, server_default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, server_default=datetime.utcnow)
     content = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User

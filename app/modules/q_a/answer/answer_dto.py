@@ -53,6 +53,18 @@ class AnswerDto(Dto):
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
     })
 
+    user_education_answer = api.model('user_education_answer', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the education'),
+        'school': fields.String(required=True, description='The content of the education'),
+        'primary_major': fields.String(required=True, description='The content of the education'),
+        'secondary_major': fields.String(required=False, description='The content of the education'),
+        'is_current': fields.Boolean(default=False, description='The education is current or not'),
+        'start_year': fields.Integer(required=False, description='The ID of the user'),
+        'end_year': fields.Integer(required=False, description='The ID of the user'),
+        'updated_date': fields.DateTime(description='The date education was updated'),
+        'created_date': fields.DateTime(required=True, description='The date education was created'),
+        'is_visible': fields.Boolean(default=False, description='Display the education or not')
+    })
 
     model_comment_request = api.model('comment_answer_request', {
         'comment': fields.String(required=True, description='The content of the comment'),
@@ -91,6 +103,7 @@ class AnswerDto(Dto):
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
         'question': fields.Nested(answer_question, description='The question information'),
+        'user_education': fields.Nested(user_education_answer, description='The user education information', attribute='user_education'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),        
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),

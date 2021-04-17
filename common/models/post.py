@@ -8,6 +8,7 @@ from datetime import datetime
 # third-party modules
 from flask import g
 from sqlalchemy.sql import expression
+from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
 
 # own modules
@@ -29,7 +30,7 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     user = db.relationship('User', lazy=True)
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
-    views_count = db.Column(db.Integer, server_default=0)
+    views_count = db.Column(db.Integer, server_default="0")
 
     @aggregated('post_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):
@@ -44,7 +45,7 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
         return db.func.count('1')
 
     scheduled_date = db.Column(db.DateTime)
-    last_activity = db.Column(db.DateTime, server_default=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, server_default=func.now())
     allow_favorite = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     is_draft = db.Column(db.Boolean, server_default=expression.false())
