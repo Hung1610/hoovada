@@ -459,6 +459,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
 
+
     def get_recommended_topics(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')

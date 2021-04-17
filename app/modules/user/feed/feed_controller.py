@@ -4,7 +4,6 @@
 # build-in modules
 import json
 from http import HTTPStatus
-import dateutil.parser
 
 # third-party modules
 import requests
