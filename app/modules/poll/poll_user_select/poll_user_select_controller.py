@@ -36,7 +36,7 @@ class PollUserSelectController(Controller):
         if poll_select is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Select', poll_select_id))
         
-        if poll_select.created_by_user_id != current_user.id:
+        if poll_select.user_id != current_user.id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
 
@@ -49,7 +49,7 @@ class PollUserSelectController(Controller):
         if poll_user_select.poll_select is None:
             return send_error(message=messages.ERR_CREATE_FAILED.format('Poll Select', 'This poll select has been deleted!'))
         
-        if poll_user_select.poll_select.created_by_user_id != current_user.id:
+        if poll_user_select.poll_select.user_id != current_user.id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
     
 

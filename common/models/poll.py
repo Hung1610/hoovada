@@ -88,8 +88,8 @@ class PollSelect(Model, AuditCreateMixin, AuditUpdateMixin):
     poll = db.relationship('Poll', uselist=False, lazy=True)
     poll_user_selects = db.relationship('PollUserSelect', lazy=True)
     content = db.Column(db.UnicodeText, nullable=False)
-    created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    created_by_user = db.relationship('User', uselist=False, lazy=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
+    user = db.relationship('User', uselist=False, lazy=True)
 
     @aggregated('poll_user_selects', db.Column(db.Integer))
     def select_count(self):

@@ -66,7 +66,7 @@ class PollTopicController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Topic', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll_topic.created_by_user_id != current_user.id):
+            if current_user is None or (poll_topic.user_id != current_user.id):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(poll_topic)

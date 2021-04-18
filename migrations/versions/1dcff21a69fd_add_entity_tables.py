@@ -93,13 +93,13 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('poll_id', sa.Integer(), nullable=False),
     sa.Column('content', sa.UnicodeText(), nullable=False),
-    sa.Column('created_by_user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('poll_user_select_count', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['created_by_user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_poll_select_created_by_user_id'), 'poll_select', ['created_by_user_id'], unique=False)
+    op.create_index(op.f('ix_poll_select_user_id'), 'poll_select', ['user_id'], unique=False)
     op.create_index(op.f('ix_poll_select_poll_id'), 'poll_select', ['poll_id'], unique=False)
     op.create_table('poll_share',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -228,7 +228,7 @@ def downgrade():
     op.drop_index(op.f('ix_poll_share_poll_id'), table_name='poll_share')
     op.drop_table('poll_share')
     op.drop_index(op.f('ix_poll_select_poll_id'), table_name='poll_select')
-    op.drop_index(op.f('ix_poll_select_created_by_user_id'), table_name='poll_select')
+    op.drop_index(op.f('ix_poll_select_user_id'), table_name='poll_select')
     op.drop_table('poll_select')
     op.drop_index(op.f('ix_poll_favorite_user_id'), table_name='poll_favorite')
     op.drop_table('poll_favorite')

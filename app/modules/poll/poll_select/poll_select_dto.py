@@ -47,7 +47,7 @@ class PollSelectDto(Dto):
         'poll_id': fields.Integer(description='The ID of the poll'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
-        "created_by_user": fields.Nested(model_user, description='The detail of user creating'),
+        "user": fields.Nested(model_user, description='The detail of user creating'),
         'content': fields.String(default=None, description='The content of the poll select'),
         'poll_user_selects': fields.Nested(model_poll_user_selects, description='List all users selecting'),
     })

@@ -185,7 +185,7 @@ class PollController(Controller):
                 poll_select = PollSelect()
                 poll_select.content = poll_select_content
                 poll_select.poll_id = poll.id
-                poll_select.created_by_user_id = current_user.id
+                poll_select.user_id = current_user.id
                 db.session.add(poll_select)
     
             for topic_id in data['poll_topics']:
