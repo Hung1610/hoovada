@@ -55,7 +55,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     def comment_count(self):
         return db.func.count('1')
 
-    @aggregated('poll_selects', db.Column(db.Integer, default="0",  nullable=False))
+    @aggregated('poll_selects', db.Column(db.Integer, server_default="0",  nullable=False))
     def select_count(self):
         return db.func.count('1')
 
