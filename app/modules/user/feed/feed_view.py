@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from app.modules.user.user_controller import UserController
+from app.modules.user.feed.feed_controller import UserFeedController
 from app.modules.user.feed.feed_dto import UserFeedDto
 from common.utils.decorator import token_required
 
@@ -25,11 +25,11 @@ user_feed_request = UserFeedDto.model_user_feed_request
 class UserGetFeed(Resource):
     @token_required
     def get(self):
-        """Get current user's feed"""
+        """Get current user's feed with only feed type's data"""
 
         args = user_feed_request.parse_args()
         args['get_data'] = False
-        controller = UserController()
+        controller = UserFeedController()
         return controller.get(args)
 
 
@@ -39,10 +39,10 @@ class UserGetFeed(Resource):
 class UserGetFeedAllData(Resource):
     @token_required
     def get(self):
-        """Get current user's feed"""
+        """Get current user's feed withn all feed type's data"""
 
         args = user_feed_request.parse_args()
         args['get_data'] = True
-        controller = UserController()
+        controller = UserFeedController()
         return controller.get(args)
 

@@ -19,13 +19,12 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = PollUserSelectDto.api
 poll_user_select_response = PollUserSelectDto.model_response
-poll_user_select_request = PollUserSelectDto.model_request
 get_parser = PollUserSelectDto.get_parser
 
 
 @api.route('/<string:poll_select_id>/user')
 class PollUserSelectList(Resource):
-    @api.response(code=200, model=poll_user_select_response, description='Model for poll user select response.')
+    @api.response(code=200, model=poll_user_select_response, description='Model for getting poll user select response.')
     #@cache.cached(query_string=True)
     def get(self, poll_select_id):
         """Get the list of poll user selects from database.
@@ -37,17 +36,16 @@ class PollUserSelectList(Resource):
 
 
     @token_required
-    # @api.marshal_with(answer)
-    @api.response(code=200, model=poll_user_select_response, description='Model for poll user select response.')
-    def post(self, poll_select_id):
-        """
-        Create new poll user select.
-        """
+    @api.expect(get_parser)
+    @api.response(code=200, model=poll_user_select_response, description='Model for posting poll user select response.')
+    def post(self):
+        """Create a list of poll selects"""
 
+        data = api.payload
         controller = PollUserSelectController()
-        return controller.create(poll_select_id=poll_select_id)
+        return controller.create(data=data)
 
-@api.route('/all/user/<int:poll_user_select_id>')
+@api.route('/user/<int:poll_user_select_id>')
 class PollUserSelect(Resource):
     @token_required
     def delete(self, poll_user_select_id):

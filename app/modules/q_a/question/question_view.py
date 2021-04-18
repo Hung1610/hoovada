@@ -55,8 +55,7 @@ class QuestionList(Resource):
 
         data = api.payload
         controller = QuestionController()
-        result = controller.create(data=data)
-        return result
+        return controller.create(data=data)
 
 
 @api.route('/recommended-users')

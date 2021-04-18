@@ -547,11 +547,9 @@ class UserMailedQuestion(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', backref=backref("mailed_question_users", cascade="all, delete-orphan"),
-                           lazy=True)  # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("mailed_question_users", cascade="all, delete-orphan"), lazy=True)  # one-to-many relationship with table Post
     question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=True, index=True)
-    question = db.relationship('Question', backref=backref("mailed_items", cascade="all, delete-orphan"),
-                               lazy=True)  # one-to-many relationship with table Post
+    question = db.relationship('Question', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True)  # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -568,9 +566,7 @@ class UserMailedArticle(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
-    user = db.relationship('User', backref=backref("mailed_article_users", cascade="all, delete-orphan"),
-                           lazy=True)  # one-to-many relationship with table Post
+    user = db.relationship('User', backref=backref("mailed_article_users", cascade="all, delete-orphan"), lazy=True)  # one-to-many relationship with table Post
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), nullable=True, index=True)
-    article = db.relationship('Article', backref=backref("mailed_items", cascade="all, delete-orphan"),
-                              lazy=True)  # one-to-many relationship with table Post
+    article = db.relationship('Article', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True)  # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
