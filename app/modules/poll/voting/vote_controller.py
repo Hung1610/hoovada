@@ -16,7 +16,6 @@ from app.constants import messages
 from app.modules.poll.voting.vote_dto import PollVoteDto
 from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole
 
