@@ -44,11 +44,14 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     def comment_count(self):
         return db.func.count('1')
 
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     scheduled_date = db.Column(db.DateTime)
     last_activity = db.Column(db.DateTime, server_default=func.now())
     allow_favorite = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     is_draft = db.Column(db.Boolean, server_default=expression.false())
+
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan', primaryjoin="and_(Post.id == remote(PostComment.post_id), remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
     post_favorites = db.relationship("PostFavorite", cascade='all,delete-orphan')
@@ -57,7 +60,6 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     def is_seen_by_me(self):
         UserSeenPost = db.get_model('UserSeenPost')
         if g.current_user:
-            seen = UserSeenPost.query.with_entities(UserSeenPost.id).filter(UserSeenPost.user_id == g.current_user.id,
-                                                                          UserSeenPost.post_id == self.id).first()
+            seen = UserSeenPost.query.with_entities(UserSeenPost.id).filter(UserSeenPost.user_id == g.current_user.id, UserSeenPost.post_id == self.id).first()
             return True if seen else False
         return False
