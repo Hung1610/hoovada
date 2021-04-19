@@ -66,13 +66,13 @@ class UserFeedController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format('user feed', str(e)))
 
     def get_by_id(self):
-        pass
+        return
 
     def delete(self):
-        pass
+        return
 
     def create(self):
-        pass
+        return
 
     def update(self):
-        pass
+        return
