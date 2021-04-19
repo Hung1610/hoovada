@@ -65,14 +65,14 @@ class UserFeedController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('user feed', str(e)))
 
-        def get_by_id(self):
-            pass
+    def get_by_id(self):
+        pass
 
-        def delete(self):
-            pass
+    def delete(self):
+        pass
 
-        def create(self):
-            pass
+    def create(self):
+        pass
 
-        def update(self):
-            pass
+    def update(self):
+        pass
