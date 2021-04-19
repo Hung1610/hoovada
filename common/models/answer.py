@@ -61,6 +61,14 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
 
     user_education_id = db.Column(db.Integer, db.ForeignKey('user_education.id', ondelete='CASCADE'), nullable=True, index=True)
     user_education = db.relationship('UserEducation', lazy=True) # one-to-many relationship with table UserEducation
+    user_location_id = db.Column(db.Integer, db.ForeignKey('user_location.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_location = db.relationship('UserLocation', uselist=False, lazy=True)
+    user_employment_id = db.Column(db.Integer, db.ForeignKey('user_employment.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_employment = db.relationship('UserEmployment', uselist=False, lazy=True)
+    user_language_id = db.Column(db.Integer, db.ForeignKey('user_language.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_language = db.relationship('UserLanguage', uselist=False, lazy=True)
+    user_topic_id = db.Column(db.Integer, db.ForeignKey('user_topic.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_topic = db.relationship('UserTopic', uselist=False, lazy=True)
 
     votes = db.relationship("AnswerVote", cascade='all,delete-orphan')
     answer_shares = db.relationship("AnswerShare", cascade='all,delete-orphan')

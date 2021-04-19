@@ -5,6 +5,7 @@
 from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
 from common.db import db
 from common.models.model import Model
+from sqlalchemy.sql import expression
 
 # third-party modules
 from sqlalchemy_utils import aggregated
@@ -21,7 +22,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.UnicodeText)
-    allow_multiple_user_select = db.Column(db.Boolean, server_default=False)
+    allow_multiple_user_select = db.Column(db.Boolean, server_default=expression.false())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True) 
     user = db.relationship('User', uselist=False, lazy=True)
     
@@ -29,8 +30,8 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False)
     fixed_topic = db.relationship("Topic", uselist=False, secondary="poll_topic", lazy=True)
 
-    expire_after_seconds = db.Column(db.Integer, server_default=86400) # 1 day
-    is_expire = db.Column(db.Boolean, server_default=False)
+    expire_after_seconds = db.Column(db.Integer, server_default="86400") # 1 day
+    is_expire = db.Column(db.Boolean, server_default=expression.false())
     
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())

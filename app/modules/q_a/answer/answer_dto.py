@@ -70,6 +70,82 @@ class AnswerDto(Dto):
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
 
+    model_user_education = api.model('model_user_education', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the education'),
+        'school': fields.String(required=True, description='The content of the education'),
+        'primary_major': fields.String(required=True, description='The content of the education'),
+        'secondary_major': fields.String(required=False, description='The content of the education'),
+        'is_current': fields.Boolean(default=False, description='The education is current or not'),
+        'start_year': fields.Integer(required=False, description='The ID of the user'),
+        'end_year': fields.Integer(required=False, description='The ID of the user'),
+        'user_id': fields.Integer(required=True, description='The ID of the user'),
+        'user': fields.Nested(answer_user, description='The information of the user'),
+        'updated_date': fields.DateTime(description='The date education was updated'),
+        'created_date': fields.DateTime(required=True, description='The date education was created'),
+        'is_visible': fields.Boolean(default=False, description='Display the education or not')
+    })
+
+    model_user_location = api.model('model_user_location', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the location'),
+        'location_detail': fields.String(required=True, description='The content of the location'),
+        'is_current': fields.Boolean(default=False, description='The location is current or not'),
+        'start_year': fields.Integer(required=False, description='The ID of the user'),
+        'end_year': fields.Integer(required=False, description='The ID of the user'),
+        'user_id': fields.Integer(required=True, description='The ID of the user'),
+        'user': fields.Nested(answer_user, description='The information of the user'),
+        'updated_date': fields.DateTime(description='The date location was updated'),
+        'created_date': fields.DateTime(required=True, description='The date location was created'),
+        'is_visible': fields.Boolean(default=False, description='Display the location or not')
+    })
+
+    model_language = api.model('language_for_user', {
+        'id': fields.Integer(readonly=True, description='The ID of the language'),
+        'name': fields.String(description='The name of the language'),
+        'description': fields.String(description='Description about language')
+    })
+
+
+    model_user_language = api.model('model_user_language', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the language'),
+        'language_id': fields.Integer(description='The ID of the parent language'),
+        'language': fields.Nested(model_language, description='The information of the user'),
+        'level': fields.String(required=True, description='The level of proficiency of the user for the language'),
+        'user_id': fields.Integer(required=True, description='The ID of the user'),
+        'user': fields.Nested(answer_user, description='The information of the user'),
+        'is_default': fields.Boolean(default=False, description='The location is default or not'),
+        'updated_date': fields.DateTime(description='The date language was updated'),
+        'created_date': fields.DateTime(required=True, description='The date language was created'),
+        'is_visible': fields.Boolean(default=False, description='Display the language or not')
+    })
+
+
+    model_user_employment = api.model('model_user_employment', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID'),
+        'user_id': fields.Integer(required=True, description='The user ID'),
+        'position': fields.String(required=True, description='The position'),
+        'company': fields.String(required=True, description='The company'),
+        'start_year': fields.Integer(description='The start year'),
+        'end_year': fields.Integer(description='The end year'),
+        'is_current': fields.Integer(description='The currently work'),
+        'created_date':fields.DateTime(description='The date user_employment record was created.'),
+        'is_visible': fields.Boolean(default=False, description='Display the user employment or not')
+    })
+
+    model_user_topic = api.model('model_user_topic', {
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the topic'),
+        'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic', attribute='topic.parent.id'),
+        'fixed_topic': fields.Nested(model_topic, description='The information of the user', attribute='topic.parent'),
+        'topic_id': fields.Integer(description='The ID of the parent topic'),
+        'topic': fields.Nested(model_topic, description='The information of the user'),
+        'description': fields.String(required=True, description='The content of the topic'),
+        'user_id': fields.Integer(required=True, description='The ID of the user'),
+        'user': fields.Nested(answer_user, description='The information of the user'),
+        'is_default': fields.Boolean(default=False, description='The location is default or not'),
+        'updated_date': fields.DateTime(description='The date topic was updated'),
+        'created_date': fields.DateTime(required=True, description='The date topic was created'),
+        'is_visible': fields.Boolean(default=False, description='Display the topic or not')
+    })
+
     model_response = api.model('answer_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the answer'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
@@ -94,6 +170,11 @@ class AnswerDto(Dto):
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),        
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'user_education': fields.Nested(model_user_education,default={},  skip_none=True,  description='The user info about education'),
+        'user_location': fields.Nested(model_user_location,default={},  skip_none=True,  description='The user info about location'),
+        'user_language': fields.Nested(model_user_language,default={},  skip_none=True,  description='The user info about language'),
+        'user_employment': fields.Nested(model_user_employment,default={}, skip_none=True, description='The user info about employment'),
+        'user_topic': fields.Nested(model_user_topic,skip_none=True,default={}, description='The user info about topic'),
     })
 
     upload_parser = api.parser()

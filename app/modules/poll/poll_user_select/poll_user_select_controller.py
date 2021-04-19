@@ -10,8 +10,6 @@ from flask_restx import marshal
 
 # own modules
 from common.db import db
-from common.utils.onesignal_notif import push_notif_to_specific_users
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.controllers.controller import Controller
 from app.constants import messages
@@ -30,29 +28,6 @@ User = db.get_model('User')
 class PollUserSelectController(Controller):
     query_classname = 'PollUserSelect'
 
-    def _auth_poll_select(self, poll_select_id, current_user):
-        poll_select = PollSelect.query.filter_by(id=poll_select_id).first()
-        
-        if poll_select is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Select', poll_select_id))
-        
-        if poll_select.user_id != current_user.id:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
-
-    def _auth_poll_user_select(self, poll_user_select_id, current_user):
-        
-        poll_user_select = PollUserSelect.query.filter_by(id=poll_user_select_id).first()
-        if poll_user_select is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll User Select', poll_user_select_id))
-        
-        if poll_user_select.poll_select is None:
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Poll Select', 'This poll select has been deleted!'))
-        
-        if poll_user_select.poll_select.user_id != current_user.id:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-    
-
     def get_by_id(self, object_id):
         raise NotImplementedError()
 
@@ -65,7 +40,6 @@ class PollUserSelectController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if not current_user:
             return send_error(code=401, message=messages.ERR_NOT_LOGIN)
-        self._auth_poll_select(poll_select_id=poll_select_id, current_user=current_user)
         poll_user_selects = PollUserSelect.query.filter_by(poll_select_id=poll_select_id)
         if poll_user_selects is None or len(poll_user_selects) == 0:
             return send_result(message='Could not find any poll user select.')
@@ -76,14 +50,12 @@ class PollUserSelectController(Controller):
         try:
             current_user, _ = current_app.get_logged_user(request)
             if not current_user:
-                return send_error(code=401, message=messages.ERR_NOT_LOGIN)
-        
-            self._auth_poll_user_select(poll_user_select_id=object_id, current_user=current_user)
-        
+                return send_error(code=401, message=messages.ERR_NOT_LOGIN)        
             poll_user_select = PollUserSelect.query.filter_by(id=object_id).first()
             if poll_user_select is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll User Select', object_id))            
-        
+            if poll_user_select.user_id != current_user.id:
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             db.session.delete(poll_user_select)
             db.session.commit()
             return send_result(message=messages.MSG_DELETE_SUCCESS)

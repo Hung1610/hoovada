@@ -12,7 +12,6 @@ from flask_restx import marshal
 from common.db import db
 from app.modules.poll.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
 from common.utils.types import PermissionType

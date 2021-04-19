@@ -570,3 +570,4 @@ class UserMailedArticle(Model):
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), nullable=True, index=True)
     article = db.relationship('Article', backref=backref("mailed_items", cascade="all, delete-orphan"), lazy=True)  # one-to-many relationship with table Post
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+

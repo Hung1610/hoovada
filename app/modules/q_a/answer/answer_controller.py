@@ -38,25 +38,80 @@ UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
 Question = db.get_model('Question')
 QuestionUserInvite = db.get_model('QuestionUserInvite')
+UserAnswerProfile = db.get_model('UserAnswerProfile')
+UserLanguage = db.get_model('UserLanguage')
+UserEmployment = db.get_model('UserEmployment')
+UserLocation = db.get_model('UserLocation')
+UserEducation = db.get_model('UserEducation')
+UserTopic = db.get_model('UserTopic')
 
 
 class AnswerController(Controller):
     query_classname = 'Answer'
     allowed_ordering_fields = [
         'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
+    
+    def _validate_user_profile(self, current_user, data):
+        user_profile = None
+        user_profile_data_count = 0
+        error = None
+        if 'user_language_id' in data:
+            user_language = UserLanguage.query.filter_by(id=data['user_language_id']).first()
+            if not user_language:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLanguage', data['user_language_id']))
+            if user_language.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            user_profile_data_count += 1
+            user_profile = user_language, 'UserLanguage'
+        if 'user_employment_id' in data:
+            user_employment = UserEmployment.query.filter_by(id=data['user_employment_id']).first()
+            if not user_employment:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEmployment', data['user_employment_id']))
+            if user_employment.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            user_profile_data_count += 1
+            user_profile = user_employment, 'UserEmployment'
+        if 'user_location_id' in data:
+            user_location = UserLocation.query.filter_by(id=data['user_location_id']).first()
+            if not user_location:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLocation', data['user_location_id']))
+            if user_location.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            user_profile_data_count += 1
+            user_profile = user_location, 'UserLocation'
+        if 'user_education_id' in data:
+            user_education = UserEducation.query.filter_by(id=data['user_education_id']).first()
+            if not user_education:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEducation', data['user_education_id']))
+            if user_education.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            user_profile_data_count += 1
+            user_profile = user_education, 'UserEducation'
+        if 'user_topic_id' in data:
+            user_topic = UserTopic.query.filter_by(id=data['user_topic_id']).first()
+            if not user_topic:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserTopic', data['user_topic_id']))
+            if user_topic.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            user_profile_data_count += 1
+            user_profile = user_topic, 'UserTopic'
+        if user_profile_data_count != 1:
+            return None, send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
+        return user_profile, None
 
     def create(self, data):
+        current_user, _ = current_app.get_logged_user(request)
+        if not current_user:
+            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         if not 'question_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question ID'))
         if not 'answer' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer body'))
-
-        current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
-
+        user_profile, error_res = self._validate_user_profile(current_user, data)
+        if error_res:
+            return error_res
         data['user_id'] = current_user.id
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
@@ -79,6 +134,17 @@ class AnswerController(Controller):
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
             db.session.add(answer)
+            if user_profile:
+                if user_profile[1] == 'UserLanguage':
+                    answer.user_language_id = user_profile[0].id
+                if user_profile[1] == 'UserEmployment':
+                    answer.user_employment_id = user_profile[0].id
+                if user_profile[1] == 'UserEducation':
+                    answer.user_education_id = user_profile[0].id
+                if user_profile[1] == 'UserLocation':
+                    answer.user_location_id = user_profile[0].id
+                if user_profile[1] == 'UserTopic':
+                    answer.user_topic_id = user_profile[0].id
 
             # TODO: if this is invited question then update status in invited_question_table
             question_user_invites = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).all()
