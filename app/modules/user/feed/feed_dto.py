@@ -192,7 +192,7 @@ class UserFeedDto(Dto):
 	    'total' : fields.Integer(required=False, allow_none=True, allow_empty=True, description='Number of blogs in this list')
 	})
 
-	model_user_feed_all_response = api.model('feed_all_response', {
+	model_feed_all_data_details_response = api.model('feed_all_data_details_response', {
 	    'feed_type': fields.String(required=False),
 	    'article' : fields.Nested(model_article_list, required=False, allow_none=True, allow_empty=True),
 	    'question' : fields.Nested(model_question, required=False, allow_none=True, allow_empty=True),
@@ -202,6 +202,10 @@ class UserFeedDto(Dto):
 	    'ranked_score': fields.Float(required=False),
 	})
 
+    model_feed_all_data_response = api.model('feed_all_data_response', {
+        'data' : fields.Nested(model_feed_all_data_details_response, description='Feed all data', required=False)
+    })
+
 
 	model_article_feed_response = api.model('article_feed_response', {
 	    'article_list': fields.List(fields.Integer(required=False), required=False),
@@ -209,7 +213,8 @@ class UserFeedDto(Dto):
 	    'total': fields.Integer(required=False),
 	})
 
-	model_user_feed_response = api.model('user_feed_response', {
+
+	model_feed_details_response = api.model('feed_details_response', {
 	    'feed_type': fields.String(required=False),
 	    'article': fields.Nested(model_article_feed_response, required=False),
 	    'question_id': fields.Integer(required=False),
@@ -218,5 +223,10 @@ class UserFeedDto(Dto):
 	    'poll_id': fields.Integer(required=False),
 	    'ranked_score': fields.Float(required=False),
 	})
+
+    model_feed_response = api.model('get_feed_all_response', {
+        'data' : fields.Nested(model_feed_details_response, description='Feed', required=False)
+    })
+
 
 	model_user_feed_request = Dto.paginated_request_parser.copy()

@@ -53,9 +53,9 @@ class UserFeedController(Controller):
             resp = json.loads(response.content)
             if response.status_code == HTTPStatus.OK:
                 if get_data is False:
-                    data = marshal(resp['data'], UserFeedDto.model_user_feed_response)
+                    data = marshal(resp['data'], UserFeedDto.model_feed_response)
                 else:
-                    data = marshal(resp['data'], UserFeedDto.model_user_feed_all_response)
+                    data = marshal(resp['data'], UserFeedDto.model_feed_all_data_response)
                 return send_paginated_result(data=data, page=page, total=len(data), message='Success')
             
             else:
