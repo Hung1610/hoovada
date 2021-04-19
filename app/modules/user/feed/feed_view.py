@@ -14,8 +14,8 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = UserFeedDto.api
-feed_response = UserFeedDto.model_feed_response
-feed_all_data_response = UserFeedDto.model_feed_all_data_response
+feed_response = UserFeedDto.model_feed_details_response
+feed_all_data_response = UserFeedDto.model_feed_all_data_details_response
 feed_request = UserFeedDto.model_user_feed_request
 
 
