@@ -1,8 +1,8 @@
-"""empty message
+"""add initial
 
-Revision ID: initial
+Revision ID: 11eb4dc8affc
 Revises: 
-Create Date: 2021-01-26 21:46:30.668581
+Create Date: 2021-04-19 17:16:52.647060
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'initial'
+revision = '11eb4dc8affc'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -77,27 +77,28 @@ def upgrade():
     sa.Column('about_me', sa.Text(), nullable=True),
     sa.Column('document_pic_url', sa.String(length=255), nullable=True),
     sa.Column('verified_document', sa.Boolean(), nullable=True),
+    sa.Column('show_fullname_instead_of_display_name', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('show_email_publicly_setting', sa.Boolean(), nullable=True),
     sa.Column('hoovada_digests_setting', sa.Boolean(), nullable=True),
     sa.Column('hoovada_digests_frequency_setting', sa.Enum('weekly', 'daily', name='frequencysettingenum'), server_default='weekly', nullable=False),
-    sa.Column('new_answer_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_answer_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('my_question_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('my_question_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_question_comment_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_question_comment_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_answer_comment_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_answer_comment_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_article_comment_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('new_article_comment_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('question_invite_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('question_invite_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('new_answer_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('new_answer_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('my_question_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('my_question_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('new_question_comment_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('new_question_comment_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('new_answer_comment_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('new_answer_comment_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('new_article_comment_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('new_article_comment_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('question_invite_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('question_invite_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('follow_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('follow_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('followed_new_publication_notify_settings', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('followed_new_publication_email_settings', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('friend_request_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('friend_request_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('follow_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('follow_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('followed_new_publication_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('followed_new_publication_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('admin_interaction_notify_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('admin_interaction_email_settings', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('last_message_read_time', sa.DateTime(), nullable=True),
@@ -121,6 +122,7 @@ def upgrade():
     sa.Column('answer_downvoted_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('answer_report_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('answer_reported_count', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('is_first_log_in', sa.SmallInteger(), server_default='0', nullable=True, comment='Determine if this is the first time user logged in (0: No, 1: Yes)'),
     sa.Column('topic_followed_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('topic_created_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('comment_count', sa.Integer(), server_default='0', nullable=True),
@@ -156,6 +158,7 @@ def upgrade():
     sa.Column('end_year', sa.Integer(), nullable=True),
     sa.Column('is_current', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_employment_user_id'), 'user_employment', ['user_id'], unique=False)
@@ -172,6 +175,40 @@ def upgrade():
     )
     op.create_index(op.f('ix_article_report_article_id'), 'article_report', ['article_id'], unique=False)
     op.create_index(op.f('ix_article_report_user_id'), 'article_report', ['user_id'], unique=False)
+    op.create_table('poll_report',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('description', sa.String(length=255), nullable=True),
+    sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
+    sa.Column('poll_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_report_poll_id'), 'poll_report', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_poll_report_user_id'), 'poll_report', ['user_id'], unique=False)
+    op.create_table('post',
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('html', sa.UnicodeText(), nullable=True),
+    sa.Column('file_url', sa.String(length=255), nullable=True),
+    sa.Column('views_count', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('scheduled_date', sa.DateTime(), nullable=True),
+    sa.Column('last_activity', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('allow_favorite', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('is_draft', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
     op.create_table('post_report',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -231,13 +268,13 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_education_user_id'), 'user_education', ['user_id'], unique=False)
     op.create_table('user_follow',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('is_approved', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('follower_id', sa.Integer(), nullable=True),
@@ -269,6 +306,7 @@ def upgrade():
     sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['language_id'], ['language.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -284,6 +322,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -308,8 +347,9 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('fixed_topic_id', sa.Integer(), nullable=False),
     sa.Column('html', sa.UnicodeText(), nullable=True),
-    sa.Column('allow_voting', sa.Boolean(), nullable=True),
-    sa.Column('views_count', sa.Integer(), nullable=True),
+    sa.Column('views_count', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('allow_voting', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('downvote_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
@@ -327,30 +367,73 @@ def upgrade():
     op.create_index(op.f('ix_article_fixed_topic_id'), 'article', ['fixed_topic_id'], unique=False)
     op.create_index(op.f('ix_article_slug'), 'article', ['slug'], unique=False)
     op.create_index(op.f('ix_article_user_id'), 'article', ['user_id'], unique=False)
-    op.create_table('post',
+    op.create_table('poll',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.UnicodeText(), nullable=True),
+    sa.Column('allow_multiple_user_select', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('fixed_topic_id', sa.Integer(), nullable=True),
-    sa.Column('html', sa.UnicodeText(), nullable=True),
-    sa.Column('file_url', sa.String(length=255), nullable=True),
-    sa.Column('views_count', sa.Integer(), nullable=True),
-    sa.Column('upvote_count', sa.Integer(), nullable=True),
-    sa.Column('downvote_count', sa.Integer(), nullable=True),
-    sa.Column('share_count', sa.Integer(), nullable=True),
-    sa.Column('comment_count', sa.Integer(), nullable=True),
-    sa.Column('scheduled_date', sa.DateTime(), nullable=True),
-    sa.Column('last_activity', sa.DateTime(), nullable=True),
-    sa.Column('allow_favorite', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('is_draft', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('fixed_topic_id', sa.Integer(), nullable=False),
+    sa.Column('expire_after_seconds', sa.Integer(), server_default='86400', nullable=True),
+    sa.Column('is_expire', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('allow_voting', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('downvote_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('select_count', sa.Integer(), server_default='0', nullable=False),
     sa.ForeignKeyConstraint(['fixed_topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_post_fixed_topic_id'), 'post', ['fixed_topic_id'], unique=False)
-    op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
+    op.create_index(op.f('ix_poll_user_id'), 'poll', ['user_id'], unique=False)
+    op.create_table('post_comment',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('comment', sa.UnicodeText(), nullable=True),
+    sa.Column('allow_favorite', sa.Boolean(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('post_id', sa.Integer(), nullable=True),
+    sa.Column('favorite_count', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_post_comment_post_id'), 'post_comment', ['post_id'], unique=False)
+    op.create_index(op.f('ix_post_comment_user_id'), 'post_comment', ['user_id'], unique=False)
+    op.create_table('post_favorite',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('post_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_post_favorite_user_id'), 'post_favorite', ['user_id'], unique=False)
+    op.create_table('post_share',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('facebook', sa.Boolean(), nullable=True),
+    sa.Column('twitter', sa.Boolean(), nullable=True),
+    sa.Column('linkedin', sa.Boolean(), nullable=True),
+    sa.Column('zalo', sa.Boolean(), nullable=True),
+    sa.Column('vkontakte', sa.Boolean(), nullable=True),
+    sa.Column('mail', sa.Boolean(), nullable=True),
+    sa.Column('link_copied', sa.Boolean(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('post_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_post_share_post_id'), 'post_share', ['post_id'], unique=False)
+    op.create_index(op.f('ix_post_share_user_id'), 'post_share', ['user_id'], unique=False)
     op.create_table('question',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
@@ -361,11 +444,12 @@ def upgrade():
     sa.Column('slug', sa.String(length=255), nullable=True),
     sa.Column('question', sa.UnicodeText(), nullable=True),
     sa.Column('accepted_answer_id', sa.Integer(), nullable=True),
+    sa.Column('allow_voting', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_video_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('allow_audio_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_private', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('last_activity', sa.DateTime(), nullable=True),
+    sa.Column('last_activity', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('views_count', sa.Integer(), server_default='0', nullable=True),
     sa.Column('answers_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
@@ -392,15 +476,16 @@ def upgrade():
     sa.Column('slug', sa.String(length=255), nullable=True),
     sa.Column('question', sa.UnicodeText(), nullable=True),
     sa.Column('accepted_answer_id', sa.Integer(), nullable=True),
+    sa.Column('allow_voting', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_video_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('allow_audio_answer', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_private', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('last_activity', sa.DateTime(), nullable=True),
+    sa.Column('last_activity', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('fixed_topic_id', sa.Integer(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=True),
-    sa.Column('proposal_created_date', sa.DateTime(), nullable=True),
-    sa.Column('proposal_updated_date', sa.DateTime(), nullable=True),
+    sa.Column('proposal_created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('proposal_updated_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('is_parma_delete', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('is_approved', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -438,7 +523,6 @@ def upgrade():
     op.create_index(op.f('ix_topic_bookmark_user_id'), 'topic_bookmark', ['user_id'], unique=False)
     op.create_table('topic_follow',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('is_approved', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -494,6 +578,17 @@ def upgrade():
     op.create_index(op.f('ix_topic_user_endorse_endorsed_id'), 'topic_user_endorse', ['endorsed_id'], unique=False)
     op.create_index(op.f('ix_topic_user_endorse_topic_id'), 'topic_user_endorse', ['topic_id'], unique=False)
     op.create_index(op.f('ix_topic_user_endorse_user_id'), 'topic_user_endorse', ['user_id'], unique=False)
+    op.create_table('user_seen_post',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('post_id', sa.Integer(), nullable=True),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_seen_post_post_id'), 'user_seen_post', ['post_id'], unique=False)
+    op.create_index(op.f('ix_user_seen_post_user_id'), 'user_seen_post', ['user_id'], unique=False)
     op.create_table('user_topic',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
@@ -502,6 +597,7 @@ def upgrade():
     sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -520,6 +616,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('allow_voting', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_improvement', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('file_url', sa.String(length=255), nullable=True),
     sa.Column('file_type', sa.Enum('AUDIO', 'VIDEO', name='filetypeenum'), nullable=True),
@@ -528,13 +625,39 @@ def upgrade():
     sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
+    sa.Column('user_education_id', sa.Integer(), nullable=True),
+    sa.Column('user_location_id', sa.Integer(), nullable=True),
+    sa.Column('user_employment_id', sa.Integer(), nullable=True),
+    sa.Column('user_language_id', sa.Integer(), nullable=True),
+    sa.Column('user_topic_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_education_id'], ['user_education.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_employment_id'], ['user_employment.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_language_id'], ['user_language.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_location_id'], ['user_location.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_topic_id'], ['user_topic.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'question_id')
     )
     op.create_index(op.f('ix_answer_question_id'), 'answer', ['question_id'], unique=False)
+    op.create_index(op.f('ix_answer_user_education_id'), 'answer', ['user_education_id'], unique=False)
+    op.create_index(op.f('ix_answer_user_employment_id'), 'answer', ['user_employment_id'], unique=False)
     op.create_index(op.f('ix_answer_user_id'), 'answer', ['user_id'], unique=False)
+    op.create_index(op.f('ix_answer_user_language_id'), 'answer', ['user_language_id'], unique=False)
+    op.create_index(op.f('ix_answer_user_location_id'), 'answer', ['user_location_id'], unique=False)
+    op.create_index(op.f('ix_answer_user_topic_id'), 'answer', ['user_topic_id'], unique=False)
+    op.create_table('article_bookmark',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('article_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_article_bookmark_user_id'), 'article_bookmark', ['user_id'], unique=False)
     op.create_table('article_comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.UnicodeText(), nullable=True),
@@ -592,32 +715,58 @@ def upgrade():
     )
     op.create_index(op.f('ix_article_vote_article_id'), 'article_vote', ['article_id'], unique=False)
     op.create_index(op.f('ix_article_vote_user_id'), 'article_vote', ['user_id'], unique=False)
-    op.create_table('post_comment',
+    op.create_table('poll_bookmark',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('poll_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_bookmark_user_id'), 'poll_bookmark', ['user_id'], unique=False)
+    op.create_table('poll_comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.UnicodeText(), nullable=True),
     sa.Column('allow_favorite', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('post_id', sa.Integer(), nullable=True),
+    sa.Column('poll_id', sa.Integer(), nullable=True),
+    sa.Column('favorite_count', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_post_comment_post_id'), 'post_comment', ['post_id'], unique=False)
-    op.create_index(op.f('ix_post_comment_user_id'), 'post_comment', ['user_id'], unique=False)
-    op.create_table('post_favorite',
+    op.create_index(op.f('ix_poll_comment_poll_id'), 'poll_comment', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_poll_comment_user_id'), 'poll_comment', ['user_id'], unique=False)
+    op.create_table('poll_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.Column('post_id', sa.Integer(), nullable=False),
+    sa.Column('poll_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_post_favorite_user_id'), 'post_favorite', ['user_id'], unique=False)
-    op.create_table('post_share',
+    op.create_index(op.f('ix_poll_favorite_user_id'), 'poll_favorite', ['user_id'], unique=False)
+    op.create_table('poll_select',
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('poll_id', sa.Integer(), nullable=False),
+    sa.Column('content', sa.UnicodeText(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('select_count', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_select_poll_id'), 'poll_select', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_poll_select_user_id'), 'poll_select', ['user_id'], unique=False)
+    op.create_table('poll_share',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('facebook', sa.Boolean(), nullable=True),
@@ -628,26 +777,63 @@ def upgrade():
     sa.Column('mail', sa.Boolean(), nullable=True),
     sa.Column('link_copied', sa.Boolean(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('post_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.Column('poll_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_post_share_post_id'), 'post_share', ['post_id'], unique=False)
-    op.create_index(op.f('ix_post_share_user_id'), 'post_share', ['user_id'], unique=False)
-    op.create_table('post_vote',
+    op.create_index(op.f('ix_poll_share_poll_id'), 'poll_share', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_poll_share_user_id'), 'poll_share', ['user_id'], unique=False)
+    op.create_table('poll_topic',
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('poll_id', sa.Integer(), nullable=False),
+    sa.Column('topic_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_topic_poll_id'), 'poll_topic', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_poll_topic_topic_id'), 'poll_topic', ['topic_id'], unique=False)
+    op.create_table('poll_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('vote_status', sa.Enum('NEUTRAL', 'UPVOTED', 'DOWNVOTED', name='votingstatusenum'), server_default='NEUTRAL', nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.Column('post_id', sa.Integer(), nullable=True),
+    sa.Column('poll_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_post_vote_post_id'), 'post_vote', ['post_id'], unique=False)
-    op.create_index(op.f('ix_post_vote_user_id'), 'post_vote', ['user_id'], unique=False)
+    op.create_index(op.f('ix_poll_vote_poll_id'), 'poll_vote', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_poll_vote_user_id'), 'poll_vote', ['user_id'], unique=False)
+    op.create_table('post_comment_favorite',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('post_comment_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['post_comment_id'], ['post_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_post_comment_favorite_user_id'), 'post_comment_favorite', ['user_id'], unique=False)
+    op.create_table('post_comment_report',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('description', sa.String(length=255), nullable=True),
+    sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
+    sa.Column('comment_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['comment_id'], ['post_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_post_comment_report_comment_id'), 'post_comment_report', ['comment_id'], unique=False)
+    op.create_index(op.f('ix_post_comment_report_user_id'), 'post_comment_report', ['user_id'], unique=False)
     op.create_table('question_bookmark',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -689,7 +875,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=True),
     sa.Column('question_proposal_id', sa.Integer(), nullable=True),
-    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['question_proposal_id'], ['question_proposal.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -732,16 +918,18 @@ def upgrade():
     op.create_table('question_topic',
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=False),
-    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE')
     )
     op.create_table('question_user_invite',
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('question_id', sa.Integer(), nullable=False),
+    sa.Column('status', sa.SmallInteger(), server_default='0', nullable=True, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)'),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('user_id', 'question_id')
+    sa.PrimaryKeyConstraint('id', 'user_id', 'question_id')
     )
     op.create_table('question_vote',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -762,13 +950,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('topic_id', 'article_id')
-    )
-    op.create_table('topic_post',
-    sa.Column('topic_id', sa.Integer(), nullable=False),
-    sa.Column('post_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('topic_id', 'post_id')
     )
     op.create_table('user_mailed_article',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -803,6 +984,17 @@ def upgrade():
     )
     op.create_index(op.f('ix_user_seen_article_article_id'), 'user_seen_article', ['article_id'], unique=False)
     op.create_index(op.f('ix_user_seen_article_user_id'), 'user_seen_article', ['user_id'], unique=False)
+    op.create_table('user_seen_poll',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('poll_id', sa.Integer(), nullable=True),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_seen_poll_poll_id'), 'user_seen_poll', ['poll_id'], unique=False)
+    op.create_index(op.f('ix_user_seen_poll_user_id'), 'user_seen_poll', ['user_id'], unique=False)
     op.create_table('user_seen_question',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -935,6 +1127,43 @@ def upgrade():
     )
     op.create_index(op.f('ix_article_comment_report_comment_id'), 'article_comment_report', ['comment_id'], unique=False)
     op.create_index(op.f('ix_article_comment_report_user_id'), 'article_comment_report', ['user_id'], unique=False)
+    op.create_table('poll_comment_favorite',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('poll_comment_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['poll_comment_id'], ['poll_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_comment_favorite_user_id'), 'poll_comment_favorite', ['user_id'], unique=False)
+    op.create_table('poll_comment_report',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('description', sa.String(length=255), nullable=True),
+    sa.Column('report_type', sa.Enum('GENERAL', 'INAPPROPRIATE', 'DUPLICATE', name='reporttypeenum'), server_default='GENERAL', nullable=False),
+    sa.Column('comment_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['comment_id'], ['poll_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_comment_report_comment_id'), 'poll_comment_report', ['comment_id'], unique=False)
+    op.create_index(op.f('ix_poll_comment_report_user_id'), 'poll_comment_report', ['user_id'], unique=False)
+    op.create_table('poll_user_select',
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('poll_select_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['poll_select_id'], ['poll_select.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_poll_user_select_poll_select_id'), 'poll_user_select', ['poll_select_id'], unique=False)
+    op.create_index(op.f('ix_poll_user_select_user_id'), 'poll_user_select', ['user_id'], unique=False)
     op.create_table('question_comment_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -1007,12 +1236,16 @@ def upgrade():
     sa.Column('answer_comment_id', sa.Integer(), nullable=True),
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('article_comment_id', sa.Integer(), nullable=True),
+    sa.Column('poll_id', sa.Integer(), nullable=True),
+    sa.Column('poll_comment_id', sa.Integer(), nullable=True),
     sa.Column('activity', sa.Enum('COMMENTED', 'FAVORITED', 'UPVOTED', 'DOWNVOTED', 'REPORTED', name='timelineactivityenum'), nullable=True),
     sa.Column('activity_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['answer_comment_id'], ['answer_comment.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['article_comment_id'], ['article_comment.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['poll_comment_id'], ['poll_comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['question_comment_id'], ['question_comment.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
@@ -1020,6 +1253,7 @@ def upgrade():
     )
     op.create_index(op.f('ix_timeline_answer_id'), 'timeline', ['answer_id'], unique=False)
     op.create_index(op.f('ix_timeline_article_id'), 'timeline', ['article_id'], unique=False)
+    op.create_index(op.f('ix_timeline_poll_id'), 'timeline', ['poll_id'], unique=False)
     op.create_index(op.f('ix_timeline_question_id'), 'timeline', ['question_id'], unique=False)
     op.create_index(op.f('ix_timeline_user_id'), 'timeline', ['user_id'], unique=False)
     # ### end Alembic commands ###
@@ -1029,6 +1263,7 @@ def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_index(op.f('ix_timeline_user_id'), table_name='timeline')
     op.drop_index(op.f('ix_timeline_question_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_poll_id'), table_name='timeline')
     op.drop_index(op.f('ix_timeline_article_id'), table_name='timeline')
     op.drop_index(op.f('ix_timeline_answer_id'), table_name='timeline')
     op.drop_table('timeline')
@@ -1045,6 +1280,14 @@ def downgrade():
     op.drop_table('question_comment_report')
     op.drop_index(op.f('ix_question_comment_favorite_user_id'), table_name='question_comment_favorite')
     op.drop_table('question_comment_favorite')
+    op.drop_index(op.f('ix_poll_user_select_user_id'), table_name='poll_user_select')
+    op.drop_index(op.f('ix_poll_user_select_poll_select_id'), table_name='poll_user_select')
+    op.drop_table('poll_user_select')
+    op.drop_index(op.f('ix_poll_comment_report_user_id'), table_name='poll_comment_report')
+    op.drop_index(op.f('ix_poll_comment_report_comment_id'), table_name='poll_comment_report')
+    op.drop_table('poll_comment_report')
+    op.drop_index(op.f('ix_poll_comment_favorite_user_id'), table_name='poll_comment_favorite')
+    op.drop_table('poll_comment_favorite')
     op.drop_index(op.f('ix_article_comment_report_user_id'), table_name='article_comment_report')
     op.drop_index(op.f('ix_article_comment_report_comment_id'), table_name='article_comment_report')
     op.drop_table('article_comment_report')
@@ -1072,6 +1315,9 @@ def downgrade():
     op.drop_index(op.f('ix_user_seen_question_user_id'), table_name='user_seen_question')
     op.drop_index(op.f('ix_user_seen_question_question_id'), table_name='user_seen_question')
     op.drop_table('user_seen_question')
+    op.drop_index(op.f('ix_user_seen_poll_user_id'), table_name='user_seen_poll')
+    op.drop_index(op.f('ix_user_seen_poll_poll_id'), table_name='user_seen_poll')
+    op.drop_table('user_seen_poll')
     op.drop_index(op.f('ix_user_seen_article_user_id'), table_name='user_seen_article')
     op.drop_index(op.f('ix_user_seen_article_article_id'), table_name='user_seen_article')
     op.drop_table('user_seen_article')
@@ -1081,7 +1327,6 @@ def downgrade():
     op.drop_index(op.f('ix_user_mailed_article_user_id'), table_name='user_mailed_article')
     op.drop_index(op.f('ix_user_mailed_article_article_id'), table_name='user_mailed_article')
     op.drop_table('user_mailed_article')
-    op.drop_table('topic_post')
     op.drop_table('topic_article')
     op.drop_index(op.f('ix_question_vote_user_id'), table_name='question_vote')
     op.drop_index(op.f('ix_question_vote_question_id'), table_name='question_vote')
@@ -1103,17 +1348,30 @@ def downgrade():
     op.drop_table('question_comment')
     op.drop_index(op.f('ix_question_bookmark_user_id'), table_name='question_bookmark')
     op.drop_table('question_bookmark')
-    op.drop_index(op.f('ix_post_vote_user_id'), table_name='post_vote')
-    op.drop_index(op.f('ix_post_vote_post_id'), table_name='post_vote')
-    op.drop_table('post_vote')
-    op.drop_index(op.f('ix_post_share_user_id'), table_name='post_share')
-    op.drop_index(op.f('ix_post_share_post_id'), table_name='post_share')
-    op.drop_table('post_share')
-    op.drop_index(op.f('ix_post_favorite_user_id'), table_name='post_favorite')
-    op.drop_table('post_favorite')
-    op.drop_index(op.f('ix_post_comment_user_id'), table_name='post_comment')
-    op.drop_index(op.f('ix_post_comment_post_id'), table_name='post_comment')
-    op.drop_table('post_comment')
+    op.drop_index(op.f('ix_post_comment_report_user_id'), table_name='post_comment_report')
+    op.drop_index(op.f('ix_post_comment_report_comment_id'), table_name='post_comment_report')
+    op.drop_table('post_comment_report')
+    op.drop_index(op.f('ix_post_comment_favorite_user_id'), table_name='post_comment_favorite')
+    op.drop_table('post_comment_favorite')
+    op.drop_index(op.f('ix_poll_vote_user_id'), table_name='poll_vote')
+    op.drop_index(op.f('ix_poll_vote_poll_id'), table_name='poll_vote')
+    op.drop_table('poll_vote')
+    op.drop_index(op.f('ix_poll_topic_topic_id'), table_name='poll_topic')
+    op.drop_index(op.f('ix_poll_topic_poll_id'), table_name='poll_topic')
+    op.drop_table('poll_topic')
+    op.drop_index(op.f('ix_poll_share_user_id'), table_name='poll_share')
+    op.drop_index(op.f('ix_poll_share_poll_id'), table_name='poll_share')
+    op.drop_table('poll_share')
+    op.drop_index(op.f('ix_poll_select_user_id'), table_name='poll_select')
+    op.drop_index(op.f('ix_poll_select_poll_id'), table_name='poll_select')
+    op.drop_table('poll_select')
+    op.drop_index(op.f('ix_poll_favorite_user_id'), table_name='poll_favorite')
+    op.drop_table('poll_favorite')
+    op.drop_index(op.f('ix_poll_comment_user_id'), table_name='poll_comment')
+    op.drop_index(op.f('ix_poll_comment_poll_id'), table_name='poll_comment')
+    op.drop_table('poll_comment')
+    op.drop_index(op.f('ix_poll_bookmark_user_id'), table_name='poll_bookmark')
+    op.drop_table('poll_bookmark')
     op.drop_index(op.f('ix_article_vote_user_id'), table_name='article_vote')
     op.drop_index(op.f('ix_article_vote_article_id'), table_name='article_vote')
     op.drop_table('article_vote')
@@ -1125,12 +1383,22 @@ def downgrade():
     op.drop_index(op.f('ix_article_comment_user_id'), table_name='article_comment')
     op.drop_index(op.f('ix_article_comment_article_id'), table_name='article_comment')
     op.drop_table('article_comment')
+    op.drop_index(op.f('ix_article_bookmark_user_id'), table_name='article_bookmark')
+    op.drop_table('article_bookmark')
+    op.drop_index(op.f('ix_answer_user_topic_id'), table_name='answer')
+    op.drop_index(op.f('ix_answer_user_location_id'), table_name='answer')
+    op.drop_index(op.f('ix_answer_user_language_id'), table_name='answer')
     op.drop_index(op.f('ix_answer_user_id'), table_name='answer')
+    op.drop_index(op.f('ix_answer_user_employment_id'), table_name='answer')
+    op.drop_index(op.f('ix_answer_user_education_id'), table_name='answer')
     op.drop_index(op.f('ix_answer_question_id'), table_name='answer')
     op.drop_table('answer')
     op.drop_index(op.f('ix_user_topic_user_id'), table_name='user_topic')
     op.drop_index(op.f('ix_user_topic_topic_id'), table_name='user_topic')
     op.drop_table('user_topic')
+    op.drop_index(op.f('ix_user_seen_post_user_id'), table_name='user_seen_post')
+    op.drop_index(op.f('ix_user_seen_post_post_id'), table_name='user_seen_post')
+    op.drop_table('user_seen_post')
     op.drop_index(op.f('ix_topic_user_endorse_user_id'), table_name='topic_user_endorse')
     op.drop_index(op.f('ix_topic_user_endorse_topic_id'), table_name='topic_user_endorse')
     op.drop_index(op.f('ix_topic_user_endorse_endorsed_id'), table_name='topic_user_endorse')
@@ -1158,9 +1426,16 @@ def downgrade():
     op.drop_index(op.f('ix_question_slug'), table_name='question')
     op.drop_index(op.f('ix_question_fixed_topic_id'), table_name='question')
     op.drop_table('question')
-    op.drop_index(op.f('ix_post_user_id'), table_name='post')
-    op.drop_index(op.f('ix_post_fixed_topic_id'), table_name='post')
-    op.drop_table('post')
+    op.drop_index(op.f('ix_post_share_user_id'), table_name='post_share')
+    op.drop_index(op.f('ix_post_share_post_id'), table_name='post_share')
+    op.drop_table('post_share')
+    op.drop_index(op.f('ix_post_favorite_user_id'), table_name='post_favorite')
+    op.drop_table('post_favorite')
+    op.drop_index(op.f('ix_post_comment_user_id'), table_name='post_comment')
+    op.drop_index(op.f('ix_post_comment_post_id'), table_name='post_comment')
+    op.drop_table('post_comment')
+    op.drop_index(op.f('ix_poll_user_id'), table_name='poll')
+    op.drop_table('poll')
     op.drop_index(op.f('ix_article_user_id'), table_name='article')
     op.drop_index(op.f('ix_article_slug'), table_name='article')
     op.drop_index(op.f('ix_article_fixed_topic_id'), table_name='article')
@@ -1189,6 +1464,11 @@ def downgrade():
     op.drop_index(op.f('ix_post_report_user_id'), table_name='post_report')
     op.drop_index(op.f('ix_post_report_post_id'), table_name='post_report')
     op.drop_table('post_report')
+    op.drop_index(op.f('ix_post_user_id'), table_name='post')
+    op.drop_table('post')
+    op.drop_index(op.f('ix_poll_report_user_id'), table_name='poll_report')
+    op.drop_index(op.f('ix_poll_report_poll_id'), table_name='poll_report')
+    op.drop_table('poll_report')
     op.drop_index(op.f('ix_article_report_user_id'), table_name='article_report')
     op.drop_index(op.f('ix_article_report_article_id'), table_name='article_report')
     op.drop_table('article_report')
