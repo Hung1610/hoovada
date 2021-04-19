@@ -14,14 +14,14 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = UserFeedDto.api
-user_feed_response = UserFeedDto.model_user_feed_response
-user_feed_all_response = UserFeedDto.model_user_feed_all_response
-user_feed_request = UserFeedDto.model_user_feed_request
+feed_response = UserFeedDto.model_feed_response
+feed_all_response = UserFeedDto.model_feed_all_data_response
+feed_request = UserFeedDto.model_user_feed_request
 
 
 @api.route('/feed')
 @api.expect(user_feed_request)
-@api.response(code=200, model=user_feed_response, description='Model for feed of user response (only feed IDs).')
+@api.response(code=200, model=feed_response, description='Model for feed of user response (only feed IDs).')
 class UserGetFeed(Resource):
     @token_required
     def get(self):
@@ -35,7 +35,7 @@ class UserGetFeed(Resource):
 
 @api.route('/feed_all_data')
 @api.expect(user_feed_request)
-@api.response(code=200, model=user_feed_all_response, description='Model for feed of user response (all data).')
+@api.response(code=200, model=feed_all_response, description='Model for feed of user response (all data).')
 class UserGetFeedAllData(Resource):
     @token_required
     def get(self):
