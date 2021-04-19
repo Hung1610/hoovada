@@ -27,7 +27,7 @@ class UserGetFeed(Resource):
     def get(self):
         """Get current user's feed with only feed type's data"""
 
-        args = user_feed_request.parse_args()
+        args = feed_request.parse_args()
         args['get_data'] = False
         controller = UserFeedController()
         return controller.get(args)
@@ -41,7 +41,7 @@ class UserGetFeedAllData(Resource):
     def get(self):
         """Get current user's feed withn all feed type's data"""
 
-        args = user_feed_request.parse_args()
+        args = feed_request.parse_args()
         args['get_data'] = True
         controller = UserFeedController()
         return controller.get(args)
