@@ -30,7 +30,7 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     user = db.relationship('User', lazy=True)
     html = db.Column(db.UnicodeText)
     file_url = db.Column(db.String(255))
-    views_count = db.Column(db.Integer, server_default="0")
+    views_count = db.Column(db.Integer, server_default="0", nullable=False)
 
     @aggregated('post_shares', db.Column(db.Integer, server_default="0", nullable=False))
     def share_count(self):

@@ -64,3 +64,15 @@ class UserFeedController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('user feed', str(e)))
+
+        def get_by_id(self, object_id):
+            pass
+
+        def delete(self):
+            pass
+
+        def create(self)
+            pass
+
+        def update(self)
+            pass
