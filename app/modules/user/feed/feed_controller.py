@@ -16,7 +16,7 @@ from app.settings.config import BaseConfig
 from common.db import db
 from app.modules.user.feed.feed_dto import UserFeedDto
 from common.controllers.controller import Controller
-from common.utils.response import send_paginated_result
+from common.utils.response import send_paginated_result, send_error
 
 
 __author__ = "hoovada.com team"
