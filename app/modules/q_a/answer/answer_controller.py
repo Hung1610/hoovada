@@ -58,46 +58,44 @@ class AnswerController(Controller):
         if 'user_language_id' in data:
             user_language = UserLanguage.query.filter_by(id=data['user_language_id']).first()
             if not user_language:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLanguage', data['user_language_id']))
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLanguage', data['user_language_id'])), user_profile_data_count
             if user_language.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
             user_profile_data_count += 1
             user_profile = user_language, 'UserLanguage'
         if 'user_employment_id' in data:
             user_employment = UserEmployment.query.filter_by(id=data['user_employment_id']).first()
             if not user_employment:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEmployment', data['user_employment_id']))
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEmployment', data['user_employment_id'])), user_profile_data_count
             if user_employment.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
             user_profile_data_count += 1
             user_profile = user_employment, 'UserEmployment'
         if 'user_location_id' in data:
             user_location = UserLocation.query.filter_by(id=data['user_location_id']).first()
             if not user_location:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLocation', data['user_location_id']))
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLocation', data['user_location_id'])), user_profile_data_count
             if user_location.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
             user_profile_data_count += 1
             user_profile = user_location, 'UserLocation'
         if 'user_education_id' in data:
             user_education = UserEducation.query.filter_by(id=data['user_education_id']).first()
             if not user_education:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEducation', data['user_education_id']))
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEducation', data['user_education_id'])), user_profile_data_count
             if user_education.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
             user_profile_data_count += 1
             user_profile = user_education, 'UserEducation'
         if 'user_topic_id' in data:
             user_topic = UserTopic.query.filter_by(id=data['user_topic_id']).first()
             if not user_topic:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserTopic', data['user_topic_id']))
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserTopic', data['user_topic_id'])), user_profile_data_count
             if user_topic.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
             user_profile_data_count += 1
             user_profile = user_topic, 'UserTopic'
-        if user_profile_data_count != 1:
-            return None, send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
-        return user_profile, None
+        return user_profile, None, user_profile_data_count
 
     def create(self, data):
         current_user, _ = current_app.get_logged_user(request)
@@ -109,9 +107,11 @@ class AnswerController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question ID'))
         if not 'answer' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer body'))
-        user_profile, error_res = self._validate_user_profile(current_user, data)
+        user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
         if error_res:
             return error_res
+        if field_count != 1:
+            return send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
         data['user_id'] = current_user.id
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
@@ -147,19 +147,15 @@ class AnswerController(Controller):
                     answer.user_topic_id = user_profile[0].id
 
             # TODO: if this is invited question then update status in invited_question_table
-            question_user_invites = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).all()
-            if len(question_user_invites) == 1:
-                question_user_invites[0].status = 1
-            
-            elif len(question_user_invites) == 0:
+            question_user_invite = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).first()
+            if question_user_invite:
+                question_user_invite.status = 1
+            else:
                 new_question_user_invite = QuestionUserInvite()
                 new_question_user_invite.user_id = data['user_id']
                 new_question_user_invite.question_id = data['question_id']
                 new_question_user_invite.status = 1
                 db.session.add(new_question_user_invite)
-            
-            else:
-                raise "Should have only one row"
             
             db.session.commit()
 
@@ -329,6 +325,11 @@ class AnswerController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
+            user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
+            if error_res:
+                return error_res
+            if field_count > 1:
+                return send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
             if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
@@ -345,6 +346,38 @@ class AnswerController(Controller):
 
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
+
+            if user_profile:
+                if user_profile[1] == 'UserLanguage':
+                    answer.user_language_id = user_profile[0].id
+                    answer.user_employment_id = None
+                    answer.user_education_id = None
+                    answer.user_location_id = None
+                    answer.user_topic_id = None
+                if user_profile[1] == 'UserEmployment':
+                    answer.user_employment_id = user_profile[0].id
+                    answer.user_language_id = None
+                    answer.user_education_id = None
+                    answer.user_location_id = None
+                    answer.user_topic_id = None
+                if user_profile[1] == 'UserEducation':
+                    answer.user_education_id = user_profile[0].id
+                    answer.user_language_id = None
+                    answer.user_employment_id = None
+                    answer.user_location_id = None
+                    answer.user_topic_id = None
+                if user_profile[1] == 'UserLocation':
+                    answer.user_location_id = user_profile[0].id
+                    answer.user_education_id = None
+                    answer.user_language_id = None
+                    answer.user_employment_id = None
+                    answer.user_topic_id = None
+                if user_profile[1] == 'UserTopic':
+                    answer.user_topic_id = user_profile[0].id
+                    answer.user_education_id = None
+                    answer.user_language_id = None
+                    answer.user_employment_id = None
+                    answer.user_location_id = None
             db.session.commit()
 
             result = answer._asdict()
