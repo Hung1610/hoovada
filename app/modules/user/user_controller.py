@@ -21,7 +21,7 @@ from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
 from common.utils.onesignal_notif import push_notif_to_specific_users
-from common.utils.response import paginated_result, send_error, send_result, send_paginated_result
+from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import delete_file, upload_file
