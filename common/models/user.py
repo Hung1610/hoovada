@@ -398,13 +398,13 @@ class UserLocation(Model):
 
     id = db.Column(db.Integer, primary_key=True)
     location_detail = db.Column(db.UnicodeText)
-    is_current = db.Column(db.Boolean, server_default=expression.false())
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) 
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_current = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
@@ -417,9 +417,9 @@ class UserLanguage(Model):
     level = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True)  
-    is_default = db.Column(db.Boolean, server_default=expression.false())
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_default = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
@@ -430,13 +430,13 @@ class UserEducation(Model):
     school = db.Column(db.UnicodeText)
     primary_major = db.Column(db.UnicodeText)
     secondary_major = db.Column(db.UnicodeText)
-    is_current = db.Column(db.Boolean, server_default=expression.false())
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_current = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
@@ -449,8 +449,8 @@ class UserEmployment(Model):
     company = db.Column(db.String(255))
     start_year = db.Column(db.Integer)
     end_year = db.Column(db.Integer)
-    is_current = db.Column(db.Integer, server_default=expression.false())
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_current = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
@@ -472,9 +472,9 @@ class UserTopic(Model):
     description = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True)
-    is_default = db.Column(db.Boolean, server_default=expression.false())
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_default = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
