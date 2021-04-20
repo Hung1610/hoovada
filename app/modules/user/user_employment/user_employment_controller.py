@@ -173,12 +173,6 @@ class UserEmploymentController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
-            if 'is_currently_work' in data:  
-                try:
-                    employment.is_currently_work = bool(data['is_currently_work'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
             if 'is_current' in data:  
                 try:
                     employment.is_current = bool(data['is_current'])
