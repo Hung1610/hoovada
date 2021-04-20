@@ -181,7 +181,7 @@ class UserEmploymentController(Controller):
                     pass
             if 'is_visible' in data:
                 try:
-                    education.is_visible = bool(data['is_visible'])
+                    employment.is_visible = bool(data['is_visible'])
                 except Exception as e:
                     print(e.__str__())
             if 'created_date' in data:
