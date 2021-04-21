@@ -12,7 +12,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
 
 # own modules
-from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
+from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 from common.db import db
 from common.models.model import Model
 

@@ -77,6 +77,7 @@ class ArticleDto(Dto):
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+        'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()
