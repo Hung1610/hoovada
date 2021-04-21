@@ -78,7 +78,6 @@ class UserEmploymentController(Controller):
             db.session.add(user_employment)
             db.session.commit()
 
-            # if is_default == true cac employment khac cua user cap nhat is_default == false
             UserEmployment.query.filter(UserEmployment.id != user_employment.id,UserEmployment.user_id == data['user_id'])\
                 .update({UserEmployment.is_current: 0}, synchronize_session=False)
             db.session.commit()

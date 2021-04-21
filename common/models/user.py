@@ -50,72 +50,81 @@ class User(Model):
     display_name = db.Column(db.Unicode(255), unique=True, nullable=False, index=True)  # , default='')
     phone_number = db.Column(db.String(255), unique=True, nullable=True)
     verification_sms_time = db.Column(db.DateTime, default=datetime.utcnow)
-
     first_name = db.Column(db.Unicode(255))  # (128), default='')
     middle_name = db.Column(db.Unicode(255))  # (128), default='')
     last_name = db.Column(db.Unicode(255))  # (128), default='')
-
     gender = db.Column(db.String(255))  # (10), default='')
     age = db.Column(db.String(255))  # (3), default='')
     birthday = db.Column(db.DateTime)
-    is_birthday_hidden = db.Column(db.Boolean, server_default=expression.false())
+    about_me = db.Column(db.Text, default='')
     email = db.Column(db.String(255))  # (255), unique=True)
     password_hash = db.Column(db.String(255))  # (128), default='')
-
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     joined_date = db.Column(db.DateTime, default=datetime.utcnow)
-    confirmed = db.Column(db.Boolean, default=False)
     email_confirmed_at = db.Column(db.DateTime, nullable=True)
-
     profile_pic_url = db.Column(db.String(255))  # (255), default='')
     cover_pic_url = db.Column(db.String(255))  # (255), default='')
-    admin = db.Column(db.String(255))
-    active = db.Column(db.Boolean, default=False)
-
-    reputation = db.Column(db.Integer, server_default='0')
-    profile_views = db.Column(db.Integer, server_default='0')
-
-    about_me = db.Column(db.Text, default='')
-
     document_pic_url = db.Column(db.String(255))
-    verified_document = db.Column(db.Boolean, default=False)
-
-    # Settings
-    show_fullname_instead_of_display_name = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-
-    show_email_publicly_setting = db.Column(db.Boolean, default=False)
-    hoovada_digests_setting = db.Column(db.Boolean, default=True)
-    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False,server_default='weekly')
+    last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
+    reputation = db.Column(db.Integer, server_default='0', nullable=False)
+    profile_views = db.Column(db.Integer, server_default='0', nullable=False)
+        
+    show_nsfw = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    is_deactivated = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    is_private = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    is_first_log_in = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    confirmed = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    is_birthday_hidden = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    admin = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    verified_document = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    show_fullname_instead_of_display_name = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
 
     # these fields are deprecated, set false by default
-    new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    new_answer_email_settings = db.Column(db.Boolean, server_default=expression.false())
-    my_question_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    my_question_email_settings = db.Column(db.Boolean, server_default=expression.false())
+    new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    new_answer_email_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    my_question_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    my_question_email_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     new_question_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    new_question_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-    new_answer_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    new_answer_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-    new_article_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    new_article_comment_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-    question_invite_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    question_invite_email_settings = db.Column(db.Boolean, server_default=expression.false())
-    follow_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    follow_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
-    followed_new_publication_notify_settings = db.Column(db.Boolean, server_default=expression.false())
-    followed_new_publication_email_settings = db.Column(db.Boolean, nullable=False, server_default=expression.false())
+    new_question_comment_email_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    new_answer_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    new_answer_comment_email_settings = db.Column(db.Boolean,  server_default=expression.false(), nullable=False)
+    new_article_comment_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    new_article_comment_email_settings = db.Column(db.Boolean,server_default=expression.false(), nullable=False)
+    question_invite_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    question_invite_email_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    follow_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    follow_email_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    followed_new_publication_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    followed_new_publication_email_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+
+    friend_request_notify_settings = db.Column(db.Boolean, server_default=expression.true(), nullable=False)
+    friend_request_email_settings = db.Column(db.Boolean, server_default=expression.true(), nullable=False)
+    admin_interaction_notify_settings = db.Column(db.Boolean, server_default=expression.true(), nullable=False)
+    admin_interaction_email_settings = db.Column(db.Boolean, server_default=expression.true(), nullable=False)
+
+    show_email_publicly_setting = db.Column(db.Boolean, server_default=expression.false(),  nullable=False)
+    hoovada_digests_setting = db.Column(db.Boolean, server_default=expression.true(),  nullable=False)
+    hoovada_digests_frequency_setting = db.Column(db.Enum(FrequencySettingEnum, validate_strings=True), nullable=False, server_default='weekly')
 
 
-    friend_request_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    friend_request_email_settings = db.Column(db.Boolean, server_default=expression.true())
+    questions = db.relationship("Question", cascade='all,delete-orphan')
+    @aggregated('questions', db.Column(db.Integer, server_default="0", nullable=False))
+    def question_aggregated_count(self):
+        return db.func.coalesce(
+            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
 
-    admin_interaction_notify_settings = db.Column(db.Boolean, server_default=expression.true())
-    admin_interaction_email_settings = db.Column(db.Boolean, server_default=expression.true())
-
-    last_message_read_time = db.Column(db.DateTime, default=datetime.utcnow)
-
-    question_favorite_count = db.Column(db.Integer, server_default='0', nullable=False)
-    question_favorited_count = db.Column(db.Integer, server_default='0', nullable=False)
+    @property
+    def question_count(self):
+        if self.question_aggregated_count is None:
+            self.question_aggregated_count = 0
+        if g.current_user and g.current_user.id == self.id:
+            Question = db.get_model('Question')
+            anonymous_count = Question.query.with_entities(db.func.count(Question.id)).filter( \
+                (Question.user_id == self.id) &
+                (Question.is_deleted != True) &
+                (Question.is_anonymous == True)).scalar()
+            return self.question_aggregated_count + anonymous_count
+        return self.question_aggregated_count
     question_share_count = db.Column(db.Integer, server_default='0', nullable=False)
     question_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
     question_report_count = db.Column(db.Integer, server_default='0', nullable=False)
@@ -125,103 +134,11 @@ class User(Model):
     question_downvote_count = db.Column(db.Integer, server_default='0', nullable=False)
     question_downvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
 
-    answer_share_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_favorite_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_favorited_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_upvote_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_upvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_downvote_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_downvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_report_count = db.Column(db.Integer, server_default='0', nullable=False)
-    answer_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
-    is_first_log_in = db.Column(db.SmallInteger, server_default='0', comment='Determine if this is the first time user logged in (0: No, 1: Yes)')
-
-    followed_topics = db.relationship('Topic', secondary='topic_follow', lazy='dynamic')
-
-    @aggregated('followed_topics', db.Column(db.Integer, server_default="0", nullable=False))
-    def topic_followed_count(self):
-        return db.func.count('1')
-
-    created_topics = db.relationship('Topic', lazy='dynamic')
-
-    @aggregated('created_topics', db.Column(db.Integer, server_default="0", nullable=False))
-    def topic_created_count(self):
-        return db.func.count('1')
-
-    @property
-    def user_follow_count(self):
-        followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(
-            UserFollow.followed_id == self.id).all()
-        follower_ids = [follower[0] for follower in followers]
-        follower_count = User.query.with_entities(db.func.count(User.id)) \
-            .filter(User.id.in_(follower_ids)) \
-            .filter(db.text('IFNULL(is_deactivated, False) = False')) \
-            .scalar()
-
-        return follower_count
-
-    @property
-    def user_followed_count(self):
-        followeds = UserFollow.query.with_entities(UserFollow.followed_id).filter(
-            UserFollow.follower_id == self.id).all()
-        followed_ids = [followed[0] for followed in followeds]
-        followed_count = User.query.with_entities(db.func.count(User.id)) \
-            .filter(User.id.in_(followed_ids)) \
-            .filter(db.text('IFNULL(is_deactivated, False) = False')) \
-            .scalar()
-
-        return followed_count
-
-    comment_count = db.Column(db.Integer, server_default='0', nullable=False)
-    comment_upvote_count = db.Column(db.Integer, server_default='0', nullable=False)
-    comment_upvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
-    comment_downvote_count = db.Column(db.Integer, server_default='0', nullable=False)
-    comment_downvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
-    comment_report_count = db.Column(db.Integer, server_default='0', nullable=False)
-    comment_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
-
-    user_report_count = db.Column(db.Integer, server_default='0', nullable=False)
-    user_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
-
-    article_share_count = db.Column(db.Integer, server_default='0', nullable=False)
-    article_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
-
-    is_deactivated = db.Column(db.Boolean, server_default=expression.false())
-
-    is_private = db.Column(db.Boolean, server_default=expression.false())
-
-    show_nsfw = db.Column(db.Boolean, server_default=expression.false())
-
-    articles = db.relationship("Article", cascade='all,delete-orphan')
-
-    @aggregated('articles', db.Column(db.Integer, server_default="0", nullable=False))
-    def article_aggregated_count(self):
-        return db.func.coalesce(
-            db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)), 0)
-
-    @property
-    def article_count(self):
-        if self.article_aggregated_count is None:
-            self.article_aggregated_count = 0
-
-        if g.current_user and g.current_user.id == self.id:
-            Article = db.get_model('Article')
-            anonymous_count = Article.query.with_entities(db.func.count(Article.id)).filter( \
-                (Article.user_id == self.id) &
-                (Article.is_deleted != True) &
-                (Article.is_anonymous == True)).scalar()
-            return self.article_aggregated_count + anonymous_count
-        return self.article_aggregated_count
-
     answers = db.relationship("Answer", cascade='all,delete-orphan')
-
     @aggregated('answers', db.Column(db.Integer, server_default="0", nullable=False))
     def answer_aggregated_count(self):
         return db.func.coalesce(db.func.sum(
-            db.func.if_(db.text('IFNULL(is_deleted, False) <> True') & db.text('IFNULL(is_anonymous, False) <> True'),
-                        1, 0)), 0)
-
+            db.func.if_(db.text('IFNULL(is_deleted, False) <> True') & db.text('IFNULL(is_anonymous, False) <> True'),1, 0)), 0)
     @property
     def answer_count(self):
         if self.answer_aggregated_count is None:
@@ -235,28 +152,67 @@ class User(Model):
                 (Answer.is_anonymous == True)).scalar()
             return self.answer_aggregated_count + anonymous_count
         return self.answer_aggregated_count
+    answer_share_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_upvote_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_upvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_downvote_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_downvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_report_count = db.Column(db.Integer, server_default='0', nullable=False)
+    answer_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
-    questions = db.relationship("Question", cascade='all,delete-orphan')
-
-    @aggregated('questions', db.Column(db.Integer, server_default="0", nullable=False))
-    def question_aggregated_count(self):
+    articles = db.relationship("Article", cascade='all,delete-orphan')
+    @aggregated('articles', db.Column(db.Integer, server_default="0", nullable=False))
+    def article_aggregated_count(self):
         return db.func.coalesce(
-            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
-
+            db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)), 0)
     @property
-    def question_count(self):
-        if self.question_aggregated_count is None:
-            self.question_aggregated_count = 0
+    def article_count(self):
+        if self.article_aggregated_count is None:
+            self.article_aggregated_count = 0
 
         if g.current_user and g.current_user.id == self.id:
-            Question = db.get_model('Question')
-            anonymous_count = Question.query.with_entities(db.func.count(Question.id)).filter( \
-                (Question.user_id == self.id) &
-                (Question.is_deleted != True) &
-                (Question.is_anonymous == True)).scalar()
-            return self.question_aggregated_count + anonymous_count
-        return self.question_aggregated_count
+            Article = db.get_model('Article')
+            anonymous_count = Article.query.with_entities(db.func.count(Article.id)).filter( \
+                (Article.user_id == self.id) &
+                (Article.is_deleted != True) &
+                (Article.is_anonymous == True)).scalar()
+            return self.article_aggregated_count + anonymous_count
+        return self.article_aggregated_count
+    article_share_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_upvote_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_upvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_downvote_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_downvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_report_count = db.Column(db.Integer, server_default='0', nullable=False)
+    article_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
+
+    @aggregated('polls', db.Column(db.Integer, server_default="0", nullable=False))
+    def poll_aggregated_count(self):
+        return db.func.coalesce(
+            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
+    @property
+    def poll_count(self):
+        if self.poll_aggregated_count is None:
+            self.poll_aggregated_count = 0
+
+        if g.current_user and g.current_user.id == self.id:
+            Poll = db.get_model('Poll')
+            anonymous_count = Poll.query.with_entities(db.func.count(Poll.id)).filter( \
+                (Poll.user_id == self.id) &
+                (Poll.is_anonymous == True)).scalar()
+            return self.poll_aggregated_count + anonymous_count
+        return self.poll_aggregated_count
+    poll_share_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_upvote_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_upvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_downvote_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_downvoted_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_report_count = db.Column(db.Integer, server_default='0', nullable=False)
+    poll_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
     @aggregated('posts', db.Column(db.Integer, server_default="0", nullable=False))
     def post_aggregated_count(self):
@@ -275,32 +231,70 @@ class User(Model):
                 (Post.is_anonymous == True)).scalar()
             return self.post_aggregated_count + anonymous_count
         return self.post_aggregated_count
+    post_share_count = db.Column(db.Integer, server_default='0', nullable=False)
+    post_shared_count = db.Column(db.Integer, server_default='0', nullable=False)
+    post_favorite_count = db.Column(db.Integer, server_default='0', nullable=False)
+    post_favorited_count = db.Column(db.Integer, server_default='0', nullable=False)
+    post_report_count = db.Column(db.Integer, server_default='0', nullable=False)
+    post_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
+    comment_count = db.Column(db.Integer, server_default='0', nullable=False)
+    comment_favorite_count = db.Column(db.Integer, server_default='0', nullable=False)
+    comment_favorited_count = db.Column(db.Integer, server_default='0', nullable=False)
+    comment_report_count = db.Column(db.Integer, server_default='0', nullable=False)
+    comment_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
-    @aggregated('polls', db.Column(db.Integer, server_default="0", nullable=False))
-    def poll_aggregated_count(self):
-        return db.func.coalesce(
-            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
+    topic_follow_count = db.Column(db.Integer, server_default='0', nullable=False)
+    followed_topics = db.relationship('Topic', secondary='topic_follow', lazy='dynamic')
+    @aggregated('followed_topics', db.Column(db.Integer, server_default="0", nullable=False))
+    def topic_followed_count(self):
+        return db.func.count('1')
+    created_topics = db.relationship('Topic', lazy='dynamic')
+    @aggregated('created_topics', db.Column(db.Integer, server_default="0", nullable=False))
+    def topic_created_count(self):
+        return db.func.count('1')
 
-
+    user_report_count = db.Column(db.Integer, server_default='0', nullable=False)
+    user_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
     @property
-    def poll_count(self):
-        if self.poll_aggregated_count is None:
-            self.poll_aggregated_count = 0
-
-        if g.current_user and g.current_user.id == self.id:
-            Poll = db.get_model('Poll')
-            anonymous_count = Poll.query.with_entities(db.func.count(Poll.id)).filter( \
-                (Poll.user_id == self.id) &
-                (Poll.is_anonymous == True)).scalar()
-            return self.poll_aggregated_count + anonymous_count
-        return self.poll_aggregated_count
-
-
-    timelines = db.relationship("Timeline", cascade='all,delete-orphan')
-    user_educations = db.relationship("UserEducation", cascade='all,delete-orphan')
-    user_locations = db.relationship("UserLocation", cascade='all,delete-orphan')
-    languages = db.relationship("Language", secondary='user_language')
+    def user_follow_count(self):
+        followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(
+            UserFollow.followed_id == self.id).all()
+        follower_ids = [follower[0] for follower in followers]
+        follower_count = User.query.with_entities(db.func.count(User.id)) \
+            .filter(User.id.in_(follower_ids)) \
+            .filter(db.text('IFNULL(is_deactivated, False) = False')) \
+            .scalar()
+        return follower_count
+    @property
+    def user_followed_count(self):
+        followeds = UserFollow.query.with_entities(UserFollow.followed_id).filter(
+            UserFollow.follower_id == self.id).all()
+        followed_ids = [followed[0] for followed in followeds]
+        followed_count = User.query.with_entities(db.func.count(User.id)) \
+            .filter(User.id.in_(followed_ids)) \
+            .filter(db.text('IFNULL(is_deactivated, False) = False')) \
+            .scalar()
+        return followed_count
+    @property
+    def friend_count(self):
+        UserFriend = db.get_model('UserFriend')
+        friend_count = UserFriend.query.with_entities(UserFriend.id).filter( \
+            (UserFriend.friend_id == self.id) |
+            (UserFriend.friended_id == self.id)).count()
+        return friend_count
+    @property
+    def endorsed_count(self):
+        try:
+            TopicUserEndorse = db.get_model('TopicUserEndorse')
+            if g.endorsed_topic_id:
+                endorsed_count = TopicUserEndorse.query.with_entities(TopicUserEndorse.id).filter(
+                    TopicUserEndorse.endorsed_id == self.id,
+                    TopicUserEndorse.topic_id == g.endorsed_topic_id).count()
+                return endorsed_count
+            return 0
+        except Exception as e:
+            print(e)
 
     @aggregated('sent_friend_requests', db.Column(db.Integer))
     def friends_sent_count(self):
@@ -336,13 +330,6 @@ class User(Model):
     def is_super_admin(self):
         return UserRole.is_super_admin(self.admin)
 
-    @property
-    def friend_count(self):
-        UserFriend = db.get_model('UserFriend')
-        friend_count = UserFriend.query.with_entities(UserFriend.id).filter( \
-            (UserFriend.friend_id == self.id) |
-            (UserFriend.friended_id == self.id)).count()
-        return friend_count
 
     @property
     def is_endorsed_by_me(self):
@@ -356,19 +343,6 @@ class User(Model):
                 return True if endorsed else False
             return False
         return False
-
-    @property
-    def endorsed_count(self):
-        try:
-            TopicUserEndorse = db.get_model('TopicUserEndorse')
-            if g.endorsed_topic_id:
-                endorsed_count = TopicUserEndorse.query.with_entities(TopicUserEndorse.id).filter(
-                    TopicUserEndorse.endorsed_id == self.id,
-                    TopicUserEndorse.topic_id == g.endorsed_topic_id).count()
-                return endorsed_count
-            return 0
-        except Exception as e:
-            print(e)
 
     @property
     def is_approved_friend(self):
@@ -451,7 +425,6 @@ class UserLanguage(Model):
     user = db.relationship('User', lazy=True)  
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    is_default = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
@@ -506,14 +479,11 @@ class UserTopic(Model):
     user = db.relationship('User', lazy=True)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    is_default = db.Column(db.Boolean, server_default=expression.false())
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
 class UserSeenQuestion(Model):
-    """
-    Define the questions that the user has seen.
-    """
+    """Define the questions that the user has seen."""
     __tablename__ = 'user_seen_question'
 
     id = db.Column(db.Integer, primary_key=True)

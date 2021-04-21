@@ -261,7 +261,6 @@ class AuthController:
             
             # activate when user re-login
             user.is_deactivated = False
-            user.active = True
             db.session.commit()
 
             auth_token = encode_auth_token(user_id=user.id)
@@ -620,9 +619,7 @@ class AuthController:
                     return send_error(message=messages.MSG_PHONE_SENT)
                 
                 user.is_deactivated = False
-                user.active = True
                 db.session.commit()
-
                 auth_token = encode_auth_token(user_id=user.id)
                 if auth_token:
                     return send_result(data={'access_token': auth_token.decode('utf8')})
@@ -691,7 +688,6 @@ class AuthController:
         
         try: 
             if check_verification(phone_number, code) is True:
-                user.active = True
                 user.is_deactivated = False
                 db.session.commit()
                 auth_token = encode_auth_token(user_id=user.id)
@@ -872,8 +868,6 @@ def save_social_account(provider, data):
             user.email_confirmed_at = datetime.now()
             
         user.is_deactivated = False
-        user.active = True
-
         social_account = SocialAccount.query.filter_by(uid=data['id']).first()
         if social_account is None:            
             social_account = SocialAccount(provider=provider, uid=data['id'], extra_data=json.dumps(data), user_id=user.id)
@@ -888,62 +882,3 @@ def save_social_account(provider, data):
     except Exception as e:
         print(e.__str__())
         raise e      
-
-
-"""
-
-def save_token(token):
-    blacklist_token = BlacklistToken(token=token)
-    try:
-        db.session.add(blacklist_token)
-        db.session.commit()
-        return send_result(message=messages.MSG_LOGOUT_SUCESS)
-    except Exception as e:
-        db.session.rollback()
-        return send_error(message=e)
-
-
-def save_social_account(provider, extra_data):
-    social_account = SocialAccount.query.filter_by(uid=extra_data.get('id')).first()
-    if social_account:
-        user = User.query.filter_by(id=social_account.user_id).first()
-        if not user:
-            raise Exception(messages.ERR_FAILED_LOGIN)
-        return user
-        
-    email = extra_data.get('email', '')
-    
-    banned = UserBan.query.filter(UserBan.ban_by == email).first()
-    if banned:
-        raise Exception(messages.ERR_BANNED_ACCOUNT)
-    
-    user = g.current_user
-    if not user:
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            #user_name = convert_vietnamese_diacritics(extra_data.get('name')).strip().replace(' ', '_').lower()
-            user_name = extra_data.get('name', '').strip()
-
-            first_name = extra_data.get('first_name', '')
-            last_name = extra_data.get('last_name', '')
-            middle_name = extra_data.get('middle_name', '')
-            user = User(display_name=user_name, email=email, confirmed=True, first_name=first_name, middle_name=middle_name, last_name=last_name)
-            user.set_password(password=provider + '_' + str(user_name))
-            
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except Exception as e:
-                print(e)
-                raise e
-    
-    try:
-        social_account = SocialAccount(provider=provider, uid=extra_data.get('id'), extra_data=json.dumps(extra_data), user_id=user.id)
-        db.session.add(social_account)
-        db.session.commit()
-        return user
-    except Exception as e:
-        print(e)
-        raise e
-
-"""

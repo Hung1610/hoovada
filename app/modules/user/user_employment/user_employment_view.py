@@ -36,7 +36,6 @@ class UserEmploymentList(Resource):
 
 parser = reqparse.RequestParser()
 parser.add_argument('user_id', type=int, required=True, help='Search employment by user_id')
-parser.add_argument('is_default', type=int, required=False, help='Search default display')
 
 @api.route('/all/employment')
 @api.expect(parser)

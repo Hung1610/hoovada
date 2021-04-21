@@ -85,8 +85,6 @@ class TopicController(Controller):
 
         try:
             topic = self._parse_topic(data=data, topic=None)
-            if topic.is_default:
-                UserTopic.query.filter_by(user_id=user_id).update({'is_default': False}, synchronize_session=False)
             db.session.add(topic)
             db.session.commit()
             return send_result(data=marshal(topic, TopicDto.model_response))
@@ -107,8 +105,6 @@ class TopicController(Controller):
 
             topic = self._parse_topic(data=data, topic=topic)
             topic.updated_date = datetime.utcnow()
-            if topic.is_default:
-                UserTopic.query.filter(UserTopic.id != topic.id, UserTopic.user_id == topic.user_id).update({'is_default': False}, synchronize_session=False)
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_response))
         except Exception as e:
@@ -179,13 +175,6 @@ class TopicController(Controller):
             except Exception as e:
                 print(e)
                 pass
-        if 'is_default' in data:
-            try:
-                topic.is_default = bool(data['is_default'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-
         if 'is_visible' in data:
             try:
                 topic.is_visible = bool(data['is_visible'])

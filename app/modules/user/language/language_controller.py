@@ -68,8 +68,6 @@ class LanguageController(Controller):
 
         try:
             language = self._parse_language(data=data, language=None)
-            if language.is_default:
-                UserLanguage.query.filter_by(user_id=user_id).update({'is_default': False}, synchronize_session=False)
             db.session.add(language)
             db.session.commit()
             return send_result(data=marshal(language, LanguageDto.model_response))
@@ -90,8 +88,6 @@ class LanguageController(Controller):
 
             language = self._parse_language(data=data, language=language)
             language.updated_date = datetime.utcnow()
-            if language.is_default:
-                UserLanguage.query.filter(UserLanguage.id != language.id, UserLanguage.user_id == language.user_id).update({'is_default': False}, synchronize_session=False)
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(language, LanguageDto.model_response))
         except Exception as e:
@@ -131,13 +127,6 @@ class LanguageController(Controller):
                 language.language_id = int(data['language_id'])
             except Exception as e:
                 print(e)
-                pass
-
-        if 'is_default' in data:
-            try:
-                language.is_default = bool(data['is_default'])
-            except Exception as e:
-                print(e.__str__())
                 pass
 
         if 'is_visible' in data:

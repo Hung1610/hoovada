@@ -281,11 +281,8 @@ class Logout(Resource):
 
     @token_required
     def post(self):
-        """Logout and update the active status of user"""
+        """Logout and update the last_seen time of user"""
 
-        # auth_header = request.headers.get('Authorization')
-        # return ControllerAuth.logout_user(data=auth_header)
-        # post_data = request.json
         controller = AuthController()
         return controller.logout_user(req=request)
 
