@@ -156,7 +156,7 @@ class BookmarkUserTopic(Resource):
         return controller.get_bookmarked_users(object_id=topic_id_or_slug, args=args)
 
 
-@api.route('/create_topics')
+@api.route('/create_fixed_topics')
 class CreateFixedTopic(Resource):
     def post(self):
         """ Create fixed topics"""

@@ -89,7 +89,7 @@ class TopicController(Controller):
                     db.session.commit()
         except Exception as e:
             print(e.__str__())
-            pass
+            return send_error(message='Could not create  fixed topic: {}'.format(str(e)))
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -128,17 +128,16 @@ class TopicController(Controller):
                 topic.name = topic.name.capitalize()
                 db.session.add(topic)
                 db.session.commit()
-                # Add bookmark for the creator
                 controller = TopicBookmarkController()
                 controller.create(topic_id=topic.id)
-                return send_result(message='Topic was created successfully.',
-                                   data=marshal(topic, TopicDto.model_topic_response))
+                return send_result(message='Topic was created successfully.', data=marshal(topic, TopicDto.model_topic_response))
+            
             else:  # topic already exist
                 return send_error(message='The topic with name {} already exist'.format(data['name']))
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not create topic, please try again!')
+            return send_error(message='Could not create topic {}'.format(str(e)))
 
 
     def get_query(self):
@@ -154,6 +153,7 @@ class TopicController(Controller):
             query = query.order_by(desc(text("article_count + question_count")))
         return query
 
+
     def get(self, args):
         try:
             query = self.get_query_results(args)
@@ -163,7 +163,6 @@ class TopicController(Controller):
             results = []
             for topic in topics:
                 result = topic._asdict()
-                # get user info
                 result['parent'] = topic.parent
                 result['children'] = topic.children
                 results.append(result)
@@ -172,7 +171,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load topics. Contact your administrator for solution.")
+            return send_error('Could not load topics: {}'.format(str(e)))
     
     def get_count(self, args):
         try:
@@ -181,6 +180,7 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error("Could not load topics. Contact your administrator for solution.")
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -192,6 +192,7 @@ class TopicController(Controller):
         if topic is None:
             return send_error(message="Could not find topic by this ID {}".format(object_id))
         return send_result(data=marshal(topic, TopicDto.model_topic_response), message='Success')
+
 
     def get_sub_topics(self, object_id):
         if object_id is None:
@@ -242,7 +243,8 @@ class TopicController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not update topic.')
+            return send_error(message='Could not update topic: {}'.format(str(e)))
+
 
     def delete(self, object_id):
         try:
@@ -418,10 +420,6 @@ class TopicController(Controller):
         try:
             for topic in topics:
                 topic.slug = '{}'.format(slugify(topic.name))
-                # if topic.parent:
-                #     topic.slug = '{}-{}'.format(slugify(topic.parent.name),slugify(topic.name))
-                # else:
-                #     topic.slug = '{}'.format(slugify(topic.name))
                 db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
@@ -432,10 +430,6 @@ class TopicController(Controller):
         topics = Topic.query.filter(Topic.is_fixed == True).all()
         try:
             for topic in topics:
-                #while topic.color_code is None:
-                #    color_code = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-                #    topic_with_same_code = Topic.query.filter(Topic.color_code == color_code, Topic.is_fixed == True).first()
-                #    if topic_with_same_code is None:
                 topic.color_code = "#675DDA"
                 db.session.commit()
 
@@ -455,13 +449,6 @@ class TopicController(Controller):
                 pass
         if 'name' in data:
             topic.name = data['name']
-            
-        #if 'count' in data:
-        #    try:
-        #        topic.count = int(data['count'])
-        #    except Exception as e:
-        #        print(e.__str__())
-        #        pass
         
         if 'user_id' in data:
             try:
@@ -469,13 +456,7 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        if 'is_fixed' in data:  # we do not parse the value of is_fixed, because the fixed topics already passed
-            pass
-            # try:
-            #     topic.is_fixed = bool(data['is_fixed'])
-            # except Exception as e:
-            #     print(e.__str__())
-            #     pass
+
         topic.is_fixed = False
         if 'created_date' in data:
             try:
