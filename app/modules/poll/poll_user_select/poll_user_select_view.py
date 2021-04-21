@@ -36,12 +36,12 @@ class PollUserSelectList(Resource):
 
 
     @token_required
-    @api.expect(get_parser)
     @api.response(code=200, model=poll_user_select_response, description='Model for posting poll user select response.')
-    def post(self):
+    def post(self, poll_select_id):
         """Create a list of poll selects"""
 
-        data = api.payload
+        data = {}
+        data['poll_select_id'] = poll_select_id
         controller = PollUserSelectController()
         return controller.create(data=data)
 

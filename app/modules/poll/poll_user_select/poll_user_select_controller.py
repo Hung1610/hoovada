@@ -40,10 +40,10 @@ class PollUserSelectController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if not current_user:
             return send_error(code=401, message=messages.ERR_NOT_LOGIN)
-        poll_user_selects = PollUserSelect.query.filter_by(poll_select_id=poll_select_id)
+        poll_user_selects = PollUserSelect.query.filter_by(poll_select_id=poll_select_id).all()
         if poll_user_selects is None or len(poll_user_selects) == 0:
             return send_result(message='Could not find any poll user select.')
-        return send_result(marshal(poll_user_selects, PollUserSelect.model_response), message='Success')
+        return send_result(marshal(poll_user_selects, PollUserSelectDto.model_response), message='Success')
 
 
     def delete(self, object_id):
