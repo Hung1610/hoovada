@@ -145,11 +145,13 @@ class UserFeedDto(Dto):
 	    'updated_date': fields.DateTime(description='The updated date'),
 	    'views_count': fields.Integer(default=0, description='The amount of post views'),
 	    'last_activity': fields.DateTime(description='The last time this post was updated.'),
+	    
 	    'share_count': fields.Integer(default=0, description='The amount of sharing'),
 	    'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
 	    'comment_count': fields.Integer(default=0, description='The amount of comments'),
+	    
 	    'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
-	    'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
+	    'is_anonymous': fields.Boolean(default=False, description='The post is created anonymously'),
 	    'file_url': fields.String(description='The file url'),
 	    'allow_favorite': fields.Boolean(default=False, description='Allow liking or not'),
 	    'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
@@ -169,21 +171,26 @@ class UserFeedDto(Dto):
 	    'id': fields.Integer(required=False, readonly=True, description='The ID of the poll'),
 	    'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
 	    'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
+	    'user': fields.Nested(model_user, description='The detail of owner user'),
 	    'title': fields.String(default=None, description='The title of the poll'),
 	    'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
 	    'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
 	    'poll_select_count': fields.Integer(description='Total count of selections'),
+	    'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),
+	    'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
+	    'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+
 	    'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
 	    'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
 	    'share_count': fields.Integer(default=0, description='The amount of sharing'),
 	    'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
 	    'comment_count': fields.Integer(default=0, description='The amount of comments'),
-	    'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),
-	    'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
-	    'user': fields.Nested(model_user, description='The detail of owner user'),
-	    'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
+	    
 	    'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
 	    'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+	    'allow_selecting': fields.Boolean(default=True, description='Allow select or not'),
+
+	    'is_anonymous': fields.Boolean(default=False, description='The poll is created anonymously'),
 	})
 
 	model_article_list = api.model('article_list', {

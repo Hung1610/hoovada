@@ -49,13 +49,14 @@ class PostDto(Dto):
         'updated_date': fields.DateTime(description='The updated date'),
         'views_count': fields.Integer(default=0, description='The amount of post views'),
         'last_activity': fields.DateTime(description='The last time this post was updated.'),
+        
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
+        
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
         'is_anonymous': fields.Boolean(default=False, description='The post is created anonymously'),
         'file_url': fields.String(description='The file url'),
-        'is_seen_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
         'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
         'allow_favorite': fields.Boolean(default=True, description='Allow favorite or not'),
     })
