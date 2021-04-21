@@ -91,7 +91,7 @@ class PollController(Controller):
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
         else:
             result = poll._asdict()
-            result['own_user'] = poll.own_user
+            result['user'] = poll.user
             result['topics'] = poll.topics
             result['fixed_topic'] = poll.fixed_topic
             result['poll_selects'] = poll.poll_selects

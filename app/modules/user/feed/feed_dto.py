@@ -180,7 +180,7 @@ class UserFeedDto(Dto):
 	    'comment_count': fields.Integer(default=0, description='The amount of comments'),
 	    'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),
 	    'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
-	    'own_user': fields.Nested(model_user, description='The detail of owner user'),
+	    'user': fields.Nested(model_user, description='The detail of owner user'),
 	    'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
 	    'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
 	    'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),

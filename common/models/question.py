@@ -23,10 +23,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class QuestionUserInvite(Model):
     __tablename__= 'question_user_invite'
-
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
-    question_id = db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True)
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    question_id = db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'))
     status = db.Column('status', db.SmallInteger, server_default="0", comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)')
 
 

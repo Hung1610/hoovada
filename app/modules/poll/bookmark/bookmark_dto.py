@@ -55,7 +55,7 @@ class PollBookmarkDto(Dto):
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-        "own_user": fields.Nested(model_user, description='The detail of owner user'),
+        "user": fields.Nested(model_user, description='The detail of owner user'),
         'title': fields.String(default=None, description='The title of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
