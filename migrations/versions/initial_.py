@@ -1,8 +1,8 @@
-"""add initial
+"""update post table to add poll
 
-Revision ID: 11eb4dc8affc
+Revision ID: d36d0283fa09
 Revises: 
-Create Date: 2021-04-19 17:16:52.647060
+Create Date: 2021-04-21 00:12:58.684183
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '11eb4dc8affc'
+revision = 'd36d0283fa09'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -156,9 +156,9 @@ def upgrade():
     sa.Column('company', sa.String(length=255), nullable=True),
     sa.Column('start_year', sa.Integer(), nullable=True),
     sa.Column('end_year', sa.Integer(), nullable=True),
-    sa.Column('is_current', sa.Integer(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('is_visible', sa.Boolean(), nullable=True),
+    sa.Column('is_current', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_employment_user_id'), 'user_employment', ['user_id'], unique=False)
@@ -194,7 +194,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('html', sa.UnicodeText(), nullable=True),
     sa.Column('file_url', sa.String(length=255), nullable=True),
-    sa.Column('views_count', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('views_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('favorite_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('comment_count', sa.Integer(), server_default='0', nullable=False),
@@ -262,13 +262,13 @@ def upgrade():
     sa.Column('school', sa.UnicodeText(), nullable=True),
     sa.Column('primary_major', sa.UnicodeText(), nullable=True),
     sa.Column('secondary_major', sa.UnicodeText(), nullable=True),
-    sa.Column('is_current', sa.Boolean(), nullable=True),
     sa.Column('start_year', sa.Integer(), nullable=True),
     sa.Column('end_year', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('is_visible', sa.Boolean(), nullable=True),
+    sa.Column('is_current', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -303,10 +303,10 @@ def upgrade():
     sa.Column('language_id', sa.Integer(), nullable=False),
     sa.Column('level', sa.UnicodeText(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('is_visible', sa.Boolean(), nullable=True),
+    sa.Column('is_default', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.ForeignKeyConstraint(['language_id'], ['language.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -316,13 +316,13 @@ def upgrade():
     op.create_table('user_location',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('location_detail', sa.UnicodeText(), nullable=True),
-    sa.Column('is_current', sa.Boolean(), nullable=True),
     sa.Column('start_year', sa.Integer(), nullable=True),
     sa.Column('end_year', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('is_visible', sa.Boolean(), nullable=True),
+    sa.Column('is_current', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -331,7 +331,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('permission_id', sa.Integer(), nullable=True),
-    sa.Column('allow', sa.Boolean(), nullable=True),
+    sa.Column('allow', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.ForeignKeyConstraint(['permission_id'], ['permission.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -594,10 +594,10 @@ def upgrade():
     sa.Column('topic_id', sa.Integer(), nullable=False),
     sa.Column('description', sa.UnicodeText(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('is_visible', sa.Boolean(), nullable=True),
+    sa.Column('is_default', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -924,12 +924,12 @@ def upgrade():
     )
     op.create_table('question_user_invite',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('question_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('question_id', sa.Integer(), nullable=True),
     sa.Column('status', sa.SmallInteger(), server_default='0', nullable=True, comment='Determine the status of the invited question (0: unanswered, 1: answered, 2: declined)'),
     sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id', 'user_id', 'question_id')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('question_vote',
     sa.Column('id', sa.Integer(), nullable=False),
