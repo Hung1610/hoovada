@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.poll.poll_user_select.poll_user_select_controller import PollUserSelectController
@@ -24,11 +23,11 @@ get_parser = PollUserSelectDto.get_parser
 
 @api.route('/<string:poll_select_id>/user')
 class PollUserSelectList(Resource):
+    @api.expect(get_parser)
     @api.response(code=200, model=poll_user_select_response, description='Model for getting poll user select response.')
     #@cache.cached(query_string=True)
     def get(self, poll_select_id):
-        """Get the list of poll user selects from database.
-        """
+        """Get a poll user selects from database"""
 
         args = get_parser.parse_args()
         controller = PollUserSelectController()
@@ -37,13 +36,14 @@ class PollUserSelectList(Resource):
 
     @token_required
     @api.response(code=200, model=poll_user_select_response, description='Model for posting poll user select response.')
-    def post(self, poll_select_id):
-        """Create a list of poll selects"""
+    def post(self):
+        """Create a a poll select"""
 
         data = {}
         data['poll_select_id'] = poll_select_id
         controller = PollUserSelectController()
         return controller.create(data=data)
+
 
 @api.route('/user/<int:poll_user_select_id>')
 class PollUserSelect(Resource):
