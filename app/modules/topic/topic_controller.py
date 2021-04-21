@@ -119,6 +119,9 @@ class TopicController(Controller):
             topic = Topic.query.filter(Topic.name == data['name']).first()
 
             current_user = g.current_user
+            if current_user is None:
+                return send_error(message=messages.ERR_NOT_LOGIN)
+
             data['user_id'] = current_user.id
 
             if not topic:  # the topic does not exist
@@ -234,12 +237,12 @@ class TopicController(Controller):
                 topic.name = topic.name.capitalize()
                 db.session.commit()
                 current_user, _ = current_app.get_logged_user(request)
+                if current_user is None:
+                    return send_error(message=messages.ERR_NOT_LOGIN)
+
                 result = topic._asdict()
-                # lay them thong tin nguoi dung dang upvote hay downvote cau hoi nay
-                if current_user:
-                    bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id,
-                                                    TopicBookmark.topic_id == topic.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
+                bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
+                result['is_bookmarked_by_me'] = True if bookmark else False
                 return send_result(message='Update successfully', data=marshal(result, TopicDto.model_topic_response))
 
         except Exception as e:
@@ -256,8 +259,7 @@ class TopicController(Controller):
             if not topic:
                 return send_error(message="Topic with ID {} not found".format(object_id))
             else:
-                Reputation.query.filter(Reputation.topic_id == topic.id)\
-                    .delete(synchronize_session=False)
+                Reputation.query.filter(Reputation.topic_id == topic.id).delete(synchronize_session=False)
                 db.session.delete(topic)
                 db.session.commit()
                 return send_result(message='Topic was deleted.')
@@ -282,6 +284,8 @@ class TopicController(Controller):
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
+            if current_user is None:
+                return send_error(message=messages.ERR_NOT_LOGIN)
 
             endorse = TopicUserEndorse.query.\
                 filter(\
@@ -289,6 +293,7 @@ class TopicController(Controller):
                     TopicUserEndorse.endorsed_id == user.id,\
                     TopicUserEndorse.topic_id == topic.id).\
                 first()
+
             if not endorse:
                 endorse = TopicUserEndorse()
                 endorse.user_id = current_user.id
@@ -315,6 +320,8 @@ class TopicController(Controller):
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
+            if current_user is None:
+                return send_error(message=messages.ERR_NOT_LOGIN)
 
             endorse = TopicUserEndorse.query.\
                 filter(\
@@ -363,19 +370,21 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(id=object_id).first()
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
+            
             if not topic:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
+            
             current_user, _ = current_app.get_logged_user(request)
             query = topic.bookmarked_users.paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
             results = []
             for user in res.get('data'):
                 result = user._asdict()
-                if current_user:
-                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id,
-                                                    UserFollow.followed_id == user.id).first()
+                if current_user is not None:
+                    follow = UserFollow.query.filter(UserFollow.follower_id == current_user.id, UserFollow.followed_id == user.id).first()
                     result['is_followed_by_me'] = True if follow else False
                 results.append(result)
+            
             res['data'] = marshal(results, TopicDto.model_endorsed_user)
             return res, code
         except Exception as e:

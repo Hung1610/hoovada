@@ -57,13 +57,11 @@ class QuestionController(Controller):
         if not 'title' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question title'))
 
-        #if not 'fixed_topic_id' in data:
-        #    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
-
         current_user, _ = current_app.get_logged_user(request)
-        if current_user:
-            data['user_id'] = current_user.id
+        if current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
 
+        data['user_id'] = current_user.id
         try:
             title = data['title'].strip()
 
@@ -295,14 +293,12 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
 
-            if current_user:
-                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,QuestionBookmark.question_id == question.id).first()
-                result['is_bookmarked_by_me'] = True if bookmark else False
+            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+            if vote is not None:
+                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,QuestionBookmark.question_id == question.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
         
@@ -315,9 +311,11 @@ class QuestionController(Controller):
     def decline_invited_question(self, object_id):
         try:
             current_user, _ = current_app.get_logged_user(request)
-            result = None
-            if not current_user:
+            
+            if current_user is None:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            
+            result = None
             user_id = current_user.id
             question_user_invite = QuestionUserInvite.query.filter_by(user_id=user_id, question_id=object_id).first()
             if question_user_invite:
@@ -327,6 +325,7 @@ class QuestionController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('invited question', object_id))
             db.session.commit()
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        
         except Exception as e:
             db.session.rollback()
             print(e)
@@ -336,7 +335,7 @@ class QuestionController(Controller):
     def invite_friends(self, object_id):
         try:
             current_user = g.current_user
-            if g.current_user is None:
+            if current_user is None:
                 return send_error(message=messages.ERR_NOT_LOGIN)
 
             emails_or_usernames = [friend.display_name for friend in current_user.friends]
@@ -354,6 +353,7 @@ class QuestionController(Controller):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
         title = args['title']
+        
         if args.get('limit'):
             limit = int(args['limit'])
         else:
@@ -371,6 +371,7 @@ class QuestionController(Controller):
                 .limit(limit)\
                 .all()
             results = list()
+            
             for question in questions:
                 question = question[0]
                 result = question._asdict()
@@ -379,19 +380,14 @@ class QuestionController(Controller):
                 result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
 
-                if current_user:
+                if current_user is not None:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
                         result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,
-                                                    QuestionBookmark.question_id == question.id).first()
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
                     result['is_bookmarked_by_me'] = True if bookmark else False
-                    # vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    # if vote is not None:
-                    #     result['up_vote'] = vote.up_vote
-                    #     result['down_vote'] = vote.down_vote
+                
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
         except Exception as e:
@@ -439,7 +435,6 @@ class QuestionController(Controller):
         limit = int(args['limit'])
         
         try:
-            current_user, _ = current_app.get_logged_user(request)
             title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             query = Topic.query.distinct()\
                 .join(Question, isouter=True)\
@@ -652,14 +647,16 @@ class QuestionController(Controller):
             result['fixed_topic'] = question.fixed_topic
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user:
-                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            if current_user is None:
+                return send_error(message=messages.ERR_NOT_LOGIN)
 
-                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                result['is_bookmarked_by_me'] = True if bookmark else False
+            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+            if vote is not None:
+                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
             
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
         
