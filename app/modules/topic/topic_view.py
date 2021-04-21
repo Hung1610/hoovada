@@ -74,7 +74,6 @@ class TopicListCount(Resource):
 
 @api.route('/<string:topic_id_or_slug>')
 class Topic(Resource):
-    # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def get(self, topic_id_or_slug):
         """ Get topic by topic Id or slug"""
@@ -85,7 +84,6 @@ class Topic(Resource):
 
     @token_required
     @api.expect(topic_request)
-    # @api.marshal_with(topic)
     @api.response(code=200, model=topic_response, description='Model for success response.')
     def put(self, topic_id_or_slug):
         """Update existing topic by topic Id or slug"""
@@ -104,7 +102,6 @@ class Topic(Resource):
 
 @api.route('/<string:topic_id_or_slug>/sub_topics')
 class SubTopic(Resource):
-    # @api.param(name='topic_id_or_slug', description='The ID of fixed topic.')
     @api.response(code=200, model=topic_response, description='Get sub topics')
     def get(self, topic_id_or_slug):
         """ Get sub-topics of fixed-topics by fix_topic Id or slug"""
@@ -158,6 +155,7 @@ class BookmarkUserTopic(Resource):
 
 @api.route('/create_fixed_topics')
 class CreateFixedTopic(Resource):
+    @admin_token_required()
     def post(self):
         """ Create fixed topics"""
 

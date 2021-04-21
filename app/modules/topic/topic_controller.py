@@ -11,7 +11,7 @@ from datetime import datetime
 from flask import current_app, g, request
 from flask_restx import marshal
 from slugify import slugify
-from sqlalchemy import and_, desc, func, or_, text
+from sqlalchemy import desc, func, text
 
 # own modules
 from common.db import db
@@ -81,10 +81,11 @@ class TopicController(Controller):
                         "hoovada.com"]
 
         try:
+            admin_user = g.current_user
             for topic_name in fixed_topics:
                 topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
                 if not topic:  # the topic does not exist
-                    topic = Topic(name=topic_name, is_fixed=True, user_id=1, color_code="#675DDA")
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=admin_user.id, color_code="#675DDA")
                     db.session.add(topic)
                     db.session.commit()
         except Exception as e:
