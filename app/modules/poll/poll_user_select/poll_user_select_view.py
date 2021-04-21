@@ -24,11 +24,11 @@ get_parser = PollUserSelectDto.get_parser
 
 @api.route('/<string:poll_select_id>/user')
 class PollUserSelectList(Resource):
+    @api.expect(get_parser)
     @api.response(code=200, model=poll_user_select_response, description='Model for getting poll user select response.')
     #@cache.cached(query_string=True)
     def get(self, poll_select_id):
-        """Get the list of poll user selects from database.
-        """
+        """Get a poll user selects from database"""
 
         args = get_parser.parse_args()
         controller = PollUserSelectController()
@@ -36,14 +36,14 @@ class PollUserSelectList(Resource):
 
 
     @token_required
-    @api.expect(get_parser)
     @api.response(code=200, model=poll_user_select_response, description='Model for posting poll user select response.')
     def post(self):
-        """Create a list of poll selects"""
+        """Create a a poll select"""
 
         data = api.payload
         controller = PollUserSelectController()
         return controller.create(data=data)
+
 
 @api.route('/user/<int:poll_user_select_id>')
 class PollUserSelect(Resource):
