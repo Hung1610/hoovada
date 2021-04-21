@@ -39,7 +39,8 @@ class PollUserSelectList(Resource):
     def post(self):
         """Create a a poll select"""
 
-        data = api.payload
+        data = {}
+        data['poll_select_id'] = poll_select_id
         controller = PollUserSelectController()
         return controller.create(data=data)
 
