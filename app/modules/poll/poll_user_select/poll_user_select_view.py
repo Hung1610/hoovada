@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.poll.poll_user_select.poll_user_select_controller import PollUserSelectController
