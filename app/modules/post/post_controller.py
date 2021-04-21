@@ -77,7 +77,7 @@ class PostController(Controller):
 
         try:
             # Get search parameters
-            user_id, created_date, updated_date, from_date, to_date, draft, is_deleted = None, None, None, None, None, None, None
+            user_id, created_date, updated_date, from_date, to_date, is_anonymous = None, None, None, None, None, None
 
             if args.get('user_id'):
                 try:
@@ -85,48 +85,45 @@ class PostController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
+
             if args.get('created_date'):
                 try:
                     created_date = dateutil.parser.isoparse(args['created_date'])
                 except Exception as e:
                     print(e.__str__())
                     pass
+
             if args.get('updated_date'):
                 try:
                     updated_date = dateutil.parser.isoparse(args['updated_date'])
                 except Exception as e:
                     print(e.__str__())
                     pass
+
             if args.get('from_date'):
                 try:
                     from_date = dateutil.parser.isoparse(args['from_date'])
                 except Exception as e:
                     print(e.__str__())
                     pass
+
             if args.get('to_date'):
                 try:
                     to_date = dateutil.parser.isoparse(args['to_date'])
                 except Exception as e:
                     print(e.__str__())
                     pass
-            if args.get('draft'):
+
+            if args.get('is_anonymous'):
                 try:
-                    draft = bool(args['draft'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-            if args.get('is_deleted'):
-                try:
-                    is_deleted = bool(args['is_deleted'])
+                    is_anonymous = bool(args['is_anonymous'])
                 except Exception as e:
                     print(e.__str__())
                     pass
 
             query = Post.query.join(User, isouter=True).filter(db.or_(Post.scheduled_date == None, datetime.utcnow() >= Post.scheduled_date))
             query = query.filter(db.or_(Post.user == None, User.is_deactivated != True))
-            if is_deleted:
-                query = query.with_deleted()
-
+            
             if user_id:
                 query = query.filter(Post.user_id == user_id)
             if created_date:
@@ -137,11 +134,12 @@ class PostController(Controller):
                 query = query.filter(Post.created_date >= from_date)
             if to_date:
                 query = query.filter(Post.created_date <= to_date)
-            if draft is not None:
-                if draft:
-                    query = query.filter(Post.is_draft == True)
+            
+            if is_anonymous is not None:
+                if is_anonymous is True:
+                    query = query.filter(Post.is_anonymous == True)
                 else:
-                    query = query.filter(Post.is_draft != True)
+                    query = query.filter(Post.is_anonymous != True)
 
             ordering_fields_desc = args.get('order_by_desc')
             if ordering_fields_desc:
@@ -168,6 +166,7 @@ class PostController(Controller):
                 result['user'] = user
             res['data'] = marshal(results, PostDto.model_post_response)
             return res, code
+            
         except Exception as e:
             return send_error(message=messages.ERR_GET_FAILED.format('Post', str(e)))
 
@@ -340,16 +339,9 @@ class PostController(Controller):
         if 'html' in data:
             post.html = data['html']
             
-        if 'is_draft' in data:
+        if 'is_anonymous' in data:
             try:
-                post.is_draft = bool(data['is_draft'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-            
-        if 'is_deleted' in data:
-            try:
-                post.is_deleted = bool(data['is_deleted'])
+                post.is_anonymous = bool(data['is_anonymous'])
             except Exception as e:
                 print(e.__str__())
                 pass

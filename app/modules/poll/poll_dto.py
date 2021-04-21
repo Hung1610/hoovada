@@ -77,6 +77,8 @@ class PollDto(Dto):
         'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
         'allow_selecting': fields.Boolean(default=True, description='Allow select or not'),
+
+        'is_anonymous': fields.Boolean(default=False, description='The poll is created anonymously'),
     })
 
     model_request = api.model('poll_request', {
@@ -86,6 +88,7 @@ class PollDto(Dto):
         'fixed_topic_id': fields.Integer(default=86400, description='The ID of the fixed topic'),
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
         'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics'),
+        'is_anonymous': fields.Boolean(default=False, description='The poll is created anonymously'),
         # these fields are set by admin
         'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
@@ -96,6 +99,7 @@ class PollDto(Dto):
     get_parser.add_argument('user_id', type=str, required=False, help='ID of owner user. Default value is current user id')
     get_parser.add_argument('from_date', type=str, required=False, help='Search polls created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search polls created before this data.')
+    get_parser.add_argument('is_anonymous', type=inputs.boolean, required=False, help='The poll is created anonymously.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
                             choices=('created_date', 'updated_date'), action='append',)
     get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str,

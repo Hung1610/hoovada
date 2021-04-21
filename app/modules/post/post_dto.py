@@ -36,9 +36,7 @@ class PostDto(Dto):
 
     model_post_request = api.model('post_request', {
         'html': fields.String(description='The content of the post'),
-        'is_draft': fields.Boolean(default=False, description='The post is a draft or not'),
-        'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
-
+        'is_anonymous': fields.Boolean(default=False, description='The post is created anonymously'),
         'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
         'allow_favorite': fields.Boolean(default=True, description='Allow favorite or not'),
     })
@@ -55,10 +53,9 @@ class PostDto(Dto):
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
         'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
-        'is_deleted': fields.Boolean(default=False, description='The post is soft deleted or not'),
+        'is_anonymous': fields.Boolean(default=False, description='The post is created anonymously'),
         'file_url': fields.String(description='The file url'),
         'is_seen_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
-
         'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
         'allow_favorite': fields.Boolean(default=True, description='Allow favorite or not'),
     })
@@ -66,8 +63,7 @@ class PostDto(Dto):
     model_get_parser = reqparse.RequestParser()
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search posts created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search posts created before this data.')
-    model_get_parser.add_argument('draft', type=inputs.boolean, required=False, help='Search posts that are drafts.')
-    model_get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search posts that are deleted.')
+    model_get_parser.add_argument('is_anonymous', type=inputs.boolean, required=False, help='The post is created anonymously.')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search all posts created by user.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'comment_count'", type=str, choices=('created_date', 'updated_date', 'comment_count'), action='append',)
     model_get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'comment_count'", type=str, choices=('created_date', 'updated_date', 'comment_count'), action='append',)

@@ -241,7 +241,7 @@ class User(Model):
     @aggregated('questions', db.Column(db.Integer, server_default="0", nullable=False))
     def question_aggregated_count(self):
         return db.func.coalesce(
-            db.func.sum(db.func.if_(db.text('is_deleted <> 1') & db.text('is_anonymous <> 1'), 1, 0)), 0)
+            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
 
     @property
     def question_count(self):
@@ -257,17 +257,49 @@ class User(Model):
             return self.question_aggregated_count + anonymous_count
         return self.question_aggregated_count
 
-    posts = db.relationship("Post", cascade='all,delete-orphan')
 
     @aggregated('posts', db.Column(db.Integer, server_default="0", nullable=False))
+    def post_aggregated_count(self):
+        return db.func.coalesce(
+            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
+
+    @property
     def post_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_deleted <> 1'), 1, 0)), 0)
+        if self.post_aggregated_count is None:
+            self.post_aggregated_count = 0
+
+        if g.current_user and g.current_user.id == self.id:
+            Post = db.get_model('Post')
+            anonymous_count = Post.query.with_entities(db.func.count(Post.id)).filter( \
+                (Post.user_id == self.id) &
+                (Post.is_anonymous == True)).scalar()
+            return self.post_aggregated_count + anonymous_count
+        return self.post_aggregated_count
+
+
+    @aggregated('polls', db.Column(db.Integer, server_default="0", nullable=False))
+    def poll_aggregated_count(self):
+        return db.func.coalesce(
+            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
+
+
+    @property
+    def poll_count(self):
+        if self.poll_aggregated_count is None:
+            self.poll_aggregated_count = 0
+
+        if g.current_user and g.current_user.id == self.id:
+            Poll = db.get_model('Poll')
+            anonymous_count = Poll.query.with_entities(db.func.count(Poll.id)).filter( \
+                (Poll.user_id == self.id) &
+                (Poll.is_anonymous == True)).scalar()
+            return self.poll_aggregated_count + anonymous_count
+        return self.poll_aggregated_count
+
 
     timelines = db.relationship("Timeline", cascade='all,delete-orphan')
-
     user_educations = db.relationship("UserEducation", cascade='all,delete-orphan')
     user_locations = db.relationship("UserLocation", cascade='all,delete-orphan')
-
     languages = db.relationship("Language", secondary='user_language')
 
     @aggregated('sent_friend_requests', db.Column(db.Integer))

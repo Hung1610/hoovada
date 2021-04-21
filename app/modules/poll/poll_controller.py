@@ -26,7 +26,6 @@ PollTopic = db.get_model('PollTopic')
 PollSelect = db.get_model('PollSelect')
 PollUserSelect = db.get_model('PollUserSelect')
 User = db.get_model('User')
-Post = db.get_model('Post')
 Topic = db.get_model('Topic')
 
 class PollController(Controller):
@@ -43,24 +42,35 @@ class PollController(Controller):
                 pass
         if 'allow_multiple_user_select' in data:
             poll.allow_multiple_user_select = bool(data['allow_multiple_user_select'])
+
         if 'user_id' in data:
             try:
                 poll.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'fixed_topic_id' in data:
             try:
                 poll.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'expire_after_seconds' in data:
             try:
                 poll.expire_after_seconds = data['expire_after_seconds']
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if 'is_anonymous' in data:
+            try:
+                poll.is_anonymous = bool(data['is_anonymous'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         return poll
 
 
@@ -75,9 +85,10 @@ class PollController(Controller):
                         results.append(poll._asdict())
             res['data'] = marshal(results, PollDto.model_response)
             return res, code
+        
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_GET_FAILED.format('Poll', e))
 
     
     def get_by_id(self, object_id):

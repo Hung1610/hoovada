@@ -22,7 +22,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
+class Post(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +50,7 @@ class Post(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin):
     last_activity = db.Column(db.DateTime, server_default=func.now())
     allow_favorite = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
-    is_draft = db.Column(db.Boolean, server_default=expression.false())
+    is_anonymous = db.Column(db.Boolean, server_default=expression.false())
 
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan', primaryjoin="and_(Post.id == remote(PostComment.post_id), remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
