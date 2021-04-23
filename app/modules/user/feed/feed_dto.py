@@ -183,7 +183,6 @@ class UserFeedDto(Dto):
 	    'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
 	    'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
 	    'share_count': fields.Integer(default=0, description='The amount of sharing'),
-	    'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
 	    'comment_count': fields.Integer(default=0, description='The amount of comments'),
 	    
 	    'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
