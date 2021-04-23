@@ -110,8 +110,8 @@ class AnswerController(Controller):
         user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
         if error_res:
             return error_res
-        if field_count != 1:
-            return send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
+        if field_count > 1:
+            return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
         data['user_id'] = current_user.id
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
@@ -313,12 +313,7 @@ class AnswerController(Controller):
 
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        # if not 'question_id' in data:
-        #     return send_error(message="Please fill the question ID")
-        # if not 'answer' in data:
-        #     return send_error(message='Please fill the answer body before sending.')
-        # if not 'user_id' in data:
-        #     return send_error(message='Please fill the user ID')
+            
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
@@ -328,8 +323,10 @@ class AnswerController(Controller):
             user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
             if error_res:
                 return error_res
+
             if field_count > 1:
-                return send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
+                return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
+            
             if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
