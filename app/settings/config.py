@@ -70,6 +70,13 @@ class BaseConfig(CommonBaseConfig):
     DB_NAME = environ.get('DB_NAME', 'hoovada')
     DB_CHARSET = 'utf8mb4'
 
+    # Elasticsearch configuration
+    ES_HOST = environ.get('ES_HOST', 'localhost')
+    ES_PORT = environ.get('ES_PORT', 'localhost')
+    ES_USER = environ.get('ES_USER', 'user')
+    ES_PASSWORD = environ.get('ES_PASSWORD', 'password')
+    ES_TIMEOUT = environ.get('ES_TIMEOUT', 20)
+
     FEED_SERVICE_URL = environ.get('FEED_SERVICE_URL', 'http://127.0.0.1:5000')
 
 
