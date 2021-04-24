@@ -1,7 +1,10 @@
 from datetime import datetime
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, analyzer, tokenizer, char_filter
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, analyzer, tokenizer, Index
 from elasticsearch_dsl.connections import connections
 
+
+user_index = Index('user')
+@user_index.document
 class User(Document):
     id = Integer()
     display_name = Text(analyzer='standard', fields={'raw': Keyword()})
@@ -12,7 +15,3 @@ class User(Document):
     first_name = Text(analyzer='standard', fields={'raw': Keyword()})
     middle_name = Text(analyzer='standard', fields={'raw': Keyword()})
     reputation = Integer()
-
-    class Index:
-        name = "user"
-        settings = {"number_of_shards": 1, "number_of_replicas": 0}

@@ -8,6 +8,8 @@ import hashlib
 import re
 from datetime import datetime, timedelta
 from io import StringIO
+from html.parser import HTMLParser
+
 
 # third-party modules
 import jwt
@@ -269,3 +271,20 @@ def create_random_string(length):
     from random import choices
     random_string = ''.join(choices(ascii_letters + digits, k = length))
     return random_string
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs= True
+        self.text = StringIO()
+    def handle_data(self, d):
+        self.text.write(d)
+    def get_data(self):
+        return self.text.getvalue()
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
