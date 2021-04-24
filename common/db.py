@@ -17,8 +17,8 @@ class DistributedSession(SignallingSession):
     def __init__(self, db, autocommit=False, autoflush=True, **options):
         SignallingSession.__init__(self, db, autocommit=False, autoflush=True, **options)
         self.engines = {
-            'master': create_engine(self.app.config['SQLALCHEMY_DATABASE_URI']),
-            'slave': create_engine(self.app.config['SQLALCHEMY_DATABASE_SLAVE_URI'])
+            'master': create_engine(self.app.config['SQLALCHEMY_DATABASE_URI'], pool_size=20, max_overflow=100),
+            'slave': create_engine(self.app.config['SQLALCHEMY_DATABASE_SLAVE_URI'], pool_size=20, max_overflow=100)
         }
 
     def get_bind(self, mapper=None, clause=None):

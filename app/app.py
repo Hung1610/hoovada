@@ -62,6 +62,10 @@ def init_basic_app():
             g.current_user.last_seen = datetime.now()
             db.session.commit()
 
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db.session.remove()
+
     return app
 
 
