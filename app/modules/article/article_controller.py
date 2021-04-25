@@ -43,7 +43,7 @@ UserFriend = db.get_model('UserFriend')
 
 class ArticleController(Controller):
     query_classname = 'Article'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft', 'is_created_by_friend']    
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft']    
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
 
     def create(self, data):
@@ -180,17 +180,6 @@ class ArticleController(Controller):
                     query = query.filter(Article.is_draft == True)
                 else:
                     query = query.filter(Article.is_draft != True)
-
-            if params.get('is_created_by_friend') and g.current_user:
-                 query = query\
-                     .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
-                     .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
-                     .filter(
-                         (UserFollow.follower_id == g.current_user.id) |
-                         ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
-                         (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
-                     )
-            return query
 
         except Exception as e:
             print(e.__str__())

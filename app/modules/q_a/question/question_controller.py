@@ -47,7 +47,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answers_count']
     
     def create(self, data):
@@ -167,15 +167,6 @@ class QuestionController(Controller):
 
             if params.get('is_shared') and current_user:
                 query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-            if params.get('is_created_by_friend') and current_user:
-                 query = query\
-                     .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
-                     .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
-                     .filter(
-                         (UserFollow.follower_id == current_user.id) |
-                         ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
-                         (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-                     )
             return query
 
         except Exception as e:
@@ -279,7 +270,7 @@ class QuestionController(Controller):
             for email_or_username in emails_or_usernames:
                 try:
                     user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
-                    if user:
+                    if user is not None and user.id != current_user.id:
                         question.invited_users.append(user)
 
                 except Exception as e:
@@ -316,8 +307,7 @@ class QuestionController(Controller):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             
             result = None
-            user_id = current_user.id
-            question_user_invite = QuestionUserInvite.query.filter_by(user_id=user_id, question_id=object_id).first()
+            question_user_invite = QuestionUserInvite.query.filter_by(user_id=current_user.id, question_id=object_id).first()
             if question_user_invite:
                 question_user_invite.status = 2
                 result = question_user_invite._asdict()
