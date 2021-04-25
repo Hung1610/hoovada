@@ -115,26 +115,11 @@ class User(Document):
     middle_name = Text(analyzer='standard', fields={'raw': Keyword()})
     reputation = Integer()
 
-def delete_index_if_exist():
-    if user_index.exists() == True:
-        user_index.delete()
-    user_index.create()
-    if question_index.exists() == True:
-        question_index.delete()
-    question_index.create()
-    question_index.analyzer(vn_text_analyzer)
-    if topic_index.exists() == True:
-        topic_index.delete()
-    topic_index.create()
-    topic_index.analyzer(vn_text_analyzer)
-    if post_index.exists() == True:
-        post_index.delete()
-    post_index.create()
-    post_index.analyzer(vn_text_analyzer)
-    if article_index.exists() == True:
-        article_index.delete()
-    article_index.create()
-    article_index.analyzer(vn_text_analyzer)
+def delete_index_if_exist(model_index):
+    if model_index.exists() == True:
+        model_index.delete()
+    model_index.create()
+    model_index.analyzer(vn_text_analyzer)
 
 def select_with_pagination(query, limit=0, offset=0):
     return connection.execute(query + " LIMIT {} OFFSET {}".format(limit, offset)).fetchall()
@@ -259,7 +244,8 @@ def migrate_post_model():
     print("Complete post migration after {} iteration with {} rows".format(count, total))
 
 def main():
-    delete_index_if_exist()
+    for model_index in [user_index, question_index, post_index, article_index, topic_index]:
+        delete_index_if_exist(model_index)
     migrate_user_model()
     migrate_question_model()
     migrate_article_model()
