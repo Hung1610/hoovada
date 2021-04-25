@@ -158,10 +158,12 @@ class UserFeedDto(Dto):
 	})
 
 	model_poll_user_select = api.model('model_poll_user_select', {
+		'id': fields.Integer(readonly=True, description='The ID of the poll user select'),
 	    'user': fields.Nested(model_user, description='The detail of owner user'),
 	})
 
 	model_poll_select = api.model('poll_select', {
+		'id': fields.Integer(readonly=True, description='The ID of the poll select'),
 	    'content': fields.String(description='The content of selection of a poll'),
 	    'poll_user_selects': fields.List(fields.Nested(model_poll_user_select), description='The list of users selecting'),
 	    'user': fields.Nested(model_user, description='User that select this selection')
