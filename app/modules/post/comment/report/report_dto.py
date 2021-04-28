@@ -18,7 +18,7 @@ class PostCommentReportDto(Dto):
     api = Namespace(name, description="Post comment report operations")
 
     model_request = api.model('post_comment_report_request', {
-        'report_type': fields.String(description='The report type', attribute='report_type.name'),
+        'report_type': fields.String(description='The report type', default=1),
         'description': fields.String(description=''),
     })
 

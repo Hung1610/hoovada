@@ -18,7 +18,7 @@ class ArticleCommentReportDto(Dto):
     api = Namespace(name, description="Article comment report operations")
 
     model_request = api.model('article_comment_report_request', {
-        'report_type': fields.Integer(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=False),
+        'report_type': fields.Integer(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=1),
         'description': fields.String(description='')
     })
 

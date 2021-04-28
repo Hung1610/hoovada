@@ -19,7 +19,7 @@ class ReportDto(Dto):
 
     model_request = api.model('article_report_request', {
         'description': fields.String(description=''),
-        'report_type': fields.Integer(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=False),
+        'report_type': fields.Integer(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=1),
     })
 
     model_response = api.model('article_report_response', {

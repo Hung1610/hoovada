@@ -18,7 +18,7 @@ class ReportDto(Dto):
     api = Namespace(name, description="Post report operations")
 
     model_request = api.model('post_report_request', {
-        'report_type': fields.Integer(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=False),
+        'report_type': fields.Integer(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=1),
         'description': fields.String(description='')
     })
 
