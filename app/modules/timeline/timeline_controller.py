@@ -3,13 +3,12 @@
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request, g
+from flask import current_app, request
 from flask_restx import marshal
-from sqlalchemy import desc
 
 # own modules 
 from common.db import db
-from app.modules.q_a.timeline.timeline_dto import TimelineDto
+from app.modules.timeline.timeline_dto import TimelineDto
 from common.enum import TimelineActivityEnum
 from common.utils.response import paginated_result
 from common.controllers.controller import Controller
@@ -26,12 +25,12 @@ Timeline = db.get_model('Timeline')
 
 class TimelineController(Controller):
     query_classname = 'Timeline'
-    special_filtering_fields = ['hot']
     allowed_ordering_fields = ['activity_date']
     
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary form")
+        
         if not 'activity' in data:
             return send_error(message='Must contain at least the activity type.')
 
@@ -42,12 +41,12 @@ class TimelineController(Controller):
             timeline = self._parse_timeline(data=data, timeline=None)
             db.session.add(timeline)
             db.session.commit()
-            return send_result(message='Timeline was created successfully.',
-                                       data=marshal(timeline, TimelineDto.timeline_model_response))
+            return send_result(message='Timeline was created successfully.', data=marshal(timeline, TimelineDto.timeline_model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
             return send_error(message='Could not create timeline. Contact administrator for solution.')
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -58,14 +57,15 @@ class TimelineController(Controller):
 
         return send_result(data=marshal(timeline, TimelineDto.timeline_model_response), message='Success')
 
+
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
         if params.get('from_date'):
             query = query.filter(Timeline.activity_date >= dateutil.parser.isoparse(params.get('from_date')))
         if params.get('to_date'):
             query = query.filter(Timeline.activity_date <= dateutil.parser.isoparse(params.get('to_date')))
-
         return query
+
 
     def get(self, args):
         try:
@@ -81,25 +81,12 @@ class TimelineController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load topics. Contact your administrator for solution.")
+            return send_error("Could not load timelines. Contact your administrator for solution.")
 
-    def update(self, object_id, data, is_put=False):
-        try:
-            if object_id is None:
-                return send_error("Timeline ID is null")
-            timeline = Timeline.query.filter_by(id=object_id).first()
-            if timeline is None:
-                return send_error(message='Could not find timeline with the ID {}'.format(object_id))
-            if is_put:
-                db.session.delete(timeline)
-                return self.create(data)
-            timeline = self._parse_timeline(data=data, timeline=timeline)
-            db.session.commit()
-            return send_result(message='Timeline was created successfully.',
-                                       data=marshal(timeline, TimelineDto.timeline_model_response))
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message='Could update timeline. Please check your parameters again.')
+
+    def update(self):
+        pass
+
 
     def delete(self, object_id):
         try:
@@ -114,6 +101,7 @@ class TimelineController(Controller):
         except Exception as e:
             print(e)
             return send_error(message='Timeline deletion failed.')
+
 
     def _parse_timeline(self, data, timeline=None):
         if timeline is None:
@@ -130,45 +118,15 @@ class TimelineController(Controller):
              except Exception as e:
                 print(e.__str__())
                 pass
-        if 'question_comment_id' in data:
-             try:
-                timeline.question_comment_id = int(data['question_comment_id'])
-             except Exception as e:
-                print(e.__str__())
-                pass
         if 'answer_id' in data:
              try:
                 timeline.answer_id = int(data['answer_id'])
              except Exception as e:
                 print(e.__str__())
                 pass
-        if 'answer_comment_id' in data:
-             try:
-                timeline.answer_comment_id = int(data['answer_comment_id'])
-             except Exception as e:
-                print(e.__str__())
-                pass
         if 'article_id' in data:
              try:
                 timeline.article_id = int(data['article_id'])
-             except Exception as e:
-                print(e.__str__())
-                pass
-        if 'article_comment_id' in data:
-             try:
-                timeline.article_comment_id = int(data['article_comment_id'])
-             except Exception as e:
-                print(e.__str__())
-                pass
-        if 'poll_id' in data:
-             try:
-                timeline.poll_id = int(data['poll_id'])
-             except Exception as e:
-                print(e.__str__())
-                pass
-        if 'poll_comment_id' in data:
-             try:
-                timeline.poll_comment_id = int(data['poll_comment_id'])
              except Exception as e:
                 print(e.__str__())
                 pass

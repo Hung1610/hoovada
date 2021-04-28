@@ -45,6 +45,8 @@ ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_USER_INAPPROPRIATE  = 'User information content is inappropriate!'
 ERR_SPELLING = 'Please check spelling errors!'
 
+# report
+ERR_REPORT_NOT_FOUND = 'Report not found!'
 
 ########### Authentication Module #################
 
@@ -99,7 +101,8 @@ ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current t
 ########### Question Module #################
 ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark "?"!'
 ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'
-
+ERR_QUESTION_NOT_EXISTS = 'Question does not exist!'
+ERR_QUESTION_NOT_ALLOW_COMMENT = 'Question does not allow commenting!'
 
 ########### Topics Module #################
 ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'

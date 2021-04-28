@@ -57,7 +57,6 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
-
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })

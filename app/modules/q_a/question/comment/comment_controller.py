@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from re import sub
 from datetime import datetime
 
 # third-party modules
@@ -36,9 +37,7 @@ class CommentController(BaseCommentController):
     related_field_name = 'question_id'
 
     def get(self, question_id, args):
-        """Search comments by params"""
 
-        # user_id, question_id, question_id = None, None, None
         user_id = None 
         if 'user_id' in args:
             try:
@@ -63,8 +62,7 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 result['user'] = comment.user
                 if current_user:
-                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id,
-                                                    QuestionCommentFavorite.question_comment_id == comment.id).first()
+                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, CommentDto.model_response), message='Success')
@@ -73,88 +71,92 @@ class CommentController(BaseCommentController):
 
 
     def create(self, question_id, data):
-        current_user, _ = current_app.get_logged_user(request)
-        if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form.")
+        if data is None or not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
         if not 'comment' in data:
-            return send_error(message="The comment body must be included")
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment'))
 
-        if current_user:
-            data['user_id'] = current_user.id
+        current_user, _ = current_app.get_logged_user(request)
+        if current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
+
         question = Question.query.filter(Question.id == question_id).first()
-        if not question:
-            return send_error(message='The question does not exist.')
+        if question is None:
+            return send_error(message=messages.ERR_QUESTION_NOT_EXISTS)
         
         if (not question.allow_comments):
-
-            return send_error(message='This question does not allow commenting.')
+            return send_error(message=messages.ERR_QUESTION_NOT_ALLOW_COMMENT)
+        
+        data['user_id'] = current_user.id
         data['question_id'] = question_id
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
-            if is_sensitive:
-                return send_error(message='Insensitive contents not allowed.')
+
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment)
+            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
+            
+            user = User.query.filter_by(id=comment.user_id).first()
+            user.comment_count += 1
+            
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            # update comment count for user
+
+            # notification
             try:
-                user = User.query.filter_by(id=comment.user_id).first()
-                user.comment_count += 1
-                db.session.commit()
+                if comment.question.user and comment.question.user.is_online and comment.question.user.new_question_comment_notify_settings:
+                    display_name =  comment.user.display_name if comment.user else 'Khách'
+                    message = display_name + ' đã bình luận câu hỏi!'
+                    push_notif_to_specific_users(message, [comment.question.user_id])
             except Exception as e:
                 print(e.__str__())
                 pass
 
-            try:
-                result = comment.__dict__
-                result['user'] = comment.user
-                if comment.question.user:
-                    if comment.question.user.is_online and comment.question.user.new_question_comment_notify_settings:
-                        
-                        display_name =  comment.user.display_name if comment.user else 'Khách'
-                        message = display_name + ' đã bình luận câu hỏi!'
-                        push_notif_to_specific_users(message, [comment.question.user_id])
+            result = comment.__dict__
+            result['user'] = comment.user
+            return send_result(message='QuestionComment was created successfully', data=marshal(result, CommentDto.model_response))
 
-                return send_result(message='QuestionComment was created successfully',
-                                   data=marshal(result, CommentDto.model_response))
-            except Exception as e:
-                print(e.__str__())
-                return send_result(data=marshal(comment, CommentDto.model_response))
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create comment')
+            return send_error(message=messages.ERR_CREATE_FAILED('Comment', str(e)))
+
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error('QuestionComment ID is null')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         current_user, _ = current_app.get_logged_user(request)
-
         comment = QuestionComment.query.filter_by(id=object_id).first()
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
-        else:
-            try:
-                result = comment.__dict__
-                result['user'] = comment.user
-                if current_user:
-                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id,
-                                                    QuestionCommentFavorite.question_comment_id == comment.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                return send_result(data=marshal(result, CommentDto.model_response), message='Success')
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message='Could not get comment with the ID {}'.format(object_id))
+
+        try:
+            result = comment.__dict__
+            result['user'] = comment.user
+            if current_user:
+                favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
+            return send_result(data=marshal(result, CommentDto.model_response), message='Success')
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=ERR_GET_FAILED.format(object_id, str(e)))
+
 
     def update(self, object_id, data):
-        if object_id is None:
-            return send_error(message='QuestionComment ID is null')
+
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         current_user, _ = current_app.get_logged_user(request)
 
@@ -164,41 +166,47 @@ class CommentController(BaseCommentController):
                 return send_error(message='QuestionComment with the ID {} not found.'.format(object_id))
             else:
                 comment = self._parse_comment(data=data, comment=comment)
-                is_sensitive = check_sensitive(comment.comment)
-                if is_sensitive:
-                    return send_error(message='Insensitive contents not allowed.')
+                
+                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment)
+                if check_sensitive(only_words):
+                    return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
                 result = comment.__dict__
                 result['user'] = comment.user
+                
                 if current_user:
-                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id,
-                                                    QuestionCommentFavorite.question_comment_id == comment.id).first()
+                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
+                
                 return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+        
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not update comment.')
+            print(e.__str__())
+            return send_error(message=ERR_UPDATE_FAILED.format('Comment', str(e)))
+
 
     def delete(self, object_id):
         try:
             comment = QuestionComment.query.filter_by(id=object_id).first()
             if comment is None:
                 return send_error(message='QuestionComment with the ID {} not found.'.format(object_id))
-            else:
-                # ---------Delete from other tables----------#
-                # delete from vote
+        
+            # ---------Delete from other tables----------#
+            # delete from vote
 
-                # delete from share
+            # delete from share
 
-                # delete favorite
+            # delete favorite
 
-                db.session.delete(comment)
-                db.session.commit()
-                cache.clear_cache(Question.__class__.__name__)
-                return send_result(message='QuestionComment with the ID {} was deleted.'.format(object_id))
+            db.session.delete(comment)
+            db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
+            return send_result(message='QuestionComment with the ID {} was deleted.'.format(object_id))
+
         except Exception as e:
             print(e.__str__())
             db.session.rollback()

@@ -97,14 +97,13 @@ class QuestionController(Controller):
             cache.clear_cache(Question.__class__.__name__)
 
             # Add bookmark for the creator
-            controller = QuestionBookmarkController()
-            controller.create(question_id=question.id)
+            BookmarkController = QuestionBookmarkController()
+            BookmarkController.create(question_id=question.id)
 
             update_seen_questions.send(question.id, current_user.id)
             
             try:
                 result = question._asdict()
-                # get user info
                 result['user'] = question.user
                 result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic
@@ -417,13 +416,10 @@ class QuestionController(Controller):
 
     def get_recommended_topics(self, args):
         if not 'title' in args:
-            return send_error(message='Please provide at least the title.')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
         
         title = args['title']
-        if not 'limit' in args:
-            return send_error(message='Please provide limit')
-        limit = int(args['limit'])
-        
+        limit = args.get('limit', 10)
         try:
             title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             query = Topic.query.distinct()\
@@ -445,7 +441,8 @@ class QuestionController(Controller):
     def get_proposals(self, object_id, args):
         try:
             if object_id is None:
-                return send_error(message="Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -486,7 +483,7 @@ class QuestionController(Controller):
     def create_delete_proposal(self, object_id):
         try:
             if object_id is None:
-                return send_error(message="Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -511,15 +508,17 @@ class QuestionController(Controller):
     def create_proposal(self, object_id, data):
         try:
             if object_id is None:
-                return send_error(message="Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+            
             if not isinstance(data, dict):
                 return send_error(message="Data is not in dictionary form.")
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
+            
             if question is None:
-                return send_error(message="Question with the ID {} not found".format(object_id))
+                return send_error(message=messages.ERR_QUESTION_NOT_EXISTS)
 
             data['question_id'] = question.id
             proposal_data = question._asdict()
