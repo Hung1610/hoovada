@@ -78,7 +78,7 @@ class ArticleController(Controller):
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))
 
             # check sensitive words for body
-            is_sensitive = check_sensitive(text)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
             if is_sensitive:
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
@@ -350,7 +350,7 @@ class ArticleController(Controller):
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             # check sensitive for article title
-            is_sensitive = check_sensitive(article.title)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
             if is_sensitive:
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
             
@@ -358,7 +358,7 @@ class ArticleController(Controller):
             if len(text.split()) < 500:
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))            
 
-            is_sensitive = check_sensitive(text)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
             if is_sensitive:
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
             

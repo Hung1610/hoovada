@@ -5,11 +5,12 @@
 from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
+from app.constants import messages
 from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
@@ -96,9 +97,11 @@ class CommentController(BaseCommentController):
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
+            
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
             if is_sensitive:
-                return send_error(message='Insensitive contents not allowed.')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
@@ -165,9 +168,12 @@ class CommentController(BaseCommentController):
                 return send_error(message='AnswerComment with the ID {} not found.'.format(object_id))
             else:
                 comment = self._parse_comment(data=data, comment=comment)
-                is_sensitive = check_sensitive(comment.comment)
+                
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
                 if is_sensitive:
-                    return send_error(message='Insensitive contents not allowed.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__

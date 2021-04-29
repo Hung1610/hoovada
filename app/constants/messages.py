@@ -11,7 +11,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 MSG_CREATE_SUCCESS = '{} created successfully.'
 MSG_CREATE_SUCCESS_WITH_ISSUE = '{} created partially successfully, but {}.'
 MSG_ALREADY_EXISTS = '{} already exists!'
-ERR_CREATE_FAILED = 'Failed to create {}. Issue: {}!'
+ERR_QUESTION_NOT_EXISTS = 'Failed to create {}. Issue: {}!'
 
 # Get Messages
 MSG_GET_SUCCESS = '{} get successfully.'
@@ -101,7 +101,7 @@ ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current t
 ########### Question Module #################
 ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark "?"!'
 ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'
-ERR_QUESTION_NOT_EXISTS = 'Question does not exist!'
+ERR_QUESTION_NOT_EXISTS = 'Question does not exist or has been deleted!'
 ERR_QUESTION_NOT_ALLOW_COMMENT = 'Question does not allow commenting!'
 
 ########### Topics Module #################
@@ -112,3 +112,6 @@ ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 ########### User Module #################
 ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'
 ERR_USER_PRIVATE_OR_DEACTIVATED = 'The user is either private or deactivated!'
+
+########### Poll Module #################
+ERR_POLL_ALREADY_EXIST = 'Poll with the title {} has existed!'

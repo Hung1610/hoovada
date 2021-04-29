@@ -51,7 +51,10 @@ class PostController(Controller):
         try:
 
             post = self._parse_post(data=data, post=None)
-            if check_sensitive(''.join(BeautifulSoup(post.html, 'html.parser').stripped_strings)):
+
+            text = ''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
+            if is_sensitive:
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             post.created_date = datetime.utcnow()
@@ -253,9 +256,10 @@ class PostController(Controller):
 
         try:
 
-            is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
+            text = ''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
             if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Insensitive body'))
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             post.updated_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()

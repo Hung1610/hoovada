@@ -126,7 +126,7 @@ class AnswerController(Controller):
             if len(text.split()) < 100:
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('100'))
 
-            is_sensitive = check_sensitive(text)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
             if is_sensitive:
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
@@ -333,11 +333,15 @@ class AnswerController(Controller):
             answer = self._parse_answer(data=data, answer=answer)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            is_sensitive = check_sensitive(' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings))
+            
+            text = ''.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
             if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Comment content not allowed'))
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+            
             if answer.question_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question_id'))
+            
             if answer.user_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
 

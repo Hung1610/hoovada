@@ -15,7 +15,6 @@ from app.modules.poll.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -76,9 +75,11 @@ class CommentController(BaseCommentController):
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
             if is_sensitive:
-                return send_error(message='Insensitive contents not allowed.')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
@@ -136,9 +137,11 @@ class CommentController(BaseCommentController):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             else:
                 comment = self._parse_comment(data=data, comment=comment)
-                is_sensitive = check_sensitive(comment.comment)
+
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
                 if is_sensitive:
-                    return send_error(message='Insensitive contents not allowed.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__

@@ -100,9 +100,10 @@ class TopicController(Controller):
             return send_error(message='Topic name must be filled!')
         else:
             topic_name = data['name']
-            is_sensitive = check_sensitive(topic_name)
+
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",topic_name))
             if is_sensitive:
-                return send_error(message='Topic name is not allowed!')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         if not 'parent_id' in data:
             return send_error(message='Topic must have a parent fixed_topic!')
@@ -229,9 +230,9 @@ class TopicController(Controller):
                 return send_error(message='Could not update for fixed topic.')
             else:
                 topic = self._parse_topic(data=data, topic=topic)
-                is_sensitive = check_sensitive(topic.name)
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",topic.name))
                 if is_sensitive:
-                    return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
                 # capitalize first letter
                 topic.name = topic.name.capitalize()

@@ -85,8 +85,9 @@ class QuestionController(Controller):
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
             if question.question:
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
-                if is_sensitive:
+                text = ' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings)
+                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+                if check_sensitive(only_words):
                     return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             question.created_date = datetime.utcnow()
@@ -251,6 +252,7 @@ class QuestionController(Controller):
         try:
             if not 'emails_or_usernames' in data:
                 return send_error(message='Please provide emails or usernames.')
+
             if object_id is None:
                 return send_error("Question ID is null")
             if object_id.isdigit():
@@ -341,6 +343,7 @@ class QuestionController(Controller):
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
+
         title = args['title']
         
         if args.get('limit'):
@@ -480,44 +483,51 @@ class QuestionController(Controller):
             return send_error(message='Could not get proposals. Error: ' + e.__str__())
 
 
-    def create_delete_proposal(self, object_id):
+    def create_question_deletion_proposal(self, object_id, data):
         try:
             if object_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+            
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
-            if question is None:
-                return send_error(message="Question with the ID {} not found".format(object_id))
+            
+            if question is None or question.is_deleted is True:
+                return send_error(message="Question ID {} not found or has been deleted!".format(object_id))
 
-            data = {}
+            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_approved=0).first()
+            if question_deletion_proposal is not None:
+                return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
+
             data['question_id'] = question.id
             data['is_parma_delete'] = True
             proposal, _ = self._parse_proposal(data=data, proposal=None)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(message='Question update proposal was created successfully.',
-                                data=marshal(proposal, QuestionDto.model_question_proposal_response))
+
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question deletion proposal creation'), data=marshal(proposal, QuestionDto.model_question_proposal_response))
+        
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create question. Contact administrator for solution.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question deletion proposal creation', str(e)))
 
  
-    def create_proposal(self, object_id, data):
+    def create_question_update_proposal(self, object_id, data):
         try:
             if object_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
             
             if not isinstance(data, dict):
-                return send_error(message="Data is not in dictionary form.")
+                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+            
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
             
-            if question is None:
+            if question is None or question.is_deleted is True:
                 return send_error(message=messages.ERR_QUESTION_NOT_EXISTS)
 
             data['question_id'] = question.id
@@ -529,24 +539,32 @@ class QuestionController(Controller):
 
             if proposal.topics.count('1') > 5:
                 return send_error(message='Question cannot have more than 5 topics.')
+
             if not proposal.title.strip().endswith('?'):
                 return send_error(message='Please end question title with question mark ("?")')
 
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)            
+
             if proposal.question:
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings))
-                if is_sensitive:
-                    return send_error(message='Question body not allowed.')
+                text = ' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings)
+                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+                if check_sensitive(only_words):
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             proposal.last_activity = datetime.utcnow()
-            proposal.slug = slugify(question.title)
+            proposal.slug = slugify(proposal.title)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(message='Question update proposal was created successfully.',
-                                data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question update proposal creation'), data=marshal(proposal, QuestionDto.model_question_proposal_response))
+        
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create question. Contact administrator for solution.')
-    
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question update proposal creation'))
+
+
     def approve_proposal(self, object_id):
         try:
             if object_id is None:
@@ -554,32 +572,30 @@ class QuestionController(Controller):
 
             proposal = QuestionProposal.query.filter_by(id=object_id).first()
             if proposal is None:
-                return send_error(message="Proposal with the ID {} not found".format(object_id))
+                return send_error(message="Proposal ID {} not found".format(object_id))
             
             if proposal.is_approved:
-                return send_result(message="Proposal with the ID {} is already approved".format(object_id))
+                return send_result(message="Proposal ID {} is already approved".format(object_id))
+
+            related_question = Question.query.filter_by(id=proposal.question_id).first()
+            if related_question is None or related_question.is_deleted is True:
+                return send_error(message="Question with the ID {} not found or has been deleted!".format(proposal.question_id))
 
             question_data = proposal._asdict()
-            if proposal.is_parma_delete:
-                proposal.is_approved = True
-                return self.delete(str(proposal.question_id))
-            
-            related_question = Question.query.filter_by(id=proposal.question_id).first()
-            if related_question is None:
-                return send_error(message="Question with the ID {} not found".format(proposal.question_id))
-            
-            question = self._parse_question(data=question_data, question=related_question)
-            question.last_activity = datetime.utcnow()
+            if proposal.is_parma_delete: 
+                self.delete(str(proposal.question_id))
+            else:                
+                question = self._parse_question(data=question_data, question=related_question)
+                question.last_activity = datetime.utcnow()
+
             proposal.is_approved = True
             db.session.commit()
-            
-            return send_result(message='Question update proposal was approved successfully.',
-                                data=marshal(question, QuestionDto.model_question_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question proposal approval'), data=marshal(question, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could approve question proposal. Contact administrator for solution.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question proposal approval'))
 
 
     def update(self, object_id, data):
@@ -620,8 +636,9 @@ class QuestionController(Controller):
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
             if question.question:
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
-                if is_sensitive:
+                text = ' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings)
+                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+                if check_sensitive(only_words):
                     return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             question.updated_date = datetime.utcnow()
@@ -650,6 +667,7 @@ class QuestionController(Controller):
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format("Question", str(e)))
 
@@ -767,6 +785,7 @@ class QuestionController(Controller):
     def _parse_proposal(self, data, proposal=None):
         if proposal is None:
             proposal = QuestionProposal()
+        
         proposal.question_id = data['question_id']
         
         if 'title' in data:

@@ -3,6 +3,7 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
 # third-party modules
 from flask import current_app, request
@@ -15,6 +16,7 @@ from common.controllers.controller import Controller
 from app.constants import messages
 from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
+from common.utils.sensitive_words import check_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -125,6 +127,12 @@ class PollController(Controller):
             poll = self._parse_poll(data=data, poll=poll)
             if poll.title.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll title'))
+
+            # check sensitive for article title
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+            if is_sensitive:
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
             poll.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll._asdict()
@@ -183,9 +191,19 @@ class PollController(Controller):
 
         data['user_id'] = current_user.id
         try:
+            poll = Poll.query.filter(Poll.title == data['title']).first()
+            if poll is not None:
+                return send_error(message=messages.ERR_POLL_ALREADY_EXIST.format(data['title']))
+
+            # check sensitive words for title
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+            if is_sensitive:
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
             poll = self._parse_poll(data=data, poll=None)
             if poll.title.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll title'))
+
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
             poll.is_expire = False
@@ -209,6 +227,7 @@ class PollController(Controller):
             result = poll._asdict()
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Poll'), data=marshal(result, PollDto.model_response))
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
