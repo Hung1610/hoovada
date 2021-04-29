@@ -187,7 +187,7 @@ class QuestionProposal(Resource):
 @api.route('/<string:id_or_slug>/delete-proposal')
 class QuestionDeleteProposal(Resource):
     @token_required
-    @api.expect(proposal_get_parser)
+    @api.expect(model_request)
     def post(self, id_or_slug):
         """ Create question delete proposal by question Id or slug"""
 
