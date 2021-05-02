@@ -180,7 +180,7 @@ class ArticleController(Controller):
                     query = query.filter(Article.is_draft == True)
                 else:
                     query = query.filter(Article.is_draft != True)
-
+            return query
         except Exception as e:
             print(e.__str__())
             raise e
