@@ -543,7 +543,8 @@ class QuestionController(Controller):
             if not proposal.title.strip().endswith('?'):
                 return send_error(message='Please end question title with question mark ("?")')
 
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+            title = data['title'].strip()
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
             if check_sensitive(only_words):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)            
 
