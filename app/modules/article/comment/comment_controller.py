@@ -3,6 +3,7 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
 # third-party modules
 from flask import current_app, request

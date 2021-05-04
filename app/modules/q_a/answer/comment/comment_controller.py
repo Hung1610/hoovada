@@ -4,6 +4,7 @@
 # built-in modules
 from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
+from re import sub
 
 # third-party modules
 from flask import current_app, request
