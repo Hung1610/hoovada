@@ -3,6 +3,7 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
 # third-party modules
 import dateutil.parser
