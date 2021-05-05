@@ -4,12 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.q_a.answer.favorite.favorite_controller import \
-    AnswerFavoriteController
 # own modules
-# from common.decorator import token_required
+from app.modules.q_a.answer.favorite.favorite_controller import AnswerFavoriteController
 from app.modules.q_a.answer.favorite.favorite_dto import AnswerFavoriteDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -20,25 +18,24 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = AnswerFavoriteDto.api
 _favorite_request = AnswerFavoriteDto.model_request
 _favorite_response = AnswerFavoriteDto.model_response
-_vote_get_params = AnswerFavoriteDto.model_get_parser
+_favorite_get_params = AnswerFavoriteDto.model_get_parser
 
 #@api.deprecated
 #@api.route('/<int:answer_id>/favorite')
 class FavoriteUser(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_favorite_get_params)
     def get(self, answer_id):
-        """ Search all favorite that satisfy conditions.
+        """ Get all favorite that satisfy conditions.
         """
 
-        args = _vote_get_params.parse_args()
+        args = _favorite_get_params.parse_args()
         controller = AnswerFavoriteController()
         return controller.get(answer_id=answer_id, args=args)
 
     @token_required
     @api.response(code=200, model=_favorite_response, description='The model for favorite.')
     def post(self, answer_id):
-        """
-        Create a favorite on current user.
+        """Create a favorite on current user.
         """
 
         controller = AnswerFavoriteController()

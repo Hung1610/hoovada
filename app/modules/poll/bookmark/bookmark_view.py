@@ -4,12 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.poll.bookmark.bookmark_controller import \
-    PollBookmarkController
 # own modules
-# from common.decorator import token_required
+from app.modules.poll.bookmark.bookmark_controller import PollBookmarkController
 from app.modules.poll.bookmark.bookmark_dto import PollBookmarkDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -20,29 +18,29 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = PollBookmarkDto.api
 _bookmark_request = PollBookmarkDto.model_request
 _bookmark_response = PollBookmarkDto.model_response
-_vote_get_params = PollBookmarkDto.model_get_parser
+_bookmark_get_params = PollBookmarkDto.model_get_parser
 
 @api.route('/all/bookmark')
 class BookmarkPollAll(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_bookmark_get_params)
     def get(self):
         """
         Search all bookmark that satisfy conditions.
         """
 
-        args = _vote_get_params.parse_args()
+        args = _bookmark_get_params.parse_args()
         controller = PollBookmarkController()
         return controller.get(poll_id=None, args=args)
 
 @api.route('/<int:poll_id>/bookmark')
 class BookmarkPoll(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_bookmark_get_params)
     def get(self, poll_id):
         """
         Search all bookmark that satisfy conditions.
         """
 
-        args = _vote_get_params.parse_args()
+        args = _bookmark_get_params.parse_args()
         controller = PollBookmarkController()
         return controller.get(poll_id=poll_id, args=args)
 

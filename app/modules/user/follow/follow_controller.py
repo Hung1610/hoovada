@@ -111,7 +111,7 @@ class UserFollowController(Controller):
         try:
             follow = UserFollow.query.filter_by(followed_id=object_id, follower_id=user_id).first()
             if follow is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
+                return send_result(message=messages.ERR_ISSUE.format('No follow entity found'))
 
             db.session.delete(follow)
             db.session.commit()

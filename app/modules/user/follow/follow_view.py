@@ -18,27 +18,27 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = UserFollowDto.api
 _follow_request = UserFollowDto.model_request
 _follow_response = UserFollowDto.model_response
-_vote_get_params = UserFollowDto.model_get_parser
+_follow_get_params = UserFollowDto.model_get_parser
 _top_users_response = UserFollowDto.top_user_followee_response
 _top_user_followee_args_parser = UserFollowDto.top_user_followee_args_parser
 
 @api.route('/all/follow')
 class FollowUserAll(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_follow_get_params)
     def get(self):
         """Get all follow that satisfy conditions"""
 
-        args = _vote_get_params.parse_args()
+        args = _follow_get_params.parse_args()
         controller = UserFollowController()
         return controller.get(object_id=None, args=args)
 
 @api.route('/<int:user_id>/follow')
 class FollowUser(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_follow_get_params)
     def get(self, user_id):
         """Get all follow using user_id"""
 
-        args = _vote_get_params.parse_args()
+        args = _follow_get_params.parse_args()
         controller = UserFollowController()
         return controller.get(object_id=user_id, args=args)
 

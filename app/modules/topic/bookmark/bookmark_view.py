@@ -7,7 +7,7 @@ from flask_restx import Resource, reqparse
 # own modules
 from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
 from app.modules.topic.bookmark.bookmark_dto import TopicBookmarkDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -18,17 +18,17 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = TopicBookmarkDto.api
 _bookmark_request = TopicBookmarkDto.model_request
 _bookmark_response = TopicBookmarkDto.model_response
-_vote_get_params = TopicBookmarkDto.model_get_parser
+_bookmark_get_params = TopicBookmarkDto.model_get_parser
 _model_bookmark_multiple_topics_request = TopicBookmarkDto.model_bookmark_multiple_topics_request
 
 
 @api.route('/all/bookmark')
 class BookmarkTopicAll(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_bookmark_get_params)
     def get(self):
         """Search all topic bookmark"""
 
-        args = _vote_get_params.parse_args()
+        args = _bookmark_get_params.parse_args()
         controller = TopicBookmarkController()
         return controller.get(args=args)
 
@@ -44,11 +44,11 @@ class BookmarkTopicAll(Resource):
 
 @api.route('/<int:topic_id>/bookmark')
 class BookmarkTopic(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_bookmark_get_params)
     def get(self, topic_id):
         """Search all bookmarks from topic Id"""
 
-        args = _vote_get_params.parse_args()
+        args = _bookmark_get_params.parse_args()
         args['topic_id'] = topic_id
         controller = TopicBookmarkController()
         return controller.get(args=args)
