@@ -167,11 +167,11 @@ class UserFriendController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
 
         try:
-            friend = UserFriend.query.filter_by(id=object_id).first()
-            if friend is None:
+            friend_entity = UserFriend.query.filter_by(id=object_id).first()
+            if friend_entity is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
-            if friend.is_approved:
+            if friend_entity.is_approved:
                 return send_result(message='Already friend.')
 
             return self.delete(object_id)

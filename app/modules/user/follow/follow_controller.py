@@ -57,15 +57,17 @@ class UserFollowController(Controller):
         if to_date is not None:
             query = query.filter(UserFollow.created_date <= to_date)
         follows = query.all()
+        
         return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
 
 
     def create(self, object_id):
-        data = {}
+        
         current_user, _ = current_app.get_logged_user(request)
         if current_user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
 
+        data = {}
         data['follower_id'] = current_user.id
         data['followed_id'] = object_id
         try:
@@ -100,15 +102,18 @@ class UserFollowController(Controller):
 
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)
+        if current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
+
         user_id = current_user.id
         try:
             follow = UserFollow.query.filter_by(followed_id=object_id, follower_id=user_id).first()
             if follow is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
-            else:
-                db.session.delete(follow)
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
+
+            db.session.delete(follow)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -140,8 +145,9 @@ class UserFollowController(Controller):
             results = [{'user': user, 'total_score': total_score} for user, total_score in top_users]
             return send_result(data=marshal(results, UserFollowDto.top_user_followee_response), message='Success')
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
+
 
     def _parse_follow(self, data, follow=None):
         if follow is None:
@@ -159,38 +165,3 @@ class UserFollowController(Controller):
                 print(e.__str__())
                 pass
         return follow
-
-"""
-    def approve(self, object_id):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
-            follow = UserFollow.query.filter_by(id=object_id).first()
-            if follow is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
-                
-            if follow.is_approved:
-                return send_result(message='Already follow.')
-
-            follow.is_approved = True
-            db.session.commit()
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_ISSUE.format(e))
-
-    def disapprove(self, object_id):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
-            follow = UserFollow.query.filter_by(id=object_id).first()
-            if follow is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
-                
-            if follow.is_approved:
-                return send_result(message='Already follow.')
-
-            return self.delete(object_id)
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_ISSUE.format(e))
-"""
