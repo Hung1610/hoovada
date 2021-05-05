@@ -44,6 +44,7 @@ class CommentController(BaseCommentController):
                 pass
 
         query = PollComment.query
+        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
         if poll_id is not None:
             query = query.filter(PollComment.poll_id == poll_id)
         if user_id is not None:
