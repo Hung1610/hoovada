@@ -63,6 +63,7 @@ class ArticleController(Controller):
         # Handling user
         current_user = g.current_user
         if current_user is None:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)  
         data['user_id'] = current_user.id
 
         # handling title
@@ -334,7 +335,7 @@ class ArticleController(Controller):
         if article is None:
             return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
 
-        current_user = current_user = g.current_user
+        current_user = g.current_user
         if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
