@@ -20,7 +20,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('user_id', type=str, required=False, help='Search comments by user_id ')
+parser.add_argument('poll_id', type=str, required=False, help='Search comments by poll_id ')
 
 @api.route('/<int:poll_id>/comment')
 class CommentList(Resource):

@@ -52,6 +52,7 @@ class CommentController(BaseCommentController):
         query = query.join(User, isouter=True).filter(User.is_deactivated == False)
         if question_id is not None:
             query = query.filter(QuestionComment.question_id == question_id)
+            
         if user_id is not None:
             query = query.filter(QuestionComment.user_id == user_id)
             

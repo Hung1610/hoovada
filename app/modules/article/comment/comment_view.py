@@ -22,25 +22,15 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('user_id', type=str, required=False, help='Search comments by user_id (who created answer)')
-# parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
-parser.add_argument('answer_id', type=str, required=False, help='Search all comments by answer_id.')
+parser.add_argument('article_id', type=str, required=False, help='Search comments by article_id')
 
 @api.route('/<int:article_id>/comment')
 class CommentList(Resource):
     # @token_required
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, article_id):
-        """
-        Search all comments that satisfy conditions.
-        ---------------------
+        """Get all comments by article ID"""
 
-        :user_id: Search comments by user_id
-
-        :article_id: Search all comments by article ID.
-
-        :return: List of comments.
-        """
         args = parser.parse_args()
         controller = CommentController()
         return controller.get(article_id=article_id, args=args)
@@ -49,11 +39,8 @@ class CommentList(Resource):
     @api.expect(comment_request)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self, article_id):
-        """
-        Create new comment.
+        """Create new comment"""
 
-        :return: The new comment if it was created successfully and null vice versa.
-        """
         data = api.payload
         controller = CommentController()
         return controller.create(data=data, article_id=article_id)
@@ -64,13 +51,7 @@ class Comment(Resource):
     @token_required
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, id):
-        """
-        Get comment by its ID.
-
-        :param id: The ID of the comment.
-
-        :return: The comment with the specific ID.
-        """
+        """Get comment by its ID"""
         controller = CommentController()
         return controller.get_by_id(object_id=id)
 
@@ -79,25 +60,15 @@ class Comment(Resource):
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def put(self, id):
-        """
-        Update existing comment by its ID.
+        """Update existing comment by its ID"""
 
-        :param id: The ID of the comment which need to be updated.
-
-        :return: The updated comment if success and null vice versa.
-        """
         data = api.payload
         controller = CommentController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        """
-        Delete comment by its ID.
+        """Delete comment by its ID"""
 
-        :param id: The ID of the comment.
-
-        :return:
-        """
         controller = CommentController()
         return controller.delete(object_id=id)
