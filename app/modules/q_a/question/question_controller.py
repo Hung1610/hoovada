@@ -485,7 +485,7 @@ class QuestionController(Controller):
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
             data['question_id'] = question.id
-            data['slug'] = object_id
+            data['slug'] = question.slug
             data['is_parma_delete'] = True
             proposal = self._parse_proposal(data=data, proposal=None)
             db.session.add(proposal)
