@@ -78,14 +78,13 @@ class QuestionController(Controller):
             if check_sensitive(only_words):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)        
 
-        question = self._parse_question(data=data, question=None)
-
         try: 
             # Check if question already exists
             question = Question.query.filter(Question.title == question.title).first()
             if question is not None:
                 return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(question.title))   
     
+            question = self._parse_question(data=data, question=None)
             if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
@@ -97,13 +96,13 @@ class QuestionController(Controller):
             cache.clear_cache(Question.__class__.__name__)
 
             try:
-                BookmarkController = QuestionBookmarkController()
-                BookmarkController.create(question_id=question.id)
+                bookmark_controller = QuestionBookmarkController()
+                bookmark_controller.create(question_id=question.id)
                 update_seen_questions.send(question.id, current_user.id)
             except Exception as e:
                 print(e.__str__())
-                return send_result(data=marshal(question, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Question', 'failed to add bookmark for creator'))
-
+                pass
+                
             # response data
             result = question._asdict()
             result['user'] = question.user

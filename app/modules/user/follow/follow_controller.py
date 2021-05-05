@@ -59,26 +59,32 @@ class UserFollowController(Controller):
         follows = query.all()
         return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
 
+
     def create(self, object_id):
         data = {}
         current_user, _ = current_app.get_logged_user(request)
+        if current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
+
         data['follower_id'] = current_user.id
         data['followed_id'] = object_id
         try:
             follow = UserFollow.query.filter(UserFollow.follower_id == data['follower_id'],
                                              UserFollow.followed_id == data['followed_id']).first()
-            if follow:
+            if follow is not None:
                 return send_result(message=messages.ERR_ISSUE.format('Already followed'))
 
             follow = self._parse_follow(data=data, follow=None)
             db.session.add(follow)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'),
-                               data=marshal(follow, UserFollowDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'), data=marshal(follow, UserFollowDto.model_response))
+        
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Follow', e))
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -104,6 +110,7 @@ class UserFollowController(Controller):
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format('Follow', e))
 

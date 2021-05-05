@@ -4,11 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.user.friend.friend_controller import UserFriendController
 # own modules
-# from common.decorator import token_required
+from app.modules.user.friend.friend_controller import UserFriendController
 from app.modules.user.friend.friend_dto import UserFriendDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -17,30 +16,25 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = UserFriendDto.api
-_friend_request = UserFriendDto.model_request
 _friend_response = UserFriendDto.model_response
-_vote_get_params = UserFriendDto.model_get_parser
+_friend_get_params = UserFriendDto.model_get_parser
 _top_user_friend_response = UserFriendDto.top_user_friend_response
 _top_user_friend_args_parser = UserFriendDto.top_user_friend_args_parser
 
 @api.route('/all/friend')
 class FriendUserAll(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_friend_get_params)
     def get(self):
-        """
-        Search all friend that satisfy conditions.
-        """
+        """Get friend requests that satisfy conditions"""
 
-        args = _vote_get_params.parse_args()
+        args = _friend_get_params.parse_args()
         controller = UserFriendController()
         return controller.get(args=args)
 
 @api.route('/all/friend/<int:object_id>/approve')
 class FriendUserApprove(Resource):
     def put(self, object_id):
-        """
-        Approve friend request.
-        """
+        """Approve friend request send by user with object_id"""
         
         controller = UserFriendController()
         return controller.approve(object_id=object_id)
@@ -48,22 +42,18 @@ class FriendUserApprove(Resource):
 @api.route('/all/friend/<int:object_id>/disapprove')
 class FriendUserDisapprove(Resource):
     def put(self, object_id):
-        """
-        Disapprove friend request.
-        """
+        """Disapprove friend request send by user with object_id"""
         
         controller = UserFriendController()
         return controller.disapprove(object_id=object_id)
 
 @api.route('/<int:user_id>/friend')
 class FriendUser(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_friend_get_params)
     def get(self, user_id):
-        """
-        Search all friend that satisfy conditions.
-        """
+        """Get all friends of user with user_id"""
 
-        args = _vote_get_params.parse_args()
+        args = _friend_get_params.parse_args()
         args['user_id'] = user_id
         controller = UserFriendController()
         return controller.get(args=args)
@@ -71,18 +61,14 @@ class FriendUser(Resource):
     @token_required
     @api.response(code=200, model=_friend_response, description='The model for friend.')
     def post(self, user_id):
-        """
-        Create a friend on current user.
-        """
+        """Create a friend request with user with user_id"""
 
         controller = UserFriendController()
         return controller.create(object_id=user_id)
 
     @token_required
     def delete(self, user_id):
-        """
-        Delete friend on current user.
-        """
+        """Delete friend with user with user_id"""
         
         controller = UserFriendController()
         return controller.delete(object_id=user_id)
@@ -93,9 +79,7 @@ class FriendRecommendedUsers(Resource):
     @api.expect(_top_user_friend_args_parser)
     @api.response(code=200, model=_top_user_friend_response, description='Model for top users response.')
     def get(self, user_id):
-        """ 
-        Get recommended users among friends.
-        """
+        """ Get recommended friends"""
         
         args = _top_user_friend_args_parser.parse_args()
         controller = UserFriendController()

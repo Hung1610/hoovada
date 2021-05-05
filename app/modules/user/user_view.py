@@ -30,7 +30,7 @@ class UserList(Resource):
     @api.expect(user_get_parser)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self):
-        """ Returns all users in the system"""
+        """Get users that satisfy conditions"""
         
         args = user_get_parser.parse_args()
         controller = UserController()
@@ -64,7 +64,7 @@ class UserMention(Resource):
 @api.expect(user_get_parser)
 class UserListCount(Resource):
     def get(self):
-        """ Get list of topics """
+        """ Get count of users"""
 
         args = user_get_parser.parse_args()
         controller = UserController()
