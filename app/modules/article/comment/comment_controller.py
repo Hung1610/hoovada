@@ -74,7 +74,7 @@ class CommentController(BaseCommentController):
         if not article:
             return send_error(message='The article does not exist.')
         
-        if article.allow_comment is not None and article.allow_comment is False:
+        if article.allow_comments is not None and article.allow_comments is False:
             return send_error(message='This article does not allow commenting.')
 
         data['article_id'] = article_id
