@@ -17,7 +17,6 @@ from app.modules.poll.voting.vote_dto import PollVoteDto
 from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -32,14 +31,6 @@ PollVote = db.get_model('PollVote')
 
 class PollVoteController(Controller):
     def get(self, args, poll_id = None):
-        """ Search votes.
-
-        Args:
-             The dictionary-like
-
-        Returns
-            A list of votes that satisfy conditions.
-        """
 
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
@@ -91,23 +82,28 @@ class PollVoteController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if not current_user:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
         data['user_id'] = current_user.id
         data['poll_id'] = poll_id
+        
         try:
             # add or update vote
             is_insert = True
             vote = PollVote.query.filter(PollVote.user_id == data['user_id'], \
                 PollVote.poll_id == data['poll_id']).first()
+        
             if vote:
                 is_insert = False
             vote = self._parse_vote(data=data, vote=vote)
             vote.updated_date = datetime.utcnow()
+        
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
             return send_result(data=marshal(vote, PollVoteDto.model_response), message='Success')
+        
         except Exception as e:
             db.session.rollback()
             print(e)

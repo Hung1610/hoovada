@@ -15,9 +15,7 @@ from app.constants import messages
 from app.modules.post.report.report_dto import ReportDto
 from common.controllers.controller import Controller
 from common.enum import ReportTypeEnum
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

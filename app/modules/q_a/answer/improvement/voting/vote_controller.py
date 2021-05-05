@@ -15,9 +15,7 @@ from app.constants import messages
 from app.modules.q_a.answer.improvement.voting.vote_dto import AnswerImprovementVoteDto
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
-from common.utils.permission import has_permission
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -122,14 +120,6 @@ class AnswerImprovementVoteController(Controller):
             return send_error(message='Failed to delete answer vote')
 
     def update(self, object_id, data):
-        """ Update object from search_data in database
-        
-        Args:
-            object_id:
-            data:
-        
-        Returns:
-        """
         pass
 
     def _parse_vote(self, data, vote=None):

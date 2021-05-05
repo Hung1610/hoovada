@@ -8,16 +8,13 @@ from datetime import datetime
 import dateutil.parser
 from flask import current_app, request
 from flask_restx import marshal
-from sqlalchemy import and_
 
 # own modules
 from common.db import db
 from app.constants import messages
 from app.modules.post.favorite.favorite_dto import FavoriteDto
 from common.controllers.controller import Controller
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -96,8 +93,7 @@ class FavoriteController(Controller):
             favorite.updated_date = datetime.utcnow()
             db.session.add(favorite)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post Favorite'),
-                               data=marshal(favorite, FavoriteDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post Favorite'),data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Post Favorite', e))

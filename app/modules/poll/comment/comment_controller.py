@@ -84,15 +84,15 @@ class CommentController(BaseCommentController):
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
-            db.session.commit()
-            # update comment count for user
+              
             try:
                 user = User.query.filter_by(id=comment.user_id).first()
                 user.comment_count += 1
-                db.session.commit()
             except Exception as e:
                 print(e.__str__())
                 pass
+
+            db.session.commit()
 
             try:
                 result = comment.__dict__
@@ -102,6 +102,7 @@ class CommentController(BaseCommentController):
             except Exception as e:
                 print(e.__str__())
                 return send_result(data=marshal(comment, CommentDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create comment')
@@ -139,7 +140,7 @@ class CommentController(BaseCommentController):
             else:
                 comment = self._parse_comment(data=data, comment=comment)
 
-                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment))
                 if is_sensitive:
                     return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
@@ -149,6 +150,7 @@ class CommentController(BaseCommentController):
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             db.session.rollback()

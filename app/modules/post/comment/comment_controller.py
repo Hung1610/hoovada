@@ -14,10 +14,8 @@ from app.constants import messages
 from common.db import db
 from app.modules.post.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -56,7 +54,6 @@ class CommentController(BaseCommentController):
             results = list()
             for comment in comments:
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 results.append(result)
@@ -85,15 +82,15 @@ class CommentController(BaseCommentController):
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
-            db.session.commit()
-            # update comment count for user
             try:
                 user = User.query.filter_by(id=comment.user_id).first()
                 user.comment_count += 1
-                db.session.commit()
+                
             except Exception as e:
                 print(e.__str__())
                 pass
+
+            db.session.commit()
 
             try:
                 result = comment.__dict__
