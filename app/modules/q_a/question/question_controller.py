@@ -78,13 +78,13 @@ class QuestionController(Controller):
             if check_sensitive(only_words):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)        
 
-        try: 
-            # Check if question already exists
-            question = Question.query.filter(Question.title == data['title']).first()
-            if question is not None:
-                return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(question.title))   
-    
-            question = self._parse_question(data=data, question=None)
+        # Check if question already exists
+        question = Question.query.filter(Question.title == data['title']).first()
+        if question is not None:
+            return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(data['title']))   
+
+        question = self._parse_question(data=data, question=None)
+        try:     
             if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
