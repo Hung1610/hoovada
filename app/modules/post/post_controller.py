@@ -5,6 +5,7 @@
 from app.dramatiq_consumers import update_seen_posts
 import json
 from datetime import datetime
+from re import sub
 
 # third-party modules
 import dateutil.parser

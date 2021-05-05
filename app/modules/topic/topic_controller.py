@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import ast
 import dateutil.parser
-import random
 from datetime import datetime
+from re import sub
 
 # third-party modules
 from flask import current_app, g, request
