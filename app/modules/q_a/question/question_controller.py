@@ -80,7 +80,7 @@ class QuestionController(Controller):
 
         try: 
             # Check if question already exists
-            question = Question.query.filter(Question.title == question.title).first()
+            question = Question.query.filter(Question.title == data['title']).first()
             if question is not None:
                 return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(question.title))   
     
