@@ -57,7 +57,7 @@ class UserFollowController(Controller):
         if to_date is not None:
             query = query.filter(UserFollow.created_date <= to_date)
         follows = query.all()
-        
+
         return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
 
 
@@ -97,8 +97,10 @@ class UserFollowController(Controller):
         else:
             return send_result(data=marshal(follow, UserFollowDto.model_response), message='Success')
 
+
     def update(self, object_id, data):
         pass
+
 
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)

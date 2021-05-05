@@ -127,11 +127,11 @@ class UserFriendController(Controller):
         
         try:
 
-            friend_entity = UserFriend.query.filter_by(id=object_id).first()
+            friend = UserFriend.query.filter_by(id=object_id).first()
             if friend is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
 
-            if friend_entity.is_approved is True:
+            if friend.is_approved is True:
                 return send_result(message='Already friend.')
                 
             data = {}
@@ -149,6 +149,7 @@ class UserFriendController(Controller):
                     user_follow_controller.create(friend.friend_id)
                 elif friend.friend_id == current_user.id:
                     user_follow_controller.create(friend.friended_id)
+
             except Exception as e:
                 print(e.__str__())
                 pass
@@ -167,11 +168,11 @@ class UserFriendController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
 
         try:
-            friend_entity = UserFriend.query.filter_by(id=object_id).first()
-            if friend_entity is None:
+            friend = UserFriend.query.filter_by(id=object_id).first()
+            if friend is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
                 
-            if friend_entity.is_approved:
+            if friend.is_approved:
                 return send_result(message='Already friend.')
 
             return self.delete(object_id)
@@ -183,6 +184,9 @@ class UserFriendController(Controller):
       
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)
+        if current_user is None:
+            return send_error(message=messages.ERR_NOT_LOGIN)
+
         user_id = current_user.id
         try:
             UserFriend.query.filter(\
@@ -190,6 +194,9 @@ class UserFriendController(Controller):
                     ((UserFriend.friended_id == object_id) & (UserFriend.friend_id == user_id)) \
                 ).delete(synchronize_session=False)
             db.session.commit()
+
+            # TODO: need to remove following if remove friend
+
             return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
 
         except Exception as e:
