@@ -100,8 +100,6 @@ class AnswerController(Controller):
 
     def create(self, data):
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         if not 'question_id' in data:
@@ -328,7 +326,7 @@ class AnswerController(Controller):
             if field_count > 1:
                 return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
             
-            if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             answer = self._parse_answer(data=data, answer=answer)
@@ -407,7 +405,7 @@ class AnswerController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(answer)

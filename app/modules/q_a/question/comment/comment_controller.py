@@ -79,9 +79,6 @@ class CommentController(BaseCommentController):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment'))
 
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         question = Question.query.filter(Question.id == question_id).first()
         if question is None:
             return send_error(message=messages.ERR_QUESTION_NOT_EXISTS)

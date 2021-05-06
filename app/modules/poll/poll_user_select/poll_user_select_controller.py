@@ -38,8 +38,6 @@ class PollUserSelectController(Controller):
 
     def get(self, poll_select_id, args):
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
         poll_user_selects = PollUserSelect.query.filter_by(poll_select_id=poll_select_id).all()
         if poll_user_selects is None or len(poll_user_selects) == 0:
             return send_result(message='Could not find any poll user select.')
@@ -48,9 +46,7 @@ class PollUserSelectController(Controller):
 
     def delete(self, object_id):
         try:
-            current_user, _ = current_app.get_logged_user(request)
-            if not current_user:
-                return send_error(code=401, message=messages.ERR_NOT_LOGIN)        
+            current_user, _ = current_app.get_logged_user(request)    
             poll_user_select = PollUserSelect.query.filter_by(id=object_id).first()
             if poll_user_select is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll User Select', object_id))            
@@ -69,9 +65,6 @@ class PollUserSelectController(Controller):
     def create(self, data):
 
         current_user, _ = current_app.get_logged_user(request)    
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
-
         if 'poll_select_id' not in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll_select_id'))
 

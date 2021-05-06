@@ -64,9 +64,6 @@ class UserFollowController(Controller):
     def create(self, object_id):
         
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         data = {}
         data['follower_id'] = current_user.id
         data['followed_id'] = object_id
@@ -104,9 +101,6 @@ class UserFollowController(Controller):
 
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         user_id = current_user.id
         try:
             follow = UserFollow.query.filter_by(followed_id=object_id, follower_id=user_id).first()

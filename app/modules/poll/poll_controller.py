@@ -98,8 +98,6 @@ class PollController(Controller):
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
         poll = Poll.query.filter_by(id=object_id).first()
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
         else:
@@ -121,9 +119,11 @@ class PollController(Controller):
             poll = Poll.query.filter_by(id=object_id).first()
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
+            
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll.user_id != current_user.id):
+            if poll.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
             poll = self._parse_poll(data=data, poll=poll)
             if poll.title.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll title'))
@@ -150,7 +150,7 @@ class PollController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll.user_id != current_user.id):
+            if poll.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(poll)
@@ -186,8 +186,6 @@ class PollController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
 
         data['user_id'] = current_user.id
         try:

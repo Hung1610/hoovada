@@ -80,9 +80,6 @@ class PollVoteController(Controller):
 
     def create(self, poll_id, data):
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
         data['user_id'] = current_user.id

@@ -79,7 +79,6 @@ MSG_PHONE_SENT = "Please check your phone message."
 ERR_NO_TOKEN = "PLease provide a token!"
 
 ## Authentication
-ERR_LOGIN_FAILED = "Failed to login!"
 ERR_NOT_LOGIN = "You are not logged in!" 
 MSG_LOGOUT_SUCESS = "Successfully logged out."
 ERR_LOGOUT_FAILED = "Failed to log out with issue {}"

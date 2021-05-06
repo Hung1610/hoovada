@@ -68,9 +68,6 @@ class ReportController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-            
         data['user_id'] = current_user.id
         data['post_id'] = post_id
         try:

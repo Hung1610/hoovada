@@ -65,7 +65,7 @@ class PollSelectController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Select', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll_select.user_id != current_user.id):
+            if poll_select.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(poll_select)
@@ -85,13 +85,14 @@ class PollSelectController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll id'))
 
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
+
         poll = Poll.query.filter_by(id=poll_id).first()
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_id))
-        if current_user is None or (poll.user_id != current_user.id):
+        
+        if poll.user_id != current_user.id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
         data['user_id'] = current_user.id
         data['poll_id'] = poll_id
         try:
@@ -117,8 +118,6 @@ class PollSelectController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll select content'))
 
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
         try:
             poll_select = PollSelect.query.filter_by(id=object_id).first()
             if poll_select is None:
@@ -126,8 +125,10 @@ class PollSelectController(Controller):
             poll = Poll.query.filter_by(id=poll_select.poll_id).first()
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_select.poll_id))
-            if current_user is None or (poll.user_id != current_user.id):
+            
+            if poll.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+            
             poll_select = self._parse_poll_select(data=data, poll_select=poll_select)
             if poll_select.content.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll_select content'))

@@ -28,11 +28,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserFeedController(Controller):
 
-    def get(self, args):
-
-        if g.current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-        
+    def get(self, args):        
         try:
             get_data = args.get('get_data', False)
             api_endpoint = '/api/feed' if get_data is False else '/api/feed_all_data'

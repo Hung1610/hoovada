@@ -225,8 +225,6 @@ class AuthController:
             return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
 
         user, _ = current_app.get_logged_user(request)
-        if user is None:
-            return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
         if user.check_password(old_password) is False:
             return send_error(message=messages.ERR_INCORRECT_EMAIL_OR_PASSWORD)
@@ -720,8 +718,6 @@ class AuthController:
             return send_error(message=messages.ERR_INVALID_NUMBER)
             
         user, _ = current_app.get_logged_user(request)
-        if user is None:
-            return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
         if not check_verification(phone_number, code):
             return send_error(message=messages.ERR_CODE_INCORRECT_EXPIRED)
@@ -776,8 +772,6 @@ class AuthController:
         """Get user information"""
 
         user = g.current_user
-        if user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
         return send_result(data=marshal(user, UserDto.model_response))
 
 

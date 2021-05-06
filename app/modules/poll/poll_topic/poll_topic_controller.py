@@ -64,7 +64,7 @@ class PollTopicController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Topic', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll_topic.user_id != current_user.id):
+            if poll_topic.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(poll_topic)
@@ -78,19 +78,23 @@ class PollTopicController(Controller):
     def create(self, data, poll_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
         if not 'topic_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll topic content'))
+        
         if not poll_id:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll id'))
+
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
+        
         poll = Poll.query.filter_by(id=poll_id).first()
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', poll_id))
+        
         if poll.user_id != current_user.id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         existing_poll_topics = PollTopic.query.filter_by(poll_id=poll_id, topic_id=data['topic_id']).all()
+        
         if existing_poll_topics is not None and len(existing_poll_topics) != 0:
             return send_error(message=messages.ERR_CREATE_FAILED.format('Poll Topic', 'This poll topic has already existed!'), data={'poll_id': int(poll_id), 'topic_id': int(data['topic_id'])})
         try:
@@ -110,12 +114,12 @@ class PollTopicController(Controller):
     def update(self, object_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         if not 'content' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll topic content'))
 
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
+
         try:
             poll_topic = PollTopic.query.filter_by(id=object_id).first()
             if poll_topic is None:

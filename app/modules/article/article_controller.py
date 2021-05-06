@@ -61,9 +61,7 @@ class ArticleController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
 
         # Handling user
-        current_user = g.current_user
-        if current_user is None:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)  
+        current_user = g.current_user  
         data['user_id'] = current_user.id
 
         # handling title
@@ -336,7 +334,7 @@ class ArticleController(Controller):
             return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
 
         current_user = g.current_user
-        if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+        if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         # Handling title
@@ -391,7 +389,7 @@ class ArticleController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
 
             current_user = g.current_user
-            if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+            if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
                 
             db.session.delete(article)

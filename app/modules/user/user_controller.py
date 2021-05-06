@@ -424,9 +424,6 @@ class UserController(Controller):
 
     def notify_user_mention(self, args):
 
-        if g.current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         if 'user_mentioned_id' not in args:
             return send_error(message=messages.ERR_LACKING_GET_PARAMS.format('User mentioned id'))
 

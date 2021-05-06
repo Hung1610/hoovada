@@ -63,9 +63,6 @@ class UserFriendController(Controller):
     def create(self, object_id):
         data = {}
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         data['friend_id'] = current_user.id
         data['friended_id'] = object_id
 
@@ -184,9 +181,6 @@ class UserFriendController(Controller):
       
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         user_id = current_user.id
         try:
             UserFriend.query.filter(\

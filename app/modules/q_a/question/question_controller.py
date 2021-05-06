@@ -59,8 +59,6 @@ class QuestionController(Controller):
 
         # Handling user
         current_user = g.current_user
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
         data['user_id'] = current_user.id
 
         # Handling question title
@@ -248,9 +246,6 @@ class QuestionController(Controller):
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
             
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             emails_or_usernames = data['emails_or_usernames']
             for email_or_username in emails_or_usernames:
                 try:
@@ -286,11 +281,7 @@ class QuestionController(Controller):
 
     def decline_invited_question(self, object_id):
         try:
-            current_user, _ = current_app.get_logged_user(request)
-            
-            if current_user is None:
-                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-            
+            current_user, _ = current_app.get_logged_user(request)            
             result = None
             question_user_invite = QuestionUserInvite.query.filter_by(user_id=current_user.id, question_id=object_id).first()
             if question_user_invite:
@@ -310,9 +301,6 @@ class QuestionController(Controller):
     def invite_friends(self, object_id):
         try:
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             emails_or_usernames = [friend.display_name for friend in current_user.friends]
             data = {}
             data['emails_or_usernames'] = emails_or_usernames
@@ -615,8 +603,6 @@ class QuestionController(Controller):
 
         #handling user
         current_user = g.current_user
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()

@@ -69,9 +69,6 @@ class CommentController(BaseCommentController):
             return send_error(message="The comment body must be included")
 
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         data['user_id'] = current_user.id
         data['poll_id'] = poll_id
 
@@ -127,11 +124,10 @@ class CommentController(BaseCommentController):
     def update(self, object_id, data):
         if object_id is None:
             return send_error(message='PollComment ID is null')
+        
         if data is None or not isinstance(data, dict):
             return send_error('Data is null or not in dictionary form. Check again.')
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         try:
             comment = PollComment.query.filter_by(id=object_id).first()
             if comment is None:

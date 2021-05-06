@@ -119,9 +119,6 @@ class TopicController(Controller):
             topic = Topic.query.filter(Topic.name == data['name']).first()
 
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             data['user_id'] = current_user.id
 
             if not topic:  # the topic does not exist
@@ -236,10 +233,8 @@ class TopicController(Controller):
                 # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.commit()
-                current_user, _ = current_app.get_logged_user(request)
-                if current_user is None:
-                    return send_error(message=messages.ERR_NOT_LOGIN)
 
+                current_user, _ = current_app.get_logged_user(request)
                 result = topic._asdict()
                 bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
@@ -284,9 +279,6 @@ class TopicController(Controller):
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             endorse = TopicUserEndorse.query.\
                 filter(\
                     TopicUserEndorse.user_id == current_user.id,\
@@ -320,9 +312,6 @@ class TopicController(Controller):
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             endorse = TopicUserEndorse.query.\
                 filter(\
                     TopicUserEndorse.user_id == current_user.id,\
