@@ -14,6 +14,7 @@ from common.db import db
 from common.utils.response import send_error, send_result, paginated_result
 from common.controllers.controller import Controller
 from app.constants import messages
+from slugify import slugify
 from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
 from common.utils.sensitive_words import check_sensitive
@@ -96,7 +97,10 @@ class PollController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
-        poll = Poll.query.filter_by(id=object_id).first()
+        if object_id.isdigit():
+            poll = Poll.query.filter_by(id=object_id).first()
+        else:
+            poll = Poll.query.filter_by(slug=object_id).first()
         current_user, _ = current_app.get_logged_user(request)
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
@@ -145,7 +149,10 @@ class PollController(Controller):
 
     def delete(self, object_id):
         try:
-            poll = Poll.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                poll = Poll.query.filter_by(id=object_id).first()
+            else:
+                poll = Poll.query.filter_by(slug=object_id).first()
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
 
@@ -205,6 +212,7 @@ class PollController(Controller):
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
             poll.is_expire = False
+            poll.slug = slugify(poll.title)
             db.session.add(poll)
             db.session.flush()
 

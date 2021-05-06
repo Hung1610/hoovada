@@ -175,6 +175,7 @@ class UserFeedDto(Dto):
 	    'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
 	    'user': fields.Nested(model_user, description='The detail of owner user'),
 	    'title': fields.String(default=None, description='The title of the poll'),
+		'slug': fields.String(default=None, description='The slug of the poll'),
 	    'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
 	    'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
 	    'poll_select_count': fields.Integer(description='Total count of selections'),
