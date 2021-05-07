@@ -12,7 +12,6 @@ from flask_restx import marshal
 # own modules
 from common.db import db
 from app.constants import messages
-from app.modules.article.bookmark import constants
 from app.modules.article.bookmark.bookmark_dto import ArticleBookmarkDto
 from common.utils.response import paginated_result
 from common.controllers.controller import Controller
@@ -37,6 +36,7 @@ class ArticleBookmarkController(Controller):
 
         return query
 
+
     def get(self, args):
         try:
             query = self.get_query_results(args)
@@ -54,14 +54,17 @@ class ArticleBookmarkController(Controller):
             print(e.__str__())
             return send_error(messages.ERR_GET_FAILED.format("all article bookmark", str(e)))
 
+
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=constants.msg_lacking_id)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
+        
         bookmark = ArticleBookmark.query.filter_by(id=object_id).first()
         if bookmark is None:
-            return send_error(message=constants.msg_article_bookmark_not_found)
-        else:
-            return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
+            return send_error(message=messages.ERR_NOT_FOUND.format('Article Bookmark'))
+        
+        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
+
 
     def create(self, article_id):
         data = {}
@@ -69,10 +72,9 @@ class ArticleBookmarkController(Controller):
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:
-            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == data['user_id'],
-                                             ArticleBookmark.article_id == data['article_id']).first()
+            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == data['user_id'], ArticleBookmark.article_id == data['article_id']).first()
             if bookmark:
-                return send_result(message=constants.msg_already_bookmarked)
+                return send_result(message=messages.MSG_ALREADY_EXISTS.format("Article Bookmark"))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -80,14 +82,17 @@ class ArticleBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
 
-            return send_result(message=constants.msg_create_success, data=marshal(bookmark, ArticleBookmarkDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article Bookmark"), data=marshal(bookmark, ArticleBookmarkDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=constants.msg_create_failed)
+            return send_error(message=messages.ERR_CREATE_FAILED.format("Article Bookmark", str(e)))
+
 
     def update(self, object_id, data):
         pass
+
 
     def delete(self, article_id):
         current_user, _ = current_app.get_logged_user(request)
@@ -95,15 +100,17 @@ class ArticleBookmarkController(Controller):
         try:
             bookmark = ArticleBookmark.query.filter_by(article_id=article_id, user_id=user_id).first()
             if bookmark is None:
-                return send_error(message=constants.msg_article_bookmark_not_found)
+                return send_error(message=messages.ERR_NOT_FOUND.format('Article Bookmark'))
             else:
                 db.session.delete(bookmark)
                 db.session.commit()
-                return send_result(message=constants.msg_delete_success_with_id.format(bookmark.id))
+                return send_result(message=messages.MSG_DELETE_SUCCESS.format("Article Bookmark"))
+
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=constants.msg_delete_failed)
+            return send_error(message=messages.ERR_DELETE_FAILED.format("Article Bookmark", str(e)))
+
 
     def _parse_bookmark(self, data, bookmark=None):
         if bookmark is None:

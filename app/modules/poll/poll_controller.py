@@ -191,7 +191,7 @@ class PollController(Controller):
         try:
             poll = Poll.query.filter(Poll.title == data['title']).first()
             if poll is not None:
-                return send_error(message=messages.ERR_POLL_ALREADY_EXIST.format(data['title']))
+                return send_error(message=messages.ERR_NOT_FOUND.format("poll with title" + data['title']))
 
             # check sensitive words for title
             is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))

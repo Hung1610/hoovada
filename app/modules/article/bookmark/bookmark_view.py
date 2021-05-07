@@ -4,12 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.article.bookmark.bookmark_controller import \
-    ArticleBookmarkController
 # own modules
-# from common.decorator import token_required
+from app.modules.article.bookmark.bookmark_controller import ArticleBookmarkController
 from app.modules.article.bookmark.bookmark_dto import ArticleBookmarkDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -26,9 +24,7 @@ _bookmark_get_params = ArticleBookmarkDto.model_get_parser
 class BookmarkArticleAll(Resource):
     @api.expect(_bookmark_get_params)
     def get(self):
-        """
-        Search all bookmark that satisfy conditions.
-        """
+        """Get all bookmark that satisfy conditions"""
 
         args = _bookmark_get_params.parse_args()
         controller = ArticleBookmarkController()
@@ -38,9 +34,7 @@ class BookmarkArticleAll(Resource):
 class BookmarkArticle(Resource):
     @api.expect(_bookmark_get_params)
     def get(self, article_id):
-        """
-        Search all bookmarks that satisfy conditions.
-        """
+        """Get all bookmarks using article_id"""
 
         args = _bookmark_get_params.parse_args()
         args['article_id'] = article_id
@@ -50,18 +44,14 @@ class BookmarkArticle(Resource):
     @token_required
     @api.response(code=200, model=_bookmark_response, description='The model for bookmark.')
     def post(self, article_id):
-        """
-        Create a bookmark on current user.
-        """
+        """Create a bookmark using article_id"""
 
         controller = ArticleBookmarkController()
         return controller.create(article_id=article_id)
 
     @token_required
     def delete(self, article_id):
-        """
-        Delete bookmark on current user.
-        """
+        """Delete bookmark using article_id"""
         
         controller = ArticleBookmarkController()
         return controller.delete(article_id=article_id)

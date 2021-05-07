@@ -66,9 +66,11 @@ class ArticleController(Controller):
 
         # handling title
         data['title'] = data['title'].strip()
+        
         article = Article.query.filter(Article.title == data['title']).first()
         if article:
-            return send_error(message=messages.ERR_ARTICLE_ALREADY_EXISTS.format(data['title']))
+            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Article with title" + data['title']))
+
         is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
         if is_sensitive:
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)

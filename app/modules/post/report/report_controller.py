@@ -85,7 +85,7 @@ class ReportController(Controller):
         query = PostReport.query
         report = query.filter(PostReport.id == object_id).first()
         if report is None:
-            return send_error(message=messages.ERR_REPORT_NOT_FOUND)
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
         else:
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
 

@@ -81,7 +81,7 @@ class CommentController(BaseCommentController):
         current_user, _ = current_app.get_logged_user(request)
         question = Question.query.filter(Question.id == question_id).first()
         if question is None:
-            return send_error(message=messages.ERR_QUESTION_NOT_EXISTS)
+            return send_error(message=messages.ERR_NOT_FOUND.format("Question"))
         
         if (not question.allow_comments):
             return send_error(message=messages.ERR_QUESTION_NOT_ALLOW_COMMENT)

@@ -79,7 +79,7 @@ class QuestionController(Controller):
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
         if question is not None:
-            return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(data['title']))   
+            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Question with title" + data['title']))   
 
         question = self._parse_question(data=data, question=None)
         try:     
@@ -501,7 +501,7 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(slug=object_id).first()
             
             if question is None or question.is_deleted is True:
-                return send_error(message=messages.ERR_QUESTION_NOT_EXISTS)
+                return send_error(message=messages.ERR_NOT_FOUND.format("Question"))
 
             data['question_id'] = question.id
             proposal_data = question._asdict()

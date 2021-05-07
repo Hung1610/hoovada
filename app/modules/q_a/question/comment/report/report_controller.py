@@ -83,7 +83,7 @@ class ReportController(Controller):
         query = QuestionCommentReport.query
         report = query.filter(QuestionCommentReport.id == object_id).first()
         if report is None:
-            return send_error(message=messages.ERR_REPORT_NOT_FOUND)
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
         else:
             return send_result(data=marshal(report, QuestionCommentReportDto.model_response), message='Success')
 

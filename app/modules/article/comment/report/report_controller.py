@@ -86,9 +86,9 @@ class ReportController(Controller):
         query = ArticleCommentReport.query
         report = query.filter(ArticleCommentReport.id == object_id).first()
         if report is None:
-            return send_error(message=messages.ERR_REPORT_NOT_FOUND)
-        else:
-            return send_result(data=marshal(report, ArticleCommentReportDto.model_response), message='Success')
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
+        
+        return send_result(data=marshal(report, ArticleCommentReportDto.model_response), message='Success')
 
 
     def update(self, object_id, data):
