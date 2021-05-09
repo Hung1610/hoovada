@@ -93,7 +93,6 @@ class QuestionDto(Dto):
         # admin actions
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
-
     })
 
     model_question_proposal_response = api.model('question_proposal_response', {
@@ -123,6 +122,10 @@ class QuestionDto(Dto):
         'is_approved': fields.Boolean(default=False, description='The question proposal is approved or not'),
         'proposal_created_date': fields.DateTime(description='The proposal created date'),
         'proposal_updated_date': fields.DateTime(description='The proposal updated date'),
+
+        # admin actions
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
 
     top_user_reputation_args_parser = reqparse.RequestParser()

@@ -83,7 +83,7 @@ class CommentController(BaseCommentController):
         if question is None:
             return send_error(message=messages.ERR_NOT_FOUND.format("Question"))
         
-        if (not question.allow_comments):
+        if question.allow_comments is False:
             return send_error(message=messages.ERR_QUESTION_NOT_ALLOW_COMMENT)
         
         data['user_id'] = current_user.id

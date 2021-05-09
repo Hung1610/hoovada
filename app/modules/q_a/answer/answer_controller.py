@@ -457,6 +457,15 @@ class AnswerController(Controller):
                 answer.allow_comments = True
                 print(e.__str__())
                 pass
+                
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    answer.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    answer.allow_voting = True
+                    print(e.__str__())
+                pass
 
         if 'allow_improvement' in data:
             try:

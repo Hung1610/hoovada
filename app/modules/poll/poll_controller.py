@@ -6,7 +6,7 @@ from datetime import datetime
 from re import sub
 
 # third-party modules
-from flask import current_app, request
+from flask import current_app, request, g
 from flask_restx import marshal
 
 # own modules
@@ -73,6 +73,22 @@ class PollController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    post.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+        if g.current_user_is_admin:
+            if 'allow_comments' in data:
+                try:
+                    post.allow_comments = bool(data['allow_comments'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
 
         return poll
 

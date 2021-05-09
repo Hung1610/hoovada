@@ -139,8 +139,10 @@ class QuestionController(Controller):
             if params.get('title'):
                 title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
                 query = query.filter(title_similarity > 50)
+            
             if params.get('from_date'):
                 query = query.filter(Question.created_date >= params.get('from_date'))
+            
             if params.get('to_date'):
                 query = query.filter(Question.created_date <= params.get('to_date'))
             
@@ -742,6 +744,23 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
+        if 'allow_comments' in data:
+            try:
+                question.allow_comments = bool(data['allow_comments'])
+            except Exception as e:
+                question.allow_comments = False
+                print(e.__str__())
+                pass
+                
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    question.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    question.allow_voting = False
+                    print(e.__str__())
+                    pass
+
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
@@ -846,6 +865,23 @@ class QuestionController(Controller):
                 proposal.is_parma_delete = False
                 print(e.__str__())
                 pass
+
+        if 'allow_comments' in data:
+            try:
+                question.allow_comments = bool(data['allow_comments'])
+            except Exception as e:
+                question.allow_comments = False
+                print(e.__str__())
+                pass
+
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    question.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    question.allow_voting = False
+                    print(e.__str__())
+                    pass
 
         topic_ids = None
         if 'topics' in data:

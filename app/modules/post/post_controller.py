@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from app.dramatiq_consumers import update_seen_posts
 import json
 from datetime import datetime
 from re import sub
@@ -16,6 +15,7 @@ from slugify import slugify
 from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
+from app.dramatiq_consumers import update_seen_posts
 from common.db import db
 from app.constants import messages
 from app.modules.post.post_dto import PostDto
@@ -355,6 +355,14 @@ class PostController(Controller):
             if 'allow_favorite' in data:
                 try:
                     post.allow_favorite = bool(data['allow_favorite'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+        if g.current_user_is_admin:
+            if 'allow_comments' in data:
+                try:
+                    post.allow_comments = bool(data['allow_comments'])
                 except Exception as e:
                     print(e.__str__())
                     pass
