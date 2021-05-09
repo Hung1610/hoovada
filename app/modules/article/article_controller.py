@@ -25,6 +25,8 @@ from common.controllers.controller import Controller
 from common.models.vote import ArticleVote, VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
+from common.es import get_model
+from common.utils.util import strip_tags
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -39,6 +41,7 @@ TopicBookmark = db.get_model('TopicBookmark')
 User = db.get_model('User')
 UserFollow = db.get_model('UserFollow')
 UserFriend = db.get_model('UserFriend')
+ESArticle = get_model('Article')
 
 
 class ArticleController(Controller):
@@ -95,6 +98,10 @@ class ArticleController(Controller):
                     return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             db.session.add(article)
+            db.session.flush()
+            article_dsl = ESArticle(_id=article.id, html=strip_tags(
+                article.html), title=article.title, user_id=article.user_id, slug=article.slug, created_date=article.created_date, updated_date=article.created_date)
+            article_dsl.save()
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
 
@@ -361,6 +368,9 @@ class ArticleController(Controller):
 
             article.updated_date = datetime.utcnow()
             article.last_activity = datetime.utcnow()
+            article_dsl = ESArticle(_id=article.id)
+            article_dsl.update(html=strip_tags(
+                article.html), title=article.title, slug=article.slug, updated_date=article.updated_date)
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
 
@@ -395,6 +405,8 @@ class ArticleController(Controller):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
                 
             db.session.delete(article)
+            article_dsl = ESArticle(_id=article.id)
+            article_dsl.delete()
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
             return send_result(message=messages.MSG_DELETE_SUCCESS.format(object_id))

@@ -27,6 +27,9 @@ from common.utils.sensitive_words import check_sensitive
 from common.utils.wasabi import upload_file
 from common.utils.util import encode_file_name
 from common.utils.file_handler import get_file_name_extension
+from common.es import get_model
+from common.utils.util import strip_tags
+
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -36,6 +39,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 User = db.get_model('User')
 Post = db.get_model('Post')
+ESPost = get_model("Post")
 
 class PostController(Controller):
     allowed_ordering_fields = ['created_date', 'updated_date', 'comment_count', 'favorite_count']
@@ -61,6 +65,11 @@ class PostController(Controller):
             post.created_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
             db.session.add(post)
+            db.session.flush()
+
+            # index to ES server
+            post_dsl = ESPost(_id=post.id, html=strip_tags(post.html), user_id=post.user_id, created_date=post.created_date, updated_date=post.created_date)
+            post_dsl.save()
             db.session.commit()
             try:
                 result = post.__dict__
@@ -251,6 +260,8 @@ class PostController(Controller):
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
         if is_put:
             db.session.delete(post)
+            post_dsl = ESPost(_id=post.id)
+            post_dsl.delete()
             return self.create(data)
 
         post= self._parse_post(data=data, post=post)
@@ -264,6 +275,11 @@ class PostController(Controller):
 
             post.updated_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
+
+            # index to ES server
+            post_dsl = ESPost(_id=post.id)
+            post_dsl.update(html=strip_tags(post.html), updated_date=post.updated_date)
+
             db.session.commit()            
             result = post.__dict__
             result['user'] = post.user
@@ -284,6 +300,9 @@ class PostController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
             else:
                 db.session.delete(post)
+                # index to ES server
+                post_dsl = ESPost(_id=post.id)
+                post_dsl.delete()
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
         

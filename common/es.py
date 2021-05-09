@@ -10,10 +10,11 @@ connections.create_connection(hosts=[Config.ES_HOST], timeout=Config.ES_TIMEOUT)
 
 
 def get_model(name):
-    return {
+    mapping = {
         'User': User,
         'Post': Post,
         'Article': Article,
         'Question': Question,
         'Topic': Topic
     }
+    return mapping[name]

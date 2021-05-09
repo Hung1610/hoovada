@@ -31,4 +31,4 @@ class Search(Resource):
 
         args = parser.parse_args()
         controller = SearchController()
-        return controller.search(args=args)
+        return controller.search_elastic(args=args)
