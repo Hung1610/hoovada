@@ -26,6 +26,8 @@ from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import delete_file, upload_file
 from common.utils.sensitive_words import check_sensitive
+from common.es import get_model
+from common.utils.util import strip_tags
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -38,6 +40,7 @@ UserFriend = db.get_model('UserFriend')
 SocialAccount = db.get_model('SocialAccount')
 Reputation = db.get_model('Reputation')
 Topic = db.get_model('Topic')
+ESUser = get_model('User')
 
 
 class UserController(Controller):
@@ -66,6 +69,10 @@ class UserController(Controller):
             user.password_hash = user.password_hash or data['email']
             user.admin = UserRole.ADMIN
             db.session.add(user)
+            db.session.flush()
+            user_dsl = ESUser(_id=user.id, display_name=user.display_name, email=user.email,
+                            gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
+            user_dsl.save()
             db.session.commit()
 
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('User'), data=marshal(user, UserDto.model_response))
@@ -228,7 +235,9 @@ class UserController(Controller):
                 full_name = user.last_name.strip() + " " + user.first_name.strip()
                 if len(full_name) > 0:
                     user.display_name = full_name
-                
+            user_dsl = ESUser(_id=user.id)
+            user_dsl.update(display_name=user.display_name, email=user.email,
+                gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
         
@@ -245,6 +254,8 @@ class UserController(Controller):
                 return send_error(message=messages.ERR_NOT_LOGIN)
             
             db.session.delete(user)
+            user_dsl = ESUser(_id=user.id)
+            user_dsl.delete()
             db.session.commit()
             return send_result(message='User was deleted successfully')
 

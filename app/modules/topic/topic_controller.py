@@ -24,6 +24,8 @@ from common.utils.sensitive_words import check_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
 from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
+from common.es import get_model
+from common.utils.util import strip_tags
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -36,6 +38,7 @@ TopicUserEndorse = db.get_model('TopicUserEndorse')
 UserFollow = db.get_model('UserFollow')
 Reputation = db.get_model('Reputation')
 TopicBookmark = db.get_model('TopicBookmark')
+ESTopic = get_model('Topic')
 
 class TopicController(Controller):
     query_classname = 'Topic'
@@ -128,6 +131,9 @@ class TopicController(Controller):
                 # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.add(topic)
+                db.session.flush()
+                topic_dsl = ESTopic(_id=topic.id, description=topic.description, user_id=topic.user_id, name=topic.name, slug=topic.slug, is_fixed=0, created_date=topic.created_date)
+                topic_dsl.save()
                 db.session.commit()
                 controller = TopicBookmarkController()
                 controller.create(topic_id=topic.id)
@@ -232,6 +238,8 @@ class TopicController(Controller):
 
                 # capitalize first letter
                 topic.name = topic.name.capitalize()
+                topic_dsl = ESTopic(_id=topic.id)
+                topic_dsl.update(description=topic.description, name=topic.name, slug=topic.slug)
                 db.session.commit()
 
                 current_user, _ = current_app.get_logged_user(request)
@@ -256,6 +264,8 @@ class TopicController(Controller):
             else:
                 Reputation.query.filter(Reputation.topic_id == topic.id).delete(synchronize_session=False)
                 db.session.delete(topic)
+                topic_dsl = ESTopic(_id=topic.id)
+                topic_dsl.delete()
                 db.session.commit()
                 return send_result(message='Topic was deleted.')
         except Exception as e:

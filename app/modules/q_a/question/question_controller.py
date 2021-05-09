@@ -17,11 +17,13 @@ from sqlalchemy import desc, func, or_, text
 # own modules
 from app.constants import messages
 from common.db import db
+from common.es import get_model
 from common.cache import cache
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import check_sensitive
+from common.utils.util import strip_tags
 from common.dramatiq_producers import update_seen_questions
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.q_a.question.bookmark.bookmark_controller import QuestionBookmarkController
@@ -44,6 +46,8 @@ QuestionProposal = db.get_model('QuestionProposal')
 QuestionShare = db.get_model('QuestionShare')
 QuestionBookmark = db.get_model('QuestionBookmark')
 QuestionVote = db.get_model('QuestionVote')
+
+ESQuestion = get_model("Question")
 
 class QuestionController(Controller):
     query_classname = 'Question'
@@ -90,6 +94,12 @@ class QuestionController(Controller):
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
             db.session.add(question)
+            db.session.flush()
+            # index to ES server
+            question_dsl = ESQuestion(_id=question.id, question=strip_tags(
+                question.question), title=question.title, user_id=question.user_id, slug=question.slug, created_date=question.created_date, updated_date=question.created_date)
+            question_dsl.save()
+
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
 
@@ -100,7 +110,6 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-                
             # response data
             result = question._asdict()
             result['user'] = question.user
@@ -623,6 +632,12 @@ class QuestionController(Controller):
             question.updated_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
+            db.session.flush()
+            # index to ES server
+            question_dsl = ESQuestion(_id=question.id)
+            question_dsl.update(question=strip_tags(
+                question.question), title=question.title, slug=question.slug, updated_date=question.updated_date)
+
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
             result = question._asdict()
@@ -660,6 +675,10 @@ class QuestionController(Controller):
             
             else:
                 db.session.delete(question)
+
+                # delete from question Es index
+                question_dsl = ESQuestion(_id=question.id)
+                question_dsl.delete()
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
                 return send_result(message="Question with the ID {} was deleted.".format(object_id))

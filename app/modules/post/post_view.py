@@ -71,7 +71,7 @@ class Post(Resource):
 
         data = api.payload
         controller = PostController()
-        result = controller.update(object_id=post_id, data=data, is_put=True)
+        result = controller.update(object_id=post_id, data=data)
         cache.clear_cache(get_post_proposal_key_prefix())
         return result
 

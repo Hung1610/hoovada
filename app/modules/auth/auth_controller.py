@@ -29,6 +29,10 @@ from common.utils.util import (check_password, check_verification,
                                send_password_reset_email,
                                send_verification_sms, validate_phone_number,
                                create_random_string)
+from common.es import get_model
+from common.utils.util import strip_tags
+
+ESUser = get_model("User")
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -822,6 +826,10 @@ def create_user_by_email(data):
             user.email_confirmed_at = datetime.now()
 
         db.session.add(user)
+        db.session.flush()
+        user_dsl = ESUser(_id=user.id, display_name=user.display_name, email=user.email,
+                        gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
+        user_dsl.save()
         db.session.commit()
         return user
 
