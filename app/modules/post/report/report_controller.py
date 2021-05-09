@@ -15,9 +15,7 @@ from app.constants import messages
 from app.modules.post.report.report_dto import ReportDto
 from common.controllers.controller import Controller
 from common.enum import ReportTypeEnum
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -64,13 +62,12 @@ class ReportController(Controller):
         reports = query.all()
         return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
 
+
     def create(self, post_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
-        if not has_permission(current_user.id, PermissionType.REPORT):
-            return send_error(code=401, message='You have no authority to perform this action')
         data['user_id'] = current_user.id
         data['post_id'] = post_id
         try:
@@ -80,6 +77,7 @@ class ReportController(Controller):
             db.session.commit()
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Post Report'))
 
@@ -87,7 +85,7 @@ class ReportController(Controller):
         query = PostReport.query
         report = query.filter(PostReport.id == object_id).first()
         if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Post Report'))
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
         else:
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
 

@@ -92,6 +92,7 @@ class ShareController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         current_user, _ = current_app.get_logged_user(request)
+
         if not has_permission(current_user.id, PermissionType.SHARE):
             return send_error(code=401, message='You have no authority to perform this action')
 
@@ -101,8 +102,6 @@ class ShareController(Controller):
             share = self._parse_share(data=data)
             share.created_date = datetime.utcnow()
             db.session.add(share)
-            db.session.commit()
-            # update other values
             try:
                 post = Post.query.filter_by(id=share.post_id).first()
                 if not post:
@@ -114,9 +113,11 @@ class ShareController(Controller):
                 if current_user:
                     share.user_id = current_user.id
                     current_user.post_share_count += 1
-                db.session.commit()
+                
             except Exception as e:
                 pass
+
+            db.session.commit() 
             return send_result(data=marshal(share, ShareDto.model_response))
         except Exception as e:
             print(e.__str__())

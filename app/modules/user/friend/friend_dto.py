@@ -33,9 +33,6 @@ class UserFriendDto(Dto):
         'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
 
-    model_request = api.model('friend_user_request', {
-    })
-
     model_response = api.model('friend_user_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
         'adaptive_friend_id': fields.Integer(required=False, description='The user ID who has been friendd'),

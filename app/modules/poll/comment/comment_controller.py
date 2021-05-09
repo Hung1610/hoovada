@@ -3,19 +3,19 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
 from common.db import db
+from app.constants import messages
 from app.modules.poll.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.utils.types import PermissionType
-from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -44,6 +44,7 @@ class CommentController(BaseCommentController):
                 pass
 
         query = PollComment.query
+        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
         if poll_id is not None:
             query = query.filter(PollComment.poll_id == poll_id)
         if user_id is not None:
@@ -54,7 +55,6 @@ class CommentController(BaseCommentController):
             results = list()
             for comment in comments:
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 results.append(result)
@@ -69,28 +69,28 @@ class CommentController(BaseCommentController):
             return send_error(message="The comment body must be included")
 
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         data['user_id'] = current_user.id
         data['poll_id'] = poll_id
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
             if is_sensitive:
-                return send_error(message='Insensitive contents not allowed.')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
-            db.session.commit()
-            # update comment count for user
+              
             try:
                 user = User.query.filter_by(id=comment.user_id).first()
                 user.comment_count += 1
-                db.session.commit()
             except Exception as e:
                 print(e.__str__())
                 pass
+
+            db.session.commit()
 
             try:
                 result = comment.__dict__
@@ -100,6 +100,7 @@ class CommentController(BaseCommentController):
             except Exception as e:
                 print(e.__str__())
                 return send_result(data=marshal(comment, CommentDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create comment')
@@ -123,11 +124,10 @@ class CommentController(BaseCommentController):
     def update(self, object_id, data):
         if object_id is None:
             return send_error(message='PollComment ID is null')
+        
         if data is None or not isinstance(data, dict):
             return send_error('Data is null or not in dictionary form. Check again.')
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         try:
             comment = PollComment.query.filter_by(id=object_id).first()
             if comment is None:
@@ -136,15 +136,18 @@ class CommentController(BaseCommentController):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             else:
                 comment = self._parse_comment(data=data, comment=comment)
-                is_sensitive = check_sensitive(comment.comment)
+
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment))
                 if is_sensitive:
-                    return send_error(message='Insensitive contents not allowed.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             db.session.rollback()

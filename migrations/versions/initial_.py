@@ -1,8 +1,8 @@
-"""update post table to add poll
+"""add slug to poll entity
 
-Revision ID: 189452bd8616
+Revision ID: a383fadb57ed
 Revises: 
-Create Date: 2021-04-21 23:23:03.293797
+Create Date: 2021-05-06 22:26:28.905352
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '189452bd8616'
+revision = 'a383fadb57ed'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -385,6 +385,7 @@ def upgrade():
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.UnicodeText(), nullable=True),
+    sa.Column('slug', sa.String(length=255), nullable=True),
     sa.Column('allow_multiple_user_select', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('fixed_topic_id', sa.Integer(), nullable=False),
@@ -403,6 +404,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_poll_slug'), 'poll', ['slug'], unique=False)
     op.create_index(op.f('ix_poll_user_id'), 'poll', ['user_id'], unique=False)
     op.create_table('post_comment',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -1202,6 +1204,24 @@ def upgrade():
     )
     op.create_index(op.f('ix_question_comment_report_comment_id'), 'question_comment_report', ['comment_id'], unique=False)
     op.create_index(op.f('ix_question_comment_report_user_id'), 'question_comment_report', ['user_id'], unique=False)
+    op.create_table('timeline',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('question_id', sa.Integer(), nullable=True),
+    sa.Column('answer_id', sa.Integer(), nullable=True),
+    sa.Column('article_id', sa.Integer(), nullable=True),
+    sa.Column('activity', sa.Enum('FIRST_COMMENT', 'FIRST_UPVOTE', 'FIRST_SHARE', 'HUNDREDTH_COMMENT', 'HUNDREDTH_UPVOTE', 'HUNDREDTH_SHARE', name='timelineactivityenum'), nullable=True),
+    sa.Column('activity_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_timeline_answer_id'), 'timeline', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_timeline_article_id'), 'timeline', ['article_id'], unique=False)
+    op.create_index(op.f('ix_timeline_question_id'), 'timeline', ['question_id'], unique=False)
+    op.create_index(op.f('ix_timeline_user_id'), 'timeline', ['user_id'], unique=False)
     op.create_table('answer_comment_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
@@ -1240,46 +1260,11 @@ def upgrade():
     )
     op.create_index(op.f('ix_answer_improvement_vote_improvement_id'), 'answer_improvement_vote', ['improvement_id'], unique=False)
     op.create_index(op.f('ix_answer_improvement_vote_user_id'), 'answer_improvement_vote', ['user_id'], unique=False)
-    op.create_table('timeline',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('question_id', sa.Integer(), nullable=True),
-    sa.Column('question_comment_id', sa.Integer(), nullable=True),
-    sa.Column('answer_id', sa.Integer(), nullable=True),
-    sa.Column('answer_comment_id', sa.Integer(), nullable=True),
-    sa.Column('article_id', sa.Integer(), nullable=True),
-    sa.Column('article_comment_id', sa.Integer(), nullable=True),
-    sa.Column('poll_id', sa.Integer(), nullable=True),
-    sa.Column('poll_comment_id', sa.Integer(), nullable=True),
-    sa.Column('activity', sa.Enum('COMMENTED', 'FAVORITED', 'UPVOTED', 'DOWNVOTED', 'REPORTED', name='timelineactivityenum'), nullable=True),
-    sa.Column('activity_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['answer_comment_id'], ['answer_comment.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['article_comment_id'], ['article_comment.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['poll_comment_id'], ['poll_comment.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['poll_id'], ['poll.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['question_comment_id'], ['question_comment.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_timeline_answer_id'), 'timeline', ['answer_id'], unique=False)
-    op.create_index(op.f('ix_timeline_article_id'), 'timeline', ['article_id'], unique=False)
-    op.create_index(op.f('ix_timeline_poll_id'), 'timeline', ['poll_id'], unique=False)
-    op.create_index(op.f('ix_timeline_question_id'), 'timeline', ['question_id'], unique=False)
-    op.create_index(op.f('ix_timeline_user_id'), 'timeline', ['user_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_index(op.f('ix_timeline_user_id'), table_name='timeline')
-    op.drop_index(op.f('ix_timeline_question_id'), table_name='timeline')
-    op.drop_index(op.f('ix_timeline_poll_id'), table_name='timeline')
-    op.drop_index(op.f('ix_timeline_article_id'), table_name='timeline')
-    op.drop_index(op.f('ix_timeline_answer_id'), table_name='timeline')
-    op.drop_table('timeline')
     op.drop_index(op.f('ix_answer_improvement_vote_user_id'), table_name='answer_improvement_vote')
     op.drop_index(op.f('ix_answer_improvement_vote_improvement_id'), table_name='answer_improvement_vote')
     op.drop_table('answer_improvement_vote')
@@ -1288,6 +1273,11 @@ def downgrade():
     op.drop_table('answer_comment_report')
     op.drop_index(op.f('ix_answer_comment_favorite_user_id'), table_name='answer_comment_favorite')
     op.drop_table('answer_comment_favorite')
+    op.drop_index(op.f('ix_timeline_user_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_question_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_article_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_answer_id'), table_name='timeline')
+    op.drop_table('timeline')
     op.drop_index(op.f('ix_question_comment_report_user_id'), table_name='question_comment_report')
     op.drop_index(op.f('ix_question_comment_report_comment_id'), table_name='question_comment_report')
     op.drop_table('question_comment_report')
@@ -1448,6 +1438,7 @@ def downgrade():
     op.drop_index(op.f('ix_post_comment_post_id'), table_name='post_comment')
     op.drop_table('post_comment')
     op.drop_index(op.f('ix_poll_user_id'), table_name='poll')
+    op.drop_index(op.f('ix_poll_slug'), table_name='poll')
     op.drop_table('poll')
     op.drop_index(op.f('ix_article_user_id'), table_name='article')
     op.drop_index(op.f('ix_article_slug'), table_name='article')

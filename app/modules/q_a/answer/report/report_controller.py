@@ -15,9 +15,7 @@ from app.constants import messages
 from app.modules.q_a.answer.report.report_dto import AnswerReportDto
 from common.controllers.controller import Controller
 from common.enum import ReportTypeEnum
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -61,22 +59,19 @@ class ReportController(Controller):
             query = query.filter(AnswerReport.created_date >= from_date)
         if to_date is not None:
             query = query.filter(AnswerReport.created_date <= to_date)
+
         reports = query.all()
         if reports is not None and len(reports) > 0:
             return send_result(data=marshal(reports, AnswerReportDto.model_response), message='Success')
         else:
             return send_result(message='Report not found')
 
+
     def create(self, answer_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is wrong format')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.ANSWER_REPORT)):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
         try:
@@ -85,9 +80,12 @@ class ReportController(Controller):
             db.session.add(report)
             db.session.commit()
             return send_result(data=marshal(report, AnswerReportDto.model_response), message='Success')
+        
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message='Failed to create answer report')
+
 
     def get_by_id(self, object_id):
         query = AnswerReport.query
@@ -97,6 +95,7 @@ class ReportController(Controller):
         else:
             return send_result(data=marshal(report, AnswerReportDto.model_response), message='Success')
 
+
     def update(self, object_id, data):
         pass
 
@@ -104,28 +103,22 @@ class ReportController(Controller):
         pass
 
     def _parse_report(self, data, report=None):
-        """ Parse dictionary form data to report.
-        
-        Args:
-            data: A dictionary form data.
-            report: A report as a param.
-
-        Returns: 
-            A report.
-        """
 
         if report is None:
             report = AnswerReport()
+        
         if 'user_id' in data:
             try:
                 report.user_id = int(data['user_id'])
             except Exception as e:
                 pass
+
         if 'answer_id' in data:
             try:
                 report.answer_id = int(data['answer_id'])
             except Exception as e:
                 pass
+
         if 'report_type' in data:
             try:
                 report_type = int(data['report_type'])
@@ -133,6 +126,7 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'description' in data:
             report.description = data['description']
 

@@ -8,7 +8,7 @@ from datetime import datetime
 # third-party modules
 import dateutil.parser
 from bs4 import BeautifulSoup
-from flask import current_app, g, request
+from flask import g
 from flask_restx import marshal
 from slugify import slugify
 from sqlalchemy import desc, func, text
@@ -43,46 +43,51 @@ UserFriend = db.get_model('UserFriend')
 
 class ArticleController(Controller):
     query_classname = 'Article'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft', 'is_created_by_friend']    
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft']    
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
 
     def create(self, data):
+
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if not 'title' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+
+        if not 'html' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('html'))
+
+        if not 'fixed_topic_id' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+
+        # Handling user
+        current_user = g.current_user  
+        data['user_id'] = current_user.id
+
+        # handling title
+        data['title'] = data['title'].strip()
+        
+        article = Article.query.filter(Article.title == data['title']).first()
+        if article:
+            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Article with title" + data['title']))
+
+        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+        if is_sensitive:
+            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
+        # Handling htm body
+        text = ' '.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
+        if len(text.split()) < 500:
+            return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))
+        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
+        if is_sensitive:
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+
+        article = self._parse_article(data=data, article=None)
         try:
-            if not isinstance(data, dict):
-                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-            if not 'title' in data:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
-
-            if not 'fixed_topic_id' in data:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
-
-            current_user = g.current_user
-            data['user_id'] = current_user.id
-            data['title'] = data['title'].strip()
-
-            article = Article.query.filter(Article.title == data['title']).first()
-            if article:
-                return send_error(message=messages.ERR_ARTICLE_ALREADY_EXISTS.format(data['title']))
-
-            # check sensitive words for title
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
-            if is_sensitive:
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
-            article = self._parse_article(data=data, article=None)
-
-            # check number of words
-            text = ' '.join(BeautifulSoup(article.html, "html.parser").stripped_strings)
-            if len(text.split()) < 500:
-                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))
-
-            # check sensitive words for body
-            is_sensitive = check_sensitive(text)
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
-            if article.scheduled_date and article.scheduled_date < datetime.now():
+            if article.scheduled_date is not None and article.scheduled_date < datetime.now():
                 return send_error(message=messages.ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT)
 
             if article.topics is not None:
@@ -97,37 +102,17 @@ class ArticleController(Controller):
             controller = ArticleBookmarkController()
             controller.create(article_id=article.id)
 
-            # Add topics and get back list of topic for article
-            try:
-                result = article._asdict()
-                result['user'] = article.user
-
-                if article.topics is not None:
-                    result['topics'] = article.topics
-
-                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                
-                #if article.user:
-                #    followers = UserFollow.query.with_entities(UserFollow.follower_id).filter(UserFollow.followed_id == article.user.id).all()
-                #    follower_ids = [follower[0] for follower in followers]
-                #    new_article_notify_user_list.send(article.id, follower_ids)
-                #    g.friend_belong_to_user_id = article.user.id   
-                #    friends = UserFriend.query\
-                #        .filter(\
-                #            (UserFriend.friended_id == article.user.id) | \
-                #            (UserFriend.friend_id == article.user.id))\
-                #        .all()
-                #    friend_ids = [friend.adaptive_friend_id for friend in friends]
-                #    new_article_notify_user_list.send(article.id, friend_ids)
-
-                return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
+            result = article._asdict()
+            result['user'] = article.user
+            if article.topics is not None:
+                result['topics'] = article.topics
             
-            except Exception as e:
-                print(e.__str__())
-                return send_result(data=marshal(article, ArticleDto.model_article_response), message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Article', 'failed to add topics'))
+            vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+            if vote is not None:
+                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
             print(e.__str__())
@@ -180,18 +165,7 @@ class ArticleController(Controller):
                     query = query.filter(Article.is_draft == True)
                 else:
                     query = query.filter(Article.is_draft != True)
-
-            if params.get('is_created_by_friend') and g.current_user:
-                 query = query\
-                     .join(UserFollow,(UserFollow.followed_id==Article.user_id), isouter=True)\
-                     .join(UserFriend,((UserFriend.friended_id==Article.user_id) | (UserFriend.friend_id==Article.user_id)), isouter=True)\
-                     .filter(
-                         (UserFollow.follower_id == g.current_user.id) |
-                         ((UserFriend.friended_id == g.current_user.id) | (UserFriend.friend_id == g.current_user.id)) |
-                         (Article.article_shares.any(ArticleShare.user_id == g.current_user.id))
-                     )
             return query
-
         except Exception as e:
             print(e.__str__())
             raise e
@@ -292,7 +266,7 @@ class ArticleController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('limit'))
         
         try:
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             query = Article.query
             
             if args.get('exclude_article_id'):
@@ -332,71 +306,78 @@ class ArticleController(Controller):
             return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
         
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message="Get similar articles failed. Error: "+ e.__str__())
 
+
     def update(self, object_id, data, is_put=False):
-        try:
+       
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Article Id'))
+        
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Article Id'))
-            
-            if not isinstance(data, dict):
-                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        if not 'title' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
-            if object_id.isdigit():
-                article = Article.query.filter_by(id=object_id).first()
-            else:
-                article = Article.query.filter_by(slug=object_id).first()
-            
-            if article is None:
-                return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+        if not 'html' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('html'))
 
-            current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
-                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        if not 'fixed_topic_id' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
 
-            article = self._parse_article(data=data, article=article)
+        if object_id.isdigit():
+            article = Article.query.filter_by(id=object_id).first()
+        else:
+            article = Article.query.filter_by(slug=object_id).first()
+        
+        if article is None:
+            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+
+        current_user = g.current_user
+        if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        # Handling title
+        data['title'] = data['title']
+        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+        if is_sensitive:
+            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
+        # Handling html body
+        text = ' '.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
+        if len(text.split()) < 500:
+            return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))            
+        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
+        if is_sensitive:
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+
+        article = self._parse_article(data=data, article=article)
+        try:  
             if article.topics is not None and len(article.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
-            # check sensitive for article title
-            is_sensitive = check_sensitive(article.title)
-            if is_sensitive:
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-            
-            text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
-            if len(text.split()) < 500:
-                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))            
-
-            is_sensitive = check_sensitive(text)
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-            
-            # update topics to article_topic table
             article.updated_date = datetime.utcnow()
             article.last_activity = datetime.utcnow()
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
+
             result = article._asdict()
             result['user'] = article.user
             result['topics'] = article.topics
 
-            try:
-                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()                    
-                if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-            
-            except Exception as e:
-                print(e)
-                pass
+            vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()                    
+            if vote is not None:
+                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
             db.session.rollback()
-            print(e)
+            print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format("Article", str(e)))
 
     def delete(self, object_id):
@@ -405,11 +386,12 @@ class ArticleController(Controller):
                 article = Article.query.filter_by(id=object_id).first()
             else:
                 article = Article.query.filter_by(slug=object_id).first()
+
             if article is None:
                 return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
 
-            current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (article.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+            current_user = g.current_user
+            if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
                 
             db.session.delete(article)
@@ -419,7 +401,7 @@ class ArticleController(Controller):
 
         except Exception as e:
             db.session.rollback()
-            print(e)
+            print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format(object_id, str(e)))
 
 
@@ -442,12 +424,11 @@ class ArticleController(Controller):
         if article is None:
             article = Article()
         
-        if 'title' in data:
-            try:
-                article.title = data['title'].capitalize()
-            except Exception as e:
-                print(e)
-                pass
+        if 'title' not in data or 'html' not in data:
+            raise Exception("title or html is missing when parsing article data")
+
+        article.title = data['title'].capitalize()
+        article.html = data['html']
         
         if 'user_id' in data:
             try:
@@ -462,9 +443,6 @@ class ArticleController(Controller):
             except Exception as e:
                 print(e)
                 pass
-        
-        if 'html' in data:
-            article.html = data['html']
 
         if 'scheduled_date' in data:
             try:

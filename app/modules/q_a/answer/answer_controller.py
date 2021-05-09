@@ -3,6 +3,7 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
 # third-party modules
 import dateutil.parser
@@ -99,8 +100,6 @@ class AnswerController(Controller):
 
     def create(self, data):
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         if not 'question_id' in data:
@@ -110,8 +109,8 @@ class AnswerController(Controller):
         user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
         if error_res:
             return error_res
-        if field_count != 1:
-            return send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
+        if field_count > 1:
+            return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
         data['user_id'] = current_user.id
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
@@ -126,7 +125,7 @@ class AnswerController(Controller):
             if len(text.split()) < 100:
                 return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('100'))
 
-            is_sensitive = check_sensitive(text)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
             if is_sensitive:
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
@@ -313,12 +312,7 @@ class AnswerController(Controller):
 
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        # if not 'question_id' in data:
-        #     return send_error(message="Please fill the question ID")
-        # if not 'answer' in data:
-        #     return send_error(message='Please fill the answer body before sending.')
-        # if not 'user_id' in data:
-        #     return send_error(message='Please fill the user ID')
+            
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
@@ -328,19 +322,25 @@ class AnswerController(Controller):
             user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
             if error_res:
                 return error_res
+
             if field_count > 1:
-                return send_error(message=messages.ERR_ISSUE.format('Should only have only one of : user_language_id, user_employment_id, user_location_id, user_education_id'))
-            if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+                return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
+            
+            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             answer = self._parse_answer(data=data, answer=answer)
             if answer.answer.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            is_sensitive = check_sensitive(' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings))
+            
+            text = ''.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
             if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Comment content not allowed'))
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+            
             if answer.question_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question_id'))
+            
             if answer.user_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
 
@@ -405,7 +405,7 @@ class AnswerController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin)):
+            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(answer)
@@ -456,6 +456,15 @@ class AnswerController(Controller):
             except Exception as e:
                 answer.allow_comments = True
                 print(e.__str__())
+                pass
+                
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    answer.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    answer.allow_voting = True
+                    print(e.__str__())
                 pass
 
         if 'allow_improvement' in data:

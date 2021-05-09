@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from app.dramatiq_consumers import update_seen_posts
 import json
 from datetime import datetime
+from re import sub
 
 # third-party modules
 import dateutil.parser
@@ -15,6 +15,7 @@ from slugify import slugify
 from sqlalchemy import and_, desc, func, or_, text
 
 # own modules
+from app.dramatiq_consumers import update_seen_posts
 from common.db import db
 from app.constants import messages
 from app.modules.post.post_dto import PostDto
@@ -51,7 +52,10 @@ class PostController(Controller):
         try:
 
             post = self._parse_post(data=data, post=None)
-            if check_sensitive(''.join(BeautifulSoup(post.html, 'html.parser').stripped_strings)):
+
+            text = ''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
+            if is_sensitive:
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             post.created_date = datetime.utcnow()
@@ -253,9 +257,10 @@ class PostController(Controller):
 
         try:
 
-            is_sensitive = check_sensitive(''.join(BeautifulSoup(post.html, "html.parser").stripped_strings))
+            text = ''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
             if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Insensitive body'))
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             post.updated_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
@@ -350,6 +355,14 @@ class PostController(Controller):
             if 'allow_favorite' in data:
                 try:
                     post.allow_favorite = bool(data['allow_favorite'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+        if g.current_user_is_admin:
+            if 'allow_comments' in data:
+                try:
+                    post.allow_comments = bool(data['allow_comments'])
                 except Exception as e:
                     print(e.__str__())
                     pass

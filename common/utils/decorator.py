@@ -5,9 +5,10 @@
 from functools import wraps
 
 # third-party modules
-from flask import current_app, g
+from flask import g
 
 # own modules
+from app.constants import messages
 from common.db import db
 from common.utils.response import send_error
 from common.utils.types import UserRole
@@ -83,7 +84,7 @@ def token_required(f):
     def decorated(*args, **kwargs):
         user = g.current_user
         if user is None:
-            return send_error(message='You are not logged in.', code=401)
+            return send_error(message=messages.ERR_NOT_LOGIN, code=401)
         if user.is_deactivated:
             return send_error(message='Your account is deactivated.', code=401)
         return f(*args, **kwargs)

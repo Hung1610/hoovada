@@ -4,13 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.q_a.question.comment.favorite.favorite_controller import \
-    QuestionCommentFavoriteController
 # own modules
-# from common.decorator import token_required
-from app.modules.q_a.question.comment.favorite.favorite_dto import \
-    QuestionCommentFavoriteDto
-from common.utils.decorator import admin_token_required, token_required
+from app.modules.q_a.question.comment.favorite.favorite_controller import QuestionCommentFavoriteController
+from app.modules.q_a.question.comment.favorite.favorite_dto import QuestionCommentFavoriteDto
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -21,17 +18,17 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = QuestionCommentFavoriteDto.api
 _favorite_request = QuestionCommentFavoriteDto.model_request
 _favorite_response = QuestionCommentFavoriteDto.model_response
-_vote_get_params = QuestionCommentFavoriteDto.model_get_parser
+_favorite_get_params = QuestionCommentFavoriteDto.model_get_parser
 
 @api.route('/<int:question_comment_id>/favorite')
 class FavoriteUser(Resource):
-    @api.expect(_vote_get_params)
+    @api.expect(_favorite_get_params)
     def get(self, question_comment_id):
         """
         Search all favorite that satisfy conditions.
         """
 
-        args = _vote_get_params.parse_args()
+        args = _favorite_get_params.parse_args()
         controller = QuestionCommentFavoriteController()
         return controller.get(question_comment_id=question_comment_id, args=args)
 

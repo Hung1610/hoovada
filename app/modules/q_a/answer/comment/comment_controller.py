@@ -2,22 +2,22 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.utils.onesignal_notif import push_notif_to_specific_users
 from datetime import datetime
+from re import sub
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
+from common.utils.onesignal_notif import push_notif_to_specific_users
+from app.constants import messages
 from common.db import db
 from app.constants import messages
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.utils.types import PermissionType, UserRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -32,16 +32,12 @@ User = db.get_model('User')
 
 
 class CommentController(BaseCommentController):
-    '''
-    Controller for answer comments
-    '''
+    '''Controller for answer comments'''
+
     query_classname = 'AnswerComment'
     related_field_name = 'answer_id'
 
     def get(self, answer_id, args):
-        """Search comments by params"""
-
-        # user_id, question_id, answer_id = None, None, None
 
         current_user, _ = current_app.get_logged_user(request)
         user_id = None
@@ -78,9 +74,10 @@ class CommentController(BaseCommentController):
         current_user, _ = current_app.get_logged_user(request)
 
         if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form.")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         if not 'comment' in data:
-            return send_error(message="The comment body must be included")
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment body'))
 
         current_user, _ = current_app.get_logged_user(request)
         if current_user:
@@ -96,33 +93,32 @@ class CommentController(BaseCommentController):
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
+            
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
             if is_sensitive:
-                return send_error(message='Insensitive contents not allowed.')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
-            db.session.commit()
-            # update comment count for user
+            
             try:
                 user = User.query.filter_by(id=comment.user_id).first()
                 user.comment_count += 1
-                db.session.commit()
             except Exception as e:
                 print(e.__str__())
                 pass
 
+            db.session.commit()
+
             try:
                 result = comment.__dict__
-                # get thong tin user
                 result['user'] = comment.user
-                if comment.answer.user:
-                    
+                if comment.answer.user:                    
                     if comment.answer.user.is_online and comment.answer.user.new_answer_comment_notify_settings:
                         display_name =  comment.user.display_name if comment.user else 'Khách'
                         message = display_name + ' đã bình luận câu trả lời!'
                         push_notif_to_specific_users(message, [comment.answer.user_id])
-
                 return send_result(message='AnswerComment was created successfully', data=marshal(result, CommentDto.model_response))
             except Exception as e:
                 print(e.__str__())
@@ -165,9 +161,12 @@ class CommentController(BaseCommentController):
                 return send_error(message='AnswerComment with the ID {} not found.'.format(object_id))
             else:
                 comment = self._parse_comment(data=data, comment=comment)
-                is_sensitive = check_sensitive(comment.comment)
+                
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
                 if is_sensitive:
-                    return send_error(message='Insensitive contents not allowed.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__

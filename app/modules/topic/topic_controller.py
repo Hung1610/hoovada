@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import ast
 import dateutil.parser
-import random
 from datetime import datetime
+from re import sub
 
 # third-party modules
 from flask import current_app, g, request
@@ -100,9 +99,10 @@ class TopicController(Controller):
             return send_error(message='Topic name must be filled!')
         else:
             topic_name = data['name']
-            is_sensitive = check_sensitive(topic_name)
+
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",topic_name))
             if is_sensitive:
-                return send_error(message='Topic name is not allowed!')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         if not 'parent_id' in data:
             return send_error(message='Topic must have a parent fixed_topic!')
@@ -119,9 +119,6 @@ class TopicController(Controller):
             topic = Topic.query.filter(Topic.name == data['name']).first()
 
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             data['user_id'] = current_user.id
 
             if not topic:  # the topic does not exist
@@ -229,17 +226,15 @@ class TopicController(Controller):
                 return send_error(message='Could not update for fixed topic.')
             else:
                 topic = self._parse_topic(data=data, topic=topic)
-                is_sensitive = check_sensitive(topic.name)
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",topic.name))
                 if is_sensitive:
-                    return send_error(message='Nội dung chủ đề mới tạo không hợp lệ.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
                 # capitalize first letter
                 topic.name = topic.name.capitalize()
                 db.session.commit()
-                current_user, _ = current_app.get_logged_user(request)
-                if current_user is None:
-                    return send_error(message=messages.ERR_NOT_LOGIN)
 
+                current_user, _ = current_app.get_logged_user(request)
                 result = topic._asdict()
                 bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
@@ -284,9 +279,6 @@ class TopicController(Controller):
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             endorse = TopicUserEndorse.query.\
                 filter(\
                     TopicUserEndorse.user_id == current_user.id,\
@@ -320,9 +312,6 @@ class TopicController(Controller):
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             endorse = TopicUserEndorse.query.\
                 filter(\
                     TopicUserEndorse.user_id == current_user.id,\

@@ -57,28 +57,33 @@ class UserFollowController(Controller):
         if to_date is not None:
             query = query.filter(UserFollow.created_date <= to_date)
         follows = query.all()
+
         return send_result(data=marshal(follows, UserFollowDto.model_response), message='Success')
 
+
     def create(self, object_id):
-        data = {}
+        
         current_user, _ = current_app.get_logged_user(request)
+        data = {}
         data['follower_id'] = current_user.id
         data['followed_id'] = object_id
         try:
             follow = UserFollow.query.filter(UserFollow.follower_id == data['follower_id'],
                                              UserFollow.followed_id == data['followed_id']).first()
-            if follow:
+            if follow is not None:
                 return send_result(message=messages.ERR_ISSUE.format('Already followed'))
 
             follow = self._parse_follow(data=data, follow=None)
             db.session.add(follow)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'),
-                               data=marshal(follow, UserFollowDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'), data=marshal(follow, UserFollowDto.model_response))
+        
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Follow', e))
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -89,8 +94,10 @@ class UserFollowController(Controller):
         else:
             return send_result(data=marshal(follow, UserFollowDto.model_response), message='Success')
 
+
     def update(self, object_id, data):
         pass
+
 
     def delete(self, object_id):
         current_user, _ = current_app.get_logged_user(request)
@@ -98,12 +105,13 @@ class UserFollowController(Controller):
         try:
             follow = UserFollow.query.filter_by(followed_id=object_id, follower_id=user_id).first()
             if follow is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
-            else:
-                db.session.delete(follow)
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
+                return send_result(message=messages.ERR_ISSUE.format('No follow entity found'))
+
+            db.session.delete(follow)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format('Follow', e))
 
@@ -133,8 +141,9 @@ class UserFollowController(Controller):
             results = [{'user': user, 'total_score': total_score} for user, total_score in top_users]
             return send_result(data=marshal(results, UserFollowDto.top_user_followee_response), message='Success')
         except Exception as e:
-            print(e)
+            print(e.__str__())
             return send_error(message="Get recommended users failed. Error: " + e.__str__())
+
 
     def _parse_follow(self, data, follow=None):
         if follow is None:
@@ -152,38 +161,3 @@ class UserFollowController(Controller):
                 print(e.__str__())
                 pass
         return follow
-
-"""
-    def approve(self, object_id):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
-            follow = UserFollow.query.filter_by(id=object_id).first()
-            if follow is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
-                
-            if follow.is_approved:
-                return send_result(message='Already follow.')
-
-            follow.is_approved = True
-            db.session.commit()
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_ISSUE.format(e))
-
-    def disapprove(self, object_id):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
-            follow = UserFollow.query.filter_by(id=object_id).first()
-            if follow is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Follow', object_id))
-                
-            if follow.is_approved:
-                return send_result(message='Already follow.')
-
-            return self.delete(object_id)
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_ISSUE.format(e))
-"""

@@ -124,7 +124,7 @@ def init_api():
     
     api.add_namespace(ns_upload, '/file')
     api.add_namespace(ns_search, '/search')
-    api.add_namespace(ns_qa_timeline, '/timeline')
+    api.add_namespace(ns_timeline, '/timeline')
     api.add_namespace(ns_language, '/language')
     api.add_namespace(ns_permission, '/permission')
     api.add_namespace(ns_user_permission, '/user_permission')

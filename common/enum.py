@@ -33,11 +33,12 @@ class FileTypeEnum(enum.Enum):
 
 
 class TimelineActivityEnum(enum.Enum):
-    COMMENTED = 1
-    FAVORITED = 2
-    UPVOTED = 3
-    DOWNVOTED = 4
-    REPORTED = 5
+    FIRST_COMMENT = 1
+    FIRST_UPVOTE = 2
+    FIRST_SHARE = 3
+    HUNDREDTH_COMMENT = 4
+    HUNDREDTH_UPVOTE = 5
+    HUNDREDTH_SHARE = 6
 
 class FrequencySettingEnum(enum.Enum):
     weekly = 1

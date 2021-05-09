@@ -158,10 +158,12 @@ class UserFeedDto(Dto):
 	})
 
 	model_poll_user_select = api.model('model_poll_user_select', {
+		'id': fields.Integer(readonly=True, description='The ID of the poll user select'),
 	    'user': fields.Nested(model_user, description='The detail of owner user'),
 	})
 
 	model_poll_select = api.model('poll_select', {
+		'id': fields.Integer(readonly=True, description='The ID of the poll select'),
 	    'content': fields.String(description='The content of selection of a poll'),
 	    'poll_user_selects': fields.List(fields.Nested(model_poll_user_select), description='The list of users selecting'),
 	    'user': fields.Nested(model_user, description='User that select this selection')
@@ -173,6 +175,7 @@ class UserFeedDto(Dto):
 	    'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
 	    'user': fields.Nested(model_user, description='The detail of owner user'),
 	    'title': fields.String(default=None, description='The title of the poll'),
+		'slug': fields.String(default=None, description='The slug of the poll'),
 	    'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
 	    'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
 	    'poll_select_count': fields.Integer(description='Total count of selections'),
@@ -183,7 +186,6 @@ class UserFeedDto(Dto):
 	    'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
 	    'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
 	    'share_count': fields.Integer(default=0, description='The amount of sharing'),
-	    'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
 	    'comment_count': fields.Integer(default=0, description='The amount of comments'),
 	    
 	    'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),

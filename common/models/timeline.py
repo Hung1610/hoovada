@@ -22,12 +22,7 @@ class Timeline(Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), index=True)
-    question_comment_id = db.Column(db.Integer, db.ForeignKey('question_comment.id', ondelete='CASCADE'))
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), index=True)
-    answer_comment_id = db.Column(db.Integer, db.ForeignKey('answer_comment.id', ondelete='CASCADE'))
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), index=True)
-    article_comment_id = db.Column(db.Integer, db.ForeignKey('article_comment.id', ondelete='CASCADE'))
-    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id', ondelete='CASCADE'), index=True)
-    poll_comment_id = db.Column(db.Integer, db.ForeignKey('poll_comment.id', ondelete='CASCADE'))
     activity = db.Column(db.Enum(TimelineActivityEnum, validate_strings=True))
     activity_date = db.Column(db.DateTime, default=datetime.utcnow)

@@ -3,19 +3,19 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
+from app.constants import messages
 from common.db import db
 from app.modules.post.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.sensitive_words import check_sensitive
-from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -44,6 +44,7 @@ class CommentController(BaseCommentController):
                 pass
 
         query = PostComment.query
+        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
         if post_id is not None:
             query = query.filter(PostComment.post_id == post_id)
         if user_id is not None:
@@ -54,7 +55,6 @@ class CommentController(BaseCommentController):
             results = list()
             for comment in comments:
                 result = comment.__dict__
-                # get thong tin user
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
                 results.append(result)
@@ -75,21 +75,23 @@ class CommentController(BaseCommentController):
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            is_sensitive = check_sensitive(comment.comment)
+
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
             if is_sensitive:
-                return send_error(message='Insensitive contents not allowed.')
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
-            db.session.commit()
-            # update comment count for user
             try:
                 user = User.query.filter_by(id=comment.user_id).first()
                 user.comment_count += 1
-                db.session.commit()
+                
             except Exception as e:
                 print(e.__str__())
                 pass
+
+            db.session.commit()
 
             try:
                 result = comment.__dict__
@@ -130,9 +132,11 @@ class CommentController(BaseCommentController):
                 return send_error(message='PostComment with the ID {} not found.'.format(object_id))
             else:
                 comment = self._parse_comment(data=data, comment=comment)
-                is_sensitive = check_sensitive(comment.comment)
+                
+                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
                 if is_sensitive:
-                    return send_error(message='Insensitive contents not allowed.')
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
                 comment.updated_date = datetime.utcnow()
                 db.session.commit()
                 result = comment.__dict__

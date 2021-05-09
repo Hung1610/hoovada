@@ -26,7 +26,7 @@ MSG_DELETE_SUCCESS = '{} deleted successful.'
 ERR_DELETE_FAILED = 'Failed to delete {}. Issue: {}!'
 
 # File Messages
-ERR_NO_FILE = 'No file found in the request.'
+ERR_NO_FILE = 'No file found in the request!'
 ERR_FAILED_UPLOAD = 'Failed to upload file. Issue {}!'
 
 # General Errors
@@ -44,7 +44,6 @@ ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_USER_INAPPROPRIATE  = 'User information content is inappropriate!'
 ERR_SPELLING = 'Please check spelling errors!'
-
 
 ########### Authentication Module #################
 
@@ -77,7 +76,6 @@ MSG_PHONE_SENT = "Please check your phone message."
 ERR_NO_TOKEN = "PLease provide a token!"
 
 ## Authentication
-ERR_LOGIN_FAILED = "Failed to login!"
 ERR_NOT_LOGIN = "You are not logged in!" 
 MSG_LOGOUT_SUCESS = "Successfully logged out."
 ERR_LOGOUT_FAILED = "Failed to log out with issue {}"
@@ -93,18 +91,15 @@ MSG_CHANGE_NUMBER_SUCCESS = "Changing phone number is successful."
 
 ########### Article Module #################
 
-ERR_ARTICLE_ALREADY_EXISTS = 'Article with the title {} already exists!'
 ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current time!'
 
 ########### Question Module #################
 ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark "?"!'
-ERR_QUESTION_ALREADY_EXISTS = 'Question with the title {} already exists!'
-
+ERR_QUESTION_NOT_ALLOW_COMMENT = 'Question does not allow commenting!'
 
 ########### Topics Module #################
 ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
 ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
-
 
 ########### User Module #################
 ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'

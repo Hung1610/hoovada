@@ -16,9 +16,7 @@ from app.modules.article.report.report_dto import ReportDto
 from common.controllers.controller import Controller
 from common.enum import ReportTypeEnum
 from common.models import Article, ArticleReport, User
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -58,18 +56,14 @@ class ReportController(Controller):
         if to_date is not None:
             query = query.filter(ArticleReport.created_date <= to_date)
         reports = query.all()
-        if reports is not None and len(reports) > 0:
-            return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
-        else:
-            return send_result(message=messages.ERR_NOT_FOUND.format(str(article_id)))
+        return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
+
 
     def create(self, article_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
-        if not has_permission(current_user.id, PermissionType.REPORT):
-            return send_error(code=401, message='You have no authority to perform this action')
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:
@@ -79,17 +73,20 @@ class ReportController(Controller):
             db.session.commit()
             return send_result(data=marshal(report, ReportDto.model_response), message='Success')
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format("Report", str(e)))
+
 
     def get_by_id(self, object_id):
         query = ArticleReport.query
         report = query.filter(ArticleReport.id == object_id).first()
         
         if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
-        else:
-            return send_result(data=marshal(report, ReportDto.model_response), message='Success')
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
+        
+        return send_result(data=marshal(report, ReportDto.model_response), message='Success')
+
 
     def update(self, object_id, data):
         pass
@@ -112,8 +109,10 @@ class ReportController(Controller):
                 report.article_id = int(data['article_id'])
             except Exception as e:
                 pass
+        
         if 'description' in data:
             report.description = data['description']
+
         if 'report_type' in data:
             try:
                 report_type = int(data['report_type'])

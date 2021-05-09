@@ -3,9 +3,10 @@
 
 # built-in modules
 from datetime import datetime
+from re import sub
 
 # third-party modules
-from flask import current_app, request
+from flask import current_app, request, g
 from flask_restx import marshal
 
 # own modules
@@ -13,8 +14,10 @@ from common.db import db
 from common.utils.response import send_error, send_result, paginated_result
 from common.controllers.controller import Controller
 from app.constants import messages
+from slugify import slugify
 from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
+from common.utils.sensitive_words import check_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -71,6 +74,22 @@ class PollController(Controller):
                 print(e.__str__())
                 pass
 
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    post.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
+        if g.current_user_is_admin:
+            if 'allow_comments' in data:
+                try:
+                    post.allow_comments = bool(data['allow_comments'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+
         return poll
 
 
@@ -94,10 +113,11 @@ class PollController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
-        poll = Poll.query.filter_by(id=object_id).first()
+        if object_id.isdigit():
+            poll = Poll.query.filter_by(id=object_id).first()
+        else:
+            poll = Poll.query.filter_by(slug=object_id).first()
         current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         if poll is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
         else:
@@ -119,12 +139,20 @@ class PollController(Controller):
             poll = Poll.query.filter_by(id=object_id).first()
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
+            
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll.user_id != current_user.id):
+            if poll.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
             poll = self._parse_poll(data=data, poll=poll)
             if poll.title.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll title'))
+
+            # check sensitive for article title
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+            if is_sensitive:
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
             poll.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll._asdict()
@@ -137,12 +165,15 @@ class PollController(Controller):
 
     def delete(self, object_id):
         try:
-            poll = Poll.query.filter_by(id=object_id).first()
+            if object_id.isdigit():
+                poll = Poll.query.filter_by(id=object_id).first()
+            else:
+                poll = Poll.query.filter_by(slug=object_id).first()
             if poll is None:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll', object_id))
 
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None or (poll.user_id != current_user.id):
+            if poll.user_id != current_user.id:
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
             db.session.delete(poll)
@@ -178,17 +209,26 @@ class PollController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         current_user, _ = current_app.get_logged_user(request)
-        if not current_user:
-            return send_error(code=401, message=messages.ERR_NOT_LOGIN)
 
         data['user_id'] = current_user.id
         try:
+            poll = Poll.query.filter(Poll.title == data['title']).first()
+            if poll is not None:
+                return send_error(message=messages.ERR_NOT_FOUND.format("poll with title" + data['title']))
+
+            # check sensitive words for title
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+            if is_sensitive:
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
             poll = self._parse_poll(data=data, poll=None)
             if poll.title.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll title'))
+
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
             poll.is_expire = False
+            poll.slug = slugify(poll.title)
             db.session.add(poll)
             db.session.flush()
 
@@ -209,6 +249,7 @@ class PollController(Controller):
             result = poll._asdict()
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(message=messages.MSG_CREATE_SUCCESS.format('Poll'), data=marshal(result, PollDto.model_response))
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

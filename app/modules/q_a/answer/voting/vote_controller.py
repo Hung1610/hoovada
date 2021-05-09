@@ -90,10 +90,9 @@ class AnswerVoteController(Controller):
 
     def create(self, answer_id, data):
         current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
+        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        
         if not isinstance(data, dict):
             return send_error(message='Wrong data format')
         data['user_id'] = current_user.id
@@ -111,14 +110,12 @@ class AnswerVoteController(Controller):
                 db.session.add(vote)
             db.session.commit()
             answer = vote.answer
-            # get user who was created answer and was voted
             user_voted = answer.user
             for topic in answer.question.topics:
-                # Answer creator rep
                 update_reputation.send(topic.id, user_voted.id)
-                # Answer voter rep
                 update_reputation.send(topic.id, current_user.id, is_voter=True)
             return send_result(data=marshal(vote, AnswerVoteDto.model_response), message='Success')
+
         except Exception as e:
             db.session.rollback()
             print(e)
@@ -140,14 +137,6 @@ class AnswerVoteController(Controller):
             return send_error(message='Failed to delete answer vote')
 
     def update(self, object_id, data):
-        """ Update object from search_data in database
-        
-        Args:
-            object_id:
-            data:
-        
-        Returns:
-        """
         pass
 
     def _parse_vote(self, data, vote=None):

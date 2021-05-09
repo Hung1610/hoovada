@@ -10,8 +10,8 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
-from app.modules.q_a.question.comment.report.report_dto import \
-    QuestionCommentReportDto
+from app.modules.q_a.question.comment.report.report_dto import QuestionCommentReportDto
+from app.constants import messages
 from common.db import db
 from common.enum import ReportTypeEnum
 from common.controllers.controller import Controller
@@ -58,10 +58,8 @@ class ReportController(Controller):
         if to_date is not None:
             query = query.filter(QuestionCommentReport.created_date <= to_date)
         reports = query.all()
-        if reports is not None and len(reports) > 0:
-            return send_result(data=marshal(reports, QuestionCommentReportDto.model_response), message='Success')
-        else:
-            return send_result(message='Report not found')
+        return send_result(data=marshal(reports, QuestionCommentReportDto.model_response), message='Success')
+
 
     def create(self, comment_id, data):
         if not isinstance(data, dict):
@@ -77,14 +75,15 @@ class ReportController(Controller):
             db.session.commit()
             return send_result(data=marshal(report, QuestionCommentReportDto.model_response), message='Success')
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Failed to create comment report')
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question Comment Report'))
 
     def get_by_id(self, object_id):
         query = QuestionCommentReport.query
         report = query.filter(QuestionCommentReport.id == object_id).first()
         if report is None:
-            return send_error(message='Report not found')
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
         else:
             return send_result(data=marshal(report, QuestionCommentReportDto.model_response), message='Success')
 
@@ -95,16 +94,6 @@ class ReportController(Controller):
         pass
 
     def _parse_report(self, data, report=None):
-        """ Parse dictionary form data to report.
-        
-        Args:
-            data: A dictionary form data.
-            report: A report as a param.
-
-        Returns: 
-            A report.
-        """
-
         if report is None:
             report = QuestionCommentReport()
         if 'user_id' in data:

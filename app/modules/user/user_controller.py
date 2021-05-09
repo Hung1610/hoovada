@@ -224,10 +224,10 @@ class UserController(Controller):
 
             if check_sensitive(user.about_me) or check_sensitive(user.display_name) or check_sensitive(user.first_name) or check_sensitive(user.last_name):
                 return send_error(message=messages.ERR_USER_INAPPROPRIATE)
-
-            full_name = user.last_name.strip() + " " + user.first_name.strip()
-            if user.show_fullname_instead_of_display_name is True and len(full_name) > 0:
-                user.display_name = full_name
+            if user.show_fullname_instead_of_display_name is True and user.last_name is not None and user.first_name is not None:
+                full_name = user.last_name.strip() + " " + user.first_name.strip()
+                if len(full_name) > 0:
+                    user.display_name = full_name
                 
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
@@ -423,9 +423,6 @@ class UserController(Controller):
 
 
     def notify_user_mention(self, args):
-
-        if g.current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
 
         if 'user_mentioned_id' not in args:
             return send_error(message=messages.ERR_LACKING_GET_PARAMS.format('User mentioned id'))

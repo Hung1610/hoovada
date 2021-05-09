@@ -180,18 +180,20 @@ class QuestionProposal(Resource):
 
         data = api.payload
         controller = QuestionController()
-        result = controller.create_proposal(object_id=id_or_slug, data=data)
+        result = controller.create_question_update_proposal(object_id=id_or_slug, data=data)
         cache.clear_cache(get_question_proposal_key_prefix())
         return result
 
 @api.route('/<string:id_or_slug>/delete-proposal')
 class QuestionDeleteProposal(Resource):
     @token_required
+    @api.expect(model_request)
     def post(self, id_or_slug):
         """ Create question delete proposal by question Id or slug"""
 
+        data = api.payload
         controller = QuestionController()
-        result = controller.create_delete_proposal(object_id=id_or_slug)
+        result = controller.create_question_deletion_proposal(object_id=id_or_slug, data=data)
         cache.clear_cache(get_question_proposal_key_prefix())
         return result
 

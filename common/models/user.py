@@ -110,9 +110,7 @@ class User(Model):
     questions = db.relationship("Question", cascade='all,delete-orphan')
     @aggregated('questions', db.Column(db.Integer, server_default="0", nullable=False))
     def question_aggregated_count(self):
-        return db.func.coalesce(
-            db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
-
+        return db.func.coalesce(db.func.sum(db.func.if_(db.text('is_anonymous <> 1'), 1, 0)), 0)
     @property
     def question_count(self):
         if self.question_aggregated_count is None:
@@ -188,7 +186,7 @@ class User(Model):
     article_report_count = db.Column(db.Integer, server_default='0', nullable=False)
     article_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
-
+    polls = db.relationship("Poll", cascade='all,delete-orphan')
     @aggregated('polls', db.Column(db.Integer, server_default="0", nullable=False))
     def poll_aggregated_count(self):
         return db.func.coalesce(
@@ -214,6 +212,7 @@ class User(Model):
     poll_report_count = db.Column(db.Integer, server_default='0', nullable=False)
     poll_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
+    posts = db.relationship("Post", cascade='all,delete-orphan')
     @aggregated('posts', db.Column(db.Integer, server_default="0", nullable=False))
     def post_aggregated_count(self):
         return db.func.coalesce(

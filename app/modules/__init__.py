@@ -28,7 +28,6 @@ from app.modules.q_a import ( ns_answer,
                               ns_answer_comment_favorite, 
                               ns_answer_comment_report,
 
-                              ns_qa_timeline,
                               ns_question,
                               ns_question_bookmark, 
                               ns_question_report, 
@@ -70,10 +69,10 @@ from app.modules.auth import api as ns_auth
 from app.modules.file_upload import api as ns_upload
 from app.modules.language import ns_language
 from app.modules.search import ns_search
+from app.modules.timeline import ns_timeline
 from app.modules.poll import ns_poll
 from app.modules.poll.poll_select import ns_poll_select
 from app.modules.poll.poll_topic import ns_poll_topic
 from app.modules.poll.poll_user_select import ns_poll_user_select
-from app.modules.poll import (
-    ns_poll_comment, ns_poll_comment_favorite, ns_poll_comment_report, ns_poll_voting, ns_poll_share, ns_poll_report,ns_poll_bookmark)
+from app.modules.poll import (ns_poll_comment, ns_poll_comment_favorite, ns_poll_comment_report, ns_poll_voting, ns_poll_share, ns_poll_report,ns_poll_bookmark)
 

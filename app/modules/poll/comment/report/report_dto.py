@@ -18,7 +18,7 @@ class PollCommentReportDto(Dto):
     api = Namespace(name, description="Poll comment report operations")
 
     model_request = api.model('poll_comment_report_request', {
-        'report_type': fields.String(description='The report type', attribute='report_type.name'),
+        'report_type': fields.String(description='1 - General, 2 - Inappropriate, 3 - Duplicate', default=1),
         'description': fields.String(description=''),
     })
 
@@ -26,7 +26,7 @@ class PollCommentReportDto(Dto):
         'id': fields.Integer(description=''),
         'user_id': fields.Integer(description=''),
         'comment_id': fields.Integer(description=''),
-        'report_type': fields.String(description='The report type', attribute='report_type.name'),
+        'report_type': fields.String(description='1 - General, 2 - Inappropriate, 3 - Duplicate', attribute='report_type.name'),
         'description': fields.String(description=''),
         'created_date': fields.DateTime(description=''),
     })

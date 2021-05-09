@@ -10,11 +10,13 @@ from flask import current_app, request
 from flask_restx import marshal
 
 # own modules
+from app.constants import messages
 from app.modules.poll.comment.report.report_dto import PollCommentReportDto
 from common.db import db
 from common.enum import ReportTypeEnum
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
+
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -57,14 +59,12 @@ class ReportController(Controller):
         if to_date is not None:
             query = query.filter(PollCommentReport.created_date <= to_date)
         reports = query.all()
-        if reports is not None and len(reports) > 0:
-            return send_result(data=marshal(reports, PollCommentReportDto.model_response), message='Success')
-        else:
-            return send_result(message='Report not found')
+        return send_result(data=marshal(reports, PollCommentReportDto.model_response), message='Success')
+
 
     def create(self, comment_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is wrong format')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
@@ -76,16 +76,20 @@ class ReportController(Controller):
             db.session.commit()
             return send_result(data=marshal(report, PollCommentReportDto.model_response), message='Success')
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message='Failed to create comment report')
+
 
     def get_by_id(self, object_id):
         query = PollCommentReport.query
         report = query.filter(PollCommentReport.id == object_id).first()
+        
         if report is None:
-            return send_error(message='Report not found')
-        else:
-            return send_result(data=marshal(report, PollCommentReportDto.model_response), message='Success')
+            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
+
+        return send_result(data=marshal(report, PollCommentReportDto.model_response), message='Success')
+
 
     def update(self, object_id, data):
         pass

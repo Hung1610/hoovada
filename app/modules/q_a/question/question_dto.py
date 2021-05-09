@@ -57,7 +57,6 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
-
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
@@ -94,7 +93,6 @@ class QuestionDto(Dto):
         # admin actions
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
-
     })
 
     model_question_proposal_response = api.model('question_proposal_response', {
@@ -124,6 +122,10 @@ class QuestionDto(Dto):
         'is_approved': fields.Boolean(default=False, description='The question proposal is approved or not'),
         'proposal_created_date': fields.DateTime(description='The proposal created date'),
         'proposal_updated_date': fields.DateTime(description='The proposal updated date'),
+
+        # admin actions
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
 
     top_user_reputation_args_parser = reqparse.RequestParser()
@@ -163,7 +165,6 @@ class QuestionDto(Dto):
     get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
     get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search questions that are deleted.')
     get_parser.add_argument('is_shared', type=inputs.boolean, required=False, help='Search questions that are shared.')
-    get_parser.add_argument('is_created_by_friend', type=inputs.boolean, required=False, help='Search questions that are created by friend/followee.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answer_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count',  'answer_count'), action='append',)
     get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answer_count'", type=str,

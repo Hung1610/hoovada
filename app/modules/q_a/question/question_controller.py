@@ -47,7 +47,7 @@ QuestionVote = db.get_model('QuestionVote')
 
 class QuestionController(Controller):
     query_classname = 'Question'
-    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared', 'is_created_by_friend']
+    special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'is_shared']
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answers_count']
     
     def create(self, data):
@@ -55,40 +55,37 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'title' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question title'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
-        current_user, _ = current_app.get_logged_user(request)
-        if current_user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
+        # Handling user
+        current_user = g.current_user
         data['user_id'] = current_user.id
-        try:
-            title = data['title'].strip()
 
-            if not title.endswith('?'):
-                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
-            
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
+        # Handling question title
+        data['title'] = data['title'].strip()
+        if not data['title'].endswith('?'):
+            return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)        
+        only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])        
+        if check_sensitive(only_words):
+            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
+        # Handling question body (if provided)
+        if 'question' in data:
+            text = ' '.join(BeautifulSoup(data['question'], "html.parser").stripped_strings)
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
             if check_sensitive(only_words):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)        
 
-            if len(only_words.split()) < 3:
-                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format(str(3)))
-            
-            # Check if question already exists
-            question = Question.query.filter(Question.title == title).first()
-            if question is not None:
-                return send_error(message=messages.ERR_QUESTION_ALREADY_EXISTS.format(data['title']))   
+        # Check if question already exists
+        question = Question.query.filter(Question.title == data['title']).first()
+        if question is not None:
+            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Question with title" + data['title']))   
 
-            question = self._parse_question(data=data, question=None)
+        question = self._parse_question(data=data, question=None)
+        try:     
             if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
-            if question.question:
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
-                if is_sensitive:
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
             question.created_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
             question.slug = slugify(question.title)
@@ -96,38 +93,23 @@ class QuestionController(Controller):
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
 
-            # Add bookmark for the creator
-            controller = QuestionBookmarkController()
-            controller.create(question_id=question.id)
-
-            update_seen_questions.send(question.id, current_user.id)
-            
             try:
-                result = question._asdict()
-                # get user info
-                result['user'] = question.user
-                result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-                result['up_vote'] = False
-                result['down_vote'] = False
-                
-                #followers = UserFollow.query.with_entities(UserFollow.follower_id)\.filter(UserFollow.followed_id == question.user.id).all()
-                #follower_ids = [follower[0] for follower in followers]
-                #new_question_notify_user_list.send(question.id, follower_ids)
-                #g.friend_belong_to_user_id = question.user.id
-                #friends = UserFriend.query\
-                #    .filter(\
-                #        (UserFriend.friended_id == question.user.id) | \
-                #        (UserFriend.friend_id == question.user.id))\
-                #    .all()
-                #friend_ids = [friend.adaptive_friend_id for friend in friends]
-                #new_question_notify_user_list.send(question.id, friend_ids)
-                
-                return send_result(message=messages.MSG_CREATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
-            
+                bookmark_controller = QuestionBookmarkController()
+                bookmark_controller.create(question_id=question.id)
+                update_seen_questions.send(question.id, current_user.id)
             except Exception as e:
                 print(e.__str__())
-                return send_result(data=marshal(question, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Question', 'failed to add topics'))
+                pass
+                
+            # response data
+            result = question._asdict()
+            result['user'] = question.user
+            result['topics'] = question.topics
+            result['fixed_topic'] = question.fixed_topic
+            result['up_vote'] = False
+            result['down_vote'] = False
+            
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
@@ -157,8 +139,10 @@ class QuestionController(Controller):
             if params.get('title'):
                 title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
                 query = query.filter(title_similarity > 50)
+            
             if params.get('from_date'):
                 query = query.filter(Question.created_date >= params.get('from_date'))
+            
             if params.get('to_date'):
                 query = query.filter(Question.created_date <= params.get('to_date'))
             
@@ -167,15 +151,6 @@ class QuestionController(Controller):
 
             if params.get('is_shared') and current_user:
                 query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-            if params.get('is_created_by_friend') and current_user:
-                 query = query\
-                     .join(UserFollow,(UserFollow.followed_id==Question.user_id), isouter=True)\
-                     .join(UserFriend,((UserFriend.friended_id==Question.user_id) | (UserFriend.friend_id==Question.user_id)), isouter=True)\
-                     .filter(
-                         (UserFollow.follower_id == current_user.id) |
-                         ((UserFriend.friended_id == current_user.id) | (UserFriend.friend_id == current_user.id)) |
-                         (Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-                     )
             return query
 
         except Exception as e:
@@ -261,6 +236,7 @@ class QuestionController(Controller):
         try:
             if not 'emails_or_usernames' in data:
                 return send_error(message='Please provide emails or usernames.')
+
             if object_id is None:
                 return send_error("Question ID is null")
             if object_id.isdigit():
@@ -272,14 +248,11 @@ class QuestionController(Controller):
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
             
             current_user, _ = current_app.get_logged_user(request)
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             emails_or_usernames = data['emails_or_usernames']
             for email_or_username in emails_or_usernames:
                 try:
                     user = User.query.filter(db.or_(User.display_name == email_or_username, User.email == email_or_username)).first()
-                    if user:
+                    if user is not None and user.id != current_user.id:
                         question.invited_users.append(user)
 
                 except Exception as e:
@@ -310,14 +283,9 @@ class QuestionController(Controller):
 
     def decline_invited_question(self, object_id):
         try:
-            current_user, _ = current_app.get_logged_user(request)
-            
-            if current_user is None:
-                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-            
+            current_user, _ = current_app.get_logged_user(request)            
             result = None
-            user_id = current_user.id
-            question_user_invite = QuestionUserInvite.query.filter_by(user_id=user_id, question_id=object_id).first()
+            question_user_invite = QuestionUserInvite.query.filter_by(user_id=current_user.id, question_id=object_id).first()
             if question_user_invite:
                 question_user_invite.status = 2
                 result = question_user_invite._asdict()
@@ -335,9 +303,6 @@ class QuestionController(Controller):
     def invite_friends(self, object_id):
         try:
             current_user = g.current_user
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             emails_or_usernames = [friend.display_name for friend in current_user.friends]
             data = {}
             data['emails_or_usernames'] = emails_or_usernames
@@ -352,6 +317,7 @@ class QuestionController(Controller):
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
+
         title = args['title']
         
         if args.get('limit'):
@@ -427,13 +393,10 @@ class QuestionController(Controller):
 
     def get_recommended_topics(self, args):
         if not 'title' in args:
-            return send_error(message='Please provide at least the title.')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
         
         title = args['title']
-        if not 'limit' in args:
-            return send_error(message='Please provide limit')
-        limit = int(args['limit'])
-        
+        limit = args.get('limit', 10)
         try:
             title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
             query = Topic.query.distinct()\
@@ -455,7 +418,8 @@ class QuestionController(Controller):
     def get_proposals(self, object_id, args):
         try:
             if object_id is None:
-                return send_error(message="Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -493,71 +457,90 @@ class QuestionController(Controller):
             return send_error(message='Could not get proposals. Error: ' + e.__str__())
 
 
-    def create_delete_proposal(self, object_id):
+    def create_question_deletion_proposal(self, object_id, data):
         try:
             if object_id is None:
-                return send_error(message="Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+            
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
-            if question is None:
-                return send_error(message="Question with the ID {} not found".format(object_id))
+            
+            if question is None or question.is_deleted is True:
+                return send_error(message="Question ID {} not found or has been deleted!".format(object_id))
 
-            data = {}
+            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_approved=0).first()
+            if question_deletion_proposal is not None:
+                return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
+
             data['question_id'] = question.id
+            data['slug'] = question.slug
             data['is_parma_delete'] = True
-            proposal, _ = self._parse_proposal(data=data, proposal=None)
+            proposal = self._parse_proposal(data=data, proposal=None)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(message='Question update proposal was created successfully.',
-                                data=marshal(proposal, QuestionDto.model_question_proposal_response))
+
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question deletion proposal creation'), data=marshal(proposal, QuestionDto.model_question_proposal_response))
+        
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create question. Contact administrator for solution.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question deletion proposal creation', str(e)))
 
  
-    def create_proposal(self, object_id, data):
+    def create_question_update_proposal(self, object_id, data):
         try:
             if object_id is None:
-                return send_error(message="Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+            
             if not isinstance(data, dict):
-                return send_error(message="Data is not in dictionary form.")
+                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+            
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
-            if question is None:
-                return send_error(message="Question with the ID {} not found".format(object_id))
+            
+            if question is None or question.is_deleted is True:
+                return send_error(message=messages.ERR_NOT_FOUND.format("Question"))
 
             data['question_id'] = question.id
             proposal_data = question._asdict()
             proposal_data['question_id'] = question.id
             proposal_data['topics'] = [topic.id for topic in question.topics]
-            proposal, _ = self._parse_proposal(data=proposal_data, proposal=None)
-            proposal, _ = self._parse_proposal(data=data, proposal=proposal)
+            proposal = self._parse_proposal(data=proposal_data, proposal=None)
+            proposal = self._parse_proposal(data=data, proposal=proposal)
 
             if proposal.topics.count('1') > 5:
                 return send_error(message='Question cannot have more than 5 topics.')
+
             if not proposal.title.strip().endswith('?'):
                 return send_error(message='Please end question title with question mark ("?")')
 
+            title = data['title'].strip()
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
+            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)            
+
             if proposal.question:
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings))
-                if is_sensitive:
-                    return send_error(message='Question body not allowed.')
+                text = ' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings)
+                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+                if check_sensitive(only_words):
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             proposal.last_activity = datetime.utcnow()
-            proposal.slug = slugify(question.title)
+            proposal.slug = slugify(proposal.title)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(message='Question update proposal was created successfully.',
-                                data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question update proposal creation'), data=marshal(proposal, QuestionDto.model_question_proposal_response))
+        
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create question. Contact administrator for solution.')
-    
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question update proposal creation'))
+
+
     def approve_proposal(self, object_id):
         try:
             if object_id is None:
@@ -565,32 +548,30 @@ class QuestionController(Controller):
 
             proposal = QuestionProposal.query.filter_by(id=object_id).first()
             if proposal is None:
-                return send_error(message="Proposal with the ID {} not found".format(object_id))
+                return send_error(message="Proposal ID {} not found".format(object_id))
             
             if proposal.is_approved:
-                return send_result(message="Proposal with the ID {} is already approved".format(object_id))
+                return send_result(message="Proposal ID {} is already approved".format(object_id))
+
+            related_question = Question.query.filter_by(id=proposal.question_id).first()
+            if related_question is None or related_question.is_deleted is True:
+                return send_error(message="Question with the ID {} not found or has been deleted!".format(proposal.question_id))
 
             question_data = proposal._asdict()
-            if proposal.is_parma_delete:
-                proposal.is_approved = True
-                return self.delete(str(proposal.question_id))
-            
-            related_question = Question.query.filter_by(id=proposal.question_id).first()
-            if related_question is None:
-                return send_error(message="Question with the ID {} not found".format(proposal.question_id))
-            
-            question = self._parse_question(data=question_data, question=related_question)
-            question.last_activity = datetime.utcnow()
+            if proposal.is_parma_delete: 
+                self.delete(str(proposal.question_id))
+            else:                
+                question = self._parse_question(data=question_data, question=related_question)
+                question.last_activity = datetime.utcnow()
+
             proposal.is_approved = True
             db.session.commit()
-            
-            return send_result(message='Question update proposal was approved successfully.',
-                                data=marshal(question, QuestionDto.model_question_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question proposal approval'), data=marshal(question, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could approve question proposal. Contact administrator for solution.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format('Question proposal approval'))
 
 
     def update(self, object_id, data):
@@ -601,8 +582,29 @@ class QuestionController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
+        if not 'title' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+
         if not 'fixed_topic_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+        
+        # Handling question title
+        data['title'] = data['title'].strip()
+        if not data['title'].endswith('?'):
+            return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)        
+        only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])        
+        if check_sensitive(only_words):
+            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+
+        # Handling question body (if provided)
+        if 'question' in data:
+            text = ' '.join(BeautifulSoup(data['question'], "html.parser").stripped_strings)
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
+            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)      
+
+        #handling user
+        current_user = g.current_user
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
@@ -611,29 +613,12 @@ class QuestionController(Controller):
         
         if question is None:
             return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
-        
+
         question = self._parse_question(data=data, question=question)
         try:
 
-            title = data['title'].strip()
-
-            if not title.endswith('?'):
-                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
-            
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
-            if check_sensitive(only_words):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
-            if len(only_words.split()) < 3:
-                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format(str(3)))
-
             if question.topics is not None and len(question.topics) > 5:
                 return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
-            
-            if question.question:
-                is_sensitive = check_sensitive(' '.join(BeautifulSoup(question.question, "html.parser").stripped_strings))
-                if is_sensitive:
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             question.updated_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
@@ -646,10 +631,6 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
 
-            current_user, _ = current_app.get_logged_user(request)
-            if current_user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
                 result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
@@ -661,6 +642,7 @@ class QuestionController(Controller):
             return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format("Question", str(e)))
 
@@ -677,7 +659,6 @@ class QuestionController(Controller):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
             
             else:
-                # related records are automatically cascaded
                 db.session.delete(question)
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
@@ -695,6 +676,13 @@ class QuestionController(Controller):
         if 'title' in data:
             question.title = data['title'].capitalize()
 
+        if 'question' in data:
+            try:
+                question.question = data['question']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'user_id' in data:
             try:
                 question.user_id = data['user_id']
@@ -708,9 +696,6 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-
-        if 'question' in data:
-            question.question = data['question']
 
         if 'accepted_question_id' in data:
             try:
@@ -759,10 +744,26 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
+        if 'allow_comments' in data:
+            try:
+                question.allow_comments = bool(data['allow_comments'])
+            except Exception as e:
+                question.allow_comments = False
+                print(e.__str__())
+                pass
+                
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    question.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    question.allow_voting = False
+                    print(e.__str__())
+                    pass
+
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
-            # update question topics
             topics = []
             for topic_id in topic_ids:
                 try:
@@ -778,10 +779,24 @@ class QuestionController(Controller):
     def _parse_proposal(self, data, proposal=None):
         if proposal is None:
             proposal = QuestionProposal()
+        
         proposal.question_id = data['question_id']
         
         if 'title' in data:
             proposal.title = data['title'].capitalize()
+
+        if 'question' in data:
+            try:
+                proposal.question = data['question']
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'slug' in data:
+            try:
+                proposal.slug = data['slug']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'user_id' in data:
             try:
@@ -796,9 +811,6 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-
-        if 'question' in data:
-            proposal.question = data['question']
         
         if 'accepted_question_id' in data:
             try:
@@ -854,10 +866,26 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
+        if 'allow_comments' in data:
+            try:
+                question.allow_comments = bool(data['allow_comments'])
+            except Exception as e:
+                question.allow_comments = False
+                print(e.__str__())
+                pass
+
+        if g.current_user_is_admin:
+            if 'allow_voting' in data:
+                try:
+                    question.allow_voting = bool(data['allow_voting'])
+                except Exception as e:
+                    question.allow_voting = False
+                    print(e.__str__())
+                    pass
+
         topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
-            # update proposal topics
             topics = []
             for topic_id in topic_ids:
                 try:
@@ -868,7 +896,7 @@ class QuestionController(Controller):
                     pass
             proposal.topics = topics
 
-        return proposal, topic_ids
+        return proposal
         
     def update_slug(self):
         questions = Question.query.all()

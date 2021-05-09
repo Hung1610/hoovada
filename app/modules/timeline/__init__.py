@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # own modules
-from app.modules.q_a.timeline.timeline_view import api
+from app.modules.timeline.timeline_view import api as ns_timeline
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
