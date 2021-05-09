@@ -95,7 +95,7 @@ class TopicController(Controller):
         if not isinstance(data, dict):
             return send_error(message="Data is not correct or not in dictionary type")
         
-        if not 'name' in data:
+        if not 'name' in data or data['name'] == "":
             return send_error(message='Topic name must be filled!')
         else:
             topic_name = data['name']

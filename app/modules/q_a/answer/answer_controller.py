@@ -102,10 +102,13 @@ class AnswerController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
         if not 'question_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question ID'))
-        if not 'answer' in data:
+        
+        if not 'answer' in data or data['answer'] == "":
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer body'))
+        
         user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
         if error_res:
             return error_res
@@ -457,7 +460,7 @@ class AnswerController(Controller):
                 answer.allow_comments = True
                 print(e.__str__())
                 pass
-                
+
         if g.current_user_is_admin:
             if 'allow_voting' in data:
                 try:

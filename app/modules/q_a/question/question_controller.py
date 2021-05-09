@@ -54,7 +54,7 @@ class QuestionController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
-        if not 'title' in data:
+        if not 'title' in data or data['title'] == "":
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
         # Handling user
@@ -582,7 +582,7 @@ class QuestionController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if not 'title' in data:
+        if not 'title' in data or data['title'] == "":
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
         if not 'fixed_topic_id' in data:
@@ -751,7 +751,7 @@ class QuestionController(Controller):
                 question.allow_comments = False
                 print(e.__str__())
                 pass
-                
+
         if g.current_user_is_admin:
             if 'allow_voting' in data:
                 try:
