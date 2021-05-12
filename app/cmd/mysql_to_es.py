@@ -20,6 +20,13 @@ DB_PORT = environ.get('DB_PORT', '3306')
 DB_NAME = environ.get('DB_NAME', 'hoovada')
 DB_CHARSET = 'utf8mb4'
 
+# ES configuration
+ES_HOST = environ.get('ES_HOST', 'localhost')
+ES_TIMEOUT = environ.get('ES_TIMEOUT', 20)
+ES_USER = environ.get('ES_USER', 'user')
+ES_PASSWORD = environ.get('ES_PASSWORD', 'password')
+
+
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
     user=DB_USER,
     password=DB_PASSWORD,
@@ -32,7 +39,7 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name
 engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=True)
 connection = engine.connect()
 
-connections.create_connection(hosts=['localhost'], timeout=20)
+connections.create_connection(hosts=[ES_HOST], timeout=ES_TIMEOUT, http_auth=(ES_USER, ES_PASSWORD))
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -53,18 +60,18 @@ def strip_tags(html):
 
 # ES custom analyzers
 
-vn_text_analyzer = analyzer('vn_text_analyzer',
-    tokenizer='vi_tokenizer',
-    filter=['icu_folding']
-)
+# vn_text_analyzer = analyzer('vn_text_analyzer',
+#     tokenizer='vi_tokenizer',
+#     filter=['icu_folding']
+# )
 
 # ES models
 article_index = Index('article')
 @article_index.document
 class Article(Document):
     id = Integer()
-    html = Text(analyzer=vn_text_analyzer)
-    title = Text(analyzer=vn_text_analyzer, fields={'raw': Keyword()})
+    html = Text(analyzer='standard')
+    title = Text(analyzer='standard', fields={'raw': Keyword()})
     user_id = Integer()
     slug = Text(analyzer='standard', fields={'raw': Keyword()})
     created_date = Date()
@@ -74,7 +81,7 @@ post_index = Index('post')
 @post_index.document
 class Post(Document):
     id = Integer()
-    html = Text(analyzer=vn_text_analyzer)
+    html = Text(analyzer='standard')
     user_id = Integer()
     created_date = Date()
     updated_date = Date()
@@ -83,8 +90,8 @@ question_index = Index('question')
 @question_index.document
 class Question(Document):
     id = Integer()
-    question = Text(analyzer=vn_text_analyzer)
-    title = Text(analyzer=vn_text_analyzer)
+    question = Text(analyzer='standard')
+    title = Text(analyzer='standard')
     user_id = Integer()
     slug = Text(analyzer='standard')
     created_date = Date()
@@ -94,8 +101,8 @@ topic_index = Index('topic')
 @topic_index.document
 class Topic(Document):
     id = Integer()
-    description = Text(analyzer=vn_text_analyzer)
-    name = Text(analyzer=vn_text_analyzer)
+    description = Text(analyzer='standard')
+    name = Text(analyzer='standard')
     slug= Text(analyzer='standard')
     is_fixed = Integer()
     user_id = Integer()
@@ -119,7 +126,7 @@ def delete_index_if_exist(model_index):
     if model_index.exists() == True:
         model_index.delete()
     model_index.create()
-    model_index.analyzer(vn_text_analyzer)
+    model_index.analyzer('standard')
 
 def select_with_pagination(query, limit=0, offset=0):
     return connection.execute(query + " LIMIT {} OFFSET {}".format(limit, offset)).fetchall()
