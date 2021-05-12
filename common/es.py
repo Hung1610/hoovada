@@ -6,7 +6,7 @@ from common.models.es.question import Question
 from common.models.es.topic import Topic
 from app.settings.config import BaseConfig as Config
 
-connections.create_connection(hosts=[Config.ES_HOST], timeout=Config.ES_TIMEOUT)
+connections.create_connection(hosts=[Config.ES_HOST], timeout=Config.ES_TIMEOUT, http_auth=(Config.ES_USER, Config.ES_PASSWORD))
 
 
 def get_model(name):
