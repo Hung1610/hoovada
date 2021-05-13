@@ -110,7 +110,7 @@ class Question(Resource):
     @token_required
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
-    def put(self, id_or_slug):
+    def patch(self, id_or_slug):
         """ Update question by question Id or slug"""
 
         data = api.payload
@@ -202,7 +202,7 @@ class QuestionDeleteProposal(Resource):
 class QuestionApprove(Resource):
     @admin_token_required()
     @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
-    def put(self, id):
+    def patch(self, id):
         """Approve question change proposal"""
 
         controller = QuestionController()

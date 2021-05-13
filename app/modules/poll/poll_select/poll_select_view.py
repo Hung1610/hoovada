@@ -9,7 +9,7 @@ from flask_restx import Resource, reqparse
 from app.modules.poll.poll_select.poll_select_controller import PollSelectController
 from app.modules.poll.poll_select.poll_select_dto import PollSelectDto
 from common.cache import cache
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -55,7 +55,7 @@ class PollSelect(Resource):
     @api.expect(update_poll_select_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=poll_select_response, description='Model for poll select response.')
-    def put(self, poll_select_id):
+    def patch(self, poll_select_id):
         """
         Update existing poll select.
         """

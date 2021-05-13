@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import Resource, reqparse
 
-from app.modules.user.topic.topic_controller import TopicController
 # own modules
+from app.modules.user.topic.topic_controller import TopicController
 from app.modules.user.topic.topic_dto import TopicDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.response import send_error
@@ -38,10 +38,7 @@ class TopicList(Resource):
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def post(self, user_id):
-        """
-        Create new topic.
-
-        :return: The new topic if it was created successfully and null vice versa.
+        """Create new topic.
         """
         data = api.payload
         controller = TopicController()
@@ -53,8 +50,7 @@ class TopicMeList(Resource):
     @token_required
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
-        """
-        Search all topics that satisfy conditions.
+        """Search all topics that satisfy conditions.
         """
         args = get_parser.parse_args()
         controller = TopicController()
@@ -68,8 +64,7 @@ class TopicMeList(Resource):
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def post(self):
-        """
-        Create new topic.
+        """Create new topic.
 
         :return: The new topic if it was created successfully and null vice versa.
         """
@@ -114,13 +109,8 @@ class TopicAll(Resource):
     @token_required
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for topic response.')
-    def put(self, id):
-        """
-        Update existing topic by its ID.
-
-        :param id: The ID of the topic which need to be updated.
-
-        :return: The updated topic if success and null vice versa.
+    def patch(self, id):
+        """Update existing topic by its ID.
         """
         data = api.payload
         controller = TopicController()
@@ -128,12 +118,7 @@ class TopicAll(Resource):
 
     @token_required
     def delete(self, id):
-        """
-        Delete topic by its ID.
-
-        :param id: The ID of the topic.
-
-        :return:
+        """Delete topic by its ID.
         """
         controller = TopicController()
         return controller.delete(object_id=id)

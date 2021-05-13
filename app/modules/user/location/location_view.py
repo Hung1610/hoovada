@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import Resource, reqparse
 
-from app.modules.user.location.location_controller import LocationController
 # own modules
+from app.modules.user.location.location_controller import LocationController
 from app.modules.user.location.location_dto import LocationDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.response import send_error
@@ -67,10 +67,7 @@ class LocationMeList(Resource):
     @api.expect(location_request)
     @api.response(code=200, model=location_response, description='Model for location response.')
     def post(self):
-        """
-        Create new location.
-
-        :return: The new location if it was created successfully and null vice versa.
+        """Create new location.
         """
         data = api.payload
         controller = LocationController()
@@ -102,10 +99,6 @@ class LocationAll(Resource):
     def get(self, id):
         """
         Get location by its ID.
-
-        :param id: The ID of the location.
-
-        :return: The location with the specific ID.
         """
         controller = LocationController()
         return controller.get_by_id(object_id=id)
@@ -113,26 +106,17 @@ class LocationAll(Resource):
     @token_required
     @api.expect(location_request)
     @api.response(code=200, model=location_response, description='Model for location response.')
-    def put(self, id):
+    def patch(self, id):
+        """Update existing location by its ID.
         """
-        Update existing location by its ID.
 
-        :param id: The ID of the location which need to be updated.
-
-        :return: The updated location if success and null vice versa.
-        """
         data = api.payload
         controller = LocationController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        """
-        Delete location by its ID.
-
-        :param id: The ID of the location.
-
-        :return:
+        """Delete location by its ID.
         """
         controller = LocationController()
         return controller.delete(object_id=id)

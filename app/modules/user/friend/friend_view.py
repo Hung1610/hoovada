@@ -33,7 +33,7 @@ class FriendUserAll(Resource):
 
 @api.route('/all/friend/<int:object_id>/approve')
 class FriendUserApprove(Resource):
-    def put(self, object_id):
+    def patch(self, object_id):
         """Approve friend request send by user with object_id"""
         
         controller = UserFriendController()
@@ -41,7 +41,7 @@ class FriendUserApprove(Resource):
 
 @api.route('/all/friend/<int:object_id>/disapprove')
 class FriendUserDisapprove(Resource):
-    def put(self, object_id):
+    def patch(self, object_id):
         """Disapprove friend request send by user with object_id"""
         
         controller = UserFriendController()

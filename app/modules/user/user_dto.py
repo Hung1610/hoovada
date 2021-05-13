@@ -227,7 +227,7 @@ class UserDto(Dto):
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('display_name', type=str, required=False, help='Search user by display name')
     model_get_parser.add_argument('email', type=str, required=False, help='Search user by email')
-    model_get_parser.add_argument('email_or_name', type=str, required=False, help='Search user by email')
+    model_get_parser.add_argument('email_or_name', type=str, required=False, help='Search user by email or display_name')
     model_get_parser.add_argument('endorsed_topic_id', type=int, required=False, help='Get user endorsed status by id')
     model_get_parser.add_argument('is_endorsed', type=inputs.boolean, required=False, help='Get all endorsed users in database.')
     model_get_parser.add_argument('is_mutual_friend', type=inputs.boolean, required=False, help='Get mutual friends in database.')

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from common.dto import Dto
@@ -25,11 +25,6 @@ class ReputationDto(Dto):
         'description': fields.String(description='Description about topic')
     })
 
-    model_request = api.model('reputation_request', {
-        'user_id': fields.Integer(required=True, description='The user ID'),
-        'topic_id': fields.Integer(required=True, description='The Topic ID'),
-        'score': fields.Float(required=True, description='The Score'),
-    })
 
     model_response = api.model('reputation_response', {
         'id': fields.Integer(required=False, readonly=True, description='The Reputation ID'),
@@ -39,7 +34,7 @@ class ReputationDto(Dto):
         'score': fields.Float(required=True, description='The Score'),
     })
 
-    user_reputation_response = api.model('user_reputation_response', {
+    model_user_reputation_response = api.model('user_reputation_response', {
         'id': fields.Integer(required=False, readonly=True, description='The user ID'),
         'display_name': fields.String(required=False),
         'first_name': fields.String(required=False),
@@ -47,3 +42,7 @@ class ReputationDto(Dto):
         'last_name': fields.String(required=False),
         'reputation': fields.Nested(model_response, description='The reputation information'),
     })
+
+    model_user_reputation_request_parser = reqparse.RequestParser()
+    model_user_reputation_request_parser.add_argument('topic_id', type=int, required=False, help='Search reputation by topic_id')
+    model_user_reputation_request_parser.add_argument('user_id', type=int, required=False, help='Search reputation by user_id')

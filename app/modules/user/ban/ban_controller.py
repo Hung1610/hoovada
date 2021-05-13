@@ -15,7 +15,7 @@ from common.db import db
 from app.constants import messages
 from app.modules.user.ban.ban_dto import UserBanDto
 from common.controllers.controller import Controller
-from common.models import Reputation, User
+from common.models import User
 from common.models.ban import BanTypeEnum, UserBan
 from common.utils.response import send_error, send_result
 
@@ -27,14 +27,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class UserBanController(Controller):
     def get(self, args):
-        '''
-        Get/Search bans.
-
-        Args:
-             The dictionary-like parameters.
-
-        Returns:
-        '''
         
         ban_by, \
         created_date, \

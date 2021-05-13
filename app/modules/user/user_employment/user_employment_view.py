@@ -4,11 +4,9 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.user.user_employment.user_employment_controller import \
-    UserEmploymentController
 # own modules
-from app.modules.user.user_employment.user_employment_dto import \
-    UserEmploymentDto
+from app.modules.user.user_employment.user_employment_controller import UserEmploymentController
+from app.modules.user.user_employment.user_employment_dto import UserEmploymentDto
 from common.utils.decorator import admin_token_required, token_required
 
 api = UserEmploymentDto.api
@@ -60,7 +58,7 @@ class UserEmploymentAll(Resource):
     @token_required
     @api.expect(user_employment_request)
     @api.response(code=200, model=user_employment_response, description='Model for employment response.')
-    def put(self, id):
+    def patch(self, id):
         """Update existing employment by user-employment ID"""
         data = api.payload
         controller = UserEmploymentController()

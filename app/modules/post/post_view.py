@@ -12,7 +12,7 @@ from flask_restx import Resource, reqparse
 from app.modules.post.post_controller import PostController
 from app.modules.post.post_dto import PostDto
 from common.cache import cache
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -63,11 +63,12 @@ class Post(Resource):
         controller = PostController()
         return controller.get_by_id(object_id=post_id)
 
+    @api.deprecated
     @token_required
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def put(self, post_id):
-        """Update existing post by post Id"""
+        """Delete and re-create new post using old post Id"""
 
         data = api.payload
         controller = PostController()
@@ -79,7 +80,7 @@ class Post(Resource):
     @api.expect(_post_dto_request)
     @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def patch(self, post_id):
-        """Update existing post by post Id"""
+        """Update existing post using post Id"""
 
         data = api.payload
         controller = PostController()

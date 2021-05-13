@@ -317,22 +317,13 @@ class ArticleController(Controller):
             return send_error(message="Get similar articles failed. Error: "+ e.__str__())
 
 
-    def update(self, object_id, data, is_put=False):
+    def update(self, object_id, data):
        
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Article Id'))
         
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        if not 'title' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
-
-        if not 'html' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('html'))
-
-        if not 'fixed_topic_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
 
         if object_id.isdigit():
             article = Article.query.filter_by(id=object_id).first()
@@ -347,19 +338,20 @@ class ArticleController(Controller):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         # Handling title
-        data['title'] = data['title']
-        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
-        if is_sensitive:
-            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+        if 'title' in data:
+            data['title'] = data['title']
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
+            if is_sensitive:
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Handling html body
-        text = ' '.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
-        if len(text.split()) < 500:
-            return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))            
-        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
-        if is_sensitive:
-            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
+        if 'html' in data:
+            text = ' '.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
+            if len(text.split()) < 500:
+                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))            
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
+            if is_sensitive:
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         article = self._parse_article(data=data, article=article)
         try:  
@@ -369,8 +361,7 @@ class ArticleController(Controller):
             article.updated_date = datetime.utcnow()
             article.last_activity = datetime.utcnow()
             article_dsl = ESArticle(_id=article.id)
-            article_dsl.update(html=strip_tags(
-                article.html), title=article.title, slug=article.slug, updated_date=article.updated_date)
+            article_dsl.update(html=strip_tags(article.html), title=article.title, slug=article.slug, updated_date=article.updated_date)
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
 
@@ -436,11 +427,19 @@ class ArticleController(Controller):
         if article is None:
             article = Article()
         
-        if 'title' not in data or 'html' not in data:
-            raise Exception("title or html is missing when parsing article data")
+        if 'title' in data:
+            try:
+                article.title = data['title'].capitalize()
+            except Exception as e:
+                print(e)
+                pass
 
-        article.title = data['title'].capitalize()
-        article.html = data['html']
+        if 'html' in data:
+            try:
+                article.html = data['html']
+            except Exception as e:
+                print(e)
+                pass
         
         if 'user_id' in data:
             try:

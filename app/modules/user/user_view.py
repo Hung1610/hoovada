@@ -5,11 +5,11 @@
 from flask import request
 from werkzeug.datastructures import FileStorage
 
+# own modules
 from app.modules.user.user_controller import UserController
 from app.modules.user.user_dto import UserDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.types import UserRole
-# own modules
 from common.view import Resource
 
 __author__ = "hoovada.com team"
@@ -95,7 +95,7 @@ class User(Resource):
 
     @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
-    def put(self, user_name):
+    def patch(self, user_name):
         """Update an existed user in the system"""
 
         data = api.payload

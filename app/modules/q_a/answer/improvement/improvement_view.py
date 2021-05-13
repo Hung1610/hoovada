@@ -80,7 +80,7 @@ class AnswerImprovement(Resource):
     @api.expect(improvement_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=improvement_response, description='Model for answer response.')
-    def put(self, id):
+    def patch(self, id):
         """
         Update the existing answer by its ID.
         """

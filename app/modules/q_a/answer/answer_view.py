@@ -9,7 +9,7 @@ from flask_restx import Resource, reqparse
 from app.modules.q_a.answer.answer_controller import AnswerController
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from common.cache import cache
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -77,7 +77,7 @@ class Answer(Resource):
     @api.expect(answer_request)
     # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
-    def put(self, id):
+    def patch(self, id):
         """Update the existing answer by answer id"""
 
         data = api.payload
