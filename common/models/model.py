@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import dateutil.parser
+
 
 # third-party modules
+import dateutil.parser
 from sqlalchemy.ext.declarative import as_declarative
 
 # own modules

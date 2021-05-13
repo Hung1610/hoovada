@@ -5,12 +5,13 @@
 import ast
 import re
 from datetime import datetime
-import dateutil.parser
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, analyzer, tokenizer, char_filter, Index, Q
+
 
 # third-party modules
+import dateutil.parser
 from flask_restx import marshal
 from sqlalchemy import or_
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, analyzer, tokenizer, char_filter, Index, Q
 
 # own modules
 from common.db import db

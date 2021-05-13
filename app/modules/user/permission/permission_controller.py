@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import dateutil.parser
+
 
 # third-party modules
+import dateutil.parser
 from flask_restx import marshal
 from sqlalchemy import and_, desc, func, or_
 

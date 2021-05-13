@@ -83,7 +83,7 @@ class QuestionController(Controller):
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
         if question is not None:
-            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Question with title" + data['title']))   
+            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Question"))   
 
         question = self._parse_question(data=data, question=None)
         try:     

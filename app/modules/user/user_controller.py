@@ -5,9 +5,9 @@
 import json
 from datetime import datetime
 from http import HTTPStatus
-import dateutil.parser
 
 # third-party modules
+import dateutil.parser
 import requests
 from flask import current_app, request, g
 from flask_restx import marshal

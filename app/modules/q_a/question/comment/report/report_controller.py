@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import dateutil.parser
 from datetime import datetime
 
 # third-party modules
+import dateutil.parser
 from flask import current_app, request
 from flask_restx import marshal
 
