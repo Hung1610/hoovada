@@ -85,7 +85,7 @@ wrapt==1.12.1
 zipp==3.1.0
 zope.event==4.5.0
 zope.interface==5.1.2
-prometheus-flask-exporter==0.18.1
+prometheus-flask-exporter
 kombu==5.0.2
 onesignal-sdk==2.0.0
 cryptography==2.8

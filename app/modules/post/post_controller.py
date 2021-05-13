@@ -245,8 +245,7 @@ class PostController(Controller):
                 print(e)
                 pass
 
-  
-    def update(self, object_id, data, is_put=False):
+    def update(self, object_id, data):
         if object_id is None:
             return send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
         if not isinstance(data, dict):
@@ -256,23 +255,25 @@ class PostController(Controller):
             post = Post.query.filter_by(id=object_id).first()
         else:
             post = Post.query.filter_by(slug=object_id).first()
+            
         if post is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
-        if is_put:
-            db.session.delete(post)
-            post_dsl = ESPost(_id=post.id)
-            post_dsl.delete()
-            return self.create(data)
+
+        #if is_put:
+        #    db.session.delete(post)
+        #    post_dsl = ESPost(_id=post.id)
+        #    post_dsl.delete()
+        #    return self.create(data)
+
+        if 'html' in data:
+            text = ''.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
+            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
+            if is_sensitive:
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)            
 
         post= self._parse_post(data=data, post=post)
 
         try:
-
-            text = ''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
             post.updated_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
 

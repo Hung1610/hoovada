@@ -4,11 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.topic.user_topic.user_topic_controller import \
-    UserTopicController
 # own modules
+from app.modules.topic.user_topic.user_topic_controller import UserTopicController
 from app.modules.topic.user_topic.user_topic_dto import UserTopicDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,17 +22,6 @@ user_topic_response = UserTopicDto.model_response
 
 @api.route('')
 class UserTopicList(Resource):
-    # @admin_token_required()
-    # # @api.marshal_list_with(user_topic)
-    # @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
-    # def get(self):
-    #     """
-    #     Get list of user_topics from database.
-    #
-    #     :return: The list of user_topics.
-    #     """
-    #     controller = UserTopicController()
-    #     return controller.get()
 
     @token_required
     @api.expect(user_topic_request)
@@ -66,7 +54,7 @@ class UserTopic(Resource):
     # @api.expect(user_topic_request)
     # # @api.marshal_with(user_topic)
     # @api.response(code=200, model=user_topic_response, description='Model for question topic response.')
-    # def put(self, id):
+    # def patch(self, id):
     #     """
     #     Update existing user_topic by its ID.
     #

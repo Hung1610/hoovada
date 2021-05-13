@@ -13,8 +13,6 @@ from sqlalchemy_utils import create_database, database_exists
 
 # own modules
 from app.settings import config_by_name
-
-# Flask plugins
 from common.models import *
 from common.utils.util import get_logged_user
 from common.cache import cache

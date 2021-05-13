@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import Resource, reqparse
 
-from app.modules.user.language.language_controller import LanguageController
 # own modules
+from app.modules.user.language.language_controller import LanguageController
 from app.modules.user.language.language_dto import LanguageDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.response import send_error
@@ -105,7 +105,7 @@ class LanguageAll(Resource):
     @token_required
     @api.expect(language_request)
     @api.response(code=200, model=language_response, description='Model for language response.')
-    def put(self, id):
+    def patch(self, id):
         """
         Update existing language by its ID.
         """

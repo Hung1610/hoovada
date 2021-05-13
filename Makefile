@@ -10,33 +10,33 @@ SCHEDULED_JOBS  := ${REGISTRY}:scheduled-jobs-${GIT_COMMIT}-${GIT_BRANCH}-${DATE
 NGINX			:= ${REGISTRY}:nginx-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
 
 
-build:
+interactive:
 	@docker build -t ${API} -f ./docker/app/Dockerfile .
-	@docker build -t ${SCHEDULED_JOBS} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker build -t ${NGINX} -f ./docker/nginx/Dockerfile .
-
-push:
 	@docker push ${API}
-	@docker push ${SCHEDULED_JOBS}
 	@docker push ${NGINX}
+
+scheduled-jobs:
+	@docker build -t ${SCHEDULED_JOBS} -f ./docker/scheduled_jobs/Dockerfile .
+	@docker push ${SCHEDULED_JOBS}
+
+socketio:
+	@docker build -t ${SOCKETIO} -f ./docker/app_socketio/Dockerfile .
+	@docker push ${SOCKETIO}
 
 deploy-staging:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-test --record
+	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
 
-all-staging: build push deploy-staging
-
-deploy-test:
-	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
-	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-test --record
-
-all-test: build push deploy-test
+all-staging: interactive scheduled-jobs socketio deploy-staging
 
 deploy-live:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-production --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-production --record
+	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n interactive-service --context=do-sgp1-production--record
 
-all-live: build push deploy-live
+all-live: interactive scheduled-jobs socketio deploy-live
 
 login:
 	@docker login registry.gitlab.com

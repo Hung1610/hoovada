@@ -74,15 +74,16 @@ class Article(Resource):
         controller = ArticleController()
         return controller.get_by_id(object_id=id_or_slug)
 
+    @api.deprecated
     @token_required
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def put(self, id_or_slug):
-        """Update existing article by article Id or slug"""
+        """Delete and re-create new article entity using old article Id or slug"""
 
         data = api.payload
         controller = ArticleController()
-        result = controller.update(object_id=id_or_slug, data=data, is_put=True)
+        result = controller.update(object_id=id_or_slug, data=data)
         cache.clear_cache(get_article_key_prefix())
         return result
 
@@ -109,7 +110,6 @@ class Article(Resource):
         return result
 
 
-        
 @api.route('/similar')
 class ArticleSimilar(Resource):
     @api.expect(_article_get_similar_params)

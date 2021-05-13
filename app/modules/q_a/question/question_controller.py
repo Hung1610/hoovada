@@ -590,20 +590,15 @@ class QuestionController(Controller):
         
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        if not 'title' in data or data['title'] == "":
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
-
-        if not 'fixed_topic_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
         
         # Handling question title
-        data['title'] = data['title'].strip()
-        if not data['title'].endswith('?'):
-            return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)        
-        only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])        
-        if check_sensitive(only_words):
-            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+        if 'title' in data:
+            data['title'] = data['title'].strip()
+            if not data['title'].endswith('?'):
+                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)        
+            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])        
+            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Handling question body (if provided)
         if 'question' in data:

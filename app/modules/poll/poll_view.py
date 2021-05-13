@@ -9,7 +9,7 @@ from flask_restx import Resource, reqparse
 from app.modules.poll.poll_controller import PollController
 from app.modules.poll.poll_dto import PollDto
 from common.cache import cache
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -62,7 +62,7 @@ class Poll(Resource):
     @api.expect(poll_request)
     # @api.marshal_with(answer)s
     @api.response(code=200, model=poll_response, description='Model for poll response.')
-    def put(self, id_or_slug):
+    def patch(self, id_or_slug):
         """Update the existing poll by poll id"""
 
         data = api.payload

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import current_app, request
 # third-party modules
+from flask import current_app, request
 from flask_restx import Resource, reqparse
 
-from app.modules.user.education.education_controller import EducationController
 # own modules
+from app.modules.user.education.education_controller import EducationController
 from app.modules.user.education.education_dto import EducationDto
 from common.utils.decorator import admin_token_required, token_required
 from common.utils.response import send_error
@@ -107,7 +107,7 @@ class EducationAll(Resource):
     @token_required
     @api.expect(education_request)
     @api.response(code=200, model=education_response, description='Model for education response.')
-    def put(self, id):
+    def patch(self, id):
         """
         Update existing education by its ID.
 

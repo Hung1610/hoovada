@@ -11,7 +11,6 @@ from flask_dramatiq import Dramatiq
 # own modules
 from common.db import db
 from common.enum import FrequencySettingEnum, VotingStatusEnum
-from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.utils.util import send_email
 
 __author__ = "hoovada.com team"

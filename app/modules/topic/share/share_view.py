@@ -4,11 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.topic.share.share_controller import ShareController
 # own modules
-# from common.decorator import token_required
+from app.modules.topic.share.share_controller import ShareController
 from app.modules.topic.share.share_dto import TopicShareDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -66,7 +65,7 @@ class Share(Resource):
     @token_required
     @api.expect(share_request)
     @api.response(code=200, model=share_response, description='The model for share response.')
-    def put(self, id):
+    def patch(self, id):
         """
         Update existing share by its ID.
         """

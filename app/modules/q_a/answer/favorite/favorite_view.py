@@ -20,13 +20,11 @@ _favorite_request = AnswerFavoriteDto.model_request
 _favorite_response = AnswerFavoriteDto.model_response
 _favorite_get_params = AnswerFavoriteDto.model_get_parser
 
-#@api.deprecated
 #@api.route('/<int:answer_id>/favorite')
 class FavoriteUser(Resource):
     @api.expect(_favorite_get_params)
     def get(self, answer_id):
-        """ Get all favorite that satisfy conditions.
-        """
+        """ Get all favorite that satisfy conditions."""
 
         args = _favorite_get_params.parse_args()
         controller = AnswerFavoriteController()
@@ -43,9 +41,7 @@ class FavoriteUser(Resource):
 
     @token_required
     def delete(self, answer_id):
-        """
-        Delete favorite on current user.
-        """
+        """Delete favorite on current user"""
         
         controller = AnswerFavoriteController()
         return controller.delete(answer_id=answer_id)

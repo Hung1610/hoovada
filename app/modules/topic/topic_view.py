@@ -85,7 +85,7 @@ class Topic(Resource):
     @token_required
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
-    def put(self, topic_id_or_slug):
+    def patch(self, topic_id_or_slug):
         """Update existing topic by topic Id or slug"""
 
         data = api.payload

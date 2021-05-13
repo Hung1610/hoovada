@@ -17,7 +17,6 @@ from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.bookmark.bookmark_controller import AnswerBookmarkController
 from common.controllers.controller import Controller
-from common.utils.onesignal_notif import push_basic_notification
 from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
@@ -148,7 +147,6 @@ class AnswerController(Controller):
                 if user_profile[1] == 'UserTopic':
                     answer.user_topic_id = user_profile[0].id
 
-            # TODO: if this is invited question then update status in invited_question_table
             question_user_invite = QuestionUserInvite.query.filter_by(user_id=data['user_id'], question_id=data['question_id']).first()
             if question_user_invite:
                 question_user_invite.status = 1

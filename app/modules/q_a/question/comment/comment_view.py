@@ -4,13 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.q_a.question.comment.comment_controller import \
-    CommentController
 # own modules
-# from common.decorator import token_required
+from app.modules.q_a.question.comment.comment_controller import CommentController
 from app.modules.q_a.question.comment.comment_dto import CommentDto
-from common.utils.decorator import (admin_token_required, is_not_owner,
-                                    token_required)
+from common.utils.decorator import token_required
 
 api = CommentDto.api
 comment_response = CommentDto.model_response
@@ -60,7 +57,7 @@ class Comment(Resource):
     @api.expect(comment_request)
     # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
-    def put(self, id):
+    def patch(self, id):
         """Update existing comment by its ID."""
 
         data = api.payload

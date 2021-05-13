@@ -25,7 +25,6 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_ECHO = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
-    # if you want to use mysql 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,

@@ -4,9 +4,8 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.language.language_controller import LanguageController
 # own modules
-# from common.decorator import token_required
+from app.modules.language.language_controller import LanguageController
 from app.modules.language.language_dto import LanguageDto
 from common.utils.decorator import token_required
 
@@ -64,12 +63,7 @@ class LanguageAll(Resource):
     @token_required
     @api.response(code=200, model=language_response, description='Model for language response.')
     def get(self, id):
-        """
-        Get language by its ID.
-
-        :param id: The ID of the language.
-
-        :return: The language with the specific ID.
+        """Get language by its ID.
         """
         controller = LanguageController()
         return controller.get_by_id(object_id=id)
@@ -77,13 +71,8 @@ class LanguageAll(Resource):
     @token_required
     @api.expect(language_request)
     @api.response(code=200, model=language_response, description='Model for language response.')
-    def put(self, id):
-        """
-        Update existing language by its ID.
-
-        :param id: The ID of the language which need to be updated.
-
-        :return: The updated language if success and null vice versa.
+    def patch(self, id):
+        """Update existing language by its ID.
         """
         data = api.payload
         controller = LanguageController()
@@ -91,8 +80,7 @@ class LanguageAll(Resource):
 
     @token_required
     def delete(self, id):
-        """
-        Delete language by its ID.
+        """Delete language by its ID.
 
         :param id: The ID of the language.
 
