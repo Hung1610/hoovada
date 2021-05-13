@@ -18,7 +18,7 @@ feed_response = UserFeedDto.model_feed_response
 feed_all_data_response = UserFeedDto.model_feed_all_data_response
 feed_request = UserFeedDto.model_user_feed_request
 
-
+@api.deprecated
 @api.route('/feed')
 @api.expect(feed_request)
 @api.response(code=200, model=feed_response, description='Model for feed of user response (only feed IDs).')
@@ -39,7 +39,7 @@ class UserGetFeed(Resource):
 class UserGetFeedAllData(Resource):
     @token_required
     def get(self):
-        """Get current user's feed withn all feed type's data"""
+        """Get current user's feed with all feed type's data"""
 
         args = feed_request.parse_args()
         args['get_data'] = True
