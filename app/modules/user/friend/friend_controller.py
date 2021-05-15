@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from app.modules.search.search_controller import ESUserFriend
 from datetime import datetime
 
 # third-party modules
@@ -20,11 +21,14 @@ from common.controllers.controller import Controller
 from common.models import Reputation, User, UserFriend
 from common.utils.response import paginated_result, send_error, send_result
 from app.modules.user.follow.follow_controller import UserFollowController
+from common.es import get_model
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
+ESUserFriend = get_model('UserFriend')
 
 
 class UserFriendController(Controller):
@@ -77,6 +81,11 @@ class UserFriendController(Controller):
 
             friend = self._parse_friend(data=data, friend=None)
             db.session.add(friend)
+            db.session.flush()
+            user_friend_dsl = ESUserFriend(_id=friend.id, friend_id=friend.friend_id, friended_id=friend.friended_id,
+                                     friend_display_name=friend.friend.display_name, friend_email=friend.friend.email, friend_profile_pic_url=friend.friend.profile_pic_url,
+                                     friended_display_name=friend.friended.display_name, friended_email=friend.friended.email, friended_profile_pic_url=friend.friended.profile_pic_url, is_approved=friend.is_approved)
+            user_friend_dsl.save()
             db.session.commit()
                         
             # also following the person
@@ -119,6 +128,7 @@ class UserFriendController(Controller):
 
 
     def approve(self, object_id):
+        current_user, _ = current_app.get_logged_user(request)
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))        
         
@@ -130,15 +140,8 @@ class UserFriendController(Controller):
 
             if friend.is_approved is True:
                 return send_result(message='Already friend.')
-                
-            data = {}
-            data['friend_id'] = friend.friended_id
-            data['friended_id'] = friend.friend_id
-          
-            actual_friend = self._parse_friend(data=data, friend=None)
-            db.session.merge(actual_friend)
-            db.session.commit()
-
+            user_friend_dsl = ESUserFriend(_id=friend.id)
+            user_friend_dsl.update(is_approved=1)
             # also following back the person
             try:
                 user_follow_controller = UserFollowController()
@@ -161,6 +164,8 @@ class UserFriendController(Controller):
 
 
     def disapprove(self, object_id):
+        current_user, _ = current_app.get_logged_user(request)
+        user_id = current_user.id
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
 
@@ -171,8 +176,11 @@ class UserFriendController(Controller):
                 
             if friend.is_approved:
                 return send_result(message='Already friend.')
-
-            return self.delete(object_id)
+            if friend.friend_id == user_id:
+                friended_id = friend.friended_id
+            if friend.friended_id == user_id:
+                friended_id = friend.friend_id
+            return self.delete(friended_id)
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -183,10 +191,19 @@ class UserFriendController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         user_id = current_user.id
         try:
-            UserFriend.query.filter(\
+            user_friends = UserFriend.query.filter(\
                     ((UserFriend.friend_id == object_id) & (UserFriend.friended_id == user_id)) |\
                     ((UserFriend.friended_id == object_id) & (UserFriend.friend_id == user_id)) \
-                ).delete(synchronize_session=False)
+                ).all()
+            try:
+                for user_friend in user_friends:
+                    print('--wewew---', user_friend.id)
+                    db.session.delete(user_friend)
+                    user_friend_dsl = ESUserFriend(_id=user_friend.id)
+                    user_friend_dsl.delete()
+            except Exception as e:
+                print(e.__str__())
+                pass
             db.session.commit()
 
             # TODO: need to remove following if remove friend

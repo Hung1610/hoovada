@@ -25,6 +25,7 @@ from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
 from common.utils.util import strip_tags
+from elasticsearch_dsl import Q
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -247,6 +248,60 @@ class ArticleController(Controller):
             print(e.__str__())
             pass
     
+    def get_similar_elastic(self, args):
+        if not 'title' in args:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+        
+        title = args['title']
+        if not 'fixed_topic_id' in args:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+        
+        fixed_topic_id = args.get('fixed_topic_id')
+        topic_ids = args.get('topic_id', None)
+
+        if 'limit' in args:
+            limit = int(args['limit'])
+        else:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('limit'))
+        try:
+            current_user = g.current_user
+            s = ESArticle.search()
+            q = Q("multi_match", query=title, fields=["title", "html"])
+            s = s.query(q)
+            s = s[0:limit]
+            response = s.execute()
+            hits = response.hits
+            results = list()
+            for hit in hits:
+                article_id = hit.meta.id
+                article = Article.query.filter_by(id=article_id).first()
+                if not article or (fixed_topic_id and article.fixed_topic_id != fixed_topic_id):
+                    continue
+                if topic_ids and not article.topics:
+                    continue
+                if article.topics and topic_ids:
+                    article_topic_ids = list(map(lambda x : x.id, article.topics))
+                    intersected = all(item in topic_ids for item in article_topic_ids)
+                    if not intersected:
+                        continue
+                if args.get('exclude_article_id') == article.id:
+                    continue
+                result = article._asdict()
+                result['user'] = article.user
+                result['topics'] = article.topics
+
+                if current_user:
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+                results.append(result)
+            return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Get similar articles failed. Error: "+ e.__str__())          
+    
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
@@ -287,7 +342,6 @@ class ArticleController(Controller):
             results = list()
             for article in articles:
                 article = article[0]
-
                 result = article._asdict()
                 result['user'] = article.user
                 result['topics'] = article.topics

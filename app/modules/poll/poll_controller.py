@@ -18,6 +18,7 @@ from slugify import slugify
 from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
 from common.utils.sensitive_words import check_sensitive
+from common.es import get_model
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -30,6 +31,7 @@ PollSelect = db.get_model('PollSelect')
 PollUserSelect = db.get_model('PollUserSelect')
 User = db.get_model('User')
 Topic = db.get_model('Topic')
+ESPoll = get_model('Poll')
 
 class PollController(Controller):
     query_classname = 'Poll'
@@ -192,7 +194,9 @@ class PollController(Controller):
                 poll_topic.topic_id = int(topic_id)
                 poll_topic.poll_id = poll.id
                 db.session.add(poll_topic)
-
+            # index to ES server
+            poll_dsl = ESPoll(_id=poll.id, title=poll.title, user_id=poll.user_id, created_date=poll.created_date, updated_date=poll.updated_date)
+            poll_dsl.save()
             db.session.commit()
             result = poll._asdict()
             update_seen_poll.send(current_user.id, poll.id)

@@ -91,7 +91,7 @@ class QuestionSimilar(Resource):
 
         args = get_similar_questions_parser.parse_args()
         controller = QuestionController()
-        return controller.get_similar(args=args)
+        return controller.get_similar_elastic(args=args)
 
 
 def get_question_key_prefix():
