@@ -115,12 +115,12 @@ class QuestionController(Controller):
             result['up_vote'] = False
             result['down_vote'] = False
             
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format("Question", str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def apply_filtering(self, query, params):
@@ -487,12 +487,12 @@ class QuestionController(Controller):
             db.session.add(proposal)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question deletion proposal creation'), data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(proposal, QuestionDto.model_question_proposal_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Question deletion proposal creation', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
  
     def create_question_update_proposal(self, object_id, data):
@@ -539,12 +539,12 @@ class QuestionController(Controller):
             proposal.slug = slugify(proposal.title)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question update proposal creation'), data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(proposal, QuestionDto.model_question_proposal_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Question update proposal creation'))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def approve_proposal(self, object_id):
@@ -572,12 +572,12 @@ class QuestionController(Controller):
 
             proposal.is_approved = True
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Question proposal approval'), data=marshal(question, QuestionDto.model_question_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(question, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Question proposal approval'))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def update(self, object_id, data):

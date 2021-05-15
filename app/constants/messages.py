@@ -8,8 +8,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 # Create Messages
-MSG_CREATE_SUCCESS = '{} created successfully.'
-ERR_CREATE_FAILED = 'Failed to create {}. Issue: {}!'
+MSG_CREATE_SUCCESS = 'Created successfully.'
+ERR_CREATE_FAILED = 'Failed to create. Issue: {}!'
 
 # Get Messages
 MSG_GET_SUCCESS = '{} get successfully.'
@@ -27,15 +27,13 @@ ERR_DELETE_FAILED = 'Failed to delete {}. Issue: {}!'
 ERR_NO_FILE = 'No file found in the request!'
 ERR_FAILED_UPLOAD = 'Failed to upload file. Issue {}!'
 
-# General Errors
+# General
 ERR_WRONG_DATA_FORMAT = 'Wrong data format!'
 ERR_LACKING_QUERY_PARAMS = 'Query parameters not provided!'
 ERR_PLEASE_PROVIDE = 'Please provide {}!'
 ERR_NOT_FOUND_WITH_ID = '{} not found with ID: {}!'
 ERR_ISSUE = 'Issue: {}!'
 ERR_NOT_AUTHORIZED = 'You have no authority to perform this action!'
-
-# Filtering content
 ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_USER_INAPPROPRIATE  = 'User information content is inappropriate!'
@@ -88,14 +86,18 @@ MSG_CHANGE_NUMBER_SUCCESS = "Changing phone number is successful."
 
 ########### Article Module #################
 
-ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than current time!'
+ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than the current time!'
 
 ########### Question Module #################
-ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark "?"!'
+ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark!'
 ERR_QUESTION_NOT_ALLOW_COMMENT = 'Question does not allow commenting!'
 
+########### Answer Module #################
+ERR_USER_ALREADY_ANSWERED = 'This user has already answered this question!'
+ERR_USER_INFO_MORE_THAN_1 = 'More than 1 user information is selected!'
+
 ########### Topics Module #################
-ERR_TOPICS_MORE_THAN_5 = 'Number of topics more than 5!'
+ERR_TOPICS_MORE_THAN_5 = 'Number of topics is more than 5!'
 ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 
 ########### User Module #################

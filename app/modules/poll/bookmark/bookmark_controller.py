@@ -69,18 +69,17 @@ class PollBookmarkController(Controller):
             bookmark = PollBookmark.query.filter(PollBookmark.user_id == data['user_id'],
                                              PollBookmark.poll_id == data['poll_id']).first()
             if bookmark:
-                return send_error(message=messages.ERR_CREATE_FAILED.format('Poll User Select', 'This poll user select has already existed!'), data={'user_id': data['user_id'], 'poll_id': data['poll_id']})
+                return send_error(message=messages.ERR_ALREADY_EXISTS, data={'user_id': data['user_id'], 'poll_id': data['poll_id']})
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
             bookmark.updated_date = datetime.utcnow()
             db.session.add(bookmark)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('PollBookmark'),
-                               data=marshal(bookmark, PollBookmarkDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, PollBookmarkDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('PollBookmark', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get_by_id(self, object_id):
         if object_id is None:

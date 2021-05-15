@@ -75,7 +75,7 @@ class UserController(Controller):
             user_dsl.save()
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('User'), data=marshal(user, UserDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(user, UserDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -457,4 +457,4 @@ class UserController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('mention', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))

@@ -155,9 +155,6 @@ class PollController(Controller):
         if not isinstance(data['poll_selects'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
-        if not 'poll_topics' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll poll_topics'))
-        
         if not isinstance(data['poll_topics'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
@@ -199,12 +196,12 @@ class PollController(Controller):
             db.session.commit()
             result = poll._asdict()
             update_seen_poll.send(current_user.id, poll.id)
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Poll'), data=marshal(result, PollDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollDto.model_response))
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Poll', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def _parse_poll(self, data, poll=None):
@@ -256,7 +253,7 @@ class PollController(Controller):
         if g.current_user_is_admin:
             if 'allow_voting' in data:
                 try:
-                    post.allow_voting = bool(data['allow_voting'])
+                    poll.allow_voting = bool(data['allow_voting'])
                 except Exception as e:
                     print(e.__str__())
                     pass
@@ -264,9 +261,11 @@ class PollController(Controller):
         if g.current_user_is_admin:
             if 'allow_comments' in data:
                 try:
-                    post.allow_comments = bool(data['allow_comments'])
+                    poll.allow_comments = bool(data['allow_comments'])
                 except Exception as e:
                     print(e.__str__())
                     pass
+
+
 
         return poll

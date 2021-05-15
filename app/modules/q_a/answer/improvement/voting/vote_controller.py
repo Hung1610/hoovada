@@ -102,7 +102,7 @@ class AnswerImprovementVoteController(Controller):
             return send_result(data=marshal(vote, AnswerImprovementVoteDto.model_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('AnswerImprovement', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def delete(self, improvement_id):
         current_user, _ = current_app.get_logged_user(request)

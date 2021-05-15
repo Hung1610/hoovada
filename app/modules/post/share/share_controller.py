@@ -124,7 +124,7 @@ class ShareController(Controller):
             return send_result(data=marshal(share, ShareDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Post Share', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get_by_id(self, object_id):
         query = PostShare.query

@@ -96,12 +96,12 @@ class UserFriendController(Controller):
                 elif friend.friended.friend_request_email_settings:
                     send_friend_request_notif_email(friend.friended, current_user)
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Friend'), data=marshal(friend, UserFriendDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(friend, UserFriendDto.model_response))
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Friend', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
@@ -157,7 +157,7 @@ class UserFriendController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Friend', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def disapprove(self, object_id):

@@ -119,7 +119,7 @@ class ShareController(Controller):
             
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format("Share", str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get_by_id(self, object_id):
         query = ArticleShare.query

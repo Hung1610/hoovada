@@ -96,9 +96,9 @@ class PollUserSelectController(Controller):
                 db.session.commit()
 
             result = poll_user_select._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Poll User Select'), data=marshal(result, PollUserSelectDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollUserSelectDto.model_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Poll User Select', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))

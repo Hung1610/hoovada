@@ -93,10 +93,10 @@ class FavoriteController(Controller):
             favorite.updated_date = datetime.utcnow()
             db.session.add(favorite)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post Favorite'),data=marshal(favorite, FavoriteDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Post Favorite', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get_by_id(self, object_id):
         if object_id is None:

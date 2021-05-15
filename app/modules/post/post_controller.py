@@ -70,15 +70,15 @@ class PostController(Controller):
                 result = post.__dict__
                 user = User.query.filter_by(id=post.user_id).first()
                 result['user'] = user
-                return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post'),data=marshal(result, PostDto.model_post_response))
             except Exception as e:
                 print(e)
-                return send_result(data=marshal(post, PostDto.model_post_response), message=messages.MSG_CREATE_SUCCESS.format('Post'))
-        
+                pass
+                
+            return send_result(message=messages.MSG_CREATE_SUCCESS,data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Post', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get(self, args):
@@ -214,12 +214,12 @@ class PostController(Controller):
             db.session.commit()
             result = post._asdict()
             result['user'] = post.user
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post media'), data=marshal(result, PostDto.model_post_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Post media', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_by_id(self, object_id):

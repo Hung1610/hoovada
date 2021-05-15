@@ -63,10 +63,10 @@ class AnswerImprovementController(Controller):
             db.session.add(improvement)
             db.session.commit()
             result = improvement._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('AnswerImprovement'), data=marshal(result, AnswerImprovementDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerImprovementDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('AnswerImprovement', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get_query(self):
         query = self.get_model_class().query

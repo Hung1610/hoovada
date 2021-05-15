@@ -9,7 +9,7 @@ import dateutil.parser
 from flask import g
 from flask_restx import marshal
 from slugify import slugify
-from sqlalchemy import desc, func, text
+from sqlalchemy import desc, func
 
 # own modules
 from common.cache import cache
@@ -108,12 +108,12 @@ class ArticleController(Controller):
                 result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                 result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_CREATE_FAILED.format("Article", str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_query(self):
@@ -417,49 +417,49 @@ class ArticleController(Controller):
             try:
                 article.title = data['title']
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
 
         if 'html' in data:
             try:
                 article.html = data['html']
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
         
         if 'user_id' in data:
             try:
                 article.user_id = data['user_id']
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
         
         if 'fixed_topic_id' in data:
             try:
                 article.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
 
         if 'scheduled_date' in data:
             try:
                 article.scheduled_date = dateutil.parser.isoparse(data.get('scheduled_date'))
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
             
         if 'is_draft' in data:
             try:
                 article.is_draft = bool(data['is_draft'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
             
         if 'is_deleted' in data:
             try:
                 article.is_deleted = bool(data['is_deleted'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
             
         if 'topic_ids' in data:

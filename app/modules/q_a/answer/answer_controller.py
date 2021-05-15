@@ -95,6 +95,7 @@ class AnswerController(Controller):
             user_profile = user_topic, 'UserTopic'
         return user_profile, None, user_profile_data_count
 
+
     def create(self, data):
         
         if not isinstance(data, dict):
@@ -112,12 +113,12 @@ class AnswerController(Controller):
             return error_res
         
         if field_count > 1:
-            return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
+            return send_error(message=messages.ERR_USER_INFO_MORE_THAN_1)
         
         data['user_id'] = current_user.id
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
-            return send_error(message=messages.ERR_CREATE_FAILED.format('answer', 'This user has already answered!'), data={'answer_id': answer.id})
+            return send_error(message=messages.ERR_USER_ALREADY_ANSWERED, data={'answer_id': answer.id})
 
         if is_sensitive(data['answer'], True):
             return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
@@ -174,12 +175,12 @@ class AnswerController(Controller):
             #    friend_ids = [friend.adaptive_friend_id for friend in friends]
             #    new_answer_notify_user_list.send(answer.id, friend_ids)
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Answer', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def create_with_file(self, object_id):
@@ -226,12 +227,12 @@ class AnswerController(Controller):
             result['user'] = user
             result['up_vote'] = False
             result['down_vote'] = False
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Answer media'), data=marshal(result, AnswerDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Answer media', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_query(self):
@@ -324,7 +325,7 @@ class AnswerController(Controller):
             return error_res
 
         if field_count > 1:
-            return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
+            return send_error(message=messages.ERR_USER_INFO_MORE_THAN_1)
         
         if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)

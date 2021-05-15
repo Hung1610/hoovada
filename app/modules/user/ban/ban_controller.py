@@ -75,11 +75,10 @@ class UserBanController(Controller):
                 db.session.commit()
                 results.append(ban)
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Ban'),
-                                data=marshal(results, UserBanDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(results, UserBanDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Ban', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get_by_id(self, object_id):
         if object_id is None:

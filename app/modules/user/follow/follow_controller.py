@@ -77,12 +77,12 @@ class UserFollowController(Controller):
             db.session.add(follow)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Follow'), data=marshal(follow, UserFollowDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(follow, UserFollowDto.model_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Follow', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_by_id(self, object_id):

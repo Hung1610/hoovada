@@ -96,7 +96,7 @@ class PollTopicController(Controller):
         existing_poll_topics = PollTopic.query.filter_by(poll_id=poll_id, topic_id=data['topic_id']).all()
         
         if existing_poll_topics is not None and len(existing_poll_topics) != 0:
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Poll Topic', 'This poll topic has already existed!'), data={'poll_id': int(poll_id), 'topic_id': int(data['topic_id'])})
+            return send_error(message=messages.ERR_ALREADY_EXISTS, data={'poll_id': int(poll_id), 'topic_id': int(data['topic_id'])})
         try:
             data['poll_id'] = poll_id
             poll_topic = self._parse_poll_topic(data=data, poll_topic=None)
@@ -105,11 +105,11 @@ class PollTopicController(Controller):
             db.session.add(poll_topic)
             db.session.commit()
             result = poll_topic._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Poll Topic'), data=marshal(result, PollTopicDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollTopicDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Poll', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def update(self, object_id, data):
         if not isinstance(data, dict):

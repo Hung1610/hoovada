@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request, g
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -82,12 +82,12 @@ class ArticleBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format("Article Bookmark"), data=marshal(bookmark, ArticleBookmarkDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, ArticleBookmarkDto.model_response))
         
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_CREATE_FAILED.format("Article Bookmark", str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def update(self, object_id, data):
@@ -95,7 +95,7 @@ class ArticleBookmarkController(Controller):
 
 
     def delete(self, article_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             bookmark = ArticleBookmark.query.filter_by(article_id=article_id, user_id=user_id).first()

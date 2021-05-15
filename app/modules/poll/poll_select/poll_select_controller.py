@@ -105,11 +105,11 @@ class PollSelectController(Controller):
             db.session.add(poll_select)
             db.session.commit()
             result = poll_select._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('PollSelect'), data=marshal(result, PollSelectDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollSelectDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Poll', str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def update(self, object_id, data):
         if not isinstance(data, dict):

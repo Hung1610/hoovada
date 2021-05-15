@@ -303,10 +303,10 @@ class TopicController(Controller):
                 endorse.topic_id = topic.id
                 db.session.add(endorse)
                 db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('TopicEndorse'), data=marshal(endorse.endorsed, TopicDto.model_endorsed_user))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(endorse.endorsed, TopicDto.model_endorsed_user))
         except Exception as e:
             print(e)
-            return send_error(message=messages.ERR_CREATE_FAILED.format('TopicEndorse', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def delete_endorsed_users(self, object_id, user_id):
         try:
@@ -418,11 +418,11 @@ class TopicController(Controller):
 
             topic.file_url = url
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS.format('Topic media'), data=marshal(topic, TopicDto.model_topic_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_topic_response))
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format('Topic media', e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def update_slug(self):
         topics = Topic.query.all()
