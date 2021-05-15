@@ -6,25 +6,27 @@ import ast
 import re
 from datetime import datetime
 
-
 # third-party modules
 import dateutil.parser
 from flask_restx import marshal
 from sqlalchemy import or_
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, analyzer, tokenizer, char_filter, Index, Q
+from elasticsearch_dsl import Q
 
 # own modules
 from common.db import db
 from app.modules.search.search_dto import SearchDto
-from common.models import Article, Question, Topic, User, UserBan, Post
+from common.models import Article, Question, Topic, User, UserBan, Post, Poll
 from common.utils.response import send_error, send_result
 from common.es import get_model
+
 
 ESUser = get_model("User")
 ESArticle = get_model("Article")
 ESTopic = get_model("Topic")
 ESQuestion = get_model("Question")
 ESPost = get_model("Post")
+ESPoll = get_model("Poll")
+ESUserFriend = get_model('UserFriend')
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -35,10 +37,20 @@ extensionsToCheck = ('ạ','ả','ã','à','á','â','ậ','ầ','ấ','ẩ','�
 
 class SearchController():
 
-    def _search_user(self, valueSearch):
+    def _search_user(self, args, emailSearch):
+        start_from = 0
+        size = 10
+        if args['from'] is not None:
+            start_from = int(args['from'])
+        if args['size']:
+            size = int(args['size'])
+        fields = ["display_name", "first_name", "last_name", "middle_name"]
+        if emailSearch is True:
+            fields.append("email")
         s = ESUser.search()
-        q = Q("multi_match", query=valueSearch, fields=["display_name", "email", "first_name", "last_name", "middle_name"])
+        q = Q("multi_match", query=args['value'], fields=fields)
         s = s.query(q)
+        s = s[start_from:size + 1]
         response = s.execute()
         hits = response.hits
         users = []
@@ -53,10 +65,17 @@ class SearchController():
                 })
         return users
 
-    def _search_article(self, valueSearch):
+    def _search_article(self, args):
+        start_from = 0
+        size = 10
+        if args['from'] is not None:
+            start_from = int(args['from'])
+        if args['size']:
+            size = int(args['size'])
         s = ESArticle.search()
-        q = Q("multi_match", query=valueSearch, fields=["title", "html"])
+        q = Q("multi_match", query=args['value'], fields=["title"])
         s = s.query(q)
+        s = s[start_from:size + 1]
         response = s.execute()
         hits = response.hits
         articles = []
@@ -70,10 +89,17 @@ class SearchController():
                 })
         return articles
 
-    def _search_topic(self, valueSearch):
+    def _search_topic(self, args):
+        start_from = 0
+        size = 10
+        if args['from'] is not None:
+            start_from = int(args['from'])
+        if args['size']:
+            size = int(args['size'])
         s = ESTopic.search()
-        q = Q("multi_match", query=valueSearch, fields=["name"])
+        q = Q("multi_match", query=args['value'], fields=["name"])
         s = s.query(q)
+        s = s[start_from:size + 1]
         response = s.execute()
         hits = response.hits
         topics = []
@@ -85,10 +111,17 @@ class SearchController():
             })
         return topics
 
-    def _search_question(self, valueSearch):
+    def _search_question(self, args):
+        start_from = 0
+        size = 10
+        if args['from'] is not None:
+            start_from = int(args['from'])
+        if args['size']:
+            size = int(args['size'])
         s = ESQuestion.search()
-        q = Q("multi_match", query=valueSearch, fields=["title", "question"])
+        q = Q("multi_match", query=args['value'], fields=["title"])
         s = s.query(q)
+        s = s[start_from:size + 1]
         response = s.execute()
         hits = response.hits
         questions = []
@@ -98,12 +131,14 @@ class SearchController():
                 questions.append({
                     "id": h.meta.id,
                     "slug": h.slug,
+                    "question": question.question,
                     "title": h.title
                 })
         return questions
     
     def _search_post(self, valueSearch):
         s = ESPost.search()
+        s = s.highlight("html", fragment_size=100)
         q = Q("multi_match", query=valueSearch, fields=["html"])
         s = s.query(q)
         response = s.execute()
@@ -112,9 +147,70 @@ class SearchController():
         for h in hits:
             posts.append({
                 "id": h.meta.id,
-                "html": h.html,
+                "highlighted_html": list(h.meta.highlight.html),
             })
         return posts
+    
+    def _search_poll(self, args):
+        start_from = 0
+        size = 10
+        if args['from'] is not None:
+            start_from = int(args['from'])
+        if args['size']:
+            size = int(args['size'])
+        s = ESPoll.search()
+        q = Q("multi_match", query=args['value'], fields=["title"])
+        s = s.query(q)
+        s = s[start_from:size + 1]
+        response = s.execute()
+        hits = response.hits
+        polls = []
+        for h in hits:
+            polls.append({
+                "id": h.meta.id,
+                "title": h.title
+            })
+        return polls
+    
+    def _search_user_friend(self, args, user_id):
+        start_from = 0
+        size = 10
+        is_approved = 1
+        if args['from'] is not None:
+            start_from = int(args['from'])
+        if args['size']:
+            size = int(args['size'])
+        if args['is_approved']:
+            is_approved = int(args['is_approved'])
+        s = ESUserFriend.search()
+        q = Q("multi_match", query=args['value'], fields=["friend_display_name", "friend_email", "friended_display_name", "friended_email"])
+        bool_q_content = {
+            "bool":{
+                "should":[{"term":{"friend_id": user_id}},{"term":{"friended_id": user_id}}],
+                "must": {"term": {"is_approved": is_approved}}
+            }
+        }
+        bool_q = Q(bool_q_content)
+        s = s.query(bool_q & q)
+        s = s[start_from:size + 1]
+        response = s.execute()
+        hits = response.hits
+        users = []
+        for h in hits:
+            print(h)
+            users.append({
+                "id": h.meta.id,
+                "friend_id": h.friend_id,
+                "friend_display_name": h.friend_display_name,
+                "friend_email": h.friend_email,
+                "friend_profile_pic_url": h.friend_profile_pic_url,
+                "friended_id": h.friended_id,
+                "friended_display_name": h.friended_display_name,
+                "friended_email": h.friended_email,
+                "friended_profile_pic_url": h.friended_profile_pic_url,
+                "is_approved": h.is_approved
+            })
+        return users 
 
     def search_elastic(self, args):
         """ Search data from elastic search server.
@@ -128,12 +224,18 @@ class SearchController():
             emailSearch = True
         else:
             emailSearch = False
-        users = self._search_user(valueSearch)
-        questions = self._search_question(valueSearch)
-        topics = self._search_topic(valueSearch)
-        articles = self._search_article(valueSearch)
+        search_args = {
+            'value': valueSearch,
+            'from': '0',
+            'size': '10'
+        }
+        users = self._search_user(search_args, emailSearch)
+        questions = self._search_question(search_args)
+        topics = self._search_topic(search_args)
+        articles = self._search_article(search_args)
         posts = self._search_post(valueSearch)
-        data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts}
+        polls = self._search_poll(search_args)
+        data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts, 'polls': polls}
         return send_result(data, message='Success')
 
     def search(self, args):
@@ -177,15 +279,15 @@ class SearchController():
 
         # search questions
         if questions is not None and len(questions) > 0:
-            resultQuestions = marshal(questions, SearchDto.model_search_question_res)
+            resultQuestions = marshal(questions, SearchDto.model_search_question_response)
 
         # search topics
         if topics is not None and len(topics) > 0:
-            resultTopics = marshal(topics, SearchDto.model_search_topic_res)
+            resultTopics = marshal(topics, SearchDto.model_search_topic_response)
 
         # search users
         if users is not None and len(users) > 0:
-            resultUsers = marshal(users, SearchDto.model_search_user_res)
+            resultUsers = marshal(users, SearchDto.model_search_user_response)
 
         # search articles
         if articles is not None and len(articles) > 0:
@@ -193,3 +295,95 @@ class SearchController():
 
         data = {'question': resultQuestions, 'topic': resultTopics, 'user': resultUsers, 'article': resultArticles}
         return send_result(data, message='Success')
+
+    def search_article_by_title(self, args):
+        try:
+            if not args.get('value'):
+                return send_error(message='Please provide the title to search.')
+            search_args = {
+                'value': args.get('value'),
+                'from': args.get('from'),
+                'size': args.get('size')
+            }
+            articles = self._search_article(search_args)
+            return send_result(data=marshal(articles, SearchDto.model_search_article_res), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Could not load articles. Contact your administrator for solution.")
+
+    def search_user_by_name_or_email(self, args):
+        try:
+            if not args.get('value'):
+                return send_error(message='Please provide the display name or email to search.')
+            search_args = {
+                'value': args.get('value'),
+                'from': args.get('from'),
+                'size': args.get('size')
+            }
+            users = self._search_user(search_args, emailSearch=True)
+            return send_result(data=marshal(users, SearchDto.model_search_user_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Could not load users. Contact your administrator for solution.")
+
+    def search_poll_by_title(self, args):
+        try:
+            if not args.get('value'):
+                return send_error(message='Please provide the title to search.')
+            search_args = {
+                'value': args.get('value'),
+                'from': args.get('from'),
+                'size': args.get('size')
+            }
+            polls = self._search_poll(search_args)
+            return send_result(data=marshal(polls, SearchDto.model_search_poll_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Could not load polls. Contact your administrator for solution.")
+
+    def search_question_by_title(self, args):
+        try:
+            if not args.get('value'):
+                return send_error(message='Please provide the title to search.')
+            search_args = {
+                'value': args.get('value'),
+                'from': args.get('from'),
+                'size': args.get('size')
+            }
+            questions = self._search_question(search_args)
+            return send_result(data=marshal(questions, SearchDto.model_search_question_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Could not load questions. Contact your administrator for solution.")
+
+    def search_topic_by_name(self, args):
+        try:
+            if not args.get('value'):
+                return send_error(message='Please provide the title to search.')
+            search_args = {
+                'value': args.get('value'),
+                'from': args.get('from'),
+                'size': args.get('size')
+            }
+            topics = self._search_topic(search_args)
+            return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Could not load topics. Contact your administrator for solution.")
+    
+    def search_friend_by_name_or_email(self, args, user_id):
+        try:
+            if not args.get('value'):
+                return send_error(message='Please provide the title to search.')
+            search_args = {
+                'value': args.get('value'),
+                'from': args.get('from'),
+                'size': args.get('size'),
+                'is_approved': args.get('is_approved')
+            }
+            user_friends = self._search_user_friend(search_args, user_id)
+            return send_result(data=marshal(user_friends, SearchDto.model_search_user_friend_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Could not load topics. Contact your administrator for solution.")   
+            

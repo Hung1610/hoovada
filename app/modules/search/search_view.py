@@ -32,3 +32,69 @@ class Search(Resource):
         args = parser.parse_args()
         controller = SearchController()
         return controller.search_elastic(args=args)
+
+@api.route('/article')
+class ArticleSearch(Resource):
+    @api.expect(SearchDto.search_model_request_parser)
+    @api.response(code=200, model=SearchDto.model_search_article_res, description='Model for article response.')
+    def get(self):
+        """ Search articles by title"""
+
+        args = SearchDto.search_model_request_parser.parse_args()
+        controller = SearchController()
+        return controller.search_article_by_title(args=args)
+
+@api.route('/user')
+class UserSearch(Resource):
+    @api.expect(SearchDto.search_model_request_parser)
+    @api.response(code=200, model=SearchDto.model_search_user_response, description='Model for user response.')
+    def get(self):
+        """ Search users by display name or email"""
+
+        args = SearchDto.search_model_request_parser.parse_args()
+        controller = SearchController()
+        return controller.search_user_by_name_or_email(args=args)
+
+@api.route('/poll')
+class PollSearch(Resource):
+    @api.expect(SearchDto.search_model_request_parser)
+    @api.response(code=200, model=SearchDto.model_search_poll_response, description='Model for poll response.')
+    def get(self):
+        """ Search poll by title"""
+
+        args = SearchDto.search_model_request_parser.parse_args()
+        controller = SearchController()
+        return controller.search_poll_by_title(args=args)
+
+@api.route('/question')
+class QuestionSearch(Resource):
+    @api.expect(SearchDto.search_model_request_parser)
+    @api.response(code=200, model=SearchDto.model_search_question_response, description='Model for question response.')
+    def get(self):
+        """ Search questions by title"""
+
+        args = SearchDto.search_model_request_parser.parse_args()
+        controller = SearchController()
+        return controller.search_question_by_title(args=args)
+
+@api.route('/topic')
+class TopicSearch(Resource):
+    @api.expect(SearchDto.search_model_request_parser)
+    @api.response(code=200, model=SearchDto.model_search_topic_response, description='Model for topic response.')
+    def get(self):
+        """ Search topics by name"""
+
+        args = SearchDto.search_model_request_parser.parse_args()
+        controller = SearchController()
+        return controller.search_topic_by_name(args=args)
+
+@api.route('/user/<string:user_id>/friend')
+class UserSearch(Resource):
+    @api.expect(SearchDto.search_user_request_parser)
+    @api.response(code=200, model=SearchDto.model_search_user_friend_response, description='Model for topic response.')
+    def get(self, user_id):
+        """ Search topics by name"""
+
+        args = SearchDto.search_user_request_parser.parse_args()
+        controller = SearchController()
+        return controller.search_friend_by_name_or_email(args=args, user_id=user_id)

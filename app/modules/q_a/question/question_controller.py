@@ -26,6 +26,7 @@ from common.utils.util import strip_tags
 from common.dramatiq_producers import update_seen_questions
 from app.modules.q_a.question.question_dto import QuestionDto
 from app.modules.q_a.question.bookmark.bookmark_controller import QuestionBookmarkController
+from elasticsearch_dsl import Q
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -319,8 +320,52 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
 
+    def get_similar_elastic(self, args):
+        if not 'title' in args:
+            return send_error(message='Please provide at least the title.')
+
+        title = args['title']
+        
+        if args.get('limit'):
+            limit = int(args['limit'])
+        else:
+            return send_error(message='Please provide limit')
+        try:
+            s = ESQuestion.search()
+            q = Q("multi_match", query=title, fields=["title", "question"])
+            s = s.query(q)
+            s = s[0:limit]
+            response = s.execute()
+            hits = response.hits
+            results = list()
+            current_user, _ = current_app.get_logged_user(request)
+            for hit in hits:
+                question_id = hit.meta.id
+                question = Question.query.filter_by(id=question_id, is_private=False).first()
+                if not question:
+                    continue
+                result = question._asdict()
+
+                result['user'] = question.user
+                result['topics'] = question.topics
+                result['fixed_topic'] = question.fixed_topic
+
+                if current_user is not None:
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                    result['is_bookmarked_by_me'] = True if bookmark else False
+                
+                results.append(result)
+            return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
 
     def get_similar(self, args):
+        self.get_similar_elastic(args)
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
 

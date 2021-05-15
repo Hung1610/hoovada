@@ -122,6 +122,28 @@ class User(Document):
     middle_name = Text(analyzer='standard', fields={'raw': Keyword()})
     reputation = Integer()
 
+poll_index = Index("poll")
+@poll_index.document
+class Poll(Document):
+    id = Integer()
+    title = Text(analyzer='standard')
+    user_id = Integer()
+    created_date = Date()
+    updated_date = Date()
+
+user_friend_index = Index('user_friend')
+@user_friend_index.document
+class UserFriend(Document):
+    friend_id = Integer()
+    friended_id = Integer()
+    friend_display_name = Text(analyzer='standard')
+    friend_email = Text(analyzer='standard')
+    friend_profile_pic_url = Text()
+    friended_display_name = Text(analyzer='standard')
+    friended_email = Text(analyzer='standard')
+    friended_profile_pic_url = Text()
+    is_approved = Integer()
+
 def delete_index_if_exist(model_index):
     if model_index.exists() == True:
         model_index.delete()
@@ -131,7 +153,67 @@ def delete_index_if_exist(model_index):
 def select_with_pagination(query, limit=0, offset=0):
     return connection.execute(query + " LIMIT {} OFFSET {}".format(limit, offset)).fetchall()
 
+def select_one(table, id):
+    rows = connection.execute('SELECT * FROM {} WHERE id = "{}"'.format(table, id)).fetchall()
+    if not rows or len(rows) == 0:
+        return None
+    return rows[0]
+
 BATCH_SIZE = 100
+
+def migrate_user_friend_model():
+    query = "SELECT id, friend_id, friended_id, is_approved from user_friend"
+    limit = BATCH_SIZE
+    offset = 0
+    count = 0
+    total = 0
+    print("Starting friend migration...")
+    while True:
+        res = select_with_pagination(query, limit=limit, offset=offset)
+        if not res or len(res) == 0:
+            break
+        list_friends = []
+        for user_friend in res:
+            (user_friend_id, friend_id, friended_id, is_approved) = user_friend
+            friend = select_one("user", friend_id)
+            friended = select_one("user", friended_id)
+            if friend is None or friended is None:
+                print('Not found friend or friended, just skip...')
+                continue
+            user_friend = UserFriend(_id=user_friend_id, friend_id=friend_id, friended_id=friended_id,
+                                     friend_display_name=friend.display_name, friend_email=friend.email, friend_profile_pic_url=friend.profile_pic_url,
+                                     friended_display_name=friended.display_name, friended_email=friended.email, friended_profile_pic_url=friended.profile_pic_url, is_approved=is_approved)
+            list_friends.append(user_friend)
+        bulk(connections.get_connection(), (d.to_dict(True) for d in list_friends))
+        print("Current iteration {} with length {}".format(count, len(res)))
+        offset += limit
+        count += 1
+        total += len(res)
+    print("Complete user_friend migration after {} iteration with {} rows".format(count, total))
+
+def migrate_poll_model():
+    query = "SELECT id, title, user_id, created_date, updated_date from poll"
+    limit = BATCH_SIZE
+    offset = 0
+    count = 0
+    total = 0
+    print("Starting poll migration...")   
+    while True:
+        res = select_with_pagination(query, limit=limit, offset=offset)
+        if not res or len(res) == 0:
+            break
+        list_polls = []
+        for poll in res:
+            (poll_id, title, user_id, created_date, updated_date) = poll
+            poll_dsl = Poll(_id=poll_id, title=title, user_id=user_id, created_date=created_date, updated_date=updated_date)
+            list_polls.append(poll_dsl)
+        bulk(connections.get_connection(), (d.to_dict(True) for d in list_polls))
+        print("Current iteration {} with length {}".format(count, len(res)))
+        offset += limit
+        count += 1
+        total += len(res)
+    print("Complete poll migration after {} iteration with {} rows".format(count, total))
+
 
 def migrate_user_model():
     query = "SELECT id, display_name, email, gender, age, reputation, first_name, middle_name, last_name  from user"
@@ -251,13 +333,15 @@ def migrate_post_model():
     print("Complete post migration after {} iteration with {} rows".format(count, total))
 
 def main():
-    for model_index in [user_index, question_index, post_index, article_index, topic_index]:
+    for model_index in [user_index, question_index, post_index, article_index, topic_index, user_friend_index]:
         delete_index_if_exist(model_index)
     migrate_user_model()
     migrate_question_model()
     migrate_article_model()
     migrate_topic_model()
     migrate_post_model()
+    migrate_poll_model()
+    migrate_user_friend_model()
 
 main()
 

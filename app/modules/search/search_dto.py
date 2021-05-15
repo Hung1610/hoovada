@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from common.dto import Dto
@@ -17,24 +17,6 @@ class SearchDto(Dto):
     name = 'search'
     api = Namespace(name, description="Search operations")
 
-    model_search_question_res = api.model('search_question_res', {
-        'id': fields.Integer(readonly=True, description=''),
-        'slug': fields.String(description='The slug of the question'),
-        'title': fields.String(description='The title of the question'),
-    })
-
-    model_search_topic_res = api.model('search_topic_res', {
-        'id': fields.Integer(readonly=True, description=''),
-        'slug': fields.String(description='The slug of the topic'),
-        'name': fields.String(description='The name of the topic'),
-    })
-
-    model_search_user_res = api.model('search_user_res', {
-        'id': fields.Integer(readonly=True, description=''),
-        'email': fields.String(description='The email of the topic'),
-        'display_name': fields.String(description='The display name of the topic')
-    })
-
     model_search_article_res = api.model('search_article_res', {
         'id': fields.Integer(readonly=True, description=''),
         'slug': fields.String(description='The slug of the article'),
@@ -44,3 +26,55 @@ class SearchDto(Dto):
     search_response = api.model('response', {
         'message': fields.String(required=True)
     })
+
+    model_search_poll_response = api.model('search_poll_response', {
+        'id': fields.Integer(readonly=True, description='Id of poll'),
+        'title': fields.String(description='The title of the poll'),
+    })
+
+    model_search_user_response = api.model('search_user_response', {
+        'id': fields.Integer(readonly=True, description='Id of user'),
+        'display_name': fields.String(description='The display name of the user'),
+        'email': fields.String(description='The email of the user'),
+        'display_name': fields.String(description='The display name of the user'),
+        'profile_pic_url': fields.String(description='The profile picture of the user'),
+        'cover_pic_url': fields.String(description='The cover picture of the user'),
+    })
+
+    model_search_question_response = api.model('search_question_response', {
+        'id': fields.Integer(readonly=True, description=''),
+        'title': fields.String(description='The title of the question'),
+        'question': fields.String(description='The content of the question'),
+        'slug': fields.String(description='The slug of the question'),
+    })
+
+    model_search_topic_response = api.model('search_topic_response', {
+        'id': fields.Integer(readonly=True, description='Id of topic'),
+        'name': fields.String(description='The name of the topic'),
+        'slug': fields.String(description='The slug of the topic'),
+    })
+
+    model_search_user_friend_response = api.model('search_user_friend_response', {
+        'id': fields.Integer(readonly=True, description='Id of user friend'),
+        'friend_id': fields.Integer(readonly=True, description='Id of friend'),
+        'friend_display_name': fields.String(readonly=True, description='Display name of friend'),
+        'friend_email': fields.String(readonly=True, description='Email of friend'),
+        'friend_profile_pic_url': fields.String(readonly=True, description='Profile picture url of friend'),
+        'friended_id': fields.Integer(readonly=True, description='Id of friended'),
+        'friended_display_name': fields.String(readonly=True, description='Display name of friended'),
+        'friended_email': fields.String(readonly=True, description='Email of friended'),
+        'friended_profile_pic_url': fields.String(readonly=True, description='Profile picture url of friended'),
+        "is_approved": fields.Integer(readonly=True, description='Status of friend request'),
+    })
+
+
+    search_model_request_parser = reqparse.RequestParser()
+    search_model_request_parser.add_argument('value', type=str, required=True, help='Value to search')
+    search_model_request_parser.add_argument('from', type=str, required=False, help='From index')
+    search_model_request_parser.add_argument('size', type=str, required=False, help='Number of records returned')
+
+    search_user_request_parser = reqparse.RequestParser()
+    search_user_request_parser.add_argument('value', type=str, required=True, help='Value to search')
+    search_user_request_parser.add_argument('is_approved', type=bool, required=False, help='Get friends with approved friend request. Default to True')
+    search_user_request_parser.add_argument('from', type=str, required=False, help='From index')
+    search_user_request_parser.add_argument('size', type=str, required=False, help='Number of records returned')
