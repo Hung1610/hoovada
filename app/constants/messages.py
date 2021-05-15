@@ -9,8 +9,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 # Create Messages
 MSG_CREATE_SUCCESS = '{} created successfully.'
-MSG_CREATE_SUCCESS_WITH_ISSUE = '{} created partially successfully, but {}.'
-MSG_ALREADY_EXISTS = '{} already exists!'
 ERR_CREATE_FAILED = 'Failed to create {}. Issue: {}!'
 
 # Get Messages
@@ -33,17 +31,16 @@ ERR_FAILED_UPLOAD = 'Failed to upload file. Issue {}!'
 ERR_WRONG_DATA_FORMAT = 'Wrong data format!'
 ERR_LACKING_QUERY_PARAMS = 'Query parameters not provided!'
 ERR_PLEASE_PROVIDE = 'Please provide {}!'
-ERR_NOT_FOUND = '{} not found!'
 ERR_NOT_FOUND_WITH_ID = '{} not found with ID: {}!'
 ERR_ISSUE = 'Issue: {}!'
 ERR_NOT_AUTHORIZED = 'You have no authority to perform this action!'
-ERR_CONTENT_TOO_SHORT = 'Content must be at least {} words!'
 
 # Filtering content
 ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_USER_INAPPROPRIATE  = 'User information content is inappropriate!'
-ERR_SPELLING = 'Please check spelling errors!'
+ERR_ALREADY_EXISTS = 'Already exists!'
+ERR_NOT_FOUND = 'Not found!'
 
 ########### Authentication Module #################
 

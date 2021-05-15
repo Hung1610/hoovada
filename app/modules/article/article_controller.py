@@ -2,12 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from re import sub
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from bs4 import BeautifulSoup
 from flask import g
 from flask_restx import marshal
 from slugify import slugify
@@ -24,7 +22,7 @@ from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller
 from common.models.vote import ArticleVote, VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
 from common.utils.util import strip_tags
 
@@ -68,24 +66,16 @@ class ArticleController(Controller):
         data['user_id'] = current_user.id
 
         # handling title
-        data['title'] = data['title'].strip()
-        
+        data['title'] = data['title'].strip().capitalize()
         article = Article.query.filter(Article.title == data['title']).first()
         if article:
-            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Article with title" + data['title']))
+            return send_error(message=messages.ERR_ALREADY_EXISTS)
 
-        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
-        if is_sensitive:
+        if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
-        # Handling htm body
-        text = ' '.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
-        if len(text.split()) < 500:
-            return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))
-        is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
-        if is_sensitive:
+        if  is_sensitive(data['html'], True):
             return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
 
         article = self._parse_article(data=data, article=None)
         try:
@@ -99,8 +89,7 @@ class ArticleController(Controller):
 
             db.session.add(article)
             db.session.flush()
-            article_dsl = ESArticle(_id=article.id, html=strip_tags(
-                article.html), title=article.title, user_id=article.user_id, slug=article.slug, created_date=article.created_date, updated_date=article.created_date)
+            article_dsl = ESArticle(_id=article.id, html=strip_tags(article.html), title=article.title, user_id=article.user_id, slug=article.slug, created_date=article.created_date, updated_date=article.created_date)
             article_dsl.save()
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
@@ -222,6 +211,7 @@ class ArticleController(Controller):
             print(e.__str__())
             return send_error(messages.ERR_NOT_LOAD_TOPICS)
 
+
     def get_by_id(self, object_id):
         try:
             if object_id is None:
@@ -230,8 +220,9 @@ class ArticleController(Controller):
                 article = Article.query.filter_by(id=object_id).first()
             else:
                 article = Article.query.filter_by(slug=object_id).first()
+
             if article is None:
-                return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+                return send_error(message=messages.ERR_NOT_FOUND)
             
             article.views_count += 1
             db.session.commit()
@@ -331,7 +322,7 @@ class ArticleController(Controller):
             article = Article.query.filter_by(slug=object_id).first()
         
         if article is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         current_user = g.current_user
         if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
@@ -339,18 +330,13 @@ class ArticleController(Controller):
 
         # Handling title
         if 'title' in data:
-            data['title'] = data['title']
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title']))
-            if is_sensitive:
+            data['title'] = data['title'].strip().capitalize()
+            if is_sensitive(data['title']):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Handling html body
         if 'html' in data:
-            text = ' '.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
-            if len(text.split()) < 500:
-                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('500'))            
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
-            if is_sensitive:
+            if is_sensitive(data['html'], True):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         article = self._parse_article(data=data, article=article)
@@ -389,7 +375,7 @@ class ArticleController(Controller):
                 article = Article.query.filter_by(slug=object_id).first()
 
             if article is None:
-                return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             current_user = g.current_user
             if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
@@ -429,7 +415,7 @@ class ArticleController(Controller):
         
         if 'title' in data:
             try:
-                article.title = data['title'].capitalize()
+                article.title = data['title']
             except Exception as e:
                 print(e)
                 pass
@@ -497,3 +483,5 @@ class ArticleController(Controller):
                     pass
 
         return article
+
+

@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import desc
 
@@ -81,13 +81,13 @@ class ShareController(Controller):
         if len(shares) > 0:
             return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
         else:
-            return send_result(messages.ERR_NOT_FOUND.format(str(article_id)))
+            return send_result(messages.ERR_NOT_FOUND)
 
     def create(self, article_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if not has_permission(current_user.id, PermissionType.SHARE):
             return send_error(code=401, message='You have no authority to perform this action')
 
@@ -102,11 +102,11 @@ class ShareController(Controller):
             try:
                 article = Article.query.filter_by(id=share.article_id).first()
                 if not article:
-                    return send_error(message=messages.ERR_NOT_FOUND.format(str(share.article_id)))
+                    return send_error(message=messages.ERR_NOT_FOUND)
 
                 user_voted = User.query.filter_by(id=article.user_id).first()
                 if not user_voted:
-                    return send_error(message=messages.ERR_NOT_FOUND.format(str(article.user_id)))
+                    return send_error(message=messages.ERR_NOT_FOUND)
 
                 user_voted.article_shared_count += 1
                 if current_user:
@@ -125,7 +125,7 @@ class ShareController(Controller):
         query = ArticleShare.query
         report = query.filter(ArticleShare.id == object_id).first()
         if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+            return send_error(message=messages.ERR_NOT_FOUND)
         else:
             return send_result(data=marshal(report, ShareDto.model_response), message='Success')
 

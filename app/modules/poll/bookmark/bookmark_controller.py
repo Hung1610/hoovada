@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import and_
 
@@ -60,8 +60,9 @@ class PollBookmarkController(Controller):
 
 
     def create(self, poll_id):
+
         data = {}
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['poll_id'] = poll_id
         try:
@@ -94,7 +95,7 @@ class PollBookmarkController(Controller):
         pass
 
     def delete(self, poll_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             bookmark = PollBookmark.query.filter_by(poll_id=poll_id, user_id=user_id).first()

@@ -74,19 +74,6 @@ class Article(Resource):
         controller = ArticleController()
         return controller.get_by_id(object_id=id_or_slug)
 
-    @api.deprecated
-    @token_required
-    @api.expect(_article_dto_request)
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
-    def put(self, id_or_slug):
-        """Delete and re-create new article entity using old article Id or slug"""
-
-        data = api.payload
-        controller = ArticleController()
-        result = controller.update(object_id=id_or_slug, data=data)
-        cache.clear_cache(get_article_key_prefix())
-        return result
-
     @token_required
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
@@ -121,7 +108,7 @@ class ArticleSimilar(Resource):
         controller = ArticleController()
         return controller.get_similar(args=args)
 
-
+@api.deprecated
 @api.route('/update_slug')
 class UpdateArticleSlug(Resource):
     @admin_token_required()

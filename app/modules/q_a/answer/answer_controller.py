@@ -3,12 +3,10 @@
 
 # built-in modules
 from datetime import datetime
-from re import sub
 
 # third-party modules
 import dateutil.parser
-from bs4 import BeautifulSoup
-from flask import current_app, g, request
+from flask import g, request
 from flask_restx import marshal
 
 # own modules
@@ -20,7 +18,7 @@ from common.controllers.controller import Controller
 from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
@@ -98,7 +96,7 @@ class AnswerController(Controller):
         return user_profile, None, user_profile_data_count
 
     def create(self, data):
-        current_user, _ = current_app.get_logged_user(request)
+        
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
@@ -107,29 +105,25 @@ class AnswerController(Controller):
         
         if not 'answer' in data or data['answer'] == "":
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer body'))
-        
+
+        current_user = g.current_user
         user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
         if error_res:
             return error_res
+        
         if field_count > 1:
             return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
+        
         data['user_id'] = current_user.id
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
             return send_error(message=messages.ERR_CREATE_FAILED.format('answer', 'This user has already answered!'), data={'answer_id': answer.id})
 
+        if is_sensitive(data['answer'], True):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+        answer = self._parse_answer(data=data, answer=None)
         try:
-            answer = self._parse_answer(data=data, answer=None)
-            if answer.answer.__str__().strip().__eq__(''):
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-
-            text = ' '.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
-            if len(text.split()) < 100:
-                return send_error(message=messages.ERR_CONTENT_TOO_SHORT.format('100'))
-
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             answer.created_date = datetime.utcnow()
             answer.updated_date = datetime.utcnow()
@@ -187,6 +181,7 @@ class AnswerController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format('Answer', str(e)))
 
+
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
@@ -195,9 +190,11 @@ class AnswerController(Controller):
 
         file_type = request.form.get('file_type', None)
         media_file = request.files.get('file', None)
+
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('answer', object_id))
+        
         question = answer.question
 
         if not media_file:
@@ -245,6 +242,7 @@ class AnswerController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
+        
         if params.get('user_id'):
             get_my_own = False
             if g.current_user:
@@ -252,8 +250,10 @@ class AnswerController(Controller):
                     get_my_own = True
             if not get_my_own:
                 query = query.filter(db.func.coalesce(Answer.is_anonymous, False) != True)
+        
         if params.get('from_date'):
             query = query.filter(Answer.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        
         if params.get('to_date'):
             query = query.filter(Answer.created_date <= dateutil.parser.isoparse(params.get('to_date')))
 
@@ -298,7 +298,7 @@ class AnswerController(Controller):
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
@@ -313,41 +313,33 @@ class AnswerController(Controller):
 
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-            
-        try:
-            answer = Answer.query.filter_by(id=object_id).first()
-            if answer is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
 
-            current_user, _ = current_app.get_logged_user(request)
-            user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
-            if error_res:
-                return error_res
+        answer = Answer.query.filter_by(id=object_id).first()
+        if answer is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
 
-            if field_count > 1:
-                return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
-            
-            if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
-                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        current_user = g.current_user
+        user_profile, error_res, field_count = self._validate_user_profile(current_user, data)
+        if error_res:
+            return error_res
 
-            answer = self._parse_answer(data=data, answer=answer)
-            if answer.answer.__str__().strip().__eq__(''):
+        if field_count > 1:
+            return send_error(message=messages.ERR_ISSUE.format('Only maximum of 1 personal information is allowed!'))
+        
+        if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        if 'answer' in data:
+            if data['answer'] == '':
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            
-            text = ''.join(BeautifulSoup(answer.answer, "html.parser").stripped_strings)
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
-            if is_sensitive:
+            if is_sensitive(data['answer'], True):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-            
-            if answer.question_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question_id'))
-            
-            if answer.user_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+
+        answer = self._parse_answer(data=data, answer=answer)
+        try:
 
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
-
             if user_profile:
                 if user_profile[1] == 'UserLanguage':
                     answer.user_language_id = user_profile[0].id
@@ -403,9 +395,9 @@ class AnswerController(Controller):
         try:
             answer = Answer.query.filter_by(id=object_id).first()
             if answer is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             if answer.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
@@ -421,6 +413,7 @@ class AnswerController(Controller):
     def _parse_answer(self, data, answer=None):
         if answer is None:
             answer = Answer()
+
         if 'accepted' in data:
             try:
                 answer.accepted = bool(data['accepted'])
@@ -429,7 +422,11 @@ class AnswerController(Controller):
                 pass
         
         if 'answer' in data:
-            answer.answer = data['answer']
+            try:
+                answer.answer = data['answer']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'user_id' in data:
             try:
@@ -437,6 +434,7 @@ class AnswerController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'question_id' in data:
             try:
                 answer.question_id = int(data['question_id'])

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from bs4 import BeautifulSoup
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
@@ -30,5 +32,10 @@ def check_sensitive(text):
 
     return result
 
-#if __name__ == '__main__':
-  #print(sensitive_words.__len__())
+def is_sensitive(text, is_html=False):
+  if is_html:
+    text = ' '.join(BeautifulSoup(text, "html.parser").stripped_strings)
+
+  return check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
+
+

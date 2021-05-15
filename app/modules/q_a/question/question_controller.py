@@ -3,12 +3,10 @@
 
 # built-in modules
 import json
-from re import sub
 from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from bs4 import BeautifulSoup
 from flask import current_app, g, request
 from flask_restx import marshal
 from slugify import slugify
@@ -16,13 +14,14 @@ from sqlalchemy import desc, func, or_, text
 
 # own modules
 from app.constants import messages
+from common.utils.types import UserRole
 from common.db import db
 from common.es import get_model
 from common.cache import cache
 from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.utils.util import strip_tags
 from common.dramatiq_producers import update_seen_questions
 from app.modules.q_a.question.question_dto import QuestionDto
@@ -66,24 +65,22 @@ class QuestionController(Controller):
         data['user_id'] = current_user.id
 
         # Handling question title
-        data['title'] = data['title'].strip()
+        data['title'] = data['title'].strip().capitalize()
         if not data['title'].endswith('?'):
-            return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)        
-        only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])        
-        if check_sensitive(only_words):
+            return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+        if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Handling question body (if provided)
         if 'question' in data:
-            text = ' '.join(BeautifulSoup(data['question'], "html.parser").stripped_strings)
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
-            if check_sensitive(only_words):
+            if is_sensitive(data['question'], True):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)        
 
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
         if question is not None:
-            return send_error(message=messages.MSG_ALREADY_EXISTS.format("Question"))   
+            return send_error(message=messages.ERR_ALREADY_EXISTS)   
 
         question = self._parse_question(data=data, question=None)
         try:     
@@ -95,9 +92,9 @@ class QuestionController(Controller):
             question.slug = slugify(question.title)
             db.session.add(question)
             db.session.flush()
+
             # index to ES server
-            question_dsl = ESQuestion(_id=question.id, question=strip_tags(
-                question.question), title=question.title, user_id=question.user_id, slug=question.slug, created_date=question.created_date, updated_date=question.created_date)
+            question_dsl = ESQuestion(_id=question.id, question=strip_tags(question.question), title=question.title, user_id=question.user_id, slug=question.slug, created_date=question.created_date, updated_date=question.created_date)
             question_dsl.save()
 
             db.session.commit()
@@ -299,7 +296,7 @@ class QuestionController(Controller):
                 question_user_invite.status = 2
                 result = question_user_invite._asdict()
             else:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('invited question', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
             db.session.commit()
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
         
@@ -512,9 +509,23 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(slug=object_id).first()
             
             if question is None or question.is_deleted is True:
-                return send_error(message=messages.ERR_NOT_FOUND.format("Question"))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             data['question_id'] = question.id
+
+            if 'title' in data:
+                data['title'] = data['title'].strip().capitalize()
+                
+                if not data['title'].endswith('?'):
+                    return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+                if is_sensitive(data['title']):
+                    return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)       
+
+            if 'question' in data:
+                if is_sensitive(data['question'], True):
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)               
+
             proposal_data = question._asdict()
             proposal_data['question_id'] = question.id
             proposal_data['topics'] = [topic.id for topic in question.topics]
@@ -523,20 +534,6 @@ class QuestionController(Controller):
 
             if proposal.topics.count('1') > 5:
                 return send_error(message='Question cannot have more than 5 topics.')
-
-            if not proposal.title.strip().endswith('?'):
-                return send_error(message='Please end question title with question mark ("?")')
-
-            title = data['title'].strip()
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", title)
-            if check_sensitive(only_words):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)            
-
-            if proposal.question:
-                text = ' '.join(BeautifulSoup(proposal.question, "html.parser").stripped_strings)
-                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
-                if check_sensitive(only_words):
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
             proposal.last_activity = datetime.utcnow()
             proposal.slug = slugify(proposal.title)
@@ -593,22 +590,17 @@ class QuestionController(Controller):
         
         # Handling question title
         if 'title' in data:
-            data['title'] = data['title'].strip()
+            data['title'] = data['title'].strip().capitalize()
             if not data['title'].endswith('?'):
-                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)        
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", data['title'])        
-            if check_sensitive(only_words):
+                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+            if is_sensitive(data['title']):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Handling question body (if provided)
         if 'question' in data:
-            text = ' '.join(BeautifulSoup(data['question'], "html.parser").stripped_strings)
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text)
-            if check_sensitive(only_words):
+            if is_sensitive(data['question'], True):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)      
-
-        #handling user
-        current_user = g.current_user
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
@@ -616,7 +608,12 @@ class QuestionController(Controller):
             question = Question.query.filter_by(slug=object_id).first()
         
         if question is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format(str(object_id)))
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        #handling user
+        current_user = g.current_user
+        if not UserRole.is_admin(current_user.admin):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         question = self._parse_question(data=data, question=question)
         try:
@@ -630,8 +627,7 @@ class QuestionController(Controller):
             db.session.flush()
             # index to ES server
             question_dsl = ESQuestion(_id=question.id)
-            question_dsl.update(question=strip_tags(
-                question.question), title=question.title, slug=question.slug, updated_date=question.updated_date)
+            question_dsl.update(question=strip_tags(question.question), title=question.title, slug=question.slug, updated_date=question.updated_date)
 
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
@@ -666,8 +662,13 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(slug=object_id).first()
             
             if question is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
-            
+                return send_error(message=messages.ERR_NOT_FOUND)
+
+            #handling user
+            current_user = g.current_user
+            if not UserRole.is_admin(current_user.admin):
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
             else:
                 db.session.delete(question)
 
@@ -688,7 +689,11 @@ class QuestionController(Controller):
             question = Question()
 
         if 'title' in data:
-            question.title = data['title'].capitalize()
+            try:
+                question.title = data['title']
+            except Exception as e:
+                print(e.__str__())
+                pass            
 
         if 'question' in data:
             try:
@@ -790,6 +795,7 @@ class QuestionController(Controller):
 
         return question
 
+
     def _parse_proposal(self, data, proposal=None):
         if proposal is None:
             proposal = QuestionProposal()
@@ -797,7 +803,11 @@ class QuestionController(Controller):
         proposal.question_id = data['question_id']
         
         if 'title' in data:
-            proposal.title = data['title'].capitalize()
+            try:
+                proposal.title = data['title']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'question' in data:
             try:
@@ -805,6 +815,7 @@ class QuestionController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'slug' in data:
             try:
                 proposal.slug = data['slug']
@@ -911,7 +922,8 @@ class QuestionController(Controller):
             proposal.topics = topics
 
         return proposal
-        
+
+
     def update_slug(self):
         questions = Question.query.all()
         try:

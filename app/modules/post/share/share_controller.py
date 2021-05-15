@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import desc
 
@@ -86,12 +86,13 @@ class ShareController(Controller):
         if len(shares) > 0:
             return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
         else:
-            return send_result(messages.ERR_NOT_FOUND.format('Post Share'))
+            return send_result(messages.ERR_NOT_FOUND)
 
     def create(self, post_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        current_user, _ = current_app.get_logged_user(request)
+
+        current_user = g.current_user
 
         if not has_permission(current_user.id, PermissionType.SHARE):
             return send_error(code=401, message='You have no authority to perform this action')
@@ -105,10 +106,12 @@ class ShareController(Controller):
             try:
                 post = Post.query.filter_by(id=share.post_id).first()
                 if not post:
-                    return send_error(message=messages.ERR_NOT_FOUND.format('Post'))
+                    return send_error(message=messages.ERR_NOT_FOUND)
+                
                 user_shared = User.query.filter_by(id=post.user_id).first()
                 if not user_shared:
-                    return send_error(message=messages.ERR_NOT_FOUND.format('User'))
+                    return send_error(message=messages.ERR_NOT_FOUND)
+
                 user_shared.post_shared_count += 1
                 if current_user:
                     share.user_id = current_user.id
@@ -127,7 +130,7 @@ class ShareController(Controller):
         query = PostShare.query
         share = query.filter(PostShare.id == object_id).first()
         if share is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Post Share'))
+            return send_error(message=messages.ERR_NOT_FOUND)
         else:
             return send_result(data=marshal(share, ShareDto.model_response), message='Success')
 

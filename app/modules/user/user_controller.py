@@ -448,7 +448,7 @@ class UserController(Controller):
 
                 user_mention_info = User.query.filter_by(id=user_mention_id).first()
                 if not user_mention_info:
-                    return send_error(message=messages.ERR_NOT_FOUND.format(user_mention_id))
+                    return send_error(message=messages.ERR_NOT_FOUND)
                 
                 push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
                                                                                                 user_mention_info.display_name),

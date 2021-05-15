@@ -40,7 +40,6 @@ class AnswerFile(Resource):
 class AnswerList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
-    #@cache.cached(query_string=True)
     def get(self):
         """Get the list of answers"""
 
@@ -50,7 +49,6 @@ class AnswerList(Resource):
 
     @token_required
     @api.expect(answer_request)
-    # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def post(self):
         """Create new answer"""
@@ -64,7 +62,6 @@ def get_article_proposal_key_prefix():
 
 @api.route('/<int:id>')
 class Answer(Resource):
-    # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     @cache.cached(key_prefix=get_article_proposal_key_prefix)
     def get(self, id):
@@ -75,7 +72,6 @@ class Answer(Resource):
 
     @token_required
     @api.expect(answer_request)
-    # @api.marshal_with(answer)
     @api.response(code=200, model=answer_response, description='Model for answer response.')
     def patch(self, id):
         """Update the existing answer by answer id"""

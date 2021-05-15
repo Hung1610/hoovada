@@ -61,7 +61,7 @@ class ArticleBookmarkController(Controller):
         
         bookmark = ArticleBookmark.query.filter_by(id=object_id).first()
         if bookmark is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Article Bookmark'))
+            return send_error(message=messages.ERR_NOT_FOUND)
         
         return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
 
@@ -74,7 +74,7 @@ class ArticleBookmarkController(Controller):
         try:
             bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == data['user_id'], ArticleBookmark.article_id == data['article_id']).first()
             if bookmark:
-                return send_result(message=messages.MSG_ALREADY_EXISTS.format("Article Bookmark"))
+                return send_result(message=messages.ERR_ALREADY_EXISTS)
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -100,7 +100,7 @@ class ArticleBookmarkController(Controller):
         try:
             bookmark = ArticleBookmark.query.filter_by(article_id=article_id, user_id=user_id).first()
             if bookmark is None:
-                return send_error(message=messages.ERR_NOT_FOUND.format('Article Bookmark'))
+                return send_error(message=messages.ERR_NOT_FOUND)
             else:
                 db.session.delete(bookmark)
                 db.session.commit()

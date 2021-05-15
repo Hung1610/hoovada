@@ -4,15 +4,13 @@
 # built-in modules
 import json
 from datetime import datetime
-from re import sub
 
 # third-party modules
 import dateutil.parser
-from bs4 import BeautifulSoup
-from flask import current_app, g, request
+from flask import g, request
 from flask_restx import marshal
 from slugify import slugify
-from sqlalchemy import and_, desc, func, or_, text
+from sqlalchemy import and_, desc
 
 # own modules
 from app.dramatiq_consumers import update_seen_posts
@@ -23,7 +21,7 @@ from common.controllers.controller import Controller
 from common.enum import VotingStatusEnum
 from common.models import UserFollow, UserFriend
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.utils.wasabi import upload_file
 from common.utils.util import encode_file_name
 from common.utils.file_handler import get_file_name_extension
@@ -48,20 +46,17 @@ class PostController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if not 'html' in data or len(data['html']) == 0:
+        if not 'html' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('post content'))
 
-        current_user, _ = current_app.get_logged_user(request)
+        if is_sensitive(data['html'], True):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+        current_user = g.current_user
         data['user_id'] = current_user.id
+
+        post = self._parse_post(data=data, post=None)
         try:
-
-            post = self._parse_post(data=data, post=None)
-
-            text = ''.join(BeautifulSoup(post.html, "html.parser").stripped_strings)
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
             post.created_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
             db.session.add(post)
@@ -78,7 +73,7 @@ class PostController(Controller):
                 return send_result(message=messages.MSG_CREATE_SUCCESS.format('Post'),data=marshal(result, PostDto.model_post_response))
             except Exception as e:
                 print(e)
-                return send_result(data=marshal(post, PostDto.model_post_response), message=messages.MSG_CREATE_SUCCESS_WITH_ISSUE.format('Post', e))
+                return send_result(data=marshal(post, PostDto.model_post_response), message=messages.MSG_CREATE_SUCCESS.format('Post'))
         
         except Exception as e:
             db.session.rollback()
@@ -187,14 +182,16 @@ class PostController(Controller):
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Post ID"))
+
         if 'file' not in request.files:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
         file_type = request.form.get('file_type', None)
         media_file = request.files.get('file', None)
+
         post = Post.query.filter_by(id=object_id).first()
         if post is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('post', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         if not media_file:
             return send_error(message=messages.ERR_NO_FILE)
@@ -232,8 +229,10 @@ class PostController(Controller):
             post = Post.query.filter_by(id=object_id).first()
         else:
             post = Post.query.filter_by(slug=object_id).first()
+        
         if post is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
+        
         else:
             try:
                 post.views_count += 1
@@ -246,8 +245,10 @@ class PostController(Controller):
                 pass
 
     def update(self, object_id, data):
+        
         if object_id is None:
             return send_error(message=messages.ERR_LACKING_QUERY_PARAMS)
+        
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
@@ -257,22 +258,13 @@ class PostController(Controller):
             post = Post.query.filter_by(slug=object_id).first()
             
         if post is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
-
-        #if is_put:
-        #    db.session.delete(post)
-        #    post_dsl = ESPost(_id=post.id)
-        #    post_dsl.delete()
-        #    return self.create(data)
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         if 'html' in data:
-            text = ''.join(BeautifulSoup(data['html'], "html.parser").stripped_strings)
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", text))
-            if is_sensitive:
+            if is_sensitive(data['html'], True):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)            
 
-        post= self._parse_post(data=data, post=post)
-
+        post = self._parse_post(data=data, post=post)
         try:
             post.updated_date = datetime.utcnow()
             post.last_activity = datetime.utcnow()
@@ -292,20 +284,22 @@ class PostController(Controller):
 
 
     def delete(self, object_id):
+
+        if object_id.isdigit():
+            post = Post.query.filter_by(id=object_id).first()
+        else:
+            post = Post.query.filter_by(slug=object_id).first()
+
+        if post is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
         try:
-            if object_id.isdigit():
-                post = Post.query.filter_by(id=object_id).first()
-            else:
-                post = Post.query.filter_by(slug=object_id).first()
-            if post is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Post', object_id))
-            else:
-                db.session.delete(post)
-                # index to ES server
-                post_dsl = ESPost(_id=post.id)
-                post_dsl.delete()
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
+            db.session.delete(post)
+            # index to ES server
+            post_dsl = ESPost(_id=post.id)
+            post_dsl.delete()
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
         
         except Exception as e:
             db.session.rollback()
@@ -334,7 +328,7 @@ class PostController(Controller):
             if page > 0 :
                 page = page - 1
 
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
 
             query = db.session.query(Post)\
             .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\
@@ -362,8 +356,12 @@ class PostController(Controller):
                 pass
 
         if 'html' in data:
-            post.html = data['html']
-            
+            try:
+                post.html = data['html']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'is_anonymous' in data:
             try:
                 post.is_anonymous = bool(data['is_anonymous'])

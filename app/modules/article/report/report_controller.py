@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -62,8 +62,11 @@ class ReportController(Controller):
     def create(self, article_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if 'description' not in data:
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("description"))
         
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:
@@ -83,7 +86,7 @@ class ReportController(Controller):
         report = query.filter(ArticleReport.id == object_id).first()
         
         if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
+            return send_error(message=messages.ERR_NOT_FOUND)
         
         return send_result(data=marshal(report, ReportDto.model_response), message='Success')
 
@@ -99,19 +102,27 @@ class ReportController(Controller):
 
         if report is None:
             report = ArticleReport()
+
         if 'user_id' in data:
             try:
                 report.user_id = int(data['user_id'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'article_id' in data:
             try:
                 report.article_id = int(data['article_id'])
             except Exception as e:
+                print(e.__str__())
                 pass
         
         if 'description' in data:
-            report.description = data['description']
+            try:
+                report.description = data['description']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'report_type' in data:
             try:

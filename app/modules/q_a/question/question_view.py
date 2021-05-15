@@ -208,6 +208,8 @@ class QuestionApprove(Resource):
         controller = QuestionController()
         return controller.approve_proposal(object_id=id)
 
+
+@api.deprecated
 @api.route('/update_slug')
 class UpdateSlug(Resource):
     @admin_token_required()

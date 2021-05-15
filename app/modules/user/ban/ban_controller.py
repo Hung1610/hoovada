@@ -46,12 +46,12 @@ class UserBanController(Controller):
         if bans is not None and len(bans) > 0:
             return send_result(data=marshal(bans, UserBanDto.model_response), message='Success')
         else:
-            return send_result(message=messages.ERR_NOT_FOUND.format('Ban'))
+            return send_result(message=messages.ERR_NOT_FOUND)
 
     def create(self, user_id, data):
         user = User.query.get(user_id)
         if not user:
-            return send_error(message=messages.ERR_NOT_FOUND.format('User'))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         current_user, _ = current_app.get_logged_user(request)
 

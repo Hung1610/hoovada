@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import desc
 
@@ -85,12 +85,13 @@ class ShareController(Controller):
         if len(shares) > 0:
             return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
         else:
-            return send_result(messages.ERR_NOT_FOUND.format('Poll Share'))
+            return send_result(messages.ERR_NOT_FOUND)
 
     def create(self, poll_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        current_user, _ = current_app.get_logged_user(request)
+
+        current_user = g.current_user
         if not has_permission(current_user.id, PermissionType.SHARE):
             return send_error(code=401, message='You have no authority to perform this action')
 
@@ -105,10 +106,12 @@ class ShareController(Controller):
             try:
                 poll = Poll.query.filter_by(id=share.poll_id).first()
                 if not poll:
-                    return send_error(message=messages.ERR_NOT_FOUND.format('Poll'))
+                    return send_error(message=messages.ERR_NOT_FOUND)
+
                 user_shared = User.query.filter_by(id=poll.user_id).first()
                 if not user_shared:
-                    return send_error(message=messages.ERR_NOT_FOUND.format('User'))
+                    return send_error(message=messages.ERR_NOT_FOUND)
+
                 user_shared.poll_shared_count += 1
                 if current_user:
                     share.user_id = current_user.id
@@ -125,7 +128,7 @@ class ShareController(Controller):
         query = PollShare.query
         share = query.filter(PollShare.id == object_id).first()
         if share is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Poll Share'))
+            return send_error(message=messages.ERR_NOT_FOUND)
         else:
             return send_result(data=marshal(share, ShareDto.model_response), message='Success')
 
@@ -141,45 +144,63 @@ class ShareController(Controller):
             try:
                 share.user_id = int(data['user_id'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'poll_id' in data:
             try:
                 share.poll_id = int(data['poll_id'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'facebook' in data:
             try:
                 share.facebook = bool(data['facebook'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'twitter' in data:
             try:
                 share.twitter = bool(data['twitter'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'linkedin' in data:
             try:
                 share.linkedin = bool(data['linkedin'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'zalo' in data:
             try:
                 share.zalo = bool(data['zalo'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'vkontakte' in data:
             try:
                 share.vkontakte = bool(data['vkontakte'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'mail' in data:
             try:
                 share.mail = bool(data['mail'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'link_copied' in data:
             try:
                 share.link_copied = bool(data['link_copied'])
             except Exception as e:
+                print(e.__str__())
                 pass
+                
         return share

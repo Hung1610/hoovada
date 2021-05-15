@@ -6,7 +6,7 @@ import dateutil.parser
 from datetime import datetime
 
 # third-party modules
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -65,12 +65,16 @@ class ReportController(Controller):
     def create(self, comment_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        if 'description' not in data:
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("description"))
         
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['comment_id'] = comment_id
+
+        report = self._parse_report(data=data, report=None)       
         try:
-            report = self._parse_report(data=data, report=None)
+            
             report.created_date = datetime.utcnow()
             db.session.add(report)
             db.session.commit()
@@ -86,7 +90,7 @@ class ReportController(Controller):
         report = query.filter(PollCommentReport.id == object_id).first()
         
         if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format("Report"))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         return send_result(data=marshal(report, PollCommentReportDto.model_response), message='Success')
 
@@ -102,16 +106,21 @@ class ReportController(Controller):
 
         if report is None:
             report = PollCommentReport()
+
         if 'user_id' in data:
             try:
                 report.user_id = int(data['user_id'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'comment_id' in data:
             try:
                 report.comment_id = int(data['comment_id'])
             except Exception as e:
+                print(e.__str__())
                 pass
+
         if 'report_type' in data:
             try:
                 report_type = int(data['report_type'])
@@ -119,7 +128,12 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'description' in data:
-            report.description = data['description']
+            try:
+                report.description = data['description']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         return report

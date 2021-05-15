@@ -285,7 +285,7 @@ class TopicController(Controller):
             user_id = data['user_id']
             user = User.query.filter_by(id=user_id).first()
             if not user:
-                return send_error(message=messages.ERR_NOT_FOUND.format('User'))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user
@@ -318,7 +318,7 @@ class TopicController(Controller):
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             user = User.query.filter_by(id=user_id).first()
             if not user:
-                return send_error(message=messages.ERR_NOT_FOUND.format('User'))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             g.endorsed_topic_id = object_id
             current_user = g.current_user

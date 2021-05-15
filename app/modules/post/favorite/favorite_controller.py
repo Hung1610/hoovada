@@ -72,13 +72,13 @@ class FavoriteController(Controller):
 
     def create(self, post_id):
         data = {}
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['post_id'] = post_id
         post = Post.query.get(post_id)
         
         if not post:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Post'))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         if not post.allow_favorite:
             return send_error(message=messages.ERR_ISSUE.format('Post does not allow voting.'))
@@ -103,7 +103,7 @@ class FavoriteController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Id'))
         favorite = PostFavorite.query.filter_by(id=object_id).first()
         if favorite is None:
-            return send_error(message=messages.ERR_NOT_FOUND.format('Post Favorite'))
+            return send_error(message=messages.ERR_NOT_FOUND)
         else:
             return send_result(data=marshal(favorite, FavoriteDto.model_response), message='Success')
 
@@ -111,12 +111,12 @@ class FavoriteController(Controller):
         pass
 
     def delete(self, post_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             favorite = PostFavorite.query.filter_by(post_id=post_id, user_id=user_id).first()
             if favorite is None:
-                return send_error(message=messages.ERR_NOT_FOUND.format('Post Favorite'))
+                return send_error(message=messages.ERR_NOT_FOUND)
             else:
                 db.session.delete(favorite)
                 db.session.commit()
@@ -128,6 +128,7 @@ class FavoriteController(Controller):
     def _parse_favorite(self, data, favorite=None):
         if favorite is None:
             favorite = PostFavorite()
+            
         if 'user_id' in data:
             try:
                 favorite.user_id = int(data['user_id'])
@@ -140,10 +141,5 @@ class FavoriteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        # if 'favorite_date' in data:
-        #     try:
-        #         favorite.favorite_date = dateutil.parser.isoparse(data['favorite_date'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
+
         return favorite
