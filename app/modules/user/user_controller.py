@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # build-in modules
-import json
 from datetime import datetime
 from http import HTTPStatus
 
@@ -40,6 +39,7 @@ SocialAccount = db.get_model('SocialAccount')
 Reputation = db.get_model('Reputation')
 Topic = db.get_model('Topic')
 ESUser = get_model('User')
+ESUserFriend = get_model('UserFriend')
 
 
 class UserController(Controller):
@@ -238,6 +238,22 @@ class UserController(Controller):
             user_dsl = ESUser(_id=user.id)
             user_dsl.update(display_name=user.display_name, email=user.email,
                 gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
+            # update display_name and profile_pic_url to search
+            try:
+                user_friends = UserFriend.query.filter(\
+                    (UserFriend.friended_id == user.id) |\
+                    (UserFriend.friend_id == user.id) \
+                ).all()
+                for user_friend in user_friends:
+                    user_friend_dsl = ESUserFriend(_id=user_friend.id)
+                    user_friend_dsl_doc = user_friend_dsl.get(id=user_friend.id)
+                    if user_friend_dsl_doc and user_friend_dsl_doc.friend_id == user.id:
+                        user_friend_dsl.update(friend_display_name=user.display_name, friend_profile_pic_url=user.profile_pic_url)
+                    if user_friend_dsl_doc and user_friend_dsl_doc.friend_id == user.id:
+                        user_friend_dsl.update(friended_display_name=user.display_name, friended_profile_pic_url=user.profile_pic_url)
+            except Exception as e:
+                print(e.__str__())
+                pass
             db.session.commit()
             return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
         
