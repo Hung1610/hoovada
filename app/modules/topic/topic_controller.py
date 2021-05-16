@@ -99,46 +99,44 @@ class TopicController(Controller):
         
         if not 'name' in data or data['name'] == "":
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('topic name'))
- 
-        topic_name = data['name']
-        if is_sensitive(topic_name):
+
+        data['name'] = data['name'].strip().capitalize()
+        if is_sensitive(data['name']):
             return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         if not 'parent_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('parent_id'))
 
-        try:
-            # only allowed Vietnamese or English topic names
-            parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
-            if parent_topic is not None and parent_topic.name == 'Những lĩnh vực khác':
-                spelling_errors = check_spelling(data['name'])
-                if len(spelling_errors) > 0:
-                    return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
-           
-            # check topic already exists
-            topic = Topic.query.filter(Topic.name == data['name']).first()
-
-            current_user = g.current_user
-            data['user_id'] = current_user.id
-
-            if not topic:  # the topic does not exist
-                topic = self._parse_topic(data=data, topic=None)
-                topic.created_date = datetime.today()
-
-                # capitalize first letter
-                topic.name = topic.name.capitalize()
-                db.session.add(topic)
-                db.session.flush()
-                topic_dsl = ESTopic(_id=topic.id, description=topic.description, user_id=topic.user_id, name=topic.name, slug=topic.slug, is_fixed=0, created_date=topic.created_date)
-                topic_dsl.save()
-                db.session.commit()
-                controller = TopicBookmarkController()
-                controller.create(topic_id=topic.id)
-                return send_result(message='Topic was created successfully.', data=marshal(topic, TopicDto.model_topic_response))
-            
-            else:  # topic already exist
-                return send_error(message='The topic with name {} already exist'.format(data['name']))
+        # only allowed Vietnamese or English topic names
+        parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
+        if parent_topic is not None and parent_topic.name == 'Những lĩnh vực khác':
+            spelling_errors = check_spelling(data['name'])
+            if len(spelling_errors) > 0:
+                return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
+       
+        # check topic already exists
+        topic = Topic.query.filter(Topic.name == data['name']).first()
+        if topic is not None:
+            return send_error(message='The topic with name {} already exist'.format(data['name']))
         
+        current_user = g.current_user
+        data['user_id'] = current_user.id
+
+        try:
+            topic = self._parse_topic(data=data, topic=None)
+            topic.created_date = datetime.today()
+            db.session.add(topic)
+            db.session.flush()
+
+            topic_dsl = ESTopic(_id=topic.id, description=topic.description, user_id=topic.user_id, name=topic.name, slug=topic.slug, is_fixed=0, created_date=topic.created_date)
+            topic_dsl.save()
+            db.session.commit()
+
+            controller = TopicBookmarkController()
+            controller.create(topic_id=topic.id)
+            
+            return send_result(message='Topic was created successfully.', data=marshal(topic, TopicDto.model_topic_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not create topic {}'.format(str(e)))
@@ -218,32 +216,30 @@ class TopicController(Controller):
                 message='The topic with the ID {} does not contain any sub-topics (Hint: send the ID of the fixed topic)')
 
     def update(self, object_id, data):
+        if object_id.isdigit():
+            topic = Topic.query.filter_by(id=object_id).first()
+        else:
+            topic = Topic.query.filter_by(slug=object_id).first()
+        
+        if not topic:
+            return send_error(message='Topic with the ID {} not found.'.format(object_id))
+
+        if 'name' in data:
+            data['name'].strip().capitalize()
+            if is_sensitive(data['name']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
         try:
-            if object_id.isdigit():
-                topic = Topic.query.filter_by(id=object_id).first()
-            else:
-                topic = Topic.query.filter_by(slug=object_id).first()
-            if not topic:
-                return send_error(message='Topic with the ID {} not found.'.format(object_id))
-            elif topic.is_fixed:
-                return send_error(message='Could not update for fixed topic.')
-            else:
-                topic = self._parse_topic(data=data, topic=topic)
+            topic = self._parse_topic(data=data, topic=topic)
+            topic_dsl = ESTopic(_id=topic.id)
+            topic_dsl.update(description=topic.description, name=topic.name, slug=topic.slug)
+            db.session.commit()
 
-                if is_sensitive(topic.name):
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
-                # capitalize first letter
-                topic.name = topic.name.capitalize()
-                topic_dsl = ESTopic(_id=topic.id)
-                topic_dsl.update(description=topic.description, name=topic.name, slug=topic.slug)
-                db.session.commit()
-
-                current_user = g.current_user 
-                result = topic._asdict()
-                bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
-                result['is_bookmarked_by_me'] = True if bookmark else False
-                return send_result(message='Update successfully', data=marshal(result, TopicDto.model_topic_response))
+            current_user = g.current_user 
+            result = topic._asdict()
+            bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
+            result['is_bookmarked_by_me'] = True if bookmark else False
+            return send_result(message='Update successfully', data=marshal(result, TopicDto.model_topic_response))
 
         except Exception as e:
             print(e.__str__())
@@ -390,6 +386,7 @@ class TopicController(Controller):
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Topic ID"))
+            
         if 'file' not in request.files:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
@@ -447,14 +444,20 @@ class TopicController(Controller):
     def _parse_topic(self, data, topic=None):
         if topic is None:
             topic = Topic()
+
         if 'parent_id' in data:
             try:
                 topic.parent_id = int(data['parent_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'name' in data:
-            topic.name = data['name']
+            try:
+                topic.name = data['name']
+            except Exception as e:
+                print(e.__str__())
+                pass
         
         if 'user_id' in data:
             try:
@@ -472,12 +475,24 @@ class TopicController(Controller):
                 pass
 
         if 'description' in data:
-            topic.description = data['description']
+            try:
+                topic.description = data['description']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'is_nsfw' in data: 
             pass
             try:
                 topic.is_nsfw = bool(data['is_nsfw'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'file_url' in data: 
+            pass
+            try:
+                topic.file_url = data['file_url']
             except Exception as e:
                 print(e.__str__())
                 pass

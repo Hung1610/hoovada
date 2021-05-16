@@ -9,7 +9,6 @@ from datetime import datetime
 import dateutil.parser
 from flask import g, request
 from flask_restx import marshal
-from slugify import slugify
 from sqlalchemy import and_, desc
 
 # own modules

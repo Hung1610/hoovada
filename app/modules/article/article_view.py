@@ -50,6 +50,7 @@ class ArticleList(Resource):
         return controller.create(data=data)
 
 
+@api.deprecated
 @api.route('/all/count')
 @api.expect(_article_get_params)
 class ArticleListCount(Resource):

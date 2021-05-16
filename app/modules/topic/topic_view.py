@@ -28,7 +28,7 @@ upload_parser = TopicDto.upload_parser
 @api.route('/<string:topic_id_or_slug>/file')
 @api.doc(params={'topic_id_or_slug': 'The topic id or slug'})
 class TopicFile(Resource):
-    @admin_token_required()
+    @token_required
     @api.expect(upload_parser)
     @api.response(code=200, model=topic_response, description='Model for answer response.')
     def post(self, topic_id_or_slug):
@@ -61,6 +61,7 @@ class TopicList(Resource):
         return controller.create(data=data)
 
 
+@api.deprecated
 @api.route('/all/count')
 @api.expect(parser)
 class TopicListCount(Resource):
@@ -81,7 +82,6 @@ class Topic(Resource):
         controller = TopicController()
         return controller.get_by_id(object_id=topic_id_or_slug)
 
-
     @token_required
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
@@ -91,6 +91,7 @@ class Topic(Resource):
         data = api.payload
         controller = TopicController()
         return controller.update(object_id=topic_id_or_slug, data=data)
+
 
     @admin_token_required()
     def delete(self, topic_id_or_slug):
@@ -131,6 +132,7 @@ class EndorseUserTopic(Resource):
         controller = TopicController()
         return controller.create_endorsed_users(object_id=topic_id_or_slug, data=data)
 
+
 @api.route('/<string:topic_id_or_slug>/endorsed_users/<int:user_id>')
 class EndorseUserTopicDelete(Resource):
     @token_required
@@ -162,6 +164,7 @@ class CreateFixedTopic(Resource):
         controller = TopicController()
         return controller.create_fixed_topics()
 
+
 @api.deprecated
 @api.route('/update_slug', doc=False)
 class UpdateTopicSlug(Resource):
@@ -171,6 +174,7 @@ class UpdateTopicSlug(Resource):
 
         controller = TopicController()
         return controller.update_slug()
+
 
 @api.deprecated
 @api.route('/update_color', doc=False)

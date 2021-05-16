@@ -60,6 +60,7 @@ class UserMention(Resource):
         return controller.notify_user_mention(args)
 
 
+@api.deprecated
 @api.route('/all/count')
 @api.expect(user_get_parser)
 class UserListCount(Resource):
