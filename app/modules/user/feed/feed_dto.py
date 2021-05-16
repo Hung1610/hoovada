@@ -215,13 +215,11 @@ class UserFeedDto(Dto):
 		'data' : fields.Nested(model_feed_all_data_details_response, description='Feed all data', required=False)
 	})
 
-
 	model_article_feed_response = api.model('article_feed_response', {
 		'article_list': fields.List(fields.Integer(required=False), required=False),
 		'blog_name': fields.String(required=False),
 		'total': fields.Integer(required=False),
 	})
-
 
 	model_feed_details_response = api.model('feed_details_response', {
 		'feed_type': fields.String(required=False),

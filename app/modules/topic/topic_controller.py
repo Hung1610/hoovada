@@ -16,7 +16,7 @@ from common.db import db
 from app.constants import messages
 from app.modules.topic.topic_dto import TopicDto
 from common.controllers.controller import Controller
-from common.utils.file_handler import append_id, get_file_name_extension
+from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import is_sensitive
 from common.utils.util import encode_file_name
