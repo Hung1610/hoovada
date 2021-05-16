@@ -10,11 +10,11 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-sensitive_words = ['du me', 'đu me', 'đủ mẹ', 'đủ má', 'đéo', 'địt', 'dâm đãng', 'làm tình',
-                   'cuto', 'chat sex', 'loạn luân', 'giao lưu sex', 'nc sex', 'nc dâm',
-                   'chat xxx', 'phá trinh', 'tùm gái', 'tìm trai', 'tìm bạn nữ', 
-                   'childporn', 'bắn tinh', 'web sex', 'phim sex', 'film sex', 
-                   'child porn','gái dâm', 'trai dâm', 'vãi đái', 'nứng lồn', 'quay tay', 
+sensitive_words = ['đu me', 'đủ mẹ', 'đủ má', 'dâm đãng', 'làm tình',
+                   'cuto', 'chat sex', 'loạn luân', 'giao lưu sex', 'nc sex',
+                   'chat xxx', 'phá trinh', 'tùm gái',
+                   'childporn', 'bắn tinh', 'web sex',
+                   'gái dâm', 'trai dâm', 'vãi đái', 'nứng lồn', 'quay tay', 
                    'kèo nhà cái', 'video sex', 'chat nude', 'nung lon', 
                    'video xxx', 'chát sex', 'ảnh sex']
 
@@ -22,16 +22,18 @@ sensitive_words = ['du me', 'đu me', 'đủ mẹ', 'đủ má', 'đéo', 'đị
 def is_sensitive(text, is_html=False):
     if text is None or str(text).strip().__eq__(''):
         return False
+    
     try:
         if is_html is True:
             text = ' '.join(BeautifulSoup(text, "html.parser").stripped_strings)
 
-        text = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text).lower
+        text = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text).lower()
         for word in sensitive_words:
             if word in text:
                 return True
-        return False
         
+        return False
+
     except Exception as e:
         raise e
 
