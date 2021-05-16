@@ -3,11 +3,10 @@
 
 # built-in modules
 from datetime import datetime
-from re import sub
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, g, request
+from flask import g, request
 from flask_restx import marshal
 from slugify import slugify
 from sqlalchemy import desc, func, text
@@ -20,7 +19,7 @@ from common.controllers.controller import Controller
 from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.checker import check_spelling
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
 from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
@@ -96,21 +95,19 @@ class TopicController(Controller):
 
     def create(self, data):
         if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary type")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'name' in data or data['name'] == "":
-            return send_error(message='Topic name must be filled!')
-        else:
-            topic_name = data['name']
-
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",topic_name))
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('topic name'))
+ 
+        topic_name = data['name']
+        if is_sensitive(topic_name):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         if not 'parent_id' in data:
-            return send_error(message='Topic must have a parent fixed_topic!')
-        try:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('parent_id'))
 
+        try:
             # only allowed Vietnamese or English topic names
             parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
             if parent_topic is not None and parent_topic.name == 'Những lĩnh vực khác':
@@ -232,8 +229,8 @@ class TopicController(Controller):
                 return send_error(message='Could not update for fixed topic.')
             else:
                 topic = self._parse_topic(data=data, topic=topic)
-                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",topic.name))
-                if is_sensitive:
+
+                if is_sensitive(topic.name):
                     return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
                 # capitalize first letter
@@ -242,7 +239,7 @@ class TopicController(Controller):
                 topic_dsl.update(description=topic.description, name=topic.name, slug=topic.slug)
                 db.session.commit()
 
-                current_user, _ = current_app.get_logged_user(request)
+                current_user = g.current_user 
                 result = topic._asdict()
                 bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
                 result['is_bookmarked_by_me'] = True if bookmark else False
@@ -373,7 +370,7 @@ class TopicController(Controller):
             if not topic:
                 return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
             
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user 
             query = topic.bookmarked_users.paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
             results = []

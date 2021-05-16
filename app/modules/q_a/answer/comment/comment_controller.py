@@ -3,10 +3,9 @@
 
 # built-in modules
 from datetime import datetime
-from re import sub
 
 # third-party modules
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -17,7 +16,7 @@ from app.constants import messages
 from app.modules.q_a.answer.comment.comment_dto import CommentDto
 from common.controllers.comment_controller import BaseCommentController
 from common.utils.response import send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -39,7 +38,7 @@ class CommentController(BaseCommentController):
 
     def get(self, answer_id, args):
 
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = None
         if 'user_id' in args:
             try:
@@ -71,33 +70,29 @@ class CommentController(BaseCommentController):
             return send_result(message='Could not find any comments.')
 
     def create(self, answer_id, data):
-        current_user, _ = current_app.get_logged_user(request)
-
+        
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if not 'comment' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment body'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment'))
 
-        current_user, _ = current_app.get_logged_user(request)
-        if current_user:
-            data['user_id'] = current_user.id
+        if is_sensitive(data['comment']):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+        current_user = g.current_user
+        data['user_id'] = current_user.id
+        
         answer = Answer.query.filter(Answer.id == answer_id).first()
         if not answer:
             return send_error(message='The answer does not exist.')
         
         if (not answer.allow_comments):
             return send_error(message='This answer does not allow commenting.')
-
         data['answer_id'] = answer_id
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-            
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
@@ -136,7 +131,7 @@ class CommentController(BaseCommentController):
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
 
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user 
         try:
             result = comment.__dict__
             result['user'] = comment.user
@@ -151,35 +146,40 @@ class CommentController(BaseCommentController):
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message='AnswerComment ID is null')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
+        
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
-        current_user, _ = current_app.get_logged_user(request)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        comment = AnswerComment.query.filter_by(id=object_id).first()
+        if comment is None:
+            return send_error(message='AnswerComment with the ID {} not found.'.format(object_id))
+        
+        current_user = g.current_user 
+        if current_user and current_user.id != comment.user_id:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        
+        if 'comment' in data:
+            if is_sensitive(data['comment']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+        comment = self._parse_comment(data=data, comment=comment)
         try:
-            comment = AnswerComment.query.filter_by(id=object_id).first()
-            if comment is None:
-                return send_error(message='AnswerComment with the ID {} not found.'.format(object_id))
-            else:
-                comment = self._parse_comment(data=data, comment=comment)
-                
-                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
-                if is_sensitive:
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
-
-                comment.updated_date = datetime.utcnow()
-                db.session.commit()
-                result = comment.__dict__
-                result['user'] = comment.user
-                if current_user:
-                    favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == current_user.id,
-                                                    AnswerCommentFavorite.answer_comment_id == comment.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+            comment.updated_date = datetime.utcnow()
+            db.session.commit()
+            result = comment.__dict__
+            result['user'] = comment.user
+            if current_user:
+                favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == current_user.id,
+                                                AnswerCommentFavorite.answer_comment_id == comment.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
+            return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+        
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
             return send_error(message='Could not update comment.')
+
 
     def delete(self, object_id):
         try:

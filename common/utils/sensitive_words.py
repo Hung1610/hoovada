@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import BeautifulSoup
+from re import sub
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -15,27 +16,27 @@ sensitive_words = ['du me', 'đu me', 'đủ mẹ', 'đủ má', 'đéo', 'đị
                    'childporn', 'bắn tinh', 'web sex', 'phim sex', 'film sex', 
                    'child porn','gái dâm', 'trai dâm', 'vãi đái', 'nứng lồn', 'quay tay', 
                    'kèo nhà cái', 'video sex', 'chat nude', 'nung lon', 
-                   'video xxx', 'chát sex', 'chơi casino', 'ảnh sex']
+                   'video xxx', 'chát sex', 'ảnh sex']
 
-
-def check_sensitive(text):
-    if text is None or str(text).strip().__eq__(''):
-      return False
-
-    result = False
-
-    for word in sensitive_words:
-        word = str(word).strip()
-        if word.lower() in text.lower():
-            result = True
-            print(word.lower())
-
-    return result
 
 def is_sensitive(text, is_html=False):
-  if is_html:
-    text = ' '.join(BeautifulSoup(text, "html.parser").stripped_strings)
+    if text is None or str(text).strip().__eq__(''):
+        return False
 
-  return check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text))
+
+    try:
+        if is_html is True:
+            text = ' '.join(BeautifulSoup(text, "html.parser").stripped_strings)
+
+        for word in sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text):
+            if word in text.lower():
+                return True
+        return False
+    except Exception as e:
+        raise e
+
+        
+
+
 
 

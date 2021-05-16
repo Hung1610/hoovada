@@ -17,7 +17,7 @@ from common.enum import VotingStatusEnum, FileTypeEnum
 from common.controllers.controller import Controller
 from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
@@ -57,9 +57,10 @@ class AnswerImprovementController(Controller):
         try:
             # add new answer
             improvement = self._parse_improvement(data=data, improvement=None)
-            is_sensitive = check_sensitive(improvement.content)
-            if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Content is not allowed'))
+
+            if is_sensitive(improvement.content):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+            
             db.session.add(improvement)
             db.session.commit()
             result = improvement._asdict()
@@ -128,9 +129,10 @@ class AnswerImprovementController(Controller):
             improvement = self._parse_improvement(data=data, improvement=improvement)
             if improvement.content.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            is_sensitive = check_sensitive(improvement.content)
-            if is_sensitive:
-                return send_error(message=messages.ERR_ISSUE.format('Comment content not allowed'))
+
+            if is_sensitive(improvement.content):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             if improvement.answer_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer_id'))
             if improvement.user_id is None:

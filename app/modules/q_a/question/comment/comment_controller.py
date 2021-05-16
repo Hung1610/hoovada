@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from re import sub
 from datetime import datetime
 
 # third-party modules
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -17,7 +16,7 @@ from app.modules.q_a.question.comment.comment_dto import CommentDto
 from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.controllers.comment_controller import BaseCommentController
 from common.utils.response import send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -46,8 +45,7 @@ class CommentController(BaseCommentController):
                 print(e.__str__())
                 pass
 
-        current_user, _ = current_app.get_logged_user(request)
-
+        current_user = g.current_user 
         query = QuestionComment.query
         query = query.join(User, isouter=True).filter(User.is_deactivated == False)
         if question_id is not None:
@@ -78,7 +76,9 @@ class CommentController(BaseCommentController):
         if not 'comment' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment'))
 
-        current_user, _ = current_app.get_logged_user(request)
+        if is_sensitive(data['comment']):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
         question = Question.query.filter(Question.id == question_id).first()
         if question is None:
             return send_error(message=messages.ERR_NOT_FOUND)
@@ -86,20 +86,15 @@ class CommentController(BaseCommentController):
         if question.allow_comments is False:
             return send_error(message=messages.ERR_QUESTION_NOT_ALLOW_COMMENT)
         
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['question_id'] = question_id
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-
-            only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment)
-            if check_sensitive(only_words):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
-            
             user = User.query.filter_by(id=comment.user_id).first()
             user.comment_count += 1
             
@@ -130,7 +125,7 @@ class CommentController(BaseCommentController):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user 
         comment = QuestionComment.query.filter_by(id=object_id).first()
         if comment is None:
             return send_error(message='Could not find comment with the ID {}'.format(object_id))
@@ -154,32 +149,35 @@ class CommentController(BaseCommentController):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
 
-        current_user, _ = current_app.get_logged_user(request)
+
+        comment = QuestionComment.query.filter_by(id=object_id).first()
+        if comment is None:
+            return send_error(message='QuestionComment with the ID {} not found.'.format(object_id))
+        
+
+        current_user = g.current_user 
+        if current_user and current_user.id != comment.user_id:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        
+        if 'comment' in data:
+            if is_sensitive(data['comment']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         try:
-            comment = QuestionComment.query.filter_by(id=object_id).first()
-            if comment is None:
-                return send_error(message='QuestionComment with the ID {} not found.'.format(object_id))
-            else:
-                comment = self._parse_comment(data=data, comment=comment)
-                
-                only_words = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment)
-                if check_sensitive(only_words):
-                    return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
-                comment.updated_date = datetime.utcnow()
-                db.session.commit()
-                cache.clear_cache(Question.__class__.__name__)
-                result = comment.__dict__
-                result['user'] = comment.user
-                
-                if current_user:
-                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                
-                return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+            comment = self._parse_comment(data=data, comment=comment)
+            comment.updated_date = datetime.utcnow()
+            db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
+            result = comment.__dict__
+            result['user'] = comment.user
+            
+            if current_user:
+                favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
+                result['is_favorited_by_me'] = True if favorite else False
+            
+            return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
         
         except Exception as e:
             db.session.rollback()

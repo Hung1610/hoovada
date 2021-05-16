@@ -3,10 +3,9 @@
 
 # built-in modules
 from datetime import datetime
-from re import sub
 
 # third-party modules
-from flask import current_app, request, g
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -17,7 +16,7 @@ from app.constants import messages
 from slugify import slugify
 from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

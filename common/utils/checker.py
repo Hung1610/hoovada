@@ -3,7 +3,6 @@
 
 # third-party modules
 import enchant
-# built-in modules
 from dateutil.parser import parse
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, HTMLChunker, URLFilter, get_tokenizer

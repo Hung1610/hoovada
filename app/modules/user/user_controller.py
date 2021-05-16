@@ -8,8 +8,7 @@ from http import HTTPStatus
 
 # third-party modules
 import dateutil.parser
-import requests
-from flask import current_app, request, g
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import desc, func
 
@@ -25,7 +24,7 @@ from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import delete_file, upload_file
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
 from common.utils.util import strip_tags
 
@@ -62,7 +61,7 @@ class UserController(Controller):
 
             user = self._parse_user(data, None)
 
-            if check_sensitive(user.about_me) or check_sensitive(user.display_name):
+            if is_sensitive(user.about_me) or is_sensitive(user.display_name):
                 return send_error(message=messages.ERR_USER_INAPPROPRIATE)
 
             user.display_name = user.display_name or data['email']
@@ -144,7 +143,7 @@ class UserController(Controller):
             return send_error(message="The user ID must not be null.")
         
         try:
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             user = User.query.filter_by(id=object_id).first()
             if user is None:
                 return send_error(message=messages.ERR_NOT_LOGIN)
@@ -229,8 +228,9 @@ class UserController(Controller):
 
             user = self._parse_user(data=data, user=user)
 
-            if check_sensitive(user.about_me) or check_sensitive(user.display_name) or check_sensitive(user.first_name) or check_sensitive(user.last_name):
+            if is_sensitive(user.about_me) or is_sensitive(user.display_name) or is_sensitive(user.first_name) or is_sensitive(user.last_name):
                 return send_error(message=messages.ERR_USER_INAPPROPRIATE)
+
             if user.show_fullname_instead_of_display_name is True and user.last_name is not None and user.first_name is not None:
                 full_name = user.last_name.strip() + " " + user.first_name.strip()
                 if len(full_name) > 0:
@@ -273,7 +273,7 @@ class UserController(Controller):
         if  'avatar' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE('avatar'))
 
-        user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
 
@@ -314,7 +314,7 @@ class UserController(Controller):
         if 'doc' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('document'))
    
-        user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
 
@@ -357,7 +357,7 @@ class UserController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user cover photo'))
 
 
-        user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
 
@@ -390,7 +390,7 @@ class UserController(Controller):
 
 
     def get_avatar(self):
-        user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if user is None:
             return send_error(message=messages.ERR_NOT_LOGIN)
         return user.profile_pic_url

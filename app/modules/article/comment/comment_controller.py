@@ -3,10 +3,9 @@
 
 # built-in modules
 from datetime import datetime
-from re import sub
 
 # third-party modules
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -17,7 +16,7 @@ from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.controllers.comment_controller import BaseCommentController
 from common.models import Article, ArticleComment, User
 from common.utils.response import send_error, send_result
-from common.utils.sensitive_words import check_sensitive
+from common.utils.sensitive_words import is_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -64,11 +63,13 @@ class CommentController(BaseCommentController):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'comment' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment body'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment'))
 
-        current_user, _ = current_app.get_logged_user(request)
-        if current_user:
-            data['user_id'] = current_user.id
+        if is_sensitive(data['comment']):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+        current_user = g.current_user
+        data['user_id'] = current_user.id
 
         article = Article.query.filter(Article.id == article_id).first()
         if not article:
@@ -81,11 +82,6 @@ class CommentController(BaseCommentController):
 
         try:
             comment = self._parse_comment(data=data, comment=None)
-
-            is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", comment.comment))
-            if is_sensitive:
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
             comment.created_date = datetime.utcnow()
             comment.updated_date = datetime.utcnow()
             db.session.add(comment)
@@ -138,26 +134,31 @@ class CommentController(BaseCommentController):
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message='ArticleComment ID is null')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
+        
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
+        comment = ArticleComment.query.filter_by(id=object_id).first()
+        if comment is None:
+            return send_error(message='ArticleComment with the ID {} not found.'.format(object_id))
+
+        current_user = g.current_user 
+        if current_user and current_user.id != comment.user_id:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        
+        if 'comment' in data:
+            if is_sensitive(data['comment']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
+        comment = self._parse_comment(data=data, comment=comment)
         try:
-            comment = ArticleComment.query.filter_by(id=object_id).first()
-            if comment is None:
-                return send_error(message='ArticleComment with the ID {} not found.'.format(object_id))
-            else:
-                comment = self._parse_comment(data=data, comment=comment)
-
-                is_sensitive = check_sensitive(sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",comment.comment))
-                if is_sensitive:
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
-                comment.updated_date = datetime.utcnow()
-                db.session.commit()
-                result = comment.__dict__
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
-                return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+            comment.updated_date = datetime.utcnow()
+            db.session.commit()
+            result = comment.__dict__
+            user = User.query.filter_by(id=comment.user_id).first()
+            result['user'] = user
+            return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
 
         except Exception as e:
             print(e.__str__())
