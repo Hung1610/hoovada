@@ -22,16 +22,16 @@ sensitive_words = ['du me', 'đu me', 'đủ mẹ', 'đủ má', 'đéo', 'đị
 def is_sensitive(text, is_html=False):
     if text is None or str(text).strip().__eq__(''):
         return False
-
-
     try:
         if is_html is True:
             text = ' '.join(BeautifulSoup(text, "html.parser").stripped_strings)
 
-        for word in sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text):
-            if word in text.lower():
+        text = sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "",text).lower
+        for word in sensitive_words:
+            if word in text:
                 return True
         return False
+        
     except Exception as e:
         raise e
 
