@@ -18,7 +18,6 @@ from app.modules.topic.topic_dto import TopicDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import append_id, get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.checker import check_spelling
 from common.utils.sensitive_words import is_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
@@ -93,6 +92,7 @@ class TopicController(Controller):
             print(e.__str__())
             return send_error(message='Could not create  fixed topic: {}'.format(str(e)))
 
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -107,13 +107,10 @@ class TopicController(Controller):
         if not 'parent_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('parent_id'))
 
-        # only allowed Vietnamese or English topic names
-        parent_topic = Topic.query.filter(Topic.id == data['parent_id']).first()
-        if parent_topic is not None and parent_topic.name == 'Những lĩnh vực khác':
-            spelling_errors = check_spelling(data['name'])
-            if len(spelling_errors) > 0:
-                return send_error(message='Topic name is spelled wrongly!', data=spelling_errors)
-       
+        if 'description' in data:
+            if is_sensitive(data['description']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)            
+
         # check topic already exists
         topic = Topic.query.filter(Topic.name == data['name']).first()
         if topic is not None:
@@ -121,7 +118,6 @@ class TopicController(Controller):
         
         current_user = g.current_user
         data['user_id'] = current_user.id
-
         try:
             topic = self._parse_topic(data=data, topic=None)
             topic.created_date = datetime.today()
@@ -174,7 +170,8 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error('Could not load topics: {}'.format(str(e)))
-    
+
+
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
@@ -229,6 +226,10 @@ class TopicController(Controller):
             if is_sensitive(data['name']):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
+        if 'description' in data:
+            if is_sensitive(data['description']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)    
+
         try:
             topic = self._parse_topic(data=data, topic=topic)
             topic_dsl = ESTopic(_id=topic.id)
@@ -264,6 +265,7 @@ class TopicController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message='Could not delete user with ID {}'.format(object_id))
+
 
     def create_endorsed_users(self, object_id, data):
         try:
@@ -386,7 +388,7 @@ class TopicController(Controller):
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Topic ID"))
-            
+
         if 'file' not in request.files:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 

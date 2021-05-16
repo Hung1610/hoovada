@@ -32,6 +32,7 @@ class TopicUserEndorse(Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
 
+
 class Topic(Model):
     __tablename__ = 'topic'
 
