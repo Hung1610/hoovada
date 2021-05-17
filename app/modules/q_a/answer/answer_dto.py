@@ -54,11 +54,6 @@ class AnswerDto(Dto):
     })
 
 
-    model_comment_request = api.model('comment_answer_request', {
-        'comment': fields.String(required=True, description='The content of the comment'),
-        # 'question_id': fields.Integer(required=False),
-    })
-
     model_request = api.model('answer_request', {
         'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
         'answer': fields.String(description='The content of the answer'),
@@ -90,6 +85,7 @@ class AnswerDto(Dto):
         'is_visible': fields.Boolean(default=False, description='Display the education or not')
     })
 
+
     model_user_location = api.model('model_user_location', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the location'),
         'location_detail': fields.String(required=True, description='The content of the location'),
@@ -102,6 +98,7 @@ class AnswerDto(Dto):
         'created_date': fields.DateTime(required=True, description='The date location was created'),
         'is_visible': fields.Boolean(default=False, description='Display the location or not')
     })
+
 
     model_language = api.model('language_for_user', {
         'id': fields.Integer(readonly=True, description='The ID of the language'),
@@ -184,6 +181,7 @@ class AnswerDto(Dto):
     upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
     upload_parser.add_argument('file_type', location='form', choices=(1, 2), help='1 - Audio, 2 - Video', type=str, required=True)
 
+
     get_parser = Dto.paginated_request_parser.copy()
     get_parser.add_argument('user_id', type=str, required=False, help='Search question by user_id (who created question)')
     get_parser.add_argument('question_id', type=str, required=False, help='Search all answers by question_id.')
@@ -191,8 +189,7 @@ class AnswerDto(Dto):
     get_parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
     get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search answers that are deleted.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append',
-                        )
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append')
     get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'", type=str,
-                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append',
-                        )
+                            choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append')
+

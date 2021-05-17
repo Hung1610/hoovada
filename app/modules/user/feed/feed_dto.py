@@ -41,19 +41,6 @@ class UserFeedDto(Dto):
 	    'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
 	})
 
-
-	answer_question = api.model('answer_question', {
-	    'id': fields.Integer(readonly=True, description=''),
-	    'title': fields.String(description='The title of the question'),
-	    'slug': fields.String(description='The slug of the question'),
-	    'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
-	    'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
-	    'created_date': fields.DateTime(description='The created date'),
-	    'updated_date': fields.DateTime(description='The updated date'),
-	    'user': fields.Nested(model_user, description='The user information', attribute='display_user'),        
-	    'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
-	})
-
 	model_article = api.model('article', {
 	    'id': fields.Integer(readonly=True, description=''),
 	    'title': fields.String(description='The title of the article'),
@@ -130,7 +117,7 @@ class UserFeedDto(Dto):
 	    'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
 	    'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
 	    'user': fields.Nested(model_user, description='The user information', attribute='display_user'),        
-	    'question': fields.Nested(answer_question, description='The question information'),
+	    'question': fields.Nested(model_question, description='The question information'),
 	    'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
 	    'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
 	    'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
