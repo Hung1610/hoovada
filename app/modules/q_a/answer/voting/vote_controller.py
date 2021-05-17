@@ -7,7 +7,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -33,14 +33,6 @@ AnswerVote = db.get_model('AnswerVote')
 
 class AnswerVoteController(Controller):
     def get(self, args, answer_id = None):
-        """ Search votes.
-
-        Args:
-             The dictionary-like
-
-        Returns
-            A list of votes that satisfy conditions.
-        """
 
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
@@ -49,18 +41,21 @@ class AnswerVoteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'from_date' in args:
             try:
                 from_date = dateutil.parser.isoparse(args['from_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'to_date' in args:
             try:
                 to_date = dateutil.parser.isoparse(args['to_date'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if user_id is None and answer_id is None and from_date is None and to_date is None:
             return send_error(message='Please provide query parameters.')
 
@@ -82,6 +77,7 @@ class AnswerVoteController(Controller):
     def get_by_id(self, object_id):
         if id is None:
             return send_error(message='Please provide id')
+
         vote = AnswerVote.query.filter_by(id=object_id).first()
         if vote is None:
             return send_error(message='Answer vote not found')
@@ -89,25 +85,29 @@ class AnswerVoteController(Controller):
             return send_result(data=marshal(vote, AnswerVoteDto.model_response), message='Success')
 
     def create(self, answer_id, data):
-        current_user, _ = current_app.get_logged_user(request)
-        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         
         if not isinstance(data, dict):
-            return send_error(message='Wrong data format')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
+
+        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
         try:
             # add or update vote
             is_insert = True
-            vote = AnswerVote.query.filter(AnswerVote.user_id == data['user_id'], \
-                AnswerVote.answer_id == data['answer_id']).first()
+            vote = AnswerVote.query.filter(AnswerVote.user_id == data['user_id'], AnswerVote.answer_id == data['answer_id']).first()
+
             if vote:
                 is_insert = False
             vote = self._parse_vote(data=data, vote=vote)
             vote.updated_date = datetime.utcnow()
             if is_insert:
                 db.session.add(vote)
+
             db.session.commit()
             answer = vote.answer
             user_voted = answer.user
@@ -121,8 +121,9 @@ class AnswerVoteController(Controller):
             print(e)
             return send_error(message='Failed to create answer vote.')
 
+
     def delete(self, answer_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             vote = AnswerVote.query.filter_by(answer_id=answer_id, user_id=user_id).first()
@@ -136,24 +137,29 @@ class AnswerVoteController(Controller):
             print(e.__str__())
             return send_error(message='Failed to delete answer vote')
 
-    def update(self, object_id, data):
+
+    def update(self):
         pass
+
 
     def _parse_vote(self, data, vote=None):
         if vote is None:
             vote = AnswerVote()
+
         if 'user_id' in data:
             try:
                 vote.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if 'answer_id' in data:
              try:
                  vote.answer_id = int(data['answer_id'])
              except Exception as e:
                  print(e.__str__())
                  pass
+        
         if 'vote_status' in data:
             try:
                 vote_status_value = int(data['vote_status'])

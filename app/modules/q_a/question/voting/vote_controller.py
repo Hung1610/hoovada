@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -70,6 +70,7 @@ class QuestionVoteController(Controller):
         else:
             return send_result(message='Question vote not found')
 
+
     def get_by_id(self, object_id):
         if id is None:
             return send_error(message='Please provide id')
@@ -79,14 +80,16 @@ class QuestionVoteController(Controller):
         else:
             return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
 
-    def create(self, question_id, data):
-        current_user, _ = current_app.get_logged_user(request)
 
+    def create(self, question_id, data):
+ 
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
         if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-        
-        if not isinstance(data, dict):
-            return send_error(message='Wrong data format')
+
 
         data['user_id'] = current_user.id
         data['question_id'] = question_id
@@ -123,7 +126,7 @@ class QuestionVoteController(Controller):
 
 
     def delete(self, question_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             vote = QuestionVote.query.filter_by(question_id=question_id, user_id=user_id).first()
@@ -138,9 +141,9 @@ class QuestionVoteController(Controller):
             return send_error(message='Failed to delete question vote')
 
 
-    def update(self, object_id, data):
-        """ Update object from search_data in database"""
+    def update(self):
         pass
+
 
     def _parse_vote(self, data, vote=None):
         if vote is None:
@@ -151,12 +154,14 @@ class QuestionVoteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+                
         if 'question_id' in data:
              try:
                  vote.question_id = int(data['question_id'])
              except Exception as e:
                  print(e.__str__())
                  pass
+
         if 'vote_status' in data:
             try:
                 vote_status_value = int(data['vote_status'])
@@ -164,4 +169,5 @@ class QuestionVoteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         return vote
