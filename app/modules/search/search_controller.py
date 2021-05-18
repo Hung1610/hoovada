@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-import ast
-import re
-from datetime import datetime
 
 # third-party modules
 import dateutil.parser
