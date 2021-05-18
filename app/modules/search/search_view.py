@@ -4,8 +4,8 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.search.search_controller import SearchController
 # own modules
+from app.modules.search.search_controller import SearchController
 from app.modules.search.search_dto import SearchDto
 
 __author__ = "hoovada.com team"
@@ -20,6 +20,7 @@ search_response = SearchDto.search_response
 parser = reqparse.RequestParser()
 parser.add_argument('value', type=str, required=False, help='The value of the search')
 
+
 @api.route('/event_search')
 @api.expect(parser)
 class Search(Resource):
@@ -31,6 +32,7 @@ class Search(Resource):
         controller = SearchController()
         return controller.search_elastic(args=args)
 
+
 @api.route('/article')
 class ArticleSearch(Resource):
     @api.expect(SearchDto.search_model_request_parser)
@@ -41,6 +43,7 @@ class ArticleSearch(Resource):
         args = SearchDto.search_model_request_parser.parse_args()
         controller = SearchController()
         return controller.search_article_by_title(args=args)
+
 
 @api.route('/user')
 class UserSearch(Resource):
