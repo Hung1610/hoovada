@@ -84,7 +84,7 @@ class EducationController(Controller):
                 query = query.filter(UserEducation.secondary_major == secondary_major)
                 
             educations = query.all()
-            if educations is not None and len(educations) > 0:
+            if educations is not None:
                 return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(educations, EducationDto.model_response))
 
         except Exception as e:

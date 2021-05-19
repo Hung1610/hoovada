@@ -11,6 +11,7 @@ from flask_restx import marshal
 # own modules
 from app.constants import messages
 from common.db import db
+from flask import g
 from app.modules.user.user_employment.user_employment_dto import EmploymentDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
@@ -54,17 +55,12 @@ class EmploymentController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))     
 
-
-    def get(self, args):
+    def get(self, args, user_id):
         if not isinstance(args, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        if 'user_id' not in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
-        user_id = int(args['user_id'])
-
+        is_current = None
         if 'is_current' in args:
             try:
                 is_current = int(args['is_current'])

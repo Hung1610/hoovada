@@ -5,7 +5,7 @@
 from werkzeug.datastructures import FileStorage
 
 # third-party modules
-from flask_restx import inputs
+from flask_restx import inputs, reqparse
 from flask_restx import Namespace, fields
 
 # own modules
@@ -103,6 +103,10 @@ class TopicDto(Dto):
 
     upload_parser = api.parser()
     upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
+
+    model_recommened_topic_parser = reqparse.RequestParser()
+    model_recommened_topic_parser.add_argument('question_id', type=int, required=False, help='Recommend topic by question id')
+    model_recommened_topic_parser.add_argument('size', type=int, required=False, default=20, help='Number of returned topics')
 
     @classmethod
     def get_endorsed_users_parser(cls):

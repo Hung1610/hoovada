@@ -13,6 +13,7 @@ from common.db import db
 from app.modules.user.location.location_dto import LocationDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
+from app.constants import messages
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -74,7 +75,7 @@ class LocationController(Controller):
                 query = query.filter(UserLocation.is_current == is_current)
                 
             locations = query.all()
-            if locations is not None and len(locations) > 0:
+            if locations is not None:
                 return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
 
         except Exception as e:

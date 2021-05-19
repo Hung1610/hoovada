@@ -44,9 +44,7 @@ class TopicMeList(Resource):
 
         data = api.payload
         controller = TopicController()
-
-        current_user, _ = current_app.get_logged_user(request)
-        user_id = current_user.id
+        user_id = g.current_user.id
         return controller.create(data=data, user_id=user_id)
 
 

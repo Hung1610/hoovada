@@ -41,6 +41,7 @@ class PollController(Controller):
     query_classname = 'Poll'
 
     def create(self, data):
+        print(data)
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
@@ -68,7 +69,9 @@ class PollController(Controller):
         
         if not isinstance(data['poll_topics'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
+        poll_topics = data['poll_topics']
+        if len(poll_topics) > 5:
+            return send_error(message=messages.ERR_ISSUE.format('Poll must have maximum 5 topics'))
         current_user = g.current_user
         data['user_id'] = current_user.id
         
@@ -81,9 +84,8 @@ class PollController(Controller):
         if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
-        poll = self._parse_poll(data=data, poll=None)            
+        poll = self._parse_poll(data=data, poll=None)     
         try:
-
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
             poll.is_expire = False
@@ -107,7 +109,12 @@ class PollController(Controller):
             poll_dsl = ESPoll(_id=poll.id, title=poll.title, user_id=poll.user_id, created_date=poll.created_date, updated_date=poll.updated_date)
             poll_dsl.save()
 
-            # TODO: author automatically bookmark the poll
+            # Author automatically bookmark the poll
+            poll_bookmark = PollBookmark()
+            print(poll_bookmark)
+            poll_bookmark.user_id = current_user.id
+            poll_bookmark.poll_id = poll.id
+            db.session.add(poll_bookmark)
 
             db.session.commit()
             result = poll._asdict()
@@ -127,15 +134,16 @@ class PollController(Controller):
 
     def get(self, args):
         try:
+            current_user = g.current_user
             query = self.get_query_results(args)
             res, code = paginated_result(query)
             results = []
             if res['data'] is not None:
                 for poll in res['data']:
                     if poll:
-                        # TODO: return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
-
-                        results.append(poll._asdict())
+                        # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
+                        poll_dict = self._add_fields(poll._asdict())
+                        results.append(poll_dict)
 
             res['data'] = marshal(results, PollDto.model_response)
             return res, code
@@ -143,7 +151,24 @@ class PollController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('Poll', e))
-
+    
+    def _add_fields(self, poll_dict):
+        current_user = g.current_user
+        poll_bookmark = PollBookmark.query.filter_by(user_id=current_user.id, poll_id=poll_dict["id"]).first()
+        if poll_bookmark is not None:
+            poll_dict["is_bookmarked_by_me"] = True
+        else:
+            poll_dict["is_bookmarked_by_me"] = False
+        poll_dict["is_upvoted_by_me"] = False
+        poll_dict["is_downvoted_by_me"] = False
+        poll_votes = PollVote.query.filter_by(user_id=current_user.id, poll_id=poll_dict["id"]).all()
+        for poll_vote in poll_votes:
+            print(poll_vote.vote_status)
+            if poll_vote.vote_status == VotingStatusEnum.UPVOTED:
+                poll_dict["is_upvoted_by_me"] = True
+            if poll_vote.vote_status == VotingStatusEnum.DOWNVOTED:
+                poll_dict["is_downvoted_by_me"] = True
+        return poll_dict
     
     def get_by_id(self, object_id):
         if object_id is None:
@@ -165,8 +190,8 @@ class PollController(Controller):
             result['fixed_topic'] = poll.fixed_topic
             result['poll_selects'] = poll.poll_selects
 
-            # TODO: return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
-
+            # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
+            result = self._add_fields(result)
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(data=marshal(result, PollDto.model_response))
 
@@ -197,8 +222,8 @@ class PollController(Controller):
             db.session.commit()
             result = poll._asdict()
             
-            # TODO: return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
-
+            # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
+            result = self._add_fields(result)
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollDto.model_response))
         except Exception as e:
             db.session.rollback()
@@ -291,7 +316,4 @@ class PollController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
-
-
-
         return poll

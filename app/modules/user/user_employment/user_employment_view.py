@@ -8,11 +8,12 @@ from flask_restx import Resource
 from app.modules.user.user_employment.user_employment_controller import EmploymentController
 from app.modules.user.user_employment.user_employment_dto import EmploymentDto
 from common.utils.decorator import token_required
+from flask import g
 
 api = EmploymentDto.api
 employment_request = EmploymentDto.model_request
 employment_response = EmploymentDto.model_response
-parser = EmploymentDto.parser
+get_parser = EmploymentDto.parser
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -30,7 +31,7 @@ class EmploymentMeList(Resource):
         args = get_parser.parse_args()
         controller = EmploymentController()
         user_id = g.current_user.id
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
     @token_required
     @api.expect(employment_request)
@@ -51,7 +52,7 @@ class EmploymentList(Resource):
 
         args = get_parser.parse_args()
         controller = EmploymentController()
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
 @api.route('/all/employment/<int:id>')

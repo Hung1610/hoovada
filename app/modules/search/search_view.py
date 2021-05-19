@@ -83,12 +83,12 @@ class QuestionSearch(Resource):
 
 @api.route('/topic')
 class TopicSearch(Resource):
-    @api.expect(SearchDto.search_model_request_parser)
+    @api.expect(SearchDto.search_topic_request_parser)
     @api.response(code=200, model=SearchDto.model_search_topic_response, description='Model for topic response.')
     def get(self):
         """ Search topics by name"""
 
-        args = SearchDto.search_model_request_parser.parse_args()
+        args = SearchDto.search_topic_request_parser.parse_args()
         controller = SearchController()
         return controller.search_topic_by_name(args=args)
 

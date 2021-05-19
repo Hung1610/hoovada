@@ -220,11 +220,9 @@ class ArticleController(Controller):
         
         fixed_topic_id = args.get('fixed_topic_id')
         topic_ids = args.get('topic_id', None)
-
+        limit = 30
         if 'limit' in args:
             limit = int(args['limit'])
-        else:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('limit'))
         try:
             current_user = g.current_user
             s = ESArticle.search()
@@ -237,7 +235,9 @@ class ArticleController(Controller):
             for hit in hits:
                 article_id = hit.meta.id
                 article = Article.query.filter_by(id=article_id).first()
-                if not article or (fixed_topic_id and article.fixed_topic_id != fixed_topic_id):
+                if not article or article.title == title:
+                    continue
+                if fixed_topic_id and article.fixed_topic_id != fixed_topic_id:
                     continue
                 if topic_ids and not article.topics:
                     continue
@@ -267,72 +267,7 @@ class ArticleController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))        
-    
-
-    def get_similar(self, args):
-        if not 'title' in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
-        
-        title = args['title']
-        if not 'fixed_topic_id' in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
-        
-        fixed_topic_id = args.get('fixed_topic_id')
-        topic_ids = args.get('topic_id', None)
-
-        if 'limit' in args:
-            limit = int(args['limit'])
-        else:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('limit'))
-        
-        try:
-            current_user = g.current_user
-            query = Article.query
-            
-            if args.get('exclude_article_id'):
-                query = query.filter(Article.id != args.get('exclude_article_id'))
-            
-            title_similarity = db.func.SIMILARITY_STRING(Article.title, title).label('title_similarity')
-            query = query.with_entities(Article, title_similarity).filter(title_similarity > 50)
-            
-            if fixed_topic_id is not None:
-                query = query.filter(Article.fixed_topic_id == fixed_topic_id)
-            
-            if topic_ids is not None:
-                query = query.filter(Article.topics.any(Topic.id.in_(topic_ids)))
-            
-            articles = query\
-                .order_by(desc(title_similarity))\
-                .limit(limit)\
-                .all()
-
-            results = list()
-            for article in articles:
-                article = article[0]
-                result = article._asdict()
-                result['user'] = article.user
-                result['topics'] = article.topics
-
-                if current_user:
-                    
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                        
-                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-
-                results.append(result)
-        
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, ArticleDto.model_article_response))
-        
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
+            return send_error(message="Get similar articles failed. Error: "+ e.__str__())          
 
     def update(self, object_id, data):
        

@@ -46,6 +46,7 @@ class SearchDto(Dto):
         'title': fields.String(description='The title of the question'),
         'question': fields.String(description='The content of the question'),
         'slug': fields.String(description='The slug of the question'),
+        'answers_count': fields.Integer(readonly=True, description='Number of answers')
     })
 
     model_search_topic_response = api.model('search_topic_response', {
@@ -75,6 +76,12 @@ class SearchDto(Dto):
 
     search_user_request_parser = reqparse.RequestParser()
     search_user_request_parser.add_argument('value', type=str, required=True, help='Value to search')
-    search_user_request_parser.add_argument('is_approved', type=bool, required=False, help='Get friends with approved friend request. Default to True')
+    search_user_request_parser.add_argument('is_approved', type=bool, required=False, help='Get friends with approved friend request. Default to 1(true)')
     search_user_request_parser.add_argument('from', type=str, required=False, help='From index')
     search_user_request_parser.add_argument('size', type=str, required=False, help='Number of records returned')
+
+    search_topic_request_parser = reqparse.RequestParser()
+    search_topic_request_parser.add_argument('value', type=str, required=True, help='Value to search')
+    search_topic_request_parser.add_argument('is_fixed', type=bool, required=False, help='Get fixed topics. Default to 0(false)')
+    search_topic_request_parser.add_argument('from', type=str, required=False, help='From index')
+    search_topic_request_parser.add_argument('size', type=str, required=False, help='Number of records returned')

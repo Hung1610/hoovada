@@ -24,6 +24,10 @@ from common.utils.wasabi import upload_file
 from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
 from common.es import get_model
 from common.utils.util import strip_tags
+from elasticsearch_dsl import Q
+
+Question = db.get_model('Question')
+ESTopic = get_model('Topic')
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -510,3 +514,30 @@ class TopicController(Controller):
                     pass
 
         return topic
+
+    def recommend_topics(self, args):
+        try:
+            size = 20
+            if 'size' in args:
+                size = int(args['size'])
+            if not 'question_id' in args:
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('question_id'))
+            question = Question.query.filter_by(id=args['question_id']).first()
+            if question is None:
+                return send_error(message='Question with the ID {} not found.'.format(args['question_id']))
+            s = ESTopic.search()
+            q = Q("multi_match", query=question.title, fields=['name'])
+            s = s.query(q)
+            s = s[0:size + 1]
+            response = s.execute()
+            hits = response.hits
+            topics = []
+            for h in hits:
+                topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
+                if topic is not None and topic.is_fixed == 0:
+                    topics.append(topic)
+            print(topics)
+            return send_result(data=marshal(topics, TopicDto.model_topic_response))
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.ERR_GET_FAILED.format('recommended topics', e))

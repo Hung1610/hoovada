@@ -41,4 +41,4 @@ class EmploymentDto(Dto):
     })
 
     parser = reqparse.RequestParser()
-    parser.add_argument('user_id', type=int, required=True, help='Search employment by user_id')
+    parser.add_argument('is_current', type=int, required=False, help='Is current employment')
