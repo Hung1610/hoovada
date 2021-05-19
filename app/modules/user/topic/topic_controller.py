@@ -29,7 +29,7 @@ User = db.get_model('User')
 
 class TopicController(Controller):
 
-    def create(self, user_id, data):
+    def create(self, data,  user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
@@ -92,7 +92,7 @@ class TopicController(Controller):
         pass
 
 
-    def update(self, object_id, data):
+    def update(self, data, object_id):
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
@@ -134,7 +134,7 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
-    def get_endorsed_topics(self, user_id, args):
+    def get_endorsed_topics(self, args, user_id):
         
         if not 'page' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('page'))

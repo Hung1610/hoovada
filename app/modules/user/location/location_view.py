@@ -30,7 +30,7 @@ class LocationMeList(Resource):
         args = get_parser.parse_args()
         controller = LocationController()
         user_id = g.current_user.id
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
     @token_required
@@ -52,7 +52,7 @@ class LocationList(Resource):
         """Get all location information using user_id"""
         args = get_parser.parse_args()
         controller = LocationController()
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
 @api.route('/all/location/<int:id>')
@@ -65,7 +65,7 @@ class LocationAll(Resource):
 
         data = api.payload
         controller = LocationController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(data=data, object_id=id)
 
     @token_required
     def delete(self, id):

@@ -3,12 +3,12 @@
 
 # third-party modules
 from flask import g
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.user.language.language_controller import LanguageController
 from app.modules.user.language.language_dto import LanguageDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 api = LanguageDto.api
 language_response = LanguageDto.model_response
@@ -31,8 +31,7 @@ class LanguageMeList(Resource):
         args = get_parser.parse_args()
         controller = LanguageController()
         user_id = g.current_user.id
-
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
     @token_required
     @api.expect(language_request)
@@ -54,7 +53,7 @@ class LanguageList(Resource):
 
         args = get_parser.parse_args()
         controller = LanguageController()
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
 @api.route('/all/language/<int:id>')
@@ -68,7 +67,7 @@ class LanguageAll(Resource):
 
         data = api.payload
         controller = LanguageController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(data=data, object_id=id)
 
     @token_required
     def delete(self, id):

@@ -26,12 +26,14 @@ UserEmployment = db.get_model('UserEmployment')
 
 class EmploymentController(Controller):
 
-    def create(self, data):
+    def create(self, data, user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if not 'user_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+        if user_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        data['user_id'] = user_id
 
         if not 'position' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('position'))
@@ -57,13 +59,10 @@ class EmploymentController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
-    def get(self, args):
+    def get(self,  args, user_id=None):
+        
         if not isinstance(args, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        if 'user_id' not in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
-        user_id = int(args['user_id'])
 
         if 'is_current' in args:
             try:
@@ -73,6 +72,7 @@ class EmploymentController(Controller):
                 pass
         try:
             query = db.session.query(UserEmployment)
+
             if user_id is not None:
                 query = query.filter(UserEmployment.user_id == user_id)
 

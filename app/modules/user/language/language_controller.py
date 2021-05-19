@@ -25,7 +25,7 @@ UserLanguage = db.get_model('UserLanguage')
 
 class LanguageController(Controller):
 
-    def create(self, user_id, data):
+    def create(self, data, user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
@@ -58,6 +58,7 @@ class LanguageController(Controller):
             query = UserLanguage.query
             if user_id is not None:
                 query = query.filter(UserLanguage.user_id == user_id)
+
             if language_id is not None:
                 query = query.filter(UserLanguage.language_id == language_id)
                 
@@ -73,7 +74,7 @@ class LanguageController(Controller):
         pass
 
 
-    def update(self, object_id, data):
+    def update(self, data, object_id):
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
