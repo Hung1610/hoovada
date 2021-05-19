@@ -40,7 +40,7 @@ class EmploymentController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('company'))
 
         try:
-            user_employment = self._parse_employment(data, employment=None):
+            user_employment = self._parse_employment(data, employment=None)
             user_employment.created_date = datetime.utcnow()
             db.session.add(user_employment)
             db.session.commit()
