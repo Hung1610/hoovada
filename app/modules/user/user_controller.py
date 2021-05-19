@@ -47,6 +47,7 @@ class UserController(Controller):
     special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name', 'is_mutual_friend']
     allowed_ordering_fields = ['question_count', 'answer_count', 'post_count', 'reputation']
 
+
     def create(self, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -77,43 +78,9 @@ class UserController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(user, UserDto.model_response))
 
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create user. Check again')
-
-
-    def get_query(self):
-        query = super().get_query()
-        query = query.filter(User.is_deactivated != True)
-        return query    
-
-
-    def apply_filtering(self, query, params):
-        query = super().apply_filtering(query, params)
-        if params.get('email_or_name'):
-            query = query.filter(\
-                (User.display_name.like('%' + params.get('email_or_name') + '%')) | \
-                (User.email.like('%' + params.get('email_or_name') + '%')))
-        
-        if params.get('is_endorsed') and g.endorsed_topic_id:
-            topic = Topic.query.get(g.endorsed_topic_id)
-            user_ids = [user.id for user in topic.endorsed_users]
-            query = query.filter(User.id.in_(user_ids))
-
-        if params.get('is_mutual_friend') and g.current_user:
-            g.friend_belong_to_user_id = g.current_user.id
-            my_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\
-                    .filter(UserFriend.is_approved == True)
-            
-            friend_ids = [friend.adaptive_friend_id for friend in my_friends_query]
-            g.mutual_friend_ids = friend_ids
-            mutual_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
-                .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
-            
-            mutual_friend_ids = [friend.adaptive_friend_id for friend in mutual_friends_query]
-            mutual_friend_ids = [friend_id for friend_id in mutual_friend_ids if friend_id not in friend_ids]
-            query = query.filter(User.id.in_(mutual_friend_ids))   
-
-        return query
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get(self, args):
@@ -123,9 +90,10 @@ class UserController(Controller):
             res, code = paginated_result(query)
             res['data'] = marshal(res['data'], UserDto.model_response)
             return res, code
+
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load error, please try again later.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
     
 
     def get_count(self, args):
@@ -134,13 +102,13 @@ class UserController(Controller):
             return send_result({'count': count}, message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load topics. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
         
         if object_id is None:
-            return send_error(message="The user ID must not be null.")
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
         
         try:
             current_user = g.current_user
@@ -156,16 +124,16 @@ class UserController(Controller):
                 user.profile_views += 1
                 db.session.commit()
 
-            return send_result(data=marshal(user, UserDto.model_response))
+            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not get user by ID {}.'.format(object_id))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_by_user_name(self, user_name):
         if user_name is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE('user_name'))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("user name"))
         
         try:
             user = User.query.filter_by(display_name=user_name).first()
@@ -178,17 +146,17 @@ class UserController(Controller):
             # when call to this function, increase the profile_views
             user.profile_views += 1
             db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response))
+            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not get user by ID {}.'.format(user_name))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_social_account(self, user_name, args):
         
         if user_name is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE('user_name'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_name'))
         
         try:
             user = User.query.filter_by(display_name=user_name).first()
@@ -199,11 +167,11 @@ class UserController(Controller):
             if args.get('provider'):
                 social_accounts_query.filter(SocialAccount.provider == args.get('provider'))
             
-            return send_result(data=marshal(social_accounts_query, UserDto.model_social_response))
+            return send_result(data=marshal(social_accounts_query, UserDto.model_social_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(user_name, str(e)))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def update(self, user_name, data):
@@ -214,10 +182,13 @@ class UserController(Controller):
        
         if 'id' in data:
             return send_error(message='Could not update ID.')
+
         if 'email' in data:
             return send_error(message='Email update is not allowed here.')
+
         if 'password' in data and data['password'] is None:
             return send_error(message='Password update is now allowed here.')
+
         if 'profile_views' in data:
             return send_error(message='Profile views is not allowed to update.')
         
@@ -254,13 +225,14 @@ class UserController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
             db.session.commit()
-            return send_result(message='Update successfully', data=marshal(user, UserDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(user, UserDto.model_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not update user')
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, user_name):
@@ -273,12 +245,12 @@ class UserController(Controller):
             user_dsl = ESUser(_id=user.id)
             user_dsl.delete()
             db.session.commit()
-            return send_result(message='User was deleted successfully')
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=ERR_DELETE_FAILED.format('user', str(e)))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def upload_avatar(self, args):
@@ -287,7 +259,7 @@ class UserController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if  'avatar' not in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE('avatar'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('avatar'))
 
         current_user = g.current_user
         if user is None:
@@ -474,3 +446,38 @@ class UserController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def get_query(self):
+        query = super().get_query()
+        query = query.filter(User.is_deactivated != True)
+        return query    
+
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('email_or_name'):
+            query = query.filter(\
+                (User.display_name.like('%' + params.get('email_or_name') + '%')) | \
+                (User.email.like('%' + params.get('email_or_name') + '%')))
+        
+        if params.get('is_endorsed') and g.endorsed_topic_id:
+            topic = Topic.query.get(g.endorsed_topic_id)
+            user_ids = [user.id for user in topic.endorsed_users]
+            query = query.filter(User.id.in_(user_ids))
+
+        if params.get('is_mutual_friend') and g.current_user:
+            g.friend_belong_to_user_id = g.current_user.id
+            my_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id == g.current_user.id, UserFriend.friend_id == g.current_user.id))\
+                    .filter(UserFriend.is_approved == True)
+            
+            friend_ids = [friend.adaptive_friend_id for friend in my_friends_query]
+            g.mutual_friend_ids = friend_ids
+            mutual_friends_query = UserFriend.query.filter(db.or_(UserFriend.friended_id.in_(friend_ids), UserFriend.friend_id.in_(friend_ids)))\
+                .filter((UserFriend.friended_id != g.current_user.id) & (UserFriend.friend_id != g.current_user.id))
+            
+            mutual_friend_ids = [friend.adaptive_friend_id for friend in mutual_friends_query]
+            mutual_friend_ids = [friend_id for friend_id in mutual_friend_ids if friend_id not in friend_ids]
+            query = query.filter(User.id.in_(mutual_friend_ids))   
+
+        return query

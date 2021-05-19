@@ -231,7 +231,8 @@ class AnswerController(Controller):
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
+
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
             return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
