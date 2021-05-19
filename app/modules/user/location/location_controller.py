@@ -75,7 +75,7 @@ class LocationController(Controller):
                 
             locations = query.all()
             if locations is not None and len(locations) > 0:
-                return send_result(message=messages.MSG_GET_SUCCESS, marshal(locations, LocationDto.model_response))
+                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
 
         except Exception as e:
             print(e.__str__())

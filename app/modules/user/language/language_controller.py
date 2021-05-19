@@ -62,7 +62,7 @@ class LanguageController(Controller):
                 query = query.filter(UserLanguage.language_id == language_id)
                 
             languages = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, marshal(languages, LanguageDto.model_response))
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(languages, LanguageDto.model_response))
 
         except Exception as e:
             print(e.__str__())

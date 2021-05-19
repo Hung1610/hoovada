@@ -85,7 +85,7 @@ class EmploymentController(Controller):
                 result = user_employment.__dict__
                 results.append(result)
                 
-            return send_result(message=messages.MSG_GET_SUCCESS, marshal(results, EmploymentDto.model_response))
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

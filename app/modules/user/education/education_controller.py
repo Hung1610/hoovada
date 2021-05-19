@@ -85,7 +85,7 @@ class EducationController(Controller):
                 
             educations = query.all()
             if educations is not None and len(educations) > 0:
-                return send_result(message=messages.MSG_CREATE_SUCCESS, marshal(educations, EducationDto.model_response))
+                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(educations, EducationDto.model_response))
 
         except Exception as e:
             db.session.rollback()
