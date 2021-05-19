@@ -77,8 +77,10 @@ class FavoriteController(Controller):
     def create(self, article_id):
         data = {}
         current_user, _ = current_app.get_logged_user(request)
+        
         if not has_permission(current_user.id, PermissionType.FAVORITE):
             return send_error(code=401, message='You have no authority to perform this action')
+
         data['user_id'] = current_user.id
         data['article_id'] = article_id
         try:

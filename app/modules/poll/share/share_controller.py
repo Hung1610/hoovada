@@ -31,6 +31,48 @@ PollShare = db.get_model('PollShare')
 
 
 class ShareController(Controller):
+
+    def create(self, poll_id, data):
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
+        if not has_permission(current_user.id, PermissionType.SHARE):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        data['user_id'] = current_user.id
+        data['poll_id'] = poll_id
+        try:
+            share = self._parse_share(data=data)
+            share.created_date = datetime.utcnow()
+            db.session.add(share)
+            db.session.commit()
+            # update other values
+            try:
+                poll = Poll.query.filter_by(id=share.poll_id).first()
+                if not poll:
+                    return send_error(message=messages.ERR_NOT_FOUND)
+
+                user_shared = User.query.filter_by(id=poll.user_id).first()
+                if not user_shared:
+                    return send_error(message=messages.ERR_NOT_FOUND)
+
+                user_shared.poll_shared_count += 1
+                if current_user:
+                    share.user_id = current_user.id
+                    current_user.poll_share_count += 1
+                db.session.commit()
+            except Exception as e:
+                pass
+                
+            return send_result(data=marshal(share, ShareDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
     def get(self, poll_id, args):
         user_id, from_date, to_date, facebook, twitter, zalo = None, None, None, None, None, None
         if 'user_id' in args:
@@ -65,78 +107,53 @@ class ShareController(Controller):
                 zalo = bool(args['zalo'])
             except Exception as e:
                 pass
-
-        query = PollShare.query
-        if user_id is not None:
-            query = query.filter(PollShare.user_id == user_id)
-        if poll_id is not None:
-            query = query.filter(PollShare.poll_id == poll_id)
-        if from_date is not None:
-            query = query.filter(PollShare.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(PollShare.created_date <= to_date)
-        if facebook is not None:
-            query = query.filter(PollShare.facebook == facebook)
-        if twitter is not None:
-            query = query.filter(PollShare.twitter == twitter)
-        if zalo is not None:
-            query = query.filter(PollShare.zalo == zalo)
-        shares = query.all()
-        if len(shares) > 0:
-            return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
-        else:
-            return send_result(messages.ERR_NOT_FOUND)
-
-    def create(self, poll_id, data):
-        if not isinstance(data, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        current_user = g.current_user
-        if not has_permission(current_user.id, PermissionType.SHARE):
-            return send_error(code=401, message='You have no authority to perform this action')
-
-        data['user_id'] = current_user.id
-        data['poll_id'] = poll_id
         try:
-            share = self._parse_share(data=data)
-            share.created_date = datetime.utcnow()
-            db.session.add(share)
-            db.session.commit()
-            # update other values
-            try:
-                poll = Poll.query.filter_by(id=share.poll_id).first()
-                if not poll:
-                    return send_error(message=messages.ERR_NOT_FOUND)
-
-                user_shared = User.query.filter_by(id=poll.user_id).first()
-                if not user_shared:
-                    return send_error(message=messages.ERR_NOT_FOUND)
-
-                user_shared.poll_shared_count += 1
-                if current_user:
-                    share.user_id = current_user.id
-                    current_user.poll_share_count += 1
-                db.session.commit()
-            except Exception as e:
-                pass
-            return send_result(data=marshal(share, ShareDto.model_response))
+            query = PollShare.query
+            if user_id is not None:
+                query = query.filter(PollShare.user_id == user_id)
+            if poll_id is not None:
+                query = query.filter(PollShare.poll_id == poll_id)
+            if from_date is not None:
+                query = query.filter(PollShare.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(PollShare.created_date <= to_date)
+            if facebook is not None:
+                query = query.filter(PollShare.facebook == facebook)
+            if twitter is not None:
+                query = query.filter(PollShare.twitter == twitter)
+            if zalo is not None:
+                query = query.filter(PollShare.zalo == zalo)
+            shares = query.all()
+            if len(shares) > 0:
+                return send_result(data=marshal(shares, ShareDto.model_response), message=messages.ERR_GET_SUCCESS)
+            else:
+                return send_result(messages.ERR_NOT_FOUND)
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
     def get_by_id(self, object_id):
-        query = PollShare.query
-        share = query.filter(PollShare.id == object_id).first()
-        if share is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-        else:
-            return send_result(data=marshal(share, ShareDto.model_response), message='Success')
 
-    def update(self, object_id, data):
+        try:
+            query = PollShare.query
+            share = query.filter(PollShare.id == object_id).first()
+            if share is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(share, ShareDto.model_response), message=messages.ERR_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def update(self):
         pass
 
-    def delete(self, object_id):
+
+    def delete(self):
         pass
+
 
     def _parse_share(self, data):
         share = PollShare()

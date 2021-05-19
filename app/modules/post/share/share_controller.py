@@ -31,6 +31,47 @@ PostShare = db.get_model('PostShare')
 
 
 class ShareController(Controller):
+
+    def create(self, post_id, data):
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
+        if not has_permission(current_user.id, PermissionType.SHARE):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        data['user_id'] = current_user.id
+        data['post_id'] = post_id
+        try:
+            share = self._parse_share(data=data)
+            share.created_date = datetime.utcnow()
+            db.session.add(share)
+            try:
+                post = Post.query.filter_by(id=share.post_id).first()
+                if not post:
+                    return send_error(message=messages.ERR_NOT_FOUND)
+                
+                user_shared = User.query.filter_by(id=post.user_id).first()
+                if not user_shared:
+                    return send_error(message=messages.ERR_NOT_FOUND)
+
+                user_shared.post_shared_count += 1
+                if current_user:
+                    share.user_id = current_user.id
+                    current_user.post_share_count += 1
+                
+            except Exception as e:
+                pass
+
+            db.session.commit() 
+            return send_result(data=marshal(share, ShareDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
     def get(self, post_id, args):
         user_id, from_date, to_date, facebook, twitter, zalo = None, None, None, None, None, None
 
@@ -66,79 +107,56 @@ class ShareController(Controller):
                 zalo = bool(args['zalo'])
             except Exception as e:
                 pass
-
-        query = PostShare.query
-        if user_id is not None:
-            query = query.filter(PostShare.user_id == user_id)
-        if post_id is not None:
-            query = query.filter(PostShare.post_id == post_id)
-        if from_date is not None:
-            query = query.filter(PostShare.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(PostShare.created_date <= to_date)
-        if facebook is not None:
-            query = query.filter(PostShare.facebook == facebook)
-        if twitter is not None:
-            query = query.filter(PostShare.twitter == twitter)
-        if zalo is not None:
-            query = query.filter(PostShare.zalo == zalo)
-        shares = query.all()
-        if len(shares) > 0:
-            return send_result(data=marshal(shares, ShareDto.model_response), message='Success')
-        else:
-            return send_result(messages.ERR_NOT_FOUND)
-
-    def create(self, post_id, data):
-        if not isinstance(data, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        current_user = g.current_user
-
-        if not has_permission(current_user.id, PermissionType.SHARE):
-            return send_error(code=401, message='You have no authority to perform this action')
-
-        data['user_id'] = current_user.id
-        data['post_id'] = post_id
         try:
-            share = self._parse_share(data=data)
-            share.created_date = datetime.utcnow()
-            db.session.add(share)
-            try:
-                post = Post.query.filter_by(id=share.post_id).first()
-                if not post:
-                    return send_error(message=messages.ERR_NOT_FOUND)
-                
-                user_shared = User.query.filter_by(id=post.user_id).first()
-                if not user_shared:
-                    return send_error(message=messages.ERR_NOT_FOUND)
-
-                user_shared.post_shared_count += 1
-                if current_user:
-                    share.user_id = current_user.id
-                    current_user.post_share_count += 1
-                
-            except Exception as e:
-                pass
-
-            db.session.commit() 
-            return send_result(data=marshal(share, ShareDto.model_response))
+            query = PostShare.query
+            if user_id is not None:
+                query = query.filter(PostShare.user_id == user_id)
+            if post_id is not None:
+                query = query.filter(PostShare.post_id == post_id)
+            if from_date is not None:
+                query = query.filter(PostShare.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(PostShare.created_date <= to_date)
+            if facebook is not None:
+                query = query.filter(PostShare.facebook == facebook)
+            if twitter is not None:
+                query = query.filter(PostShare.twitter == twitter)
+            if zalo is not None:
+                query = query.filter(PostShare.zalo == zalo)
+            shares = query.all()
+            if len(shares) > 0:
+                return send_result(data=marshal(shares, ShareDto.model_response), message=messages.ERR_GET_SUCCESS)
+            else:
+                return send_result(messages.ERR_NOT_FOUND)
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
-        query = PostShare.query
-        share = query.filter(PostShare.id == object_id).first()
-        if share is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-        else:
-            return send_result(data=marshal(share, ShareDto.model_response), message='Success')
+        
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
-    def update(self, object_id, data):
+        try:
+            query = PostShare.query
+            share = query.filter(PostShare.id == object_id).first()
+            if share is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(share, ShareDto.model_response), message=messages.ERR_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def update(self):
         pass
 
-    def delete(self, object_id):
+    def delete(self):
         pass
+
 
     def _parse_share(self, data):
         share = PostShare()

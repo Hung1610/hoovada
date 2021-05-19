@@ -163,12 +163,15 @@ class QuestionController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error("Question ID is null")
+
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
         else:
             question = Question.query.filter_by(slug=object_id).first()
+        
         if question is None:
-            return send_error(message='Could not find question with the ID {}'.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
+
         current_user = g.current_user
         if question.is_private:
             if current_user:
@@ -667,6 +670,9 @@ class QuestionController(Controller):
 
     def delete(self, object_id):
 
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+            
         try:
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()

@@ -16,7 +16,7 @@ from app.constants import messages
 from app.modules.q_a.answer.voting.vote_dto import AnswerVoteDto
 from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-#from common.utils.permission import has_permission
+from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole
 
@@ -40,8 +40,8 @@ class AnswerVoteController(Controller):
 
         current_user = g.current_user
 
-        #if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
-        #    return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.ANSWER_VOTE)):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
