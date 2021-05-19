@@ -25,6 +25,32 @@ UserEducation = db.get_model('UserEducation')
 
 
 class EducationController(Controller):
+
+
+    def create(self, user_id, data):
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if user_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+            
+        data['user_id'] = user_id
+
+        try:
+            education = self._parse_education(data=data, education=None)
+            if education.is_current:
+                UserEducation.query.filter_by(user_id=user_id).update({'is_current': False}, synchronize_session=False)
+            
+            db.session.add(education)
+            db.session.commit()
+            return send_result(data=marshal(education, EducationDto.model_response))
+        
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
     def get(self, args, user_id=None):
         school, primary_major, secondary_major = None, None, None 
         if 'school' in args:
@@ -46,69 +72,43 @@ class EducationController(Controller):
                 print(e.__str__())
                 pass
 
-        query = UserEducation.query
-        if user_id is not None:
-            query = query.filter(UserEducation.user_id == user_id)
-        if school is not None:
-            query = query.filter(UserEducation.school == school)
-        if primary_major is not None:
-            query = query.filter(UserEducation.primary_major == primary_major)
-        if secondary_major is not None:
-            query = query.filter(UserEducation.secondary_major == secondary_major)
-            
-        educations = query.all()
-        if educations is not None and len(educations) > 0:
-            return send_result(marshal(educations, EducationDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any educations.')
-
-    def get_by_id(self, object_id):
         try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('UserEducation ID'))
-        
-            education = UserEducation.query.filter_by(id=object_id).first()
-            
-            if education is None:
-                return send_error(message='Could not find education with the ID {}'.format(object_id))
-            
-            return send_result(data=marshal(education, EducationDto.model_response), message='Success')
-        
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message='Could not get education with the ID {}'.format(object_id))
+            query = UserEducation.query
+            if user_id is not None:
+                query = query.filter(UserEducation.user_id == user_id)
+            if school is not None:
+                query = query.filter(UserEducation.school == school)
+            if primary_major is not None:
+                query = query.filter(UserEducation.primary_major == primary_major)
+            if secondary_major is not None:
+                query = query.filter(UserEducation.secondary_major == secondary_major)
+                
+            educations = query.all()
+            if educations is not None and len(educations) > 0:
+                return send_result(message=messages.MSG_CREATE_SUCCESS, marshal(educations, EducationDto.model_response))
 
-
-    def create(self, user_id, data):
-        if not isinstance(data, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        data['user_id'] = user_id
-
-        try:
-            education = self._parse_education(data=data, education=None)
-            if education.is_current:
-                UserEducation.query.filter_by(user_id=user_id).update({'is_current': False}, synchronize_session=False)
-            db.session.add(education)
-            db.session.commit()
-            return send_result(data=marshal(education, EducationDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create education. Error: ' + e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def get_by_id(self):
+        pass
 
 
     def update(self, object_id, data):
-        if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('UserEducation ID'))
-        
+
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
         
         try:
             education = UserEducation.query.filter_by(id=object_id).first()
             if education is None:
-                return send_error(message='UserEducation with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             education = self._parse_education(data=data, education=education)
             education.updated_date = datetime.utcnow()
@@ -116,29 +116,32 @@ class EducationController(Controller):
                 UserEducation.query.filter(UserEducation.id != education.id, UserEducation.user_id == education.user_id).update({'is_current': False}, synchronize_session=False)
             
             db.session.commit()
-            
-            return send_result(message='Update successfully', data=marshal(education, EducationDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(education, EducationDto.model_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not update education. Error: ' + e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):
-        
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))    
+
         try:
             education = UserEducation.query.filter_by(id=object_id).first()
             if education is None:
-                return send_error(message='UserEducation with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
             db.session.delete(education)
             db.session.commit()
-            return send_result(message='UserEducation with the ID {} was deleted.'.format(object_id))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
         
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not delete education with the ID {}.'.format(object_id))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def _parse_education(self, data, education=None):
@@ -154,14 +157,26 @@ class EducationController(Controller):
                 pass
 
         if 'school' in data:
-            education.school = data['school']
-        
+            try:
+                education.school = data['school']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'primary_major' in data:
-            education.primary_major = data['primary_major']
-        
+            try:
+                education.primary_major = data['primary_major']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'secondary_major' in data:
-            education.secondary_major = data['secondary_major']
-        
+            try:
+                education.secondary_major = data['secondary_major']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'is_current' in data:
             try:
                 education.is_current = bool(data['is_current'])
@@ -189,4 +204,5 @@ class EducationController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         return education

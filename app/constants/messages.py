@@ -12,16 +12,16 @@ MSG_CREATE_SUCCESS = 'Created successfully.'
 ERR_CREATE_FAILED = 'Failed to create. Issue: {}!'
 
 # Get Messages
-MSG_GET_SUCCESS = '{} get successfully.'
-ERR_GET_FAILED = 'Failed to get {}. Issue: {}!'
+MSG_GET_SUCCESS = 'Get successfully.'
+ERR_GET_FAILED = 'Failed to get. Issue: {}!'
 
 # Update Messages
-MSG_UPDATE_SUCCESS = '{} updated successfully.'
-ERR_UPDATE_FAILED = 'Failed to update {}. Issue: {}!'
+MSG_UPDATE_SUCCESS = 'Updated successfully.'
+ERR_UPDATE_FAILED = 'Failed to update. Issue: {}!'
 
 # Delete Messages
-MSG_DELETE_SUCCESS = '{} deleted successful.'
-ERR_DELETE_FAILED = 'Failed to delete {}. Issue: {}!'
+MSG_DELETE_SUCCESS = 'Deleted successful.'
+ERR_DELETE_FAILED = 'Failed to delete. Issue: {}!'
 
 # File Messages
 ERR_NO_FILE = 'No file found in the request!'
@@ -98,7 +98,6 @@ ERR_USER_INFO_MORE_THAN_1 = 'More than 1 user information is selected!'
 
 ########### Topics Module #################
 ERR_TOPICS_MORE_THAN_5 = 'Number of topics is more than 5!'
-ERR_NOT_LOAD_TOPICS = 'Topics cannot be loaded!'
 
 ########### User Module #################
 ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'

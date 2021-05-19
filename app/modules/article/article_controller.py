@@ -112,8 +112,8 @@ class ArticleController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
+            print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
@@ -199,7 +199,7 @@ class ArticleController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('Article', str(e)))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
  
     def get_count(self, args):
@@ -210,13 +210,15 @@ class ArticleController(Controller):
         
         except Exception as e:
             print(e.__str__())
-            return send_error(messages.ERR_NOT_LOAD_TOPICS)
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Article Id'))
+        
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        try:      
             if object_id.isdigit():
                 article = Article.query.filter_by(id=object_id).first()
             else:
@@ -242,12 +244,13 @@ class ArticleController(Controller):
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                 update_seen_articles.send(article.id, current_user.id)
             
-            return send_result(data=marshal(result, ArticleDto.model_article_response), message='Success')
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
             print(e.__str__())
-            pass
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
     
+
     def get_similar_elastic(self, args):
         if not 'title' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
@@ -297,11 +300,13 @@ class ArticleController(Controller):
                         result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
                 results.append(result)
-            return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, ArticleDto.model_article_response))
+
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Get similar articles failed. Error: "+ e.__str__())          
+            return send_error(message=messages.ERR_GET_FAILED.format(e))        
     
+
     def get_similar(self, args):
         if not 'title' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
@@ -355,11 +360,11 @@ class ArticleController(Controller):
 
                 results.append(result)
         
-            return send_result(data=marshal(results, ArticleDto.model_article_response), message='Success')
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, ArticleDto.model_article_response))
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Get similar articles failed. Error: "+ e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def update(self, object_id, data):
@@ -414,12 +419,13 @@ class ArticleController(Controller):
                 result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                 result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Article"), data=marshal(result, ArticleDto.model_article_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format("Article", str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
 
     def delete(self, object_id):
         try:
@@ -440,12 +446,12 @@ class ArticleController(Controller):
             article_dsl.delete()
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
-            return send_result(message=messages.MSG_DELETE_SUCCESS.format(object_id))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format(object_id, str(e)))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def update_slug(self):
@@ -454,12 +460,12 @@ class ArticleController(Controller):
             for article in articles:
                 article.slug = slugify(article.title)
                 db.session.commit()
-            return send_result(marshal(articles, ArticleDto.model_article_response), message='Success')
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, marshal(articles, ArticleDto.model_article_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=e)
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def _parse_article(self, data, article=None):

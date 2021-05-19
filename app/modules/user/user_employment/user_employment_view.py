@@ -5,13 +5,14 @@
 from flask_restx import Resource, reqparse
 
 # own modules
-from app.modules.user.user_employment.user_employment_controller import UserEmploymentController
-from app.modules.user.user_employment.user_employment_dto import UserEmploymentDto
-from common.utils.decorator import admin_token_required, token_required
+from app.modules.user.user_employment.user_employment_controller import EmploymentController
+from app.modules.user.user_employment.user_employment_dto import EmploymentDto
+from common.utils.decorator import token_required
 
-api = UserEmploymentDto.api
-user_employment_request = UserEmploymentDto.model_request
-user_employment_response = UserEmploymentDto.model_response
+api = EmploymentDto.api
+employment_request = EmploymentDto.model_request
+employment_response = EmploymentDto.model_response
+parser = UserEmploymentDto.parser
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -20,53 +21,56 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 @api.route('/me/employment')
-class UserEmploymentList(Resource):
+class EmploymentMeList(Resource):
     @token_required
-    @api.expect(user_employment_request)
-    @api.response(code=200, model=user_employment_response, description='Model for question topic response.')
+    @api.response(code=200, model=employment_response, description='Model for employment response.')
+    def get(self):
+        """Get all employment information of logged-in user"""
+
+        args = get_parser.parse_args()
+        controller = EmploymentController()
+        user_id = g.current_user.id
+        return controller.get(user_id=user_id, args=args)
+
+    @token_required
+    @api.expect(employment_request)
+    @api.response(code=200, model=employment_response, description='Model for employment response.')
     def post(self):
-        """ Create new user_employment."""
+        """ Create employment information for logged-in user"""
 
         data = api.payload
-        controller = UserEmploymentController()
+        controller = EmploymentController()
         return controller.create(data=data)
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('user_id', type=int, required=True, help='Search employment by user_id')
+@api.route('/<int:user_id>/employment')
+class EmploymentList(Resource):
+    @api.response(code=200, model=employment_response, description='Model for employment response.')
+    def get(self, user_id):
+        """Get all employment information by user_id"""
 
-@api.route('/all/employment')
-@api.expect(parser)
-class UserEmploymentSearch(Resource):
-    @api.response(code=200, model=user_employment_response, description='Model for user title response.')
-    def get(self):
-        """ Search all employment that satisfy conditions."""
-        
-        args = parser.parse_args()
-        controller = UserEmploymentController()
-        return controller.search(args=args)
+        args = get_parser.parse_args()
+        controller = EmploymentController()
+        return controller.get(user_id=user_id, args=args)
+
 
 @api.route('/all/employment/<int:id>')
-class UserEmploymentAll(Resource):
-    @api.response(code=200, model=user_employment_response, description='Model for employment response.')
-    def get(self, id):
-        """Get employment by user-employment ID"""
-
-        controller = UserEmploymentController()
-        return controller.get_by_id(object_id=id)
+class EmploymentAll(Resource):
 
     @token_required
-    @api.expect(user_employment_request)
-    @api.response(code=200, model=user_employment_response, description='Model for employment response.')
+    @api.expect(employment_request)
+    @api.response(code=200, model=employment_response, description='Model for employment response.')
     def patch(self, id):
-        """Update existing employment by user-employment ID"""
+        """Update existing employment information by user employment id"""
+
         data = api.payload
-        controller = UserEmploymentController()
+        controller = EmploymentController()
         return controller.update(object_id=id, data=data)
+
 
     @token_required
     def delete(self, id):
-        """Delete employment by its ID.
-        """
-        controller = UserEmploymentController()
+        """Delete existing user employment information by user employment id"""
+
+        controller = EmploymentController()
         return controller.delete(object_id=id)

@@ -24,9 +24,28 @@ UserLanguage = db.get_model('UserLanguage')
 
 
 class LanguageController(Controller):
+
+    def create(self, user_id, data):
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
+        if user_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+
+        data['user_id'] = user_id
+
+        try:
+            language = self._parse_language(data=data, language=None)
+            db.session.add(language)
+            db.session.commit()
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(language, LanguageDto.model_response))
+
+        except Exception as e:
+            print(e.__str__())
+            db.session.rollback()
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
     def get(self, args, user_id=None):
-        """Search languages by params.
-        """
 
         language_id = None
         if 'language_id' in args:
@@ -35,78 +54,66 @@ class LanguageController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-
-        query = UserLanguage.query
-        if user_id is not None:
-            query = query.filter(UserLanguage.user_id == user_id)
-        if language_id is not None:
-            query = query.filter(UserLanguage.language_id == language_id)
-            
-        languages = query.all()
-        if languages is not None and len(languages) > 0:
-            return send_result(marshal(languages, LanguageDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any languages.')
-
-    def get_by_id(self, object_id):
         try:
-            if object_id is None:
-                return send_error('UserLanguage ID is null')
-            language = UserLanguage.query.filter_by(id=object_id).first()
-            if language is None:
-                return send_error(message='Could not find language with the ID {}'.format(object_id))
-            return send_result(data=marshal(language, LanguageDto.model_response), message='Success')
+            query = UserLanguage.query
+            if user_id is not None:
+                query = query.filter(UserLanguage.user_id == user_id)
+            if language_id is not None:
+                query = query.filter(UserLanguage.language_id == language_id)
+                
+            languages = query.all()
+            return send_result(message=messages.MSG_GET_SUCCESS, marshal(languages, LanguageDto.model_response))
+
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not get language with the ID {}'.format(object_id))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-    def create(self, user_id, data):
-        if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form.")
 
-        data['user_id'] = user_id
+    def get_by_id(self):
+        pass
 
-        try:
-            language = self._parse_language(data=data, language=None)
-            db.session.add(language)
-            db.session.commit()
-            return send_result(data=marshal(language, LanguageDto.model_response))
-        except Exception as e:
-            print(e.__str__())
-            db.session.rollback()
-            return send_error(message='Could not create language. Error: ' + e.__str__())
 
     def update(self, object_id, data):
-        if object_id is None:
-            return send_error(message='UserLanguage ID is null')
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         try:
             language = UserLanguage.query.filter_by(id=object_id).first()
             if language is None:
-                return send_error(message='UserLanguage with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             language = self._parse_language(data=data, language=language)
             language.updated_date = datetime.utcnow()
             db.session.commit()
-            return send_result(message='Update successfully', data=marshal(language, LanguageDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(language, LanguageDto.model_response))
+        
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not update language. Error: ' + e.__str__())
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
 
     def delete(self, object_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))    
+
         try:
             language = UserLanguage.query.filter_by(id=object_id).first()
             if language is None:
-                return send_error(message='UserLanguage with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             db.session.delete(language)
             db.session.commit()
-            return send_result(message='UserLanguage with the ID {} was deleted.'.format(object_id))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not delete language with the ID {}.'.format(object_id))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
+
 
     def _parse_language(self, data, language=None):
         if language is None:
@@ -120,13 +127,17 @@ class LanguageController(Controller):
                 pass
         
         if 'level' in data:
-            language.level = data['level']
+            try:
+                language.level = data['level']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'language_id' in data:
             try:
                 language.language_id = int(data['language_id'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
 
         if 'is_visible' in data:
@@ -134,5 +145,6 @@ class LanguageController(Controller):
                 language.is_visible = bool(data['is_visible'])
             except Exception as e:
                 print(e.__str__())
+                pass
 
         return language

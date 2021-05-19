@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask import current_app, request
+from flask import g
 from flask_restx import Resource, reqparse
 
 # own modules
 from app.modules.user.education.education_controller import EducationController
 from app.modules.user.education.education_dto import EducationDto
-from common.utils.decorator import admin_token_required, token_required
-from common.utils.response import send_error
+from common.utils.decorator import token_required
 
 api = EducationDto.api
 education_response = EducationDto.model_response
@@ -22,111 +21,59 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-@api.route('/<int:user_id>/education')
-class EducationList(Resource):
-    @api.expect(get_parser)
-    @api.response(code=200, model=education_response, description='Model for education response.')
-    def get(self, user_id):
-        """
-        Search all educations that satisfy conditions.
-        """
-        args = get_parser.parse_args()
-        controller = EducationController()
-        return controller.get(user_id=user_id, args=args)
-
-    @admin_token_required()
-    @api.expect(education_request)
-    @api.response(code=200, model=education_response, description='Model for education response.')
-    def post(self, user_id):
-        """Create new education - ADMIN API"""
-
-        data = api.payload
-        controller = EducationController()
-        return controller.create(data=data, user_id=user_id)
-
-
 @api.route('/me/education')
 class EducationMeList(Resource):
     @token_required
     @api.response(code=200, model=education_response, description='Model for education response.')
     def get(self):
-        """
-        Search all educations that satisfy conditions.
-        """
+        """Get all education information of logged-in user"""
+
         args = get_parser.parse_args()
         controller = EducationController()
-
-        current_user, _ = current_app.get_logged_user(request)
-        user_id = current_user.id
-
+        user_id = g.current_user.id
         return controller.get(user_id=user_id, args=args)
+
 
     @token_required
     @api.expect(education_request)
     @api.response(code=200, model=education_response, description='Model for education response.')
     def post(self):
-        """Create new education"""
+        """Create new education information for logged-in user"""
         
         data = api.payload
         controller = EducationController()
-
-        current_user, _ = current_app.get_logged_user(request)
-        user_id = current_user.id
-
+        user_id = g.current_user.id
         return controller.create(data=data, user_id=user_id)
 
 
-@api.route('/all/education')
-class EducationAllList(Resource):
-    @token_required
+@api.route('/<int:user_id>/education')
+class EducationList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=education_response, description='Model for education response.')
-    def get(self):
-        """ Get all education for current logged-in user"""
+    def get(self, user_id):
+        """Get all educations using user_id"""
 
         args = get_parser.parse_args()
         controller = EducationController()
-        return controller.get(args=args)
+        return controller.get(user_id=user_id, args=args)
 
 
 @api.route('/all/education/<int:id>')
 class EducationAll(Resource):
-    @token_required
-    @api.response(code=200, model=education_response, description='Model for education response.')
-    def get(self, id):
-        """
-        Get education by its ID.
-
-        :param id: The ID of the education.
-
-        :return: The education with the specific ID.
-        """
-        controller = EducationController()
-        return controller.get_by_id(object_id=id)
 
     @token_required
     @api.expect(education_request)
     @api.response(code=200, model=education_response, description='Model for education response.')
     def patch(self, id):
-        """
-        Update existing education by its ID.
+        """Update existing education by education ID"""
 
-        :param id: The ID of the education which need to be updated.
-
-        :return: The updated education if success and null vice versa.
-        """
         data = api.payload
         controller = EducationController()
         return controller.update(object_id=id, data=data)
 
     @token_required
     def delete(self, id):
-        """
-        Delete education by its ID.
+        """Delete education by by education ID"""
 
-        :param id: The ID of the education.
-
-        :return:
-        """
         controller = EducationController()
         return controller.delete(object_id=id)

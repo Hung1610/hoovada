@@ -4,8 +4,8 @@
 # built-in modules
 from datetime import datetime
 
-from flask import request
 # third-party modules
+from flask import request
 from flask_restx import marshal
 
 # own modules
@@ -13,8 +13,7 @@ from common.db import db
 from app.constants import messages
 from app.modules.user.topic.topic_dto import TopicDto
 from common.controllers.controller import Controller
-from common.utils.response import (paginated_result, send_error,
-                                   send_result)
+from common.utils.response import paginated_result, send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -29,8 +28,28 @@ User = db.get_model('User')
 
 
 class TopicController(Controller):
+
+    def create(self, user_id, data):
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if user_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+        data['user_id'] = user_id
+
+        try:
+            topic = self._parse_topic(data=data, topic=None)
+            db.session.add(topic)
+            db.session.commit()
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_response))
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
     def get(self, args, user_id=None):
-        """ Search topics by params"""
         
         fixed_topic_id, topic_id, is_fixed = None, None, None
         if 'fixed_topic_id' in args:
@@ -51,85 +70,78 @@ class TopicController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-
-        query = UserTopic.query
-        if user_id is not None:
-            query = query.filter(UserTopic.user_id == user_id)
-        if fixed_topic_id is not None:
-            query = query.filter(UserTopic.topic.parent_id == fixed_topic_id)
-        if topic_id is not None:
-            query = query.filter(UserTopic.topic_id == topic_id)
-        if is_fixed is not None:
-            query = query.filter(UserTopic.topic.is_fixed == True)
-            
-        topics = query.all()
-        return send_result(marshal(topics, TopicDto.model_response), message='Success')
-
-    def get_by_id(self, object_id):
         try:
-            if object_id is None:
-                return send_error('UserTopic ID is null')
-            topic = UserTopic.query.filter_by(id=object_id).first()
-            if topic is None:
-                return send_error(message='Could not find topic with the ID {}'.format(object_id))
-            return send_result(data=marshal(topic, TopicDto.model_response), message='Success')
+            query = UserTopic.query
+            if user_id is not None:
+                query = query.filter(UserTopic.user_id == user_id)
+            if fixed_topic_id is not None:
+                query = query.filter(UserTopic.topic.parent_id == fixed_topic_id)
+            if topic_id is not None:
+                query = query.filter(UserTopic.topic_id == topic_id)
+            if is_fixed is not None:
+                query = query.filter(UserTopic.topic.is_fixed == True)
+                
+            topics = query.all()
+            return send_result(message=messages.MSG_GET_SUCCESS, marshal(topics, TopicDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Could not get topic with the ID {}'.format(object_id))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-    def create(self, user_id, data):
-        if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form.")
 
-        data['user_id'] = user_id
+    def get_by_id(self):
+        pass
 
-        try:
-            topic = self._parse_topic(data=data, topic=None)
-            db.session.add(topic)
-            db.session.commit()
-            return send_result(data=marshal(topic, TopicDto.model_response))
-        except Exception as e:
-            print(e.__str__())
-            db.session.rollback()
-            return send_error(message='Could not create topic. Error: ' + e.__str__())
 
     def update(self, object_id, data):
-        if object_id is None:
-            return send_error(message='UserTopic ID is null')
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         try:
             topic = UserTopic.query.filter_by(id=object_id).first()
             if topic is None:
-                return send_error(message='UserTopic with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             topic = self._parse_topic(data=data, topic=topic)
             topic.updated_date = datetime.utcnow()
             db.session.commit()
-            return send_result(message='Update successfully', data=marshal(topic, TopicDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(topic, TopicDto.model_response))
+
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not update topic. Error: ' + e.__str__())
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
 
     def delete(self, object_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))  
+
         try:
             topic = UserTopic.query.filter_by(id=object_id).first()
             if topic is None:
-                return send_error(message='UserTopic with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             db.session.delete(topic)
             db.session.commit()
-            return send_result(message='UserTopic with the ID {} was deleted.'.format(object_id))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not delete topic with the ID {}.'.format(object_id))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
+
 
     def get_endorsed_topics(self, user_id, args):
+        
         if not 'page' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('page'))
+        
         if not 'per_page' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('per_page'))
+
         page, per_page = args.get('page', 0), args.get('per_page', 10)
         try:
             user = User.query.filter_by(id=user_id).first()
@@ -148,37 +160,49 @@ class TopicController(Controller):
             res, code = paginated_result(result)
             res['data'] = marshal([{'topic': topic, 'endorse_score': endorse_score} for topic, endorse_score in res.get('data')], TopicDto.model_endorsed_topic)
             return res, code
+            
         except Exception as e:
-            print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('endorsed topics', e))
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def _parse_topic(self, data, topic=None):
         if topic is None:
             topic = UserTopic()
+
         if 'user_id' in data:
             try:
                 topic.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'description' in data:
-            topic.description = data['description']
+            try:
+                topic.description = data['description']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         if 'fixed_topic_id' in data:
             try:
                 topic.fixed_topic_id = int(data['fixed_topic_id'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
+
         if 'topic_id' in data:
             try:
                 topic.topic_id = int(data['topic_id'])
             except Exception as e:
-                print(e)
+                print(e.__str__())
                 pass
+
         if 'is_visible' in data:
             try:
                 topic.is_visible = bool(data['is_visible'])
             except Exception as e:
                 print(e.__str__())
+                pass
                 
         return topic

@@ -24,57 +24,13 @@ UserLocation = db.get_model('UserLocation')
 
 
 class LocationController(Controller):
-    def get(self, args, user_id=None):
-        """
-        Search locations by params.
-
-        :param args: Arguments in dictionary form.
-
-        :return:
-        """
-        location_detail, is_current = None, None
-        if 'location_detail' in args:
-            try:
-                location_detail = args['location_detail']
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'is_current' in args:
-            try:
-                is_current = args['is_current']
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        query = UserLocation.query
-        if user_id is not None:
-            query = query.filter(UserLocation.user_id == user_id)
-        if location_detail is not None:
-            query = query.filter(UserLocation.location_detail == location_detail)
-        if is_current is not None:
-            query = query.filter(UserLocation.is_current == is_current)
-            
-        locations = query.all()
-        if locations is not None and len(locations) > 0:
-            return send_result(marshal(locations, LocationDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any locations.')
-
-    def get_by_id(self, object_id):
-        try:
-            if object_id is None:
-                return send_error('UserLocation ID is null')
-            location = UserLocation.query.filter_by(id=object_id).first()
-            if location is None:
-                return send_error(message='Could not find location with the ID {}'.format(object_id))
-            return send_result(data=marshal(location, LocationDto.model_response), message='Success')
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message='Could not get location with the ID {}'.format(object_id))
 
     def create(self, user_id, data):
         if not isinstance(data, dict):
-            return send_error(message="Data is not correct or not in dictionary form.")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if user_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
 
         data['user_id'] = user_id
 
@@ -84,45 +40,96 @@ class LocationController(Controller):
                 UserLocation.query.filter_by(user_id=user_id).update({'is_current': False}, synchronize_session=False)
             db.session.add(location)
             db.session.commit()
-            return send_result(data=marshal(location, LocationDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(location, LocationDto.model_response))
+
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not create location. Error: ' + e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def get(self, args, user_id=None):
+
+        location_detail, is_current = None, None
+        if 'location_detail' in args:
+            try:
+                location_detail = args['location_detail']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'is_current' in args:
+            try:
+                is_current = args['is_current']
+            except Exception as e:
+                print(e.__str__())
+                pass
+        try:
+            query = UserLocation.query
+            if user_id is not None:
+                query = query.filter(UserLocation.user_id == user_id)
+            if location_detail is not None:
+                query = query.filter(UserLocation.location_detail == location_detail)
+            if is_current is not None:
+                query = query.filter(UserLocation.is_current == is_current)
+                
+            locations = query.all()
+            if locations is not None and len(locations) > 0:
+                return send_result(message=messages.MSG_GET_SUCCESS, marshal(locations, LocationDto.model_response))
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def get_by_id(self):
+        pass
+
 
     def update(self, object_id, data):
-        if object_id is None:
-            return send_error(message='UserLocation ID is null')
         if data is None or not isinstance(data, dict):
-            return send_error('Data is null or not in dictionary form. Check again.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         try:
             location = UserLocation.query.filter_by(id=object_id).first()
             if location is None:
-                return send_error(message='UserLocation with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             location = self._parse_location(data=data, location=location)
             location.updated_date = datetime.utcnow()
             if location.is_current:
                 UserLocation.query.filter(UserLocation.id != location.id, UserLocation.user_id == location.user_id).update({'is_current': False}, synchronize_session=False)
             db.session.commit()
-            return send_result(message='Update successfully', data=marshal(location, LocationDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(location, LocationDto.model_response))
+        
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not update location. Error: ' + e.__str__())
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
 
     def delete(self, object_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))   
+
         try:
             location = UserLocation.query.filter_by(id=object_id).first()
             if location is None:
-                return send_error(message='UserLocation with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             db.session.delete(location)
             db.session.commit()
-            return send_result(message='UserLocation with the ID {} was deleted.'.format(object_id))
+
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
+        
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not delete location with the ID {}.'.format(object_id))
+            print(e.__str__())
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
+
 
     def _parse_location(self, data, location=None):
         if location is None:
@@ -136,7 +143,11 @@ class LocationController(Controller):
                 pass
         
         if 'location_detail' in data:
-            location.location_detail = data['location_detail']
+            try:
+                location.location_detail = data['location_detail']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if 'is_current' in data:
             try:
@@ -164,4 +175,5 @@ class LocationController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         return location

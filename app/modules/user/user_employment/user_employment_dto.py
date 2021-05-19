@@ -13,7 +13,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class UserEmploymentDto(Dto):
+class EmploymentDto(Dto):
     name = 'user_employment'
     api = Namespace(name, description="User-Employment operations")
 
@@ -39,3 +39,6 @@ class UserEmploymentDto(Dto):
         'created_date':fields.DateTime(description='The date user_employment record was created.'),
         'is_visible': fields.Boolean(default=False, description='Display the user employment or not')
     })
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('user_id', type=int, required=True, help='Search employment by user_id')
