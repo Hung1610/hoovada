@@ -65,8 +65,11 @@ class LanguageController(Controller):
                 query = query.filter(UserLanguage.language_id == language_id)
                 
             languages = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(languages, LanguageDto.model_response))
-
+            if languages is not None and len(languages) > 0:
+                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(languages, LanguageDto.model_response))
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

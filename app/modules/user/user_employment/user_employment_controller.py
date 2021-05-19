@@ -59,7 +59,7 @@ class EmploymentController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
-    def get(self,  args, user_id=None):
+    def get(self, args, user_id=None):
 
         if 'is_current' in args:
             try:
@@ -81,9 +81,12 @@ class EmploymentController(Controller):
             for user_employment in user_employments:
                 result = user_employment.__dict__
                 results.append(result)
-                
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
             
+            if results is not None and len(results) > 0:
+                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

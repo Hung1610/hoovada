@@ -27,7 +27,7 @@ UserEducation = db.get_model('UserEducation')
 class EducationController(Controller):
 
 
-    def create(self, user_id, data):
+    def create(self, data, user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
@@ -59,12 +59,14 @@ class EducationController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'primary_major' in args:
             try:
                 primary_major = args['primary_major']
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'secondary_major' in args:
             try:
                 secondary_major = args['secondary_major']
@@ -86,6 +88,8 @@ class EducationController(Controller):
             educations = query.all()
             if educations is not None and len(educations) > 0:
                 return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(educations, EducationDto.model_response))
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
 
         except Exception as e:
             db.session.rollback()
@@ -97,7 +101,7 @@ class EducationController(Controller):
         pass
 
 
-    def update(self, object_id, data):
+    def update(self, data, object_id):
 
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)

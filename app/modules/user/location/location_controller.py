@@ -77,8 +77,11 @@ class LocationController(Controller):
                 query = query.filter(UserLocation.is_current == is_current)
                 
             locations = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
-
+            if locations is not None and len(locations) > 0:
+                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
