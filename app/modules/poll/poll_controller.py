@@ -18,12 +18,16 @@ from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
 from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
+from common.models.vote import VotingStatusEnum
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+
+PollVote = db.get_model('PollVote')
+PollBookmark = db.get_model('PollBookmark')
 Poll = db.get_model('Poll')
 PollTopic = db.get_model('PollTopic')
 PollSelect = db.get_model('PollSelect')
@@ -32,103 +36,9 @@ User = db.get_model('User')
 Topic = db.get_model('Topic')
 ESPoll = get_model('Poll')
 
+
 class PollController(Controller):
     query_classname = 'Poll'
-
-    def get(self, args):
-        try:
-            query = self.get_query_results(args)
-            res, code = paginated_result(query)
-            results = []
-            if res['data'] is not None:
-                for poll in res['data']:
-                    if poll:
-                        results.append(poll._asdict())
-            res['data'] = marshal(results, PollDto.model_response)
-            return res, code
-        
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('Poll', e))
-
-    
-    def get_by_id(self, object_id):
-        if object_id is None:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
-        
-        if object_id.isdigit():
-            poll = Poll.query.filter_by(id=object_id).first()
-        else:
-            poll = Poll.query.filter_by(slug=object_id).first()
-
-        current_user = g.current_user
-        if poll is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        else:
-            result = poll._asdict()
-            result['user'] = poll.user
-            result['topics'] = poll.topics
-            result['fixed_topic'] = poll.fixed_topic
-            result['poll_selects'] = poll.poll_selects
-            update_seen_poll.send(current_user.id, poll.id)
-            return send_result(data=marshal(result, PollDto.model_response))
-
-
-    def update(self, object_id, data):
-        if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
-
-        if data is None or not isinstance(data, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
-        poll = Poll.query.filter_by(id=object_id).first()
-        if poll is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        current_user = g.current_user
-        if poll.user_id != current_user.id:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
-        if 'title' in data:
-            data['title'] = data['title'].strip().capitalize()
-            if is_sensitive(data['title']):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-            
-        poll = self._parse_poll(data=data, poll=poll)
-        try:
-            poll.updated_date = datetime.utcnow()
-            db.session.commit()
-            result = poll._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollDto.model_response))
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
-
-
-    def delete(self, object_id):
-        
-        if object_id.isdigit():
-            poll = Poll.query.filter_by(id=object_id).first()
-        else:
-            poll = Poll.query.filter_by(slug=object_id).first()
-
-        if poll is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        current_user = g.current_user
-        if poll.user_id != current_user.id:
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
-        try:
-            db.session.delete(poll)
-            db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Poll', e))
 
     def create(self, data):
         if not isinstance(data, dict):
@@ -196,8 +106,16 @@ class PollController(Controller):
             # index to ES server
             poll_dsl = ESPoll(_id=poll.id, title=poll.title, user_id=poll.user_id, created_date=poll.created_date, updated_date=poll.updated_date)
             poll_dsl.save()
+
+            # TODO: author automatically bookmark the poll
+
             db.session.commit()
             result = poll._asdict()
+
+            result['is_upvoted_by_me'] =  False
+            result['is_downvoted_by_me'] =  False
+            result['is_bookmarked_by_me'] = True
+
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollDto.model_response))
 
@@ -205,6 +123,111 @@ class PollController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def get(self, args):
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            results = []
+            if res['data'] is not None:
+                for poll in res['data']:
+                    if poll:
+                        # TODO: return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
+
+                        results.append(poll._asdict())
+
+            res['data'] = marshal(results, PollDto.model_response)
+            return res, code
+        
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format('Poll', e))
+
+    
+    def get_by_id(self, object_id):
+        if object_id is None:
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
+        
+        if object_id.isdigit():
+            poll = Poll.query.filter_by(id=object_id).first()
+        else:
+            poll = Poll.query.filter_by(slug=object_id).first()
+
+        current_user = g.current_user
+        if poll is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        else:
+            result = poll._asdict()
+            result['user'] = poll.user
+            result['topics'] = poll.topics
+            result['fixed_topic'] = poll.fixed_topic
+            result['poll_selects'] = poll.poll_selects
+
+            # TODO: return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
+
+            update_seen_poll.send(current_user.id, poll.id)
+            return send_result(data=marshal(result, PollDto.model_response))
+
+
+    def update(self, object_id, data):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
+
+        if data is None or not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        poll = Poll.query.filter_by(id=object_id).first()
+        if poll is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        current_user = g.current_user
+        if poll.user_id != current_user.id:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        if 'title' in data:
+            data['title'] = data['title'].strip().capitalize()
+            if is_sensitive(data['title']):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
+            
+        poll = self._parse_poll(data=data, poll=poll)
+        try:
+            poll.updated_date = datetime.utcnow()
+            db.session.commit()
+            result = poll._asdict()
+            
+            # TODO: return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
+
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
+
+    def delete(self, object_id):
+        
+        if object_id.isdigit():
+            poll = Poll.query.filter_by(id=object_id).first()
+        else:
+            poll = Poll.query.filter_by(slug=object_id).first()
+
+        if poll is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        current_user = g.current_user
+        if poll.user_id != current_user.id:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        try:
+            db.session.delete(poll)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_DELETE_FAILED.format('Poll', e))
 
 
     def _parse_poll(self, data, poll=None):

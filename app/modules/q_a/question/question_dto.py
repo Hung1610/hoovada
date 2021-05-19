@@ -80,9 +80,6 @@ class QuestionDto(Dto):
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'comment_count': fields.Integer(default=0, description='The amount of comment'),
-        'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
-        'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
-        'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
@@ -93,6 +90,10 @@ class QuestionDto(Dto):
         # admin actions
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+
+        'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
+        'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
     })
 
     model_question_proposal_response = api.model('question_proposal_response', {
@@ -111,8 +112,6 @@ class QuestionDto(Dto):
         'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
-        'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
-        'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'slug': fields.String(description='The slug of the question'),
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
@@ -126,6 +125,10 @@ class QuestionDto(Dto):
         # admin actions
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+
+        'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
+        'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
     })
 
     top_user_reputation_args_parser = reqparse.RequestParser()

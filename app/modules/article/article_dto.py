@@ -67,8 +67,6 @@ class ArticleDto(Dto):
         'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
-        'up_vote':fields.Boolean(default=False, description='The value of upvote of current user.'),
-        'down_vote':fields.Boolean(default=False, description='The value of downvote of current user'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
@@ -78,6 +76,10 @@ class ArticleDto(Dto):
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
+
+        'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
+        'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
     })
 
     model_get_parser = Dto.paginated_request_parser.copy()

@@ -96,8 +96,8 @@ class AnswerImprovementController(Controller):
                 if current_user:
                     vote = AnswerImprovementVote.query.filter(AnswerImprovementVote.user_id == current_user.id, AnswerImprovementVote.improvement_id == improvement.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                 results.append(result)
             res['data'] = marshal(results, AnswerImprovementDto.model_response)
             return res, code

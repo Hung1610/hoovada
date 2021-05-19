@@ -73,13 +73,16 @@ class PollDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
         'select_count': fields.Integer(default=0, description='Total count of selections'),
+        'is_anonymous': fields.Boolean(default=False, description='The poll is created anonymously'),
 
         # these fields are set by admin
         'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
         'allow_selecting': fields.Boolean(default=True, description='Allow select or not'),
 
-        'is_anonymous': fields.Boolean(default=False, description='The poll is created anonymously'),
+        'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
+        'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),    
     })
 
     model_request = api.model('poll_request', {
@@ -90,6 +93,7 @@ class PollDto(Dto):
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
         'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics'),
         'is_anonymous': fields.Boolean(default=False, description='The poll is created anonymously'),
+        
         # these fields are set by admin
         'allow_comments': fields.Boolean(default=True, description='Allows comment or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),

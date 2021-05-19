@@ -17,35 +17,18 @@ class ArticleBookmarkDto(Dto):
     name = 'article_bookmark'
     api = Namespace(name, description="Article bookmark operations")
 
-    model_bookmark_parent_article = api.model('article_article_bookmark', {
-        'id': fields.Integer(readonly=True, description='The ID of the article'),
-        'name': fields.String(description='The name of the article'),
-        'slug': fields.String(description='The slug of the article'),
-        'article_count': fields.Integer(description='The amount of article belong to this article'),
-        'question_count': fields.Integer(description='The amount of questions belong to this article'),
-        'endorsers_count': fields.Integer(description='The amount of endorsers belong to this article'),
-        'bookmarkers_count': fields.Integer(description='The amount of bookmarkers belong to this article'),
-        'followers_count': fields.Integer(description='The amount of followers belong to this article'),
-        'is_bookmarked_by_me':fields.Boolean(default=False, description='The bookmarks status of current user'),
-        'is_followed_by_me': fields.Boolean(default=False, description='The article is followed by current user or not'),
+    model_topic_article_bookmark = api.model('topic_article_bookmark', {
+        'id': fields.Integer(readonly=True, description='The ID of the topic'),
+        'name': fields.String(description='The name of the topic')
     })
 
     model_bookmark_article = api.model('bookmark_article', {
         'id': fields.Integer(readonly=True, description='The ID of the article'),
         'slug': fields.String(description='The slug of the article'),
         'name': fields.String(description='The name of the article'),
-        'parent': fields.Nested(model_bookmark_parent_article, description='The parent (fixed) article'),
-        'article_count': fields.Integer(description='The amount of article belong to this article'),
-        'question_count': fields.Integer(description='The amount of questions belong to this article'),
-        'endorsers_count': fields.Integer(description='The amount of endorsers belong to this article'),
-        'bookmarkers_count': fields.Integer(description='The amount of bookmarkers belong to this article'),
-        'followers_count': fields.Integer(description='The amount of followers belong to this article'),
-        'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
-        'is_followed_by_me': fields.Boolean(default=False, description='The article is followed by current user or not'),
+        'topics': fields.List(fields.Nested(model_topic_article_bookmark), description='The list of topics')
     })
 
-    model_request = api.model('bookmark_article_request', {
-    })
 
     model_response = api.model('bookmark_article_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),

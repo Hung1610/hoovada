@@ -113,8 +113,10 @@ class QuestionController(Controller):
             result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
-            result['up_vote'] = False
-            result['down_vote'] = False
+
+            result['is_bookmarked_by_me'] = True
+            result['is_upvoted_by_me'] = False
+            result['is_downvoted_by_me'] = False
             
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
         
@@ -122,53 +124,6 @@ class QuestionController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
-
-
-    def apply_filtering(self, query, params):
-        try: 
-            query = super().apply_filtering(query, params)
-            current_user = g.current_user
-            if current_user:
-                if not current_user.show_nsfw:
-                    query = query.filter(Question.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) == False))\
-                        .filter(db.or_(db.not_(Question.topics.any()), Question.topics.any(Topic.is_nsfw == False)))
-
-            get_my_own = False
-            if params.get('user_id'):
-                if current_user:
-                    if params.get('user_id') == str(current_user.id):
-                        get_my_own = True
-                if not get_my_own:
-                    query = query.filter(db.func.coalesce(Question.is_anonymous, False) != True)
-            if not get_my_own:
-                query = query.filter(db.func.coalesce(Question.is_private, False) != True)
-
-            if params.get('title'):
-                title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
-                query = query.filter(title_similarity > 50)
-            
-            if params.get('from_date'):
-                query = query.filter(Question.created_date >= params.get('from_date'))
-            
-            if params.get('to_date'):
-                query = query.filter(Question.created_date <= params.get('to_date'))
-            
-            if params.get('topic_id'):
-                query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
-
-            if params.get('is_shared') and current_user:
-                query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
-            return query
-
-        except Exception as e:
-            print(e.__str__())
-            raise e
-
-
-    def get_query(self):
-        query = super().get_query()
-        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated == False))        
-        return query
 
 
     def get(self, args):
@@ -187,11 +142,12 @@ class QuestionController(Controller):
                     
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
                     
                     bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
                 
                 results.append(result)
             
@@ -201,7 +157,8 @@ class QuestionController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load questions. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -229,14 +186,15 @@ class QuestionController(Controller):
         if current_user:
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
-                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-            result['is_bookmarked_by_me'] = True if bookmark else False
+            if bookmark is not None:
+                result['is_bookmarked_by_me'] = True if bookmark else False
             
             update_seen_questions.send(question.id, current_user.id)
-        return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+        return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
 
 
     def invite(self, object_id, data):
@@ -275,10 +233,12 @@ class QuestionController(Controller):
 
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
-                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,QuestionBookmark.question_id == question.id).first()
-            result['is_bookmarked_by_me'] = True if bookmark else False
+            if bookmark is not None:
+                result['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
         
@@ -320,6 +280,7 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message="Invite failed. Error: " + e.__str__())
 
+
     def get_similar_elastic(self, args):
         if not 'title' in args:
             return send_error(message='Please provide at least the title.')
@@ -353,16 +314,19 @@ class QuestionController(Controller):
                 if current_user is not None:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    
                     bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
                 
                 results.append(result)
-            return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
+            return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def get_similar(self, args):
         self.get_similar_elastic(args)
@@ -400,16 +364,18 @@ class QuestionController(Controller):
                 if current_user is not None:
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    
                     bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                    result['is_bookmarked_by_me'] = True if bookmark else False
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
                 
                 results.append(result)
-            return send_result(data=marshal(results, QuestionDto.model_question_response), message='Success')
+            return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_recommended_users(self, args):
@@ -435,11 +401,11 @@ class QuestionController(Controller):
                 .order_by(desc(total_score))\
                 .limit(limit).all()
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
-            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message='Success')
+            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message=messages.MSG_CREATE_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Get recommended users failed. Error: " + e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_recommended_topics(self, args):
@@ -458,12 +424,12 @@ class QuestionController(Controller):
                 .order_by(desc(title_similarity))\
                 .limit(limit)
             topics = [topic[0] for topic in query.all()]
-            return send_result(data=marshal(topics, QuestionDto.model_topic), message='Success')
+            return send_result(data=marshal(topics, QuestionDto.model_topic), message=messages.MSG_CREATE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message="Get similar questions failed. Error: "+ e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_proposals(self, object_id, args):
@@ -500,12 +466,11 @@ class QuestionController(Controller):
 
             proposals = query.all()
             
-            return send_result(message='Question update proposal was created successfully.',
-                                data=marshal(proposals, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(proposals, QuestionDto.model_question_proposal_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not get proposals. Error: ' + e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def create_question_deletion_proposal(self, object_id, data):
@@ -684,11 +649,12 @@ class QuestionController(Controller):
 
             vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
             if vote is not None:
-                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-            result['is_bookmarked_by_me'] = True if bookmark else False
+            if bookmark is not None:
+                result['is_bookmarked_by_me'] = True if bookmark else False
             
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
         
@@ -722,12 +688,60 @@ class QuestionController(Controller):
                 question_dsl.delete()
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
-                return send_result(message="Question with the ID {} was deleted.".format(object_id))
+
+                return send_result(message=messages.MSG_DELETE_SUCCESS)
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message="Could not delete question with ID {}".format(object_id))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
+
+    def apply_filtering(self, query, params):
+        try: 
+            query = super().apply_filtering(query, params)
+            current_user = g.current_user
+            if current_user:
+                if not current_user.show_nsfw:
+                    query = query.filter(Question.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) == False))\
+                        .filter(db.or_(db.not_(Question.topics.any()), Question.topics.any(Topic.is_nsfw == False)))
+
+            get_my_own = False
+            if params.get('user_id'):
+                if current_user:
+                    if params.get('user_id') == str(current_user.id):
+                        get_my_own = True
+                if not get_my_own:
+                    query = query.filter(db.func.coalesce(Question.is_anonymous, False) != True)
+            if not get_my_own:
+                query = query.filter(db.func.coalesce(Question.is_private, False) != True)
+
+            if params.get('title'):
+                title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
+                query = query.filter(title_similarity > 50)
+            
+            if params.get('from_date'):
+                query = query.filter(Question.created_date >= params.get('from_date'))
+            
+            if params.get('to_date'):
+                query = query.filter(Question.created_date <= params.get('to_date'))
+            
+            if params.get('topic_id'):
+                query = query.filter(Question.topics.any(Topic.id.in_(params.get('topic_id'))))
+
+            if params.get('is_shared') and current_user:
+                query = query.filter(Question.question_shares.any(QuestionShare.user_shared_to_id == current_user.id))
+            return query
+
+        except Exception as e:
+            print(e.__str__())
+            raise e
+
+
+    def get_query(self):
+        query = super().get_query()
+        query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated == False))        
+        return query
 
     def _parse_question(self, data, question=None):
         if question is None:

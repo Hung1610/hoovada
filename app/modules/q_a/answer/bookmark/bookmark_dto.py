@@ -28,8 +28,6 @@ class AnswerBookmarkDto(Dto):
         'topics': fields.List(fields.Nested(model_topic_answer_bookmark), description='The list of topics')
     })
 
-    model_request = api.model('bookmark_answer_request', {
-    })
 
     model_response = api.model('bookmark_answer_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),

@@ -7,7 +7,7 @@ from flask_restx import Resource, reqparse
 # own modules
 from app.modules.q_a.answer.bookmark.bookmark_controller import AnswerBookmarkController
 from app.modules.q_a.answer.bookmark.bookmark_dto import AnswerBookmarkDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -16,7 +16,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = AnswerBookmarkDto.api
-_bookmark_request = AnswerBookmarkDto.model_request
 _bookmark_response = AnswerBookmarkDto.model_response
 _bookmark_get_params = AnswerBookmarkDto.model_get_parser
 
@@ -24,9 +23,7 @@ _bookmark_get_params = AnswerBookmarkDto.model_get_parser
 class BookmarkAnswerAll(Resource):
     @api.expect(_bookmark_get_params)
     def get(self, answer_id):
-        """
-        Search all bookmark that satisfy conditions.
-        """
+        """Get all bookmark that satisfy conditions."""
 
         args = _bookmark_get_params.parse_args()
         controller = AnswerBookmarkController()
@@ -36,9 +33,7 @@ class BookmarkAnswerAll(Resource):
 class BookmarkAnswer(Resource):
     @api.expect(_bookmark_get_params)
     def get(self, answer_id):
-        """
-        Search all bookmark that satisfy conditions.
-        """
+        """Get all bookmark that satisfy conditions."""
 
         args = _bookmark_get_params.parse_args()
         controller = AnswerBookmarkController()
@@ -47,18 +42,14 @@ class BookmarkAnswer(Resource):
     @token_required
     @api.response(code=200, model=_bookmark_response, description='The model for bookmark.')
     def post(self, answer_id):
-        """
-        Create a bookmark on current user.
-        """
+        """Create a bookmark on current user."""
 
         controller = AnswerBookmarkController()
         return controller.create(answer_id=answer_id)
 
     @token_required
     def delete(self, answer_id):
-        """
-        Delete bookmark on current user.
-        """
+        """Delete bookmark on current user."""
         
         controller = AnswerBookmarkController()
         return controller.delete(answer_id=answer_id)

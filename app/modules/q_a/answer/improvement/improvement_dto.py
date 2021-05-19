@@ -30,14 +30,37 @@ class AnswerImprovementDto(Dto):
         'content': fields.String(description='The content of the answer'),
     })
 
+
     model_response = api.model('answer_improvement_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the answer'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date answer was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date answer was updated'),
-        'content': fields.String(description='The content of the answer'),
-        'user':fields.Nested(answer_improvement_user, description='The information of the user'),
-        'answer_id': fields.Integer(default=0, description='The ID of the answer_id'),
-        'vote_score': fields.Integer(default=0, description='The amount of upvote - downvote'),
+        'last_activity': fields.DateTime(default=datetime.utcnow, description='The last time answer was updated'),
+        'upvote_count': fields.Integer(default=0, description='The amount of upvote'),
+        'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
+        'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
+        'answer': fields.String(description='The content of the answer'),
+        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
+        'question_id': fields.Integer(default=0, description='The ID of the question'),
+        'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
+        'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
+        'file_url': fields.String(description='The file url'),
+        'file_type': fields.String(description='The file type', attribute='file_type.name'),
+        'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
+        'question': fields.Nested(answer_question, description='The question information'),
+        'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
+        'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),        
+        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
+        'user_education': fields.Nested(model_user_education,default={},  skip_none=True,  description='The user info about education'),
+        'user_location': fields.Nested(model_user_location,default={},  skip_none=True,  description='The user info about location'),
+        'user_language': fields.Nested(model_user_language,default={},  skip_none=True,  description='The user info about language'),
+        'user_employment': fields.Nested(model_user_employment,default={}, skip_none=True, description='The user info about employment'),
+        'user_topic': fields.Nested(model_user_topic,skip_none=True,default={}, description='The user info about topic'),
+
+        'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
+        'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
     })
 
     get_parser = Dto.paginated_request_parser.copy()
@@ -46,8 +69,6 @@ class AnswerImprovementDto(Dto):
     get_parser.add_argument('from_date', type=str, required=False, help='Search answers created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search answers created before this data.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)
     get_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date'", type=str,
-                            choices=('created_date', 'updated_date'), action='append',
-                        )
+                            choices=('created_date', 'updated_date'), action='append',)

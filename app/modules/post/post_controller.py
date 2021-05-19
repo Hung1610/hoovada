@@ -27,13 +27,12 @@ from common.utils.file_handler import get_file_name_extension
 from common.es import get_model
 from common.utils.util import strip_tags
 
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-
+PostFavorite = db.get_model('PostFavorite')
 User = db.get_model('User')
 Post = db.get_model('Post')
 ESPost = get_model("Post")
@@ -69,6 +68,8 @@ class PostController(Controller):
                 result = post.__dict__
                 user = User.query.filter_by(id=post.user_id).first()
                 result['user'] = user
+                result['is_favorited_by_me'] = False
+
             except Exception as e:
                 print(e)
                 pass
@@ -82,52 +83,51 @@ class PostController(Controller):
 
     def get(self, args):
 
+        # Get search parameters
+        user_id, created_date, updated_date, from_date, to_date, is_anonymous = None, None, None, None, None, None
+
+        if args.get('user_id'):
+            try:
+                user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('created_date'):
+            try:
+                created_date = dateutil.parser.isoparse(args['created_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('updated_date'):
+            try:
+                updated_date = dateutil.parser.isoparse(args['updated_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('from_date'):
+            try:
+                from_date = dateutil.parser.isoparse(args['from_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('to_date'):
+            try:
+                to_date = dateutil.parser.isoparse(args['to_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if args.get('is_anonymous'):
+            try:
+                is_anonymous = bool(args['is_anonymous'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         try:
-            # Get search parameters
-            user_id, created_date, updated_date, from_date, to_date, is_anonymous = None, None, None, None, None, None
-
-            if args.get('user_id'):
-                try:
-                    user_id = int(args['user_id'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if args.get('created_date'):
-                try:
-                    created_date = dateutil.parser.isoparse(args['created_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if args.get('updated_date'):
-                try:
-                    updated_date = dateutil.parser.isoparse(args['updated_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if args.get('from_date'):
-                try:
-                    from_date = dateutil.parser.isoparse(args['from_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if args.get('to_date'):
-                try:
-                    to_date = dateutil.parser.isoparse(args['to_date'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
-            if args.get('is_anonymous'):
-                try:
-                    is_anonymous = bool(args['is_anonymous'])
-                except Exception as e:
-                    print(e.__str__())
-                    pass
-
             query = Post.query.join(User, isouter=True).filter(db.or_(Post.scheduled_date == None, datetime.utcnow() >= Post.scheduled_date))
             query = query.filter(db.or_(Post.user == None, User.is_deactivated != True))
             
@@ -168,8 +168,13 @@ class PostController(Controller):
             for post in posts:
                 result = post.__dict__
                 user = User.query.filter_by(id=post.user_id).first()
-                if g.current_user:
+                current_user = g.current_user
+                if current_user:
                     update_seen_posts.send(post.id, g.current_user.id)
+                    favorite = PostFavorite.query.filter(PostFavorite.user_id == current_user.id, PostFavorite.post_id == post.id).first()
+                    if favorite is not None:
+                        result['is_favorited_by_me'] = True if favorite else False
+
                 result['user'] = user
             res['data'] = marshal(results, PostDto.model_post_response)
             return res, code
@@ -238,6 +243,13 @@ class PostController(Controller):
                 db.session.commit()
                 result = post.__dict__
                 result['user'] = post.user
+
+                current_user = g.current_user
+                if current_user:
+                    favorite = PostFavorite.query.filter(PostFavorite.user_id == current_user.id, PostFavorite.post_id == post.id).first()
+                    if favorite is not None:
+                        result['is_favorited_by_me'] = True if favorite else False
+
                 return send_result(data=marshal(result, PostDto.model_post_response), message='Success')
             except Exception as e:
                 print(e)
@@ -274,6 +286,13 @@ class PostController(Controller):
 
             db.session.commit()            
             result = post.__dict__
+
+            current_user = g.current_user
+            if current_user:
+                favorite = PostFavorite.query.filter(PostFavorite.user_id == current_user.id, PostFavorite.post_id == post.id).first()
+                if favorite is not None:
+                    result['is_favorited_by_me'] = True if favorite else False
+
             result['user'] = post.user
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
         except Exception as e:
@@ -307,40 +326,40 @@ class PostController(Controller):
 
 
     def get_post_of_friend(self,args):
-            page = 1
-            page_size = 20
+        page = 1
+        page_size = 20
 
-            if args.get('page') and args['page'] > 0:
-                try:
-                    page = args['page']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
+        if args.get('page') and args['page'] > 0:
+            try:
+                page = args['page']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
-            if args.get('per_page') and args['per_page'] > 0 :
-                try:
-                    page_size = args['per_page']
-                except Exception as e:
-                    print(e.__str__())
-                    pass
+        if args.get('per_page') and args['per_page'] > 0 :
+            try:
+                page_size = args['per_page']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
-            if page > 0 :
-                page = page - 1
+        if page > 0 :
+            page = page - 1
 
-            current_user = g.current_user
+        current_user = g.current_user
 
-            query = db.session.query(Post)\
-            .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\
-            .outerjoin(UserFriend,and_(UserFriend.friended_id==Post.user_id and UserFollow.friend_id==current_user.id))\
-            .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
-            .group_by(Post)\
-            .order_by(desc(Post.share_count + Post.favorite_count),desc(Post.created_date))
-            posts = query.offset(page * page_size).limit(page_size).all()
+        query = db.session.query(Post)\
+        .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\
+        .outerjoin(UserFriend,and_(UserFriend.friended_id==Post.user_id and UserFollow.friend_id==current_user.id))\
+        .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
+        .group_by(Post)\
+        .order_by(desc(Post.share_count + Post.favorite_count),desc(Post.created_date))
+        posts = query.offset(page * page_size).limit(page_size).all()
 
-            if posts is not None and len(posts) > 0:
-                return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
-            else:
-                return send_result(message='Could not find any posts')
+        if posts is not None and len(posts) > 0:
+            return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
+        else:
+            return send_result(message='Could not find any posts')
 
 
     def _parse_post(self, data, post=None):

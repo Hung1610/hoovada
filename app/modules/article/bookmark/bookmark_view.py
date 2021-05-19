@@ -16,7 +16,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = ArticleBookmarkDto.api
-_bookmark_request = ArticleBookmarkDto.model_request
 _bookmark_response = ArticleBookmarkDto.model_response
 _bookmark_get_params = ArticleBookmarkDto.model_get_parser
 

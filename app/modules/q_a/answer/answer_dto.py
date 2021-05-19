@@ -159,8 +159,6 @@ class AnswerDto(Dto):
         'question_id': fields.Integer(default=0, description='The ID of the question'),
         'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
         'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
-        'up_vote': fields.Boolean(default=False, description='The value of upvote of current user.'),
-        'down_vote': fields.Boolean(default=False, description='The value of downvote of current user'),
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
@@ -175,6 +173,10 @@ class AnswerDto(Dto):
         'user_language': fields.Nested(model_user_language,default={},  skip_none=True,  description='The user info about language'),
         'user_employment': fields.Nested(model_user_employment,default={}, skip_none=True, description='The user info about employment'),
         'user_topic': fields.Nested(model_user_topic,skip_none=True,default={}, description='The user info about topic'),
+
+        'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
+        'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
+        'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
     })
 
     upload_parser = api.parser()

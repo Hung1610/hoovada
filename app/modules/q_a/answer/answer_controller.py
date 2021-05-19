@@ -32,6 +32,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 User = db.get_model('User')
 Answer = db.get_model('Answer')
 AnswerVote = db.get_model('AnswerVote')
+AnswerBookmark = db.get_model('AnswerBookmark')
 UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
 Question = db.get_model('Question')
@@ -46,55 +47,8 @@ UserTopic = db.get_model('UserTopic')
 
 class AnswerController(Controller):
     query_classname = 'Answer'
-    allowed_ordering_fields = [
-        'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
+    allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
     
-    def _validate_user_profile(self, current_user, data):
-        user_profile = None
-        user_profile_data_count = 0
-        error = None
-        if 'user_language_id' in data:
-            user_language = UserLanguage.query.filter_by(id=data['user_language_id']).first()
-            if not user_language:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLanguage', data['user_language_id'])), user_profile_data_count
-            if user_language.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
-            user_profile_data_count += 1
-            user_profile = user_language, 'UserLanguage'
-        if 'user_employment_id' in data:
-            user_employment = UserEmployment.query.filter_by(id=data['user_employment_id']).first()
-            if not user_employment:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEmployment', data['user_employment_id'])), user_profile_data_count
-            if user_employment.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
-            user_profile_data_count += 1
-            user_profile = user_employment, 'UserEmployment'
-        if 'user_location_id' in data:
-            user_location = UserLocation.query.filter_by(id=data['user_location_id']).first()
-            if not user_location:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLocation', data['user_location_id'])), user_profile_data_count
-            if user_location.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
-            user_profile_data_count += 1
-            user_profile = user_location, 'UserLocation'
-        if 'user_education_id' in data:
-            user_education = UserEducation.query.filter_by(id=data['user_education_id']).first()
-            if not user_education:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEducation', data['user_education_id'])), user_profile_data_count
-            if user_education.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
-            user_profile_data_count += 1
-            user_profile = user_education, 'UserEducation'
-        if 'user_topic_id' in data:
-            user_topic = UserTopic.query.filter_by(id=data['user_topic_id']).first()
-            if not user_topic:
-                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserTopic', data['user_topic_id'])), user_profile_data_count
-            if user_topic.user_id != current_user.id:
-                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
-            user_profile_data_count += 1
-            user_profile = user_topic, 'UserTopic'
-        return user_profile, None, user_profile_data_count
-
 
     def create(self, data):
         
@@ -152,14 +106,15 @@ class AnswerController(Controller):
                 new_question_user_invite.status = 1
                 db.session.add(new_question_user_invite)
             
+            # Add bookmark for the creator
+            bookmark_controller = AnswerBookmarkController()
+            bookmark_controller.create(answer_id=answer.id)
             db.session.commit()
 
-            # Add bookmark for the creator
-            # controller = AnswerBookmarkController()
-            # controller.create(answer_id=answer.id)
             result = answer._asdict()
-            result['up_vote'] = False
-            result['down_vote'] = False
+            result['is_upvoted_by_me'] = False
+            result['is_downvoted_by_me'] = False
+            result['is_bookmarked_by_me'] = True
 
             # if answer.user:
             #    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
@@ -221,44 +176,25 @@ class AnswerController(Controller):
             answer.file_type = FileTypeEnum(int(file_type)).name
             answer.updated_date = datetime.utcnow()
             answer.last_activity = datetime.utcnow()
+
+            # Add bookmark for the creator
+            bookmark_controller = AnswerBookmarkController()
+            bookmark_controller.create(answer_id=answer.id)
             db.session.commit()
+            
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
-            result['up_vote'] = False
-            result['down_vote'] = False
+            result['is_upvoted_by_me'] = False
+            result['is_downvoted_by_me'] = False
+            result['is_bookmarked_by_me'] = True
+
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
-
-
-    def get_query(self):
-        query = self.get_model_class().query
-        query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated == False))
-        return query
-
-
-    def apply_filtering(self, query, params):
-        query = super().apply_filtering(query, params)
-        
-        if params.get('user_id'):
-            get_my_own = False
-            if g.current_user:
-                if params.get('user_id') == str(g.current_user.id):
-                    get_my_own = True
-            if not get_my_own:
-                query = query.filter(db.func.coalesce(Answer.is_anonymous, False) != True)
-        
-        if params.get('from_date'):
-            query = query.filter(Answer.created_date >= dateutil.parser.isoparse(params.get('from_date')))
-        
-        if params.get('to_date'):
-            query = query.filter(Answer.created_date <= dateutil.parser.isoparse(params.get('to_date')))
-
-        return query
 
 
     def get(self, args):
@@ -273,11 +209,16 @@ class AnswerController(Controller):
                 result = answer._asdict()
                 user = User.query.filter_by(id=answer.user_id).first()
                 result['user'] = user
+
                 if current_user:
                     vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+                    bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
 
                 results.append(result)
             res['data'] = marshal(results, AnswerDto.model_response)
@@ -285,7 +226,7 @@ class AnswerController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
@@ -303,9 +244,14 @@ class AnswerController(Controller):
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-            return send_result(data=marshal(result, AnswerDto.model_response))
+                    result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                
+                bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
+                if bookmark is not None:
+                    result['is_bookmarked_by_me'] = True if bookmark else False
+
+            return send_result(data=marshal(result, AnswerDto.model_response), message=messages.MSG_GET_SUCCESS)
 
 
     def update(self, object_id, data):
@@ -377,13 +323,17 @@ class AnswerController(Controller):
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
+
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
                 if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
-            # return send_result(marshal(result, AnswerDto.model_response), message='Success')
+                bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
+                if bookmark is not None:
+                    result['is_bookmarked_by_me'] = True if bookmark else False
+
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
@@ -408,7 +358,33 @@ class AnswerController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
+
+
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.join(User, isouter=True).filter(db.or_(Answer.user == None, User.is_deactivated == False))
+        return query
+
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        
+        if params.get('user_id'):
+            get_my_own = False
+            if g.current_user:
+                if params.get('user_id') == str(g.current_user.id):
+                    get_my_own = True
+            if not get_my_own:
+                query = query.filter(db.func.coalesce(Answer.is_anonymous, False) != True)
+        
+        if params.get('from_date'):
+            query = query.filter(Answer.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        
+        if params.get('to_date'):
+            query = query.filter(Answer.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+
+        return query
 
 
     def _parse_answer(self, data, answer=None):
@@ -465,7 +441,7 @@ class AnswerController(Controller):
                 except Exception as e:
                     answer.allow_voting = True
                     print(e.__str__())
-                pass
+                    pass
 
         if 'allow_improvement' in data:
             try:
@@ -483,3 +459,54 @@ class AnswerController(Controller):
                 print(e.__str__())
                 pass
         return answer
+
+
+    def _validate_user_profile(self, current_user, data):
+        user_profile = None
+        user_profile_data_count = 0
+        error = None
+        if 'user_language_id' in data:
+            user_language = UserLanguage.query.filter_by(id=data['user_language_id']).first()
+            if not user_language:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLanguage', data['user_language_id'])), user_profile_data_count
+            if user_language.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
+            user_profile_data_count += 1
+            user_profile = user_language, 'UserLanguage'
+        
+        if 'user_employment_id' in data:
+            user_employment = UserEmployment.query.filter_by(id=data['user_employment_id']).first()
+            if not user_employment:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEmployment', data['user_employment_id'])), user_profile_data_count
+            if user_employment.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
+            user_profile_data_count += 1
+            user_profile = user_employment, 'UserEmployment'
+        
+        if 'user_location_id' in data:
+            user_location = UserLocation.query.filter_by(id=data['user_location_id']).first()
+            if not user_location:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserLocation', data['user_location_id'])), user_profile_data_count
+            if user_location.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
+            user_profile_data_count += 1
+            user_profile = user_location, 'UserLocation'
+        
+        if 'user_education_id' in data:
+            user_education = UserEducation.query.filter_by(id=data['user_education_id']).first()
+            if not user_education:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserEducation', data['user_education_id'])), user_profile_data_count
+            if user_education.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
+            user_profile_data_count += 1
+            user_profile = user_education, 'UserEducation'
+        
+        if 'user_topic_id' in data:
+            user_topic = UserTopic.query.filter_by(id=data['user_topic_id']).first()
+            if not user_topic:
+                return None, send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('UserTopic', data['user_topic_id'])), user_profile_data_count
+            if user_topic.user_id != current_user.id:
+                return None, send_error(code=401, message=messages.ERR_NOT_AUTHORIZED), user_profile_data_count
+            user_profile_data_count += 1
+            user_profile = user_topic, 'UserTopic'
+        return user_profile, None, user_profile_data_count

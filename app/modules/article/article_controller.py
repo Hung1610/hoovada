@@ -33,6 +33,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
+ArticleBookmark= db.get_model('ArticleBookmark')
 Article = db.get_model('Article')
 ArticleShare = db.get_model('ArticleShare')
 Topic = db.get_model('Topic')
@@ -104,10 +105,9 @@ class ArticleController(Controller):
             if article.topics is not None:
                 result['topics'] = article.topics
             
-            vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-            if vote is not None:
-                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+            result['is_upvoted_by_me'] = False
+            result['is_downvoted_by_me'] = False
+            result['is_bookmarked_by_me'] = True
 
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
@@ -115,57 +115,6 @@ class ArticleController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
-
-
-    def get_query(self):
-        query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
-        query = query.filter(db.or_(Article.user == None, User.is_deactivated != True))
-        return query
-
-
-    def apply_filtering(self, query, params):
-        try:  
-            query = super().apply_filtering(query, params)
-            
-            current_user = g.current_user
-            if current_user:
-                if not current_user.show_nsfw:
-                    query = query.filter(Article.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) == False))\
-                        .filter(db.or_(db.not_(Article.topics.any()), Article.topics.any(Topic.is_nsfw == False)))
-            
-            if params.get('user_id'):
-                get_my_own = False
-                if g.current_user:
-                    if params.get('user_id') == str(g.current_user.id):
-                        get_my_own = True
-
-                if not get_my_own:
-                    query = query.filter(db.func.coalesce(Article.is_anonymous, False) != True)
-            
-            if params.get('title'):
-                query = query.filter(Article.title.like(params.get('title')))
-            
-            if params.get('from_date'):
-                query = query.filter(Article.created_date >= dateutil.parser.isoparse(params.get('from_date')))
-            
-            if params.get('to_date'):
-                query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
-            
-            if params.get('topic_id'):
-                query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
-
-            if params.get('article_ids'):
-                query = query.filter(Article.id.in_(params.get('article_ids')))
-            
-            if params.get('draft') is not None:
-                if params.get('draft'):
-                    query = query.filter(Article.is_draft == True)
-                else:
-                    query = query.filter(Article.is_draft != True)
-            return query
-        except Exception as e:
-            print(e.__str__())
-            raise e
 
 
     def get(self, args):
@@ -189,8 +138,12 @@ class ArticleController(Controller):
                 if current_user:
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
                 
                 results.append(result)
 
@@ -203,7 +156,6 @@ class ArticleController(Controller):
 
  
     def get_count(self, args):
-        
         try:
             count = self.get_query_results_count(args)
             return send_result({'count': count}, message='Success')
@@ -240,8 +192,15 @@ class ArticleController(Controller):
             if current_user:
                 vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                 if vote is not None:
-                    result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
+                    if vote is not None:
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
+
                 update_seen_articles.send(article.id, current_user.id)
             
             return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
@@ -296,8 +255,12 @@ class ArticleController(Controller):
                 if current_user:
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
 
                 results.append(result)
             return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, ArticleDto.model_article_response))
@@ -355,8 +318,12 @@ class ArticleController(Controller):
                     
                     vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
                     if vote is not None:
-                        result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                        
+                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
+                    if bookmark is not None:
+                        result['is_bookmarked_by_me'] = True if bookmark else False
 
                 results.append(result)
         
@@ -416,8 +383,12 @@ class ArticleController(Controller):
 
             vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()                    
             if vote is not None:
-                result['up_vote'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+
+            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
+            if bookmark is not None:
+                result['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
@@ -466,6 +437,57 @@ class ArticleController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
+
+    def get_query(self):
+        query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
+        query = query.filter(db.or_(Article.user == None, User.is_deactivated != True))
+        return query
+
+
+    def apply_filtering(self, query, params):
+        try:  
+            query = super().apply_filtering(query, params)
+            
+            current_user = g.current_user
+            if current_user:
+                if not current_user.show_nsfw:
+                    query = query.filter(Article.fixed_topic.has(db.func.coalesce(Topic.is_nsfw, False) == False))\
+                        .filter(db.or_(db.not_(Article.topics.any()), Article.topics.any(Topic.is_nsfw == False)))
+            
+            if params.get('user_id'):
+                get_my_own = False
+                if g.current_user:
+                    if params.get('user_id') == str(g.current_user.id):
+                        get_my_own = True
+
+                if not get_my_own:
+                    query = query.filter(db.func.coalesce(Article.is_anonymous, False) != True)
+            
+            if params.get('title'):
+                query = query.filter(Article.title.like(params.get('title')))
+            
+            if params.get('from_date'):
+                query = query.filter(Article.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+            
+            if params.get('to_date'):
+                query = query.filter(Article.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+            
+            if params.get('topic_id'):
+                query = query.filter(Article.topics.any(Topic.id.in_(params.get('topic_id'))))
+
+            if params.get('article_ids'):
+                query = query.filter(Article.id.in_(params.get('article_ids')))
+            
+            if params.get('draft') is not None:
+                if params.get('draft'):
+                    query = query.filter(Article.is_draft == True)
+                else:
+                    query = query.filter(Article.is_draft != True)
+            return query
+        except Exception as e:
+            print(e.__str__())
+            raise e
 
 
     def _parse_article(self, data, article=None):
