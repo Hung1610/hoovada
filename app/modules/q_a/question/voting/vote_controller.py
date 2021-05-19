@@ -121,15 +121,8 @@ class QuestionVoteController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def get_by_id(self, object_id):
-        if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-
-        vote = QuestionVote.query.filter_by(id=object_id).first()
-        if vote is None:
-            return send_error(message=messages.MSG_GET_SUCCESS)
-        else:
-            return send_result(data=marshal(vote, QuestionVoteDto.model_response), message=message=messages.MSG_GET_SUCCESS)
+    def get_by_id(self):
+        pass
 
 
     def delete(self, question_id):

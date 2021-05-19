@@ -4,10 +4,10 @@
 # third-party modules
 from flask_restx import Resource, reqparse
 
-from app.modules.q_a.answer.voting.vote_controller import AnswerVoteController
 # own modules
+from app.modules.q_a.answer.voting.vote_controller import AnswerVoteController
 from app.modules.q_a.answer.voting.vote_dto import AnswerVoteDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -24,9 +24,7 @@ _vote_get_params = AnswerVoteDto.model_get_parser
 class VoteAnswer(Resource):
     @api.expect(_vote_get_params)
     def get(self, answer_id):
-        """
-        Search all votes that satisfy conditions.
-        """
+        """Get all votes that satisfy conditions"""
 
         args = _vote_get_params.parse_args()
         controller = AnswerVoteController()
@@ -36,9 +34,7 @@ class VoteAnswer(Resource):
     @api.expect(_vote_request_answer)
     @api.response(code=200, model=_vote_response, description='The model for vote response.')
     def post(self, answer_id):
-        """
-        Create/Update current user vote on answer.
-        """
+        """Create/Update current user vote on answer."""
 
         controller = AnswerVoteController()
         data = api.payload
@@ -46,9 +42,7 @@ class VoteAnswer(Resource):
 
     @token_required
     def delete(self, answer_id):
-        """
-        Delete current user vote on answer.
-        """
+        """Delete current user vote on answer"""
         
         controller = AnswerVoteController()
         return controller.delete(answer_id=answer_id)
