@@ -494,8 +494,7 @@ class QuestionController(Controller):
             if question_deletion_proposal is not None:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
-            data['question_id'] = question.id
-            data['slug'] = question.slug
+            data = {}
             data['is_parma_delete'] = True
             proposal = self._parse_proposal(data=data, proposal=question)
             db.session.add(proposal)
@@ -672,7 +671,7 @@ class QuestionController(Controller):
 
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-            
+
         try:
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()

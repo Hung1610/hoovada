@@ -28,8 +28,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FavoriteController(Controller):
     def get(self, article_id, args):
-        '''Get/Search favorites.
-        '''
         
         user_id, favorited_user_id, from_date, to_date = None, None, None, None
         if 'user_id' in args:
