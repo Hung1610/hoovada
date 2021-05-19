@@ -50,7 +50,7 @@ class LanguageMeList(Resource):
 class LanguageList(Resource):
     @api.response(code=200, model=language_response, description='Model for language response.')
     def get(self, user_id):
-        """Get all language information using user_id"""
+        """Get all language information by user_id"""
 
         args = get_parser.parse_args()
         controller = LanguageController()

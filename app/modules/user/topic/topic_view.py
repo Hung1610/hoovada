@@ -54,7 +54,7 @@ class TopicMeList(Resource):
 class TopicList(Resource):
     @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self, user_id):
-        """Get all user topic information by user_id"""
+        """Create all user topic information by user_id"""
 
         args = get_parser.parse_args()
         controller = TopicController()
@@ -75,7 +75,7 @@ class TopicAll(Resource):
 
     @token_required
     def delete(self, id):
-        """Delete user topic by user topic ID."""
+        """Delete existing user topic by user topic ID."""
 
         controller = TopicController()
         return controller.delete(object_id=id)

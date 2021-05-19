@@ -37,7 +37,7 @@ class LocationMeList(Resource):
     @api.expect(location_request)
     @api.response(code=200, model=location_response, description='Model for location response.')
     def post(self):
-        """Get all location information of logged-in user"""
+        """Create location information of logged-in user"""
 
         data = api.payload
         controller = LocationController()
@@ -58,18 +58,10 @@ class LocationList(Resource):
 @api.route('/all/location/<int:id>')
 class LocationAll(Resource):
     @token_required
-    @api.response(code=200, model=location_response, description='Model for location response.')
-    def get(self, id):
-        """Get location by location ID."""
-
-        controller = LocationController()
-        return controller.get_by_id(object_id=id)
-
-    @token_required
     @api.expect(location_request)
     @api.response(code=200, model=location_response, description='Model for location response.')
     def patch(self, id):
-        """Update existing location information by location ID"""
+        """Update existing location information by location id"""
 
         data = api.payload
         controller = LocationController()
@@ -77,7 +69,7 @@ class LocationAll(Resource):
 
     @token_required
     def delete(self, id):
-        """Delete existing location information by location ID"""
+        """Delete existing location information by location id"""
 
         controller = LocationController()
         return controller.delete(object_id=id)
