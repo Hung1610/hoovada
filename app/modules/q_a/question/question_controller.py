@@ -473,18 +473,19 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
-    def create_question_deletion_proposal(self, object_id, data):
+    def create_question_deletion_proposal(self, object_id):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
-            
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
             
             if question is None or question.is_deleted is True:
-                return send_error(message="Question ID {} not found or has been deleted!".format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_approved=0).first()
             if question_deletion_proposal is not None:
@@ -493,11 +494,11 @@ class QuestionController(Controller):
             data['question_id'] = question.id
             data['slug'] = question.slug
             data['is_parma_delete'] = True
-            proposal = self._parse_proposal(data=data, proposal=None)
+            proposal = self._parse_proposal(data=data, proposal=question)
             db.session.add(proposal)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()

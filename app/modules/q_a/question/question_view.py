@@ -107,6 +107,7 @@ class Question(Resource):
         controller = QuestionController()
         return controller.get_by_id(object_id=id_or_slug)
 
+
     @token_required
     @api.expect(model_request)
     @api.response(code=200, model=model_response, description='Model for question response.')
@@ -128,6 +129,7 @@ class Question(Resource):
         cache.clear_cache(get_question_key_prefix())
         return result
 
+
 @api.route('/<string:id_or_slug>/invite')
 class QuestionInvite(Resource):
     @token_required
@@ -147,6 +149,7 @@ class QuestionDeclineInvite(Resource):
         """Create invited question by question Id or slug"""
         controller = QuestionController()
         return controller.decline_invited_question(object_id=id_or_slug)
+
 
 @api.route('/<string:id_or_slug>/friend-invite')
 class QuestionFriendInvite(Resource):
@@ -187,13 +190,11 @@ class QuestionProposal(Resource):
 @api.route('/<string:id_or_slug>/delete-proposal')
 class QuestionDeleteProposal(Resource):
     @token_required
-    @api.expect(model_request)
     def post(self, id_or_slug):
         """ Create question delete proposal by question Id or slug"""
 
-        data = api.payload
         controller = QuestionController()
-        result = controller.create_question_deletion_proposal(object_id=id_or_slug, data=data)
+        result = controller.create_question_deletion_proposal(object_id=id_or_slug)
         cache.clear_cache(get_question_proposal_key_prefix())
         return result
 
