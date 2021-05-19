@@ -6,9 +6,8 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
-from sqlalchemy import and_
 
 # own modules
 from common.db import db
@@ -74,8 +73,7 @@ class FavoriteController(Controller):
 
     def create(self, article_id):
         data = {}
-        current_user, _ = current_app.get_logged_user(request)
-        
+        current_user = g.current_user
         if not has_permission(current_user.id, PermissionType.FAVORITE):
             return send_error(code=401, message='You have no authority to perform this action')
 
@@ -111,7 +109,7 @@ class FavoriteController(Controller):
         pass
 
     def delete(self, article_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             favorite = ArticleFavorite.query.filter_by(article_id=article_id, user_id=user_id).first()

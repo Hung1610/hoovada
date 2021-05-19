@@ -33,6 +33,7 @@ class LanguageMeList(Resource):
         user_id = g.current_user.id
         return controller.get(args=args, user_id=user_id)
 
+
     @token_required
     @api.expect(language_request)
     @api.response(code=200, model=language_response, description='Model for language response.')

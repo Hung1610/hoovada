@@ -45,6 +45,7 @@ class LanguageController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
+
     def get(self, args, user_id=None):
 
         language_id = None
@@ -54,6 +55,7 @@ class LanguageController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+                
         try:
             query = UserLanguage.query
             if user_id is not None:

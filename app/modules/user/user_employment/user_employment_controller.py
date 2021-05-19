@@ -60,9 +60,6 @@ class EmploymentController(Controller):
 
 
     def get(self,  args, user_id=None):
-        
-        if not isinstance(args, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if 'is_current' in args:
             try:
@@ -86,6 +83,7 @@ class EmploymentController(Controller):
                 results.append(result)
                 
             return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
+            
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

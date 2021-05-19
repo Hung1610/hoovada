@@ -69,14 +69,15 @@ class LocationController(Controller):
             query = UserLocation.query
             if user_id is not None:
                 query = query.filter(UserLocation.user_id == user_id)
+            
             if location_detail is not None:
                 query = query.filter(UserLocation.location_detail == location_detail)
+
             if is_current is not None:
                 query = query.filter(UserLocation.is_current == is_current)
                 
             locations = query.all()
-            if locations is not None and len(locations) > 0:
-                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
 
         except Exception as e:
             print(e.__str__())
