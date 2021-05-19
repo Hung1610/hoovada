@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# built-in modules
-
 # third-party modules
 import dateutil.parser
 from flask_restx import marshal
@@ -12,7 +10,7 @@ from elasticsearch_dsl import Q
 # own modules
 from common.db import db
 from app.modules.search.search_dto import SearchDto
-from common.models import Article, Question, Topic, User, UserBan, Post, Poll
+from common.models import Article, Question, Topic, User, UserBan, Post, Poll, UserFriend
 from common.utils.response import send_error, send_result
 from common.es import get_model
 
@@ -86,13 +84,16 @@ class SearchController():
                 })
         return articles
 
-    def _search_topic(self, args):
+    def _search_topic(self, args, filters=None):
         start_from = 0
         size = 10
+        is_fixed = 0
         if args['from'] is not None:
             start_from = int(args['from'])
         if args['size']:
             size = int(args['size'])
+        if filters is not None:
+            is_fixed = filters['filters']
         s = ESTopic.search()
         q = Q("multi_match", query=args['value'], fields=["name"])
         s = s.query(q)
@@ -101,11 +102,13 @@ class SearchController():
         hits = response.hits
         topics = []
         for h in hits:
-            topics.append({
-                "id": h.meta.id,
-                "slug": h.slug,
-                "name": h.name
-            })
+            topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
+            if topic is not None and topic.is_fixed == is_fixed:
+                topics.append({
+                    "id": h.meta.id,
+                    "slug": h.slug,
+                    "name": h.name
+                })
         return topics
 
     def _search_question(self, args):
@@ -129,7 +132,8 @@ class SearchController():
                     "id": h.meta.id,
                     "slug": h.slug,
                     "question": question.question,
-                    "title": h.title
+                    "title": h.title,
+                    "answers_count": question.answers_count
                 })
         return questions
     
@@ -194,19 +198,21 @@ class SearchController():
         hits = response.hits
         users = []
         for h in hits:
-            print(h)
-            users.append({
-                "id": h.meta.id,
-                "friend_id": h.friend_id,
-                "friend_display_name": h.friend_display_name,
-                "friend_email": h.friend_email,
-                "friend_profile_pic_url": h.friend_profile_pic_url,
-                "friended_id": h.friended_id,
-                "friended_display_name": h.friended_display_name,
-                "friended_email": h.friended_email,
-                "friended_profile_pic_url": h.friended_profile_pic_url,
-                "is_approved": h.is_approved
-            })
+            # must validate db's record before being sent to client
+            user_friend = db.session.query(UserFriend).filter_by(id=h.meta.id).first()
+            if user_friend is not None:
+                users.append({
+                    "id": h.meta.id,
+                    "friend_id": h.friend_id,
+                    "friend_display_name": user_friend.friend.display_name,
+                    "friend_email": user_friend.friend.email,
+                    "friend_profile_pic_url": user_friend.friend.profile_pic_url,
+                    "friended_id": h.friended_id,
+                    "friended_display_name": user_friend.friended.display_name,
+                    "friended_email": user_friend.friended.email,
+                    "friended_profile_pic_url": user_friend.friended.profile_pic_url,
+                    "is_approved": h.is_approved
+                })
         return users 
 
     def search_elastic(self, args):
@@ -362,7 +368,10 @@ class SearchController():
                 'from': args.get('from'),
                 'size': args.get('size')
             }
-            topics = self._search_topic(search_args)
+            filters = {
+                'is_fixed': args.get('is_fixed')
+            }
+            topics = self._search_topic(search_args, filters)
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())

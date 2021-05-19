@@ -289,11 +289,9 @@ class QuestionController(Controller):
             return send_error(message='Please provide at least the title.')
 
         title = args['title']
-        
+        limit = 30
         if args.get('limit'):
             limit = int(args['limit'])
-        else:
-            return send_error(message='Please provide limit')
         try:
             s = ESQuestion.search()
             q = Q("multi_match", query=title, fields=["title", "question"])
@@ -306,58 +304,8 @@ class QuestionController(Controller):
             for hit in hits:
                 question_id = hit.meta.id
                 question = Question.query.filter_by(id=question_id, is_private=False).first()
-                if not question:
+                if not question or question.title == title:
                     continue
-                result = question._asdict()
-
-                result['user'] = question.user
-                result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-
-                if current_user is not None:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-                
-                results.append(result)
-            return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
-
-    def get_similar(self, args):
-        self.get_similar_elastic(args)
-        if not 'title' in args:
-            return send_error(message='Please provide at least the title.')
-
-        title = args['title']
-        
-        if args.get('limit'):
-            limit = int(args['limit'])
-        else:
-            return send_error(message='Please provide limit')
-        
-        try:
-            current_user, _ = current_app.get_logged_user(request)
-            query = Question.query.filter_by(is_private=False)  # query search from view
-            if args.get('exclude_question_id'):
-                query = query.filter(Question.id != args.get('exclude_question_id'))
-            title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
-            questions = query.with_entities(Question, title_similarity)\
-                .filter(title_similarity > args.get('similarity_rate'))\
-                .order_by(desc(title_similarity))\
-                .limit(limit)\
-                .all()
-            results = list()
-            
-            for question in questions:
-                question = question[0]
                 result = question._asdict()
 
                 result['user'] = question.user
