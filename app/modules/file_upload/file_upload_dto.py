@@ -15,6 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class FileUploadDto(Dto):
     name = 'file_upload'
     api = Namespace(name=name, description="Uploading operations")
+    
     model = api.model(name, {
         'url': fields.String(required=True, description = 'The url to file store in server.')
     })

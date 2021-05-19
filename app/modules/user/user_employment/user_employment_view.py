@@ -12,7 +12,7 @@ from common.utils.decorator import token_required
 api = EmploymentDto.api
 employment_request = EmploymentDto.model_request
 employment_response = EmploymentDto.model_response
-parser = UserEmploymentDto.parser
+parser = EmploymentDto.parser
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"

@@ -5,9 +5,9 @@
 from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
 
+# own modules
 from app.modules.file_upload.file_upload_controller import FileUploadController
 from app.modules.file_upload.file_upload_dto import FileUploadDto
-# own modules
 from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
@@ -26,9 +26,7 @@ upload.add_argument('file', location='files',
 class UploadFile(Resource):
     @api.expect(upload)
     def post(self):
-        """
-        Upload file.
-        """
+        """Upload file"""
         
         args = upload.parse_args()
         controller = FileUploadController()

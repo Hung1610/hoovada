@@ -20,6 +20,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class FileUploadController(Controller):
+
     def create(self, data):
         current_user = g.current_user
 
@@ -35,19 +36,20 @@ class FileUploadController(Controller):
             sub_folder = '{}/{}'.format('file', current_user.id if current_user else 'guest')
             url = upload_file(file=file, file_name=file_name, sub_folder=sub_folder)
             result = {'url': url}
-            return send_result(data=marshal(result, FileUploadDto.model), message='Uploaded successfully.')
+            return send_result(data=marshal(result, FileUploadDto.model), message=messages.MSG_CREATE_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get(self):
         pass
 
-    def get_by_id(self, object_id):
+    def get_by_id(self):
         pass
 
-    def update(self, object_id, data):
+    def update(self):
         pass
 
-    def delete(self, object_id):
+    def delete(self):
         pass
