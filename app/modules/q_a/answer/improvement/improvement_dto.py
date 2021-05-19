@@ -48,17 +48,10 @@ class AnswerImprovementDto(Dto):
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
-        'user': fields.Nested(answer_user, description='The user information', attribute='display_user'),
-        'question': fields.Nested(answer_question, description='The question information'),
+        'user': fields.Nested(answer_improvement_user, description='The user information', attribute='display_user'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),        
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
-        'user_education': fields.Nested(model_user_education,default={},  skip_none=True,  description='The user info about education'),
-        'user_location': fields.Nested(model_user_location,default={},  skip_none=True,  description='The user info about location'),
-        'user_language': fields.Nested(model_user_language,default={},  skip_none=True,  description='The user info about language'),
-        'user_employment': fields.Nested(model_user_employment,default={}, skip_none=True, description='The user info about employment'),
-        'user_topic': fields.Nested(model_user_topic,skip_none=True,default={}, description='The user info about topic'),
-
         'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
         'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
     })
