@@ -3,7 +3,7 @@
 
 # third-party modules
 from flask import g
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.user.location.location_controller import LocationController
