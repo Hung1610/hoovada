@@ -275,11 +275,11 @@ class PostController(Controller):
             db.session.commit()            
             result = post.__dict__
             result['user'] = post.user
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Post'), data=marshal(result, PostDto.model_post_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('Post', str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):

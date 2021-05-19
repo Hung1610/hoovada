@@ -100,11 +100,11 @@ class PollController(Controller):
             poll.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Poll'), data=marshal(result, PollDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('Poll', e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):

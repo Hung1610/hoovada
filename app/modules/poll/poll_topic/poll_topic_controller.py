@@ -135,8 +135,8 @@ class PollTopicController(Controller):
             poll_topic.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll_topic._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('PollTopic'), data=marshal(result, PollTopicDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollTopicDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('PollTopic', str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))

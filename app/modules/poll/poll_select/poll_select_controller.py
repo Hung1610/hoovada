@@ -135,7 +135,7 @@ class PollSelectController(Controller):
             poll_select.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll_select._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('PollSelect'), data=marshal(result, PollSelectDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollSelectDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

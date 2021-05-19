@@ -208,12 +208,12 @@ class UserFriendController(Controller):
 
             # TODO: need to remove following if remove friend
 
-            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Friend'))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Friend', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def get_top_users(self, args, object_id):

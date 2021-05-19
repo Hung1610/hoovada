@@ -23,6 +23,18 @@ def send_result(data=None, message='OK', code=200, status=True):
     }
     return res, code
 
+
+def send_error(data=None, message='Failed', code=400, status=False):
+    """ Send result if error"""
+
+    res = {
+        'status': status,
+        'code': code,
+        'message': message,
+        'data': data,
+    }
+    return res, code
+
 def paginated_result(query=None, message='OK', code=200, status=True):
     res = {
         'status': status,
@@ -50,13 +62,3 @@ def send_paginated_result(data=None, page=None, total=None, message='OK', code=2
     return res, code
 
 
-def send_error(data=None, message='Failed', code=400, status=False):
-    """ Send result if error"""
-
-    res = {
-        'status': status,
-        'code': code,
-        'message': message,
-        'data': data,
-    }
-    return res, code

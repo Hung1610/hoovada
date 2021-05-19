@@ -120,10 +120,10 @@ class FavoriteController(Controller):
             else:
                 db.session.delete(favorite)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post Favorite'))
+                return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Post Favorite', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
     def _parse_favorite(self, data, favorite=None):
         if favorite is None:

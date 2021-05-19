@@ -460,7 +460,7 @@ class ArticleController(Controller):
             for article in articles:
                 article.slug = slugify(article.title)
                 db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, marshal(articles, ArticleDto.model_article_response))
+            return send_result(data=marshal(articles, ArticleDto.model_article_response), message=messages.MSG_UPDATE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()

@@ -142,10 +142,10 @@ class AnswerImprovementController(Controller):
             # get user information for each answer.
             result = improvement._asdict()
             result['user'] = improvement.user
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('AnswerImprovement'), data=marshal(result, AnswerImprovementDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerImprovementDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('AnswerImprovement', e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
     def delete(self, object_id):
         try:

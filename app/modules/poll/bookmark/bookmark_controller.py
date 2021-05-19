@@ -106,7 +106,7 @@ class PollBookmarkController(Controller):
                 return send_result(message=messages.MSG_DELETE_SUCCESS.format(bookmark.id))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('PollBookmark', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
     def _parse_bookmark(self, data, bookmark=None):
         if bookmark is None:

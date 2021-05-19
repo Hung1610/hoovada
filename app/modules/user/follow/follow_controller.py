@@ -109,11 +109,11 @@ class UserFollowController(Controller):
 
             db.session.delete(follow)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Follow'))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Follow', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
     def get_top_users(self, object_id, args):
         try:

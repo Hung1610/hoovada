@@ -384,12 +384,12 @@ class AnswerController(Controller):
                     result['down_vote'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
 
             # return send_result(marshal(result, AnswerDto.model_response), message='Success')
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format('Answer'), data=marshal(result, AnswerDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('Answer', e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):

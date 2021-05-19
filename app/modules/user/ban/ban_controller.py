@@ -100,10 +100,10 @@ class UserBanController(Controller):
             else:
                 db.session.delete(ban)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format('Ban'))
+                return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Ban', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
     
     def _parse_ban(self, data, ban=None):
         if ban is None:

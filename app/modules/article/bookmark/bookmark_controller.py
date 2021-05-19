@@ -104,7 +104,7 @@ class ArticleBookmarkController(Controller):
             else:
                 db.session.delete(bookmark)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format("Article Bookmark"))
+                return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
             print(e.__str__())

@@ -690,12 +690,12 @@ class QuestionController(Controller):
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
             
-            return send_result(message=messages.MSG_UPDATE_SUCCESS.format("Question"), data=marshal(result, QuestionDto.model_question_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format("Question", str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):
