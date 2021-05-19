@@ -39,6 +39,9 @@ ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
 ERR_USER_INAPPROPRIATE  = 'User information content is inappropriate!'
 ERR_ALREADY_EXISTS = 'Already exists!'
 ERR_NOT_FOUND = 'Not found!'
+ERR_FAVORITE_NOT_ALLOWED = 'Favorite not allowed!'
+ERR_VOTING_NOT_ALLOWED = 'Voting not allowed!'
+ERR_COMMENT_NOT_ALLOWED = 'Comment not allowed!'
 
 ########### Authentication Module #################
 
@@ -90,7 +93,6 @@ ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT = 'Scheduled date is earlier than the curre
 
 ########### Question Module #################
 ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with question mark!'
-ERR_QUESTION_NOT_ALLOW_COMMENT = 'Question does not allow commenting!'
 
 ########### Answer Module #################
 ERR_USER_ALREADY_ANSWERED = 'This user has already answered this question!'

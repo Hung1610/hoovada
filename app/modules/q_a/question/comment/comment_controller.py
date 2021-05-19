@@ -84,7 +84,7 @@ class CommentController(BaseCommentController):
             return send_error(message=messages.ERR_NOT_FOUND)
         
         if question.allow_comments is False:
-            return send_error(message=messages.ERR_QUESTION_NOT_ALLOW_COMMENT)
+            return send_error(message=messages.ERR_COMMENT_NOT_ALLOWED)
         
         current_user = g.current_user
         data['user_id'] = current_user.id

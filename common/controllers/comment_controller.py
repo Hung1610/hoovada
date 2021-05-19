@@ -4,15 +4,14 @@
 # built-in modules
 from datetime import datetime
 
-from flask import g
 # third-party modules
+from flask import g
 from flask_restx import marshal
 
 # own modules
 from common.db import db
 from app.constants import messages
 from common.controllers.controller import Controller
-from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 
 __author__ = "hoovada.com team"
@@ -27,20 +26,24 @@ class BaseCommentController(Controller):
     def _parse_comment(self, data, comment=None):
         if comment is None:
             comment = self.get_model_class()()
+
         if 'comment' in data:
             comment.comment = data['comment']
+        
         if self.related_field_name in data:
             try:
                 setattr(comment, self.related_field_name, int(data[self.related_field_name]))
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if 'user_id' in data:
             try:
                 comment.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+        
         if g.current_user_is_admin:
             if 'allow_favorite' in data:
                 try:

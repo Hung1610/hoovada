@@ -16,7 +16,7 @@ from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
 from common.dramatiq_producers import update_reputation
 from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-from common.utils.permission import has_permission
+#from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
 from common.utils.types import PermissionType, UserRole
 
@@ -30,56 +30,6 @@ QuestionVote = db.get_model('QuestionVote')
 Reputation = db.get_model('Reputation')
 
 class QuestionVoteController(Controller):
-    
-    def get(self, args, question_id = None):
-        
-        user_id, from_date, to_date = None, None, None
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'from_date' in args:
-            try:
-                from_date = dateutil.parser.isoparse(args['from_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'to_date' in args:
-            try:
-                to_date = dateutil.parser.isoparse(args['to_date'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if user_id is None and question_id is None and from_date is None and to_date is None:
-            return send_error(message='Please provide query parameters.')
-
-        query = QuestionVote.query
-        if user_id is not None:
-            query = query.filter(QuestionVote.user_id == user_id)
-        if question_id is not None:
-            query = query.filter(QuestionVote.question_id == question_id)
-        if from_date is not None:
-            query = query.filter(QuestionVote.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(QuestionVote.created_date <= to_date)
-        votes = query.all()
-        if votes is not None and len(votes) > 0:
-            return send_result(data=marshal(votes, QuestionVoteDto.model_response), message='Success')
-        else:
-            return send_result(message='Question vote not found')
-
-
-    def get_by_id(self, object_id):
-        if id is None:
-            return send_error(message='Please provide id')
-        vote = QuestionVote.query.filter_by(id=object_id).first()
-        if vote is None:
-            return send_error(message='Question vote not found')
-        else:
-            return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
-
 
     def create(self, question_id, data):
  
@@ -87,8 +37,8 @@ class QuestionVoteController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         current_user = g.current_user
-        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        #if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
+        #    return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
 
         data['user_id'] = current_user.id
@@ -116,29 +66,91 @@ class QuestionVoteController(Controller):
             for topic in question.topics:
                 update_reputation.send(topic.id, user_voted.id)
                 update_reputation.send(topic.id, current_user.id, is_voter=True)
-        
-            return send_result(data=marshal(vote, QuestionVoteDto.model_response), message='Success')
+    
+            return send_result(data=marshal(vote, QuestionVoteDto.model_response), message=messages.MSG_CREATE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()
-            print(e)
-            return send_error(message='Failed to create question vote.')
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def get(self, args, question_id=None):
+        
+        question_id, user_id, from_date, to_date = None, None, None, None
+        if 'user_id' in args:
+            try:
+                vote.user_id = int(args['user_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'from_date' in args:
+            try:
+                from_date = dateutil.parser.isoparse(args['from_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'to_date' in args:
+            try:
+                to_date = dateutil.parser.isoparse(args['to_date'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        try:
+            query = QuestionVote.query
+            if user_id is not None:
+                query = query.filter(QuestionVote.user_id == user_id)
+
+            if question_id is not None:
+                query = query.filter(QuestionVote.question_id == question_id)
+
+            if from_date is not None:
+                query = query.filter(QuestionVote.created_date >= from_date)
+
+            if to_date is not None:
+                query = query.filter(QuestionVote.created_date <= to_date)
+            votes = query.all()
+            if votes is not None and len(votes) > 0:
+                return send_result(data=marshal(votes, QuestionVoteDto.model_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def get_by_id(self, object_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        vote = QuestionVote.query.filter_by(id=object_id).first()
+        if vote is None:
+            return send_error(message=messages.MSG_GET_SUCCESS)
+        else:
+            return send_result(data=marshal(vote, QuestionVoteDto.model_response), message=message=messages.MSG_GET_SUCCESS)
 
 
     def delete(self, question_id):
+        if question_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         current_user = g.current_user
         user_id = current_user.id
         try:
             vote = QuestionVote.query.filter_by(question_id=question_id, user_id=user_id).first()
             if vote is None:
-                return send_error(message='Question vote not found')
-            else:
-                db.session.delete(vote)
-                db.session.commit()
-                return send_result(message='Question vote deleted successfully')
+                return send_error(message=messages.ERR_NOT_FOUND)
+            
+            db.session.delete(vote)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
+
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Failed to delete question vote')
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def update(self):
@@ -148,6 +160,7 @@ class QuestionVoteController(Controller):
     def _parse_vote(self, data, vote=None):
         if vote is None:
             vote = QuestionVote()
+
         if 'user_id' in data:
             try:
                 vote.user_id = int(data['user_id'])

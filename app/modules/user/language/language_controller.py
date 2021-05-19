@@ -41,8 +41,8 @@ class LanguageController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(language, LanguageDto.model_response))
 
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
+            print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
     def get(self, args, user_id=None):
@@ -110,8 +110,8 @@ class LanguageController(Controller):
             return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
+            print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
