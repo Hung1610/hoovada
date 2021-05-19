@@ -26,7 +26,7 @@ UserLanguage = db.get_model('UserLanguage')
 
 class LanguageController(Controller):
 
-    def create(self, user_id, data):
+    def create(self, data, user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
@@ -46,6 +46,7 @@ class LanguageController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
+
     def get(self, args, user_id=None):
 
         language_id = None
@@ -55,16 +56,21 @@ class LanguageController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+                
         try:
             query = UserLanguage.query
             if user_id is not None:
                 query = query.filter(UserLanguage.user_id == user_id)
+
             if language_id is not None:
                 query = query.filter(UserLanguage.language_id == language_id)
                 
             languages = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(languages, LanguageDto.model_response))
-
+            if languages is not None and len(languages) > 0:
+                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(languages, LanguageDto.model_response))
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -74,7 +80,7 @@ class LanguageController(Controller):
         pass
 
 
-    def update(self, object_id, data):
+    def update(self, data, object_id):
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 

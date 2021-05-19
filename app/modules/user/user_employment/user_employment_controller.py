@@ -27,12 +27,14 @@ UserEmployment = db.get_model('UserEmployment')
 
 class EmploymentController(Controller):
 
-    def create(self, data):
+    def create(self, data, user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if not 'user_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+        if user_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        data['user_id'] = user_id
 
         if not 'position' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('position'))
@@ -69,6 +71,7 @@ class EmploymentController(Controller):
                 pass
         try:
             query = db.session.query(UserEmployment)
+
             if user_id is not None:
                 query = query.filter(UserEmployment.user_id == user_id)
 
@@ -80,8 +83,12 @@ class EmploymentController(Controller):
             for user_employment in user_employments:
                 result = user_employment.__dict__
                 results.append(result)
-                
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
+            
+            if results is not None and len(results) > 0:
+                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

@@ -26,12 +26,12 @@ UserLocation = db.get_model('UserLocation')
 
 class LocationController(Controller):
 
-    def create(self, user_id, data):
+    def create(self, data, user_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if user_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         data['user_id'] = user_id
 
@@ -65,19 +65,24 @@ class LocationController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         try:
             query = UserLocation.query
             if user_id is not None:
                 query = query.filter(UserLocation.user_id == user_id)
+            
             if location_detail is not None:
                 query = query.filter(UserLocation.location_detail == location_detail)
+
             if is_current is not None:
                 query = query.filter(UserLocation.is_current == is_current)
                 
             locations = query.all()
             if locations is not None:
                 return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
-
+            else:
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -87,7 +92,7 @@ class LocationController(Controller):
         pass
 
 
-    def update(self, object_id, data):
+    def update(self, data, object_id):
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 

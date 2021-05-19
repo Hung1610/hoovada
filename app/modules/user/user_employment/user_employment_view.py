@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
+from flask import g
 from flask_restx import Resource
 
 # own modules
@@ -41,7 +42,8 @@ class EmploymentMeList(Resource):
 
         data = api.payload
         controller = EmploymentController()
-        return controller.create(data=data)
+        user_id = g.current_user.id
+        return controller.create(data=data, user_id=user_id)
 
 
 @api.route('/<int:user_id>/employment')
@@ -66,7 +68,7 @@ class EmploymentAll(Resource):
 
         data = api.payload
         controller = EmploymentController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(data=data, object_id=id)
 
 
     @token_required

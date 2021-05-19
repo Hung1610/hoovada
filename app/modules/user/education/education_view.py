@@ -3,7 +3,7 @@
 
 # third-party modules
 from flask import g
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.user.education.education_controller import EducationController
@@ -31,7 +31,7 @@ class EducationMeList(Resource):
         args = get_parser.parse_args()
         controller = EducationController()
         user_id = g.current_user.id
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
     @token_required
@@ -55,7 +55,7 @@ class EducationList(Resource):
 
         args = get_parser.parse_args()
         controller = EducationController()
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
 @api.route('/all/education/<int:id>')
@@ -69,7 +69,7 @@ class EducationAll(Resource):
 
         data = api.payload
         controller = EducationController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(data=data, object_id=id)
 
     @token_required
     def delete(self, id):

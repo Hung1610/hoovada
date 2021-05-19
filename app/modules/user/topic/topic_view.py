@@ -33,8 +33,7 @@ class TopicMeList(Resource):
         args = get_parser.parse_args()
         controller = TopicController()
         user_id = g.current_user.id
-
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
     @token_required
     @api.expect(topic_request)
@@ -56,7 +55,7 @@ class TopicList(Resource):
 
         args = get_parser.parse_args()
         controller = TopicController()
-        return controller.get(user_id=user_id, args=args)
+        return controller.get(args=args, user_id=user_id)
 
 
 @api.route('/all/topic/<int:id>')
@@ -69,7 +68,8 @@ class TopicAll(Resource):
         """Update existing user topic information by user topic ID"""
         data = api.payload
         controller = TopicController()
-        return controller.update(object_id=id, data=data)
+        return controller.update(data=data, object_id=id)
+
 
     @token_required
     def delete(self, id):
@@ -77,6 +77,7 @@ class TopicAll(Resource):
 
         controller = TopicController()
         return controller.delete(object_id=id)
+
 
 @api.deprecated
 @api.route('/<int:user_id>/endorsed-topics')
@@ -88,4 +89,4 @@ class EndorsedTopicList(Resource):
         
         args = get_endorsed_topics_parser.parse_args()
         controller = TopicController()
-        return controller.get_endorsed_topics(user_id=user_id, args=args)
+        return controller.get_endorsed_topics(args=args, user_id=user_id)

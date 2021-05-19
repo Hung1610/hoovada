@@ -16,9 +16,9 @@ from app.modules.q_a.question.voting.vote_dto import QuestionVoteDto
 from common.dramatiq_producers import update_reputation
 from common.enum import VotingStatusEnum
 from common.controllers.controller import Controller
-#from common.utils.permission import has_permission
+from common.utils.permission import has_permission
 from common.utils.response import send_error, send_result
-from common.utils.types import PermissionType, UserRole
+from common.utils.types import PermissionType
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -37,8 +37,8 @@ class QuestionVoteController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         current_user = g.current_user
-        #if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.QUESTION_VOTE)):
-        #    return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        if not has_permission(current_user.id, PermissionType.QUESTION_VOTE):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
 
         data['user_id'] = current_user.id
