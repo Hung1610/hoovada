@@ -80,7 +80,7 @@ class TopicAll(Resource):
         controller = TopicController()
         return controller.delete(object_id=id)
 
-
+@api.deprecated
 @api.route('/<int:user_id>/endorsed-topics')
 class EndorsedTopicList(Resource):
     @api.expect(get_endorsed_topics_parser)

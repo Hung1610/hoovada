@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from common.dto import Dto
