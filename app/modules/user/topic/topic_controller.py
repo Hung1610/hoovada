@@ -82,11 +82,7 @@ class TopicController(Controller):
                 query = query.filter(UserTopic.topic.is_fixed == True)
                 
             topics = query.all()
-
-            if topics  is not None and len(topics) > 0:
-                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(topics, TopicDto.model_response))
-            else:
-                return send_error(message=messages.ERR_NOT_FOUND)
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(topics, TopicDto.model_response))
 
         except Exception as e:
             print(e.__str__())

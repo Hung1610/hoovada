@@ -59,6 +59,7 @@ class EmploymentController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))     
 
+
     def get(self, args, user_id):
         if not isinstance(args, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -84,10 +85,7 @@ class EmploymentController(Controller):
                 result = user_employment.__dict__
                 results.append(result)
             
-            if results is not None and len(results) > 0:
-                return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
-            else:
-                return send_error(message=messages.ERR_NOT_FOUND)
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
 
         except Exception as e:
             print(e.__str__())
