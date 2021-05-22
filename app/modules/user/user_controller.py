@@ -339,6 +339,7 @@ class UserController(Controller):
         if 'doc' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('document'))
    
+        user = g.current_user
         photo = args['doc']
         if photo:
             filename = photo.filename
@@ -377,6 +378,8 @@ class UserController(Controller):
         if  'cover' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user cover photo'))
 
+
+        user = g.current_user
         photo = args['cover']
         if photo:
             filename = photo.filename
@@ -406,6 +409,7 @@ class UserController(Controller):
 
 
     def get_avatar(self):
+        user = g.current_user
         return user.profile_pic_url
 
 
