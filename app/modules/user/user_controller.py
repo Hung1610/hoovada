@@ -181,17 +181,58 @@ class UserController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
        
         if 'id' in data:
-            return send_error(message='Could not update ID.')
+            return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
         if 'email' in data:
-            return send_error(message='Email update is not allowed here.')
+            return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
         if 'password' in data and data['password'] is None:
-            return send_error(message='Password update is now allowed here.')
+            return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
         if 'profile_views' in data:
-            return send_error(message='Profile views is not allowed to update.')
-        
+            return send_error(message=messages.ERR_NOT_AUTHORIZED)
+
+        if 'gender' in data:
+            try:
+                data['gender'] = str(data['gender'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'about_me' in data:
+            try:
+                data['about_me'] = data['about_me'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'display_name' in data:
+            try:
+                data['display_name'] = data['display_name'].strip()
+                if data['display_name'] == '':
+                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))                
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'first_name' in data:
+            try:
+                data['first_name'] = data['first_name'].strip()
+                if data['first_name'] == '':
+                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('first_name'))                
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'last_name' in data:
+            try:
+                data['last_name'] = data['last_name'].strip()
+                if data['last_name'] == '':
+                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('last_name'))                
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         try:
             user = User.query.filter_by(display_name=user_name).first()
             if not user:
@@ -206,6 +247,7 @@ class UserController(Controller):
                 full_name = user.last_name.strip() + " " + user.first_name.strip()
                 if len(full_name) > 0:
                     user.display_name = full_name
+
             user_dsl = ESUser(_id=user.id)
             user_dsl.update(display_name=user.display_name, email=user.email,
                 gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
