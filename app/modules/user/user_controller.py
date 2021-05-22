@@ -13,7 +13,6 @@ from sqlalchemy import desc, func
 
 # own modules
 from app.constants import messages
-from app.settings.config import BaseConfig
 from common.db import db
 from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
@@ -303,10 +302,6 @@ class UserController(Controller):
         if  'avatar' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('avatar'))
 
-        current_user = g.current_user
-        if user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         photo = args['avatar']
         if photo:
             filename = photo.filename
@@ -344,10 +339,6 @@ class UserController(Controller):
         if 'doc' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('document'))
    
-        current_user = g.current_user
-        if user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         photo = args['doc']
         if photo:
             filename = photo.filename
@@ -386,11 +377,6 @@ class UserController(Controller):
         if  'cover' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user cover photo'))
 
-
-        current_user = g.current_user
-        if user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
-
         photo = args['cover']
         if photo:
             filename = photo.filename
@@ -420,9 +406,6 @@ class UserController(Controller):
 
 
     def get_avatar(self):
-        current_user = g.current_user
-        if user is None:
-            return send_error(message=messages.ERR_NOT_LOGIN)
         return user.profile_pic_url
 
 
