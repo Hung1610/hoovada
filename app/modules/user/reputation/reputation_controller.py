@@ -10,10 +10,11 @@ from flask_restx import marshal
 
 # own modules   
 from common.db import db
+from app.constants import messages
 from app.modules.user.reputation.reputation_dto import ReputationDto
 from common.controllers.controller import Controller
 from common.models import Reputation, User
-from common.utils.response import send_error, send_result
+from common.utils.response import paginated_result, send_error, send_result
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -24,38 +25,28 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 Topic = db.get_model('Topic')
 
 class ReputationController(Controller):
+    query_classname = 'Reputation'
+    allowed_ordering_fields = ['created_date', 'updated_date', 'score']
 
     def get(self, args):
-        topic_id, user_id = None, None
-        if 'topic_id' in args:
-            try:
-                topic_id = int(args['topic_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
 
-        query = Reputation.query
-        if topic_id is not None:
-            query = query.filter(Reputation.topic_id == topic_id)
-        if user_id is not None:
-            query = query.filter(Reputation.user_id == user_id)
-        
-        reputations = query.all()
-        results = list()
+            results = []
+            for reputation in res['data']:
+                user = reputation.user
+                result = user._asdict()
+                result['reputation'] = reputation._asdict()
+                results.append(result)
 
-        for reputation in reputations:
-            user = reputation.user
-            result = user._asdict()
-            result['reputation'] = reputation._asdict()
-            results.append(result)
-        return send_result(marshal(results, ReputationDto.model_user_reputation_response), message='Success')
+            res['data'] = marshal(results, ReputationDto.model_user_reputation_response)
+            return res, code
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
+            
     def update_all(self):
         users = User.query.all()
         topics = Topic.query.all()

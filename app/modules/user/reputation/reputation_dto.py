@@ -46,3 +46,5 @@ class ReputationDto(Dto):
     model_user_reputation_request_parser = reqparse.RequestParser()
     model_user_reputation_request_parser.add_argument('topic_id', type=int, required=False, help='Search reputation by topic_id')
     model_user_reputation_request_parser.add_argument('user_id', type=int, required=False, help='Search reputation by user_id')
+    model_user_reputation_request_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'score'", type=str, choices=('created_date', 'updated_date', 'score'), action='append',)
+    model_user_reputation_request_parser.add_argument('order_by_asc', help="Order by ascending. Allowed fields: 'created_date', 'updated_date', 'score'", type=str, choices=('created_date', 'updated_date', 'score'), action='append',)
