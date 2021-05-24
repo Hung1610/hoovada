@@ -26,12 +26,3 @@ class UserFollow(Model, BaseFollow):
     follower = db.relationship('User', foreign_keys=[follower_id], lazy=True) # one-to-many relationship with table User
     followed_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     followed = db.relationship('User', foreign_keys=[followed_id], lazy=True) # one-to-many relationship with table User
-
-
-class TopicFollow(Model, BaseFollow):
-    __tablename__ = 'topic_follow'
-    
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete='CASCADE'), index=True)
-    user = db.relationship('User', lazy=True) # one-to-many relationship with table User
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False, index=True)
-    topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic

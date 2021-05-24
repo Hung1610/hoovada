@@ -59,27 +59,15 @@ class Topic(Model):
     description = db.Column(db.String(255))
     is_nsfw = db.Column(db.Boolean, server_default=expression.false(), default=False)  # is this topic nsfw?
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.endorsed_id, TopicUserEndorse.topic_id], lazy='dynamic')
+    
     @aggregated('endorsed_users', db.Column(db.Integer))
     def endorsers_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)
+    
     bookmarked_users = db.relationship('User', secondary='topic_bookmark', lazy='dynamic')
     @aggregated('bookmarked_users', db.Column(db.Integer))
     def bookmarkers_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)
-    followed_users = db.relationship('User', secondary='topic_follow', lazy='dynamic')
-    @aggregated('followed_users', db.Column(db.Integer))
-    def followers_count(self):
-        return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)
-    allow_follow = db.Column(db.Boolean, server_default=expression.true())  
-
-    @property
-    def is_followed_by_me(self):
-        TopicFollow = db.get_model('TopicFollow')
-        if g.current_user:
-            follow = TopicFollow.query.filter(TopicFollow.user_id == g.current_user.id,
-                                            TopicFollow.topic_id == self.id).first()
-            return True if follow else False
-        return False
 
     @property
     def is_bookmarked_by_me(self):

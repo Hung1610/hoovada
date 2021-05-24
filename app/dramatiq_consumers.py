@@ -229,7 +229,7 @@ def send_recommendation_mail(user_id):
     UserMailedQuestion = db.get_model('UserMailedQuestion')
     UserMailedArticle = db.get_model('UserMailedArticle')
     Topic = db.get_model('Topic')
-    TopicFollow = db.get_model('TopicFollow')
+    TopicBookmark = db.get_model('TopicBookmark')
     Question = db.get_model('Question')
     Article = db.get_model('Article')
     User = db.get_model('User')
@@ -246,7 +246,7 @@ def send_recommendation_mail(user_id):
             .filter(UserMailedArticle.created_date > today_minus_one_month)]
         
         followed_topic_ids = [topic_id[0] for topic_id in \
-            TopicFollow.query.with_entities(TopicFollow.topic_id).filter(TopicFollow.user_id == user.id).all()]
+            TopicBookmark.query.with_entities(TopicBookmark.topic_id).filter(TopicBookmark.user_id == user.id).all()]
 
         recommended_questions = Question.query\
             .filter(~Question.id.in_(mailed_question_ids))\

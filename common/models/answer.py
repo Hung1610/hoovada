@@ -7,7 +7,6 @@ from datetime import datetime
 #third-party modules
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
-from flask import g
 
 # own modules
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
@@ -78,16 +77,6 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
     answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan', primaryjoin="and_(Answer.id == remote(AnswerComment.answer_id),\
                         remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
-
-
-    @property
-    def is_bookmarked_by_me(self):
-        AnswerBookmark = db.get_model('AnswerBookmark')
-        if g.current_user:
-            bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == g.current_user.id,
-                                                AnswerBookmark.answer_id == self.id).first()
-            return True if bookmark else False
-        return False
 
 
 class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin):

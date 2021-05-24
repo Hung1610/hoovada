@@ -5,7 +5,6 @@
 from datetime import datetime
 
 # third-party modules
-from flask import g
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
@@ -114,15 +113,6 @@ class Question(Model, BaseQuestion):
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')
     question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
     bookmarked_users = db.relationship("User", secondary='question_bookmark')
-
-    @property
-    def is_bookmarked_by_me(self):
-        QuestionBookmark = db.get_model('QuestionBookmark')
-        if g.current_user:
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == g.current_user.id,
-                                            QuestionBookmark.question_id == self.id).first()
-            return True if bookmark else False
-        return False
 
 
 class QuestionProposal(Model, BaseQuestion):

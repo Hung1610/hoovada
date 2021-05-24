@@ -244,10 +244,12 @@ class User(Model):
     comment_reported_count = db.Column(db.Integer, server_default='0', nullable=False)
 
     topic_follow_count = db.Column(db.Integer, server_default='0', nullable=False)
-    followed_topics = db.relationship('Topic', secondary='topic_follow', lazy='dynamic')
+    
+    followed_topics = db.relationship('Topic', secondary='topic_bookmark', lazy='dynamic')
     @aggregated('followed_topics', db.Column(db.Integer, server_default="0", nullable=False))
     def topic_followed_count(self):
         return db.func.count('1')
+
     created_topics = db.relationship('Topic', lazy='dynamic')
     @aggregated('created_topics', db.Column(db.Integer, server_default="0", nullable=False))
     def topic_created_count(self):

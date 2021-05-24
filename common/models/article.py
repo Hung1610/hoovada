@@ -10,7 +10,6 @@ from sqlalchemy import event
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
-from flask import g
 
 # own modules
 from common.db import db
@@ -74,14 +73,6 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan', primaryjoin="and_(Article.id == remote(ArticleComment.article_id), remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
-    @property
-    def is_bookmarked_by_me(self):
-        ArticleBookmark = db.get_model('ArticleBookmark')
-        if g.current_user:
-            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == g.current_user.id,
-                                                    ArticleBookmark.article_id == self.id).first()
-            return True if bookmark else False
-        return False
 
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):

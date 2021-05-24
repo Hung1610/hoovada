@@ -6,7 +6,6 @@ from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
 from common.db import db
 from common.models.model import Model
 from sqlalchemy.sql import expression
-from flask import g
 
 # third-party modules
 from sqlalchemy_utils import aggregated
@@ -72,15 +71,6 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     poll_shares = db.relationship("PollShare", cascade='all,delete-orphan')
     poll_favorites = db.relationship("PollFavorite", cascade='all,delete-orphan')
     poll_selects = db.relationship("PollSelect", cascade='all,delete-orphan')
-
-    @property
-    def is_bookmarked_by_me(self):
-        PollBookmark = db.get_model('PollBookmark')
-        if g.current_user:
-            bookmark = PollBookmark.query.filter(PollBookmark.user_id == g.current_user.id,
-                                            PollBookmark.poll_id == self.id).first()
-            return True if bookmark else False
-        return False
 
 
 class PollTopic(Model, AuditCreateMixin, AuditUpdateMixin):

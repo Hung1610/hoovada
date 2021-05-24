@@ -20,7 +20,7 @@ from common.models.favorite import (ArticleCommentFavorite,
                                     ArticleFavorite, 
                                     PostFavorite)
 
-from common.models.follow import (UserFollow, TopicFollow)
+from common.models.follow import UserFollow
 from common.models.friend import UserFriend
 from common.models.language import Language
 from common.models.post import Post
