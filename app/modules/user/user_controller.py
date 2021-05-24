@@ -139,6 +139,7 @@ class UserController(Controller):
             return send_error(messages.ERR_PLEASE_PROVIDE.format("user name"))
         
         try:
+            current_user = g.current_user
             user = User.query.filter_by(display_name=user_name).first()
             if user is None:
                 return send_error(message=messages.ERR_NOT_LOGIN)
@@ -154,7 +155,7 @@ class UserController(Controller):
             if current_user.id != user.id:
                 user.profile_views += 1
                 db.session.commit()
-                
+
             return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
@@ -309,7 +310,7 @@ class UserController(Controller):
         if not isinstance(args, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if  'avatar' not in args:
+        if 'avatar' not in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('avatar'))
 
         photo = args['avatar']
@@ -329,16 +330,16 @@ class UserController(Controller):
             try:
                 user.profile_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message='Upload avatar successfully.')
+                return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_CREATE_SUCCESS)
             except Exception as e:
                 db.session.rollback()
                 print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
 
         else:
             user.profile_pic_url = None
             db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response), message='Deleted avatar successfully.')
+            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_DELETE_SUCCESS)
 
 
     def upload_document(self, args):
@@ -347,7 +348,7 @@ class UserController(Controller):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if 'doc' not in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('document'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('doc'))
    
         user = g.current_user
         photo = args['doc']
@@ -368,26 +369,25 @@ class UserController(Controller):
             try:
                 user.document_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message='Upload doc successfully.')
+                return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_CREATE_SUCCESS)
             except Exception as e:
                 db.session.rollback()
                 print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
         
         else:
             user.document_pic_url = None
             db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response), message='Deleted doc successfully.')
+            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_DELETE_SUCCESS)
 
 
     def upload_cover(self, args):
 
         if not isinstance(args, dict):
-            return send_error(message='Your request does not contain avatar.')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if  'cover' not in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user cover photo'))
-
+        if 'cover' not in args:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('cover'))
 
         user = g.current_user
         photo = args['cover']
@@ -407,15 +407,15 @@ class UserController(Controller):
             try:
                 user.cover_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message='Upload cover successfully.')
+                return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_CREATE_SUCCESS)
             except Exception as e:
                 db.session.rollback()
                 print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
+                return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
         else:
             user.cover_pic_url = None
             db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response), message='Deleted cover successfully.')
+            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_DELETE_SUCCESS)
 
 
     def get_avatar(self):
@@ -451,19 +451,22 @@ class UserController(Controller):
         if page > 0 :
             page = page - 1
 
-        query = db.session.query(User).outerjoin(Reputation).group_by(User).order_by(desc(func.sum(Reputation.score)))
-        users = query.offset(page * page_size).limit(page_size).all()
+        try:
+            query = db.session.query(User).outerjoin(Reputation).group_by(User).order_by(desc(func.sum(Reputation.score)))
+            users = query.offset(page * page_size).limit(page_size).all()
 
-        if users is not None and len(users) > 0:
-            return send_result(data=marshal(users, UserDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any users')
+            if users is not None:
+                return send_result(data=marshal(users, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def notify_user_mention(self, args):
 
         if 'user_mentioned_id' not in args:
-            return send_error(message=messages.ERR_LACKING_GET_PARAMS.format('User mentioned id'))
+            return send_error(message=messages.ERR_LACKING_GET_PARAMS.format('user_mentioned_id'))
 
         user_mention_id = g.current_user.id
         user_mentioned_ids = args.get('user_mentioned_id')
@@ -480,7 +483,7 @@ class UserController(Controller):
                 push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
                                                                                                 user_mention_info.display_name),
                                                                                                 user_ids=[user_mentioned_id])
-                return send_result(message='Success')
+                return send_result(message=messages.MSG_UPDATE_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
