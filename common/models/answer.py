@@ -79,6 +79,16 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
                         remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
 
 
+    @property
+    def is_bookmarked_by_me(self):
+        AnswerBookmark = db.get_model('AnswerBookmark')
+        if g.current_user:
+            bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == g.current_user.id,
+                                                AnswerBookmark.answer_id == self.id).first()
+            return True if bookmark else False
+        return False
+
+
 class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'answer_improvement'
 
