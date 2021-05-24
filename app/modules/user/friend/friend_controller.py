@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.models.follow import UserFollow
 from app.modules.search.search_controller import ESUserFriend
 from datetime import datetime
 
@@ -207,6 +208,10 @@ class UserFriendController(Controller):
             db.session.commit()
 
             # TODO: need to remove following if remove friend
+            follow = UserFollow.query.filter_by(followed_id=object_id, follower_id=user_id).first()
+            if follow:
+                db.session.delete(follow)
+                db.session.commit()
 
             return send_result(message=messages.MSG_DELETE_SUCCESS)
 
