@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -109,12 +109,13 @@ class FavoriteController(Controller):
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
         favorite = PostFavorite.query.filter_by(id=object_id).first()
         if favorite is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         else:
             return send_result(data=marshal(favorite, FavoriteDto.model_response), message=messages.MSG_GET_SUCCESS)
+
 
     def update(self, object_id, data):
         pass
