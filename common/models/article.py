@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# built-in modules
 from datetime import datetime
 
-# built-in modules
-from slugify import slugify
-
 # third-party modules
+from slugify import slugify
 from sqlalchemy import event
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
 from common.db import db

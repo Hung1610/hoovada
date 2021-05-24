@@ -6,6 +6,7 @@ from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
 from common.db import db
 from common.models.model import Model
 from sqlalchemy.sql import expression
+from flask import g
 
 # third-party modules
 from sqlalchemy_utils import aggregated
