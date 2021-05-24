@@ -176,19 +176,16 @@ class SearchController():
     def _search_user_friend(self, args, user_id):
         start_from = 0
         size = 10
-        is_approved = 1
         if args['from'] is not None:
             start_from = int(args['from'])
         if args['size']:
             size = int(args['size'])
-        if args['is_approved']:
-            is_approved = int(args['is_approved'])
         s = ESUserFriend.search()
         q = Q("multi_match", query=args['value'], fields=["friend_display_name", "friend_email", "friended_display_name", "friended_email"])
         bool_q_content = {
             "bool":{
                 "should":[{"term":{"friend_id": user_id}},{"term":{"friended_id": user_id}}],
-                "must": {"term": {"is_approved": is_approved}}
+                "must": {"term": {"is_approved": 1}}
             }
         }
         bool_q = Q(bool_q_content)
