@@ -40,7 +40,7 @@ class FavoriteController(Controller):
             return send_error(message=messages.ERR_NOT_FOUND)
 
         if not post.allow_favorite:
-            return send_error(message=messages.messages.ERR_FAVORITE_NOT_ALLOWED)
+            return send_error(message=messages.ERR_FAVORITE_NOT_ALLOWED)
         
         try:
             favorite = PostFavorite.query.filter(PostFavorite.user_id == data['user_id'], PostFavorite.post_id == data['post_id']).first()
