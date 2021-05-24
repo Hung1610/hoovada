@@ -72,6 +72,8 @@ class PollController(Controller):
         poll_topics = data['poll_topics']
         if len(poll_topics) > 5:
             return send_error(message=messages.ERR_ISSUE.format('Poll must have maximum 5 topics'))
+        if len(data['poll_selects']) < 2:
+            return send_error(message=messages.ERR_ISSUE.format('Poll must have minimum 2 selections'))
         current_user = g.current_user
         data['user_id'] = current_user.id
         
