@@ -8,7 +8,7 @@ from datetime import datetime
 # third-party modules
 from flask.templating import render_template
 import requests
-from flask import current_app, request, g
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -228,7 +228,7 @@ class AuthController:
         if len(check_password(password)) > 0:
             return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
 
-        user, _ = current_app.get_logged_user(request)
+        user = g.current_user
 
         if user.check_password(old_password) is False:
             return send_error(message=messages.ERR_INCORRECT_EMAIL_OR_PASSWORD)
@@ -592,7 +592,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))
+            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))
 
     ##### Phone login #####
 
@@ -721,7 +721,7 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_INVALID_NUMBER)
             
-        user, _ = current_app.get_logged_user(request)
+        user = g.current_user
 
         if not check_verification(phone_number, code):
             return send_error(message=messages.ERR_CODE_INCORRECT_EXPIRED)
