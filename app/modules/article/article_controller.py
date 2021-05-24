@@ -76,9 +76,6 @@ class ArticleController(Controller):
         if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
-        #if  is_sensitive(data['html'], True):
-        #    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
-
         article = self._parse_article(data=data, article=None)
         try:
 
@@ -294,11 +291,6 @@ class ArticleController(Controller):
             data['title'] = data['title'].strip().capitalize()
             if is_sensitive(data['title']):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
-        # Handling html body
-        #if 'html' in data:
-        #    if is_sensitive(data['html'], True):
-        #        return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         article = self._parse_article(data=data, article=article)
         try:  
