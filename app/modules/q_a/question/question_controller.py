@@ -812,8 +812,13 @@ class QuestionController(Controller):
     def _parse_proposal(self, data, proposal=None):
         if proposal is None:
             proposal = QuestionProposal()
-        
-        proposal.question_id = data['question_id']
+
+        if 'question_id ' in data:
+            try:
+                proposal.question_id = data['question_id']
+            except Exception as e:
+                print(e.__str__())
+                pass
         
         if 'title' in data:
             try:
