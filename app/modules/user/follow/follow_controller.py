@@ -8,7 +8,6 @@ from datetime import datetime
 import dateutil.parser
 from flask import g
 from flask_restx import marshal
-from sqlalchemy import and_
 
 # own modules
 from common.db import db
@@ -54,10 +53,10 @@ class UserFollowController(Controller):
             query = UserFollow.query
             if object_id is not None:
                 query = query.filter(UserFollow.followed_id == object_id)
-                
+            
             if follower_id is not None:
                 query = query.filter(UserFollow.follower_id == follower_id)
-
+            
             if from_date is not None:
                 query = query.filter(UserFollow.created_date >= from_date)
 

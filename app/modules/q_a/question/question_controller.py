@@ -7,7 +7,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, g, request
+from flask import g
 from flask_restx import marshal
 from slugify import slugify
 from sqlalchemy import desc, func, or_, text
@@ -162,7 +162,7 @@ class QuestionController(Controller):
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error("Question ID is null")
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
@@ -207,6 +207,7 @@ class QuestionController(Controller):
 
             if object_id is None:
                 return send_error("Question ID is null")
+                
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -215,7 +216,7 @@ class QuestionController(Controller):
             if question is None:
                 return send_error(message='Could not find question with the ID {}'.format(object_id))
             
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             emails_or_usernames = data['emails_or_usernames']
             for email_or_username in emails_or_usernames:
                 try:
@@ -253,7 +254,7 @@ class QuestionController(Controller):
 
     def decline_invited_question(self, object_id):
         try:
-            current_user, _ = current_app.get_logged_user(request)            
+            current_user = g.current_user           
             result = None
             question_user_invite = QuestionUserInvite.query.filter_by(user_id=current_user.id, question_id=object_id).first()
             if question_user_invite:
@@ -300,7 +301,7 @@ class QuestionController(Controller):
             response = s.execute()
             hits = response.hits
             results = list()
-            current_user, _ = current_app.get_logged_user(request)
+            current_user = g.current_user
             for hit in hits:
                 question_id = hit.meta.id
                 question = Question.query.filter_by(id=question_id, is_private=False).first()
@@ -393,7 +394,7 @@ class QuestionController(Controller):
             else:
                 question = Question.query.filter_by(slug=object_id).first()
             if question is None:
-                return send_error(message="Question with the ID {} not found".format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
             
             from_date, to_date = None, None
 

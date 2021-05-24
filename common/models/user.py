@@ -350,7 +350,7 @@ class User(Model):
             friend = UserFriend.query.with_entities(UserFriend.id).filter( \
                 ((UserFriend.friended_id == g.current_user.id) & (UserFriend.friend_id == self.id)) |
                 ((UserFriend.friend_id == g.current_user.id) & (UserFriend.friended_id == self.id))
-            ).first()
+            ).filter(UserFriend.is_approved == True).first()
             return True if friend else False
         return False
 
