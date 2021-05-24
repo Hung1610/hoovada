@@ -49,6 +49,7 @@ class FriendUserDisapprove(Resource):
 
 @api.route('/<int:user_id>/friend')
 class FriendUser(Resource):
+    @api.deprecated
     @api.expect(_friend_get_params)
     def get(self, user_id):
         """Get all friends of user with user_id"""
