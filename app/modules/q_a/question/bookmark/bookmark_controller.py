@@ -114,7 +114,7 @@ class QuestionBookmarkController(Controller):
             db.session.delete(bookmark)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            eturn send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
             db.session.rollback()
