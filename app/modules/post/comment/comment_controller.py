@@ -25,7 +25,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 User = db.get_model('User')
 Post = db.get_model('Post')
 PostComment = db.get_model('PostComment')
-
+PostCommentFavorite = db.get_model('PostCommentFavorite')
 
 class CommentController(BaseCommentController):
 
@@ -56,6 +56,10 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
+                if g.current_user is not None and g.current_user.id is not None:
+                    favorite = PostCommentFavorite.query.filter(PostCommentFavorite.user_id == g.current_user.id,
+                                        PostCommentFavorite.post_comment_id == comment.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, CommentDto.model_response), message='Success')
         else:
