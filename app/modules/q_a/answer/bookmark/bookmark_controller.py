@@ -42,15 +42,14 @@ class AnswerBookmarkController(Controller):
             bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == data['user_id'],
                                              AnswerBookmark.answer_id == data['answer_id']).first()
             if bookmark:
-                return send_result(message=messages.ERR_ALREADY_EXISTS)
+                return send_error(message=messages.ERR_ALREADY_EXISTS)
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
             bookmark.updated_date = datetime.utcnow()
             db.session.add(bookmark)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS,
-                               data=marshal(bookmark, AnswerBookmarkDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, AnswerBookmarkDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -120,9 +119,11 @@ class AnswerBookmarkController(Controller):
             bookmark = AnswerBookmark.query.filter_by(answer_id=answer_id, user_id=user_id).first()
             if bookmark is None:
                 return send_result(message=messages.ERR_NOT_FOUND)
+                
             db.session.delete(bookmark)
             db.session.commit()
             return send_result(message=messages.MSG_DELETE_SUCCESS)
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

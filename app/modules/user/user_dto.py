@@ -182,7 +182,6 @@ class UserDto(Dto):
         'comment_report_count': fields.Integer(required=False),
         'comment_reported_count': fields.Integer(required=False),
 
-        'topic_follow_count': fields.Integer(required=False),
         'topic_followed_count': fields.Integer(required=False),
         'topic_created_count': fields.Integer(required=False),
 

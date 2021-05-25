@@ -162,7 +162,7 @@ class QuestionController(Controller):
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
@@ -545,7 +545,7 @@ class QuestionController(Controller):
     def update(self, object_id, data):
 
         if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
         
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)

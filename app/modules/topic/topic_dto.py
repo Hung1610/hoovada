@@ -82,7 +82,6 @@ class TopicDto(Dto):
         'question_count': fields.Integer(description='The amount of questions belong to this topic'),
         'endorsers_count': fields.Integer(description='The amount of endorsers belong to this topic'),
         'bookmarkers_count': fields.Integer(description='The amount of bookmarkers belong to this topic'),
-        'followers_count': fields.Integer(description='The amount of followers belong to this topic'),
         'is_bookmarked_by_me':fields.Boolean(default=False, description='The booomarked status of current user'),
         'is_followed_by_me': fields.Boolean(default=False, description='The topic is followed by current user or not'),
     })
