@@ -23,6 +23,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+ArticleCommentFavorite = db.get_model('ArticleCommentFavorite')
 
 class CommentController(BaseCommentController):
     '''Controller for article comments'''
@@ -52,6 +53,10 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
+                if g.current_user is not None and g.current_user.id is not None:
+                    favorite = ArticleCommentFavorite.query.filter(ArticleCommentFavorite.user_id == g.current_user.id,
+                                        ArticleCommentFavorite.article_comment_id == comment.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                 results.append(result)
             return send_result(marshal(results, CommentDto.model_response), message='Success')
         else:
@@ -126,6 +131,10 @@ class CommentController(BaseCommentController):
                 result = comment.__dict__
                 user = User.query.filter_by(id=comment.user_id).first()
                 result['user'] = user
+                if g.current_user is not None and g.current_user.id is not None:
+                    favorite = ArticleCommentFavorite.query.filter(ArticleCommentFavorite.user_id == g.current_user.id,
+                                        ArticleCommentFavorite.article_comment_id == comment.id).first()
+                    result['is_favorited_by_me'] = True if favorite else False
                 return send_result(data=marshal(result, CommentDto.model_response), message='Success')
             except Exception as e:
                 print(e.__str__())
