@@ -30,7 +30,7 @@ class Search(Resource):
 
         args = parser.parse_args()
         controller = SearchController()
-        return controller.search_elastic(args=args)
+        return controller.search(args=args)
 
 
 @api.route('/article')

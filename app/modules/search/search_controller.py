@@ -4,10 +4,10 @@
 # third-party modules
 import dateutil.parser
 from flask_restx import marshal
-from sqlalchemy import or_
 from elasticsearch_dsl import Q
 
 # own modules
+from app.constants import messages
 from common.db import db
 from app.modules.search.search_dto import SearchDto
 from common.models import Article, Question, Topic, User, UserBan, Post, Poll, UserFriend
@@ -212,7 +212,7 @@ class SearchController():
                 })
         return users 
 
-    def search_elastic(self, args):
+    def search(self, args):
         """ Search data from elastic search server.
         """
         valueSearch = args.get('value')
@@ -238,63 +238,6 @@ class SearchController():
         data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts, 'polls': polls}
         return send_result(data, message='Success')
 
-    def search(self, args):
-        """ Search questions.
-        """
-        self.search_elastic(args)
-        valueSearch = args.get('value')
-        
-        if not valueSearch:
-            return send_result(data={}, message='Search value not provided')
-                
-        if any(ext in valueSearch for ext in extensionsToCheck) == True:
-            emailSearch = True
-        else:
-            emailSearch = False
-        
-        queryQuestion = db.session.query(Question)  # query search from view question
-        queryTopic = db.session.query(Topic)  # query search from view topic
-        queryUser = db.session.query(User)  # query search from view user
-        queryArticle = db.session.query(Article)  # query search from view user
-
-        valueSearch = '%' + valueSearch.strip() + '%'
-        queryQuestion = queryQuestion.filter(Question.title.like(valueSearch))
-        queryTopic = queryTopic.filter(Topic.name.like(valueSearch))
-        queryArticle = queryArticle.filter(Article.title.like(valueSearch))
-
-        if emailSearch == False:
-            queryUser = queryUser.filter(or_(User.email.like(valueSearch), User.display_name.like(valueSearch))).filter(User.is_deactivated == False, User.is_private == False)
-        else:
-            queryUser = queryUser.filter(User.display_name.like(valueSearch)).filter(User.is_deactivated == False, User.is_private == False)
-        
-        questions = queryQuestion.all()
-        topics = queryTopic.all()
-        users = queryUser.all()
-        articles = queryArticle.all()
-
-        resultQuestions = list()
-        resultTopics = list()
-        resultUsers = list()
-        resultArticles = list()
-
-        # search questions
-        if questions is not None and len(questions) > 0:
-            resultQuestions = marshal(questions, SearchDto.model_search_question_response)
-
-        # search topics
-        if topics is not None and len(topics) > 0:
-            resultTopics = marshal(topics, SearchDto.model_search_topic_response)
-
-        # search users
-        if users is not None and len(users) > 0:
-            resultUsers = marshal(users, SearchDto.model_search_user_response)
-
-        # search articles
-        if articles is not None and len(articles) > 0:
-            resultArticles = marshal(articles, SearchDto.model_search_article_res)
-
-        data = {'question': resultQuestions, 'topic': resultTopics, 'user': resultUsers, 'article': resultArticles}
-        return send_result(data, message='Success')
 
     def search_article_by_title(self, args):
         try:
@@ -309,7 +252,7 @@ class SearchController():
             return send_result(data=marshal(articles, SearchDto.model_search_article_res), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load articles. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
     def search_user_by_name_or_email(self, args):
         try:
@@ -324,7 +267,7 @@ class SearchController():
             return send_result(data=marshal(users, SearchDto.model_search_user_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load users. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
     def search_poll_by_title(self, args):
         try:
@@ -339,7 +282,7 @@ class SearchController():
             return send_result(data=marshal(polls, SearchDto.model_search_poll_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load polls. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
     def search_question_by_title(self, args):
         try:
@@ -354,7 +297,7 @@ class SearchController():
             return send_result(data=marshal(questions, SearchDto.model_search_question_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load questions. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
     def search_topic_by_name(self, args):
         try:
@@ -372,7 +315,7 @@ class SearchController():
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load topics. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
     
     def search_friend_by_name_or_email(self, args, user_id):
         try:
@@ -388,5 +331,5 @@ class SearchController():
             return send_result(data=marshal(user_friends, SearchDto.model_search_user_friend_response), message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Could not load topics. Contact your administrator for solution.")   
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
             
