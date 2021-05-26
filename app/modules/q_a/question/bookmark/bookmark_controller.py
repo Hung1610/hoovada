@@ -99,7 +99,7 @@ class QuestionBookmarkController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def update(self, object_id, data):
+    def update(self):
         pass
 
 

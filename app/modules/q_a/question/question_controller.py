@@ -203,7 +203,7 @@ class QuestionController(Controller):
     def invite(self, object_id, data):
         try:
             if not 'emails_or_usernames' in data:
-                return send_error(message='Please provide emails or usernames.')
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('emails_or_usernames'))
 
             if object_id is None:
                 return send_error("Question ID is null")
@@ -285,9 +285,9 @@ class QuestionController(Controller):
             return send_error(message="Invite failed. Error: " + e.__str__())
 
 
-    def get_similar_elastic(self, args):
+    def get_similar(self, args):
         if not 'title' in args:
-            return send_error(message='Please provide at least the title.')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
 
         title = args['title']
         limit = 30
@@ -325,6 +325,7 @@ class QuestionController(Controller):
                 
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -387,7 +388,7 @@ class QuestionController(Controller):
     def get_proposals(self, object_id, args):
         try:
             if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
@@ -460,7 +461,7 @@ class QuestionController(Controller):
     def create_question_update_proposal(self, object_id, data):
         try:
             if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Question Id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
             
             if not isinstance(data, dict):
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -512,11 +513,11 @@ class QuestionController(Controller):
     def approve_proposal(self, object_id):
         try:
             if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Proposal Id'))
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
             proposal = QuestionProposal.query.filter_by(id=object_id).first()
             if proposal is None:
-                return send_error(message="Proposal ID {} not found".format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
             
             if proposal.is_approved:
                 return send_result(message="Proposal ID {} is already approved".format(object_id))

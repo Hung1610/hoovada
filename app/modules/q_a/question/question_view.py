@@ -91,11 +91,12 @@ class QuestionSimilar(Resource):
 
         args = get_similar_questions_parser.parse_args()
         controller = QuestionController()
-        return controller.get_similar_elastic(args=args)
+        return controller.get_similar(args=args)
 
 
 def get_question_key_prefix():
     return '{}{}'.format('get.question', request.view_args['id_or_slug'])
+    
     
 @api.route('/<string:id_or_slug>')
 class Question(Resource):

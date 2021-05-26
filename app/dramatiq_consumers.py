@@ -205,26 +205,6 @@ def send_daily_recommendation_mails():
         send_recommendation_mail.send(user_id[0])
 
 @dramatiq.actor()
-def send_daily_similar_mails():
-    User = db.get_model('User')
-
-    users = User.query.with_entities(User.id)\
-        .filter(User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
-
-    for user_id in users:
-        send_similar_mail.send(user_id[0])
-
-@dramatiq.actor()
-def send_weekly_similar_mails():
-    User = db.get_model('User')
-
-    users = User.query.with_entities(User.id)\
-        .filter(User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
-
-    for user_id in users:
-        send_similar_mail.send(user_id[0])
-
-@dramatiq.actor()
 def send_recommendation_mail(user_id):
     UserMailedQuestion = db.get_model('UserMailedQuestion')
     UserMailedArticle = db.get_model('UserMailedArticle')
@@ -264,6 +244,27 @@ def send_recommendation_mail(user_id):
             html = render_template('recommendation_for_user.html', \
                 user=user, recommended_articles=recommended_articles, recommended_questions=recommended_questions)
             send_email(user.email, 'Hoovada - Nội dung mà bạn có thể quan tâm!', html)
+
+"""
+@dramatiq.actor()
+def send_daily_similar_mails():
+    User = db.get_model('User')
+
+    users = User.query.with_entities(User.id)\
+        .filter(User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.daily.name)
+
+    for user_id in users:
+        send_similar_mail.send(user_id[0])
+
+@dramatiq.actor()
+def send_weekly_similar_mails():
+    User = db.get_model('User')
+
+    users = User.query.with_entities(User.id)\
+        .filter(User.is_deactivated == False, User.hoovada_digests_setting == True, User.hoovada_digests_frequency_setting == FrequencySettingEnum.weekly.name)
+
+    for user_id in users:
+        send_similar_mail.send(user_id[0])
 
 @dramatiq.actor()
 def send_similar_mail(user_id):
@@ -371,3 +372,4 @@ def send_new_topics(user_id):
         html = render_template('new_topics.html', user=user, topics=topics)
         if user.email:
             send_email(user.email, 'Hoovada - Chủ đề mới', html)
+"""
