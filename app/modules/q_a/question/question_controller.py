@@ -305,7 +305,7 @@ class QuestionController(Controller):
             current_user = g.current_user
             for hit in hits:
                 question_id = hit.meta.id
-                question = Question.query.filter_by(id=question_id, is_private=False).first()
+                question = Question.query.filter_by(id=question_id, is_private=False, is_deleted=False).first()
                 if not question or question.title == title:
                     continue
                 result = question._asdict()
@@ -674,8 +674,7 @@ class QuestionController(Controller):
                 query = query.filter(db.func.coalesce(Question.is_private, False) != True)
 
             if params.get('title'):
-                title_similarity = db.func.SIMILARITY_STRING(Question.title, params.get('title')).label('title_similarity')
-                query = query.filter(title_similarity > 50)
+                query = query.filter(Question.title.like(params.get('title')))
             
             if params.get('from_date'):
                 query = query.filter(Question.created_date >= params.get('from_date'))
@@ -699,6 +698,7 @@ class QuestionController(Controller):
         query = super().get_query()
         query = query.join(User, isouter=True).filter(db.or_(Question.user == None, User.is_deactivated == False))        
         return query
+
 
     def _parse_question(self, data, question=None):
         if question is None:

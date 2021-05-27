@@ -150,7 +150,6 @@ class QuestionDto(Dto):
 
     get_similar_questions_parser = reqparse.RequestParser()
     get_similar_questions_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
-    get_similar_questions_parser.add_argument('similarity_rate', type=int, default=75, help='The rate of similarity to question title')
     get_similar_questions_parser.add_argument('limit', type=int, default=30, required=False, help='Limit amount to return')
     get_similar_questions_parser.add_argument('exclude_question_id', type=str, required=False, help='Exclude question with this id')
 
