@@ -48,6 +48,7 @@ QuestionBookmark = db.get_model('QuestionBookmark')
 QuestionVote = db.get_model('QuestionVote')
 
 ESQuestion = get_model("Question")
+ESTopic = get_model("Topic")
 
 class QuestionController(Controller):
     query_classname = 'Question'
@@ -360,28 +361,28 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-
     def get_recommended_topics(self, args):
-        if not 'title' in args:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
-        
-        title = args['title']
-        limit = args.get('limit', 10)
         try:
-            title_similarity = db.func.SIMILARITY_STRING(Question.title, title).label('title_similarity')
-            query = Topic.query.distinct()\
-                .join(Question, isouter=True)\
-                .with_entities(Topic, title_similarity)\
-                .filter(db.text('IFNULL(is_private, False)') == False)\
-                .filter(title_similarity > 50)\
-                .order_by(desc(title_similarity))\
-                .limit(limit)
-            topics = [topic[0] for topic in query.all()]
-            return send_result(data=marshal(topics, QuestionDto.model_topic), message=messages.MSG_CREATE_SUCCESS)
-        
+            size = 20
+            if 'size' in args:
+                size = int(args['limit'])
+            if not 'title' in args:
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+            s = ESTopic.search()
+            q = Q("multi_match", query=args['title'], fields=['name'])
+            s = s.query(q)
+            s = s[0:size + 1]
+            response = s.execute()
+            hits = response.hits
+            topics = []
+            for h in hits:
+                topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
+                if topic is not None and topic.is_fixed == 0:
+                    topics.append(topic)
+            print(topics)
+            return send_result(data=marshal(topics, QuestionDto.model_topic))
         except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
+            print(e)
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 

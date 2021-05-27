@@ -61,17 +61,6 @@ class TopicList(Resource):
         controller = TopicController()
         return controller.create(data=data)
 
-@api.route('/recommend')
-class TopicRecommendation(Resource):
-    @api.expect(recommened_topic_parser)
-    @api.response(code=200, model=topic_response, description='Model for topic response.')
-    def get(self):
-        """ Get list of recommended topics """
-
-        args = recommened_topic_parser.parse_args()
-        controller = TopicController()
-        return controller.recommend_topics(args=args)
-
 @api.deprecated
 @api.route('/all/count')
 @api.expect(parser)
