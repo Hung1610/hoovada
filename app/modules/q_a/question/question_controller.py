@@ -10,7 +10,7 @@ import dateutil.parser
 from flask import g
 from flask_restx import marshal
 from slugify import slugify
-from sqlalchemy import desc, func, or_, text
+from sqlalchemy import desc, func, or_
 
 # own modules
 from app.constants import messages

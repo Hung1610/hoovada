@@ -9,7 +9,7 @@ import dateutil.parser
 from flask import g
 from flask_restx import marshal
 from slugify import slugify
-from sqlalchemy import desc, func
+from sqlalchemy import func
 
 # own modules
 from common.cache import cache
