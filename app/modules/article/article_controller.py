@@ -207,7 +207,7 @@ class ArticleController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
     
 
-    def get_similar_elastic(self, args):
+    def get_similar(self, args):
         if not 'title' in args:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
         
@@ -264,7 +264,8 @@ class ArticleController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message="Get similar articles failed. Error: "+ e.__str__())          
+            return send_error(message=messages.ERR_GET_FAILED.format(e))         
+
 
     def update(self, object_id, data):
        

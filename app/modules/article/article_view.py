@@ -107,7 +107,7 @@ class ArticleSimilar(Resource):
         
         args = _article_get_similar_params.parse_args()
         controller = ArticleController()
-        return controller.get_similar_elastic(args=args)
+        return controller.get_similar(args=args)
 
 @api.deprecated
 @api.route('/update_slug')
