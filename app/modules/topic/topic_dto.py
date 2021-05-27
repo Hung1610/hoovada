@@ -20,6 +20,20 @@ class TopicDto(Dto):
     name = 'topic'
     api = Namespace(name, description="Topic operations")
 
+    model_topic_user = api.model('topic_user', {
+        'id': fields.Integer(readonly=True),
+        'display_name': fields.String(required=False),
+        'profile_pic_url': fields.String(required=False),
+        'profile_views': fields.Integer(default=False, description='User view count'),
+        'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
+        'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
+        'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
+    })
+
+
     model_endorsed_user = api.model('model_endorsed_user', {
         'id': fields.Integer(readonly=True),
         'display_name': fields.String(required=False),
@@ -112,7 +126,7 @@ class TopicDto(Dto):
     top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=False, help='Relevant topics IDs')
     
     top_user_reputation_response = api.model('top_user_reputation_response', {
-        'user': fields.Nested(model_question_user, description='The user information'),
+        'user': fields.Nested(model_topic_user, description='The user information'),
         'total_score': fields.Integer(default=0, description='The total reputation score of user for relevant topics'),
     })
 
