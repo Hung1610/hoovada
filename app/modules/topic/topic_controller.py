@@ -447,6 +447,31 @@ class TopicController(Controller):
             print(e.__str__())
             return send_error(message=e)
 
+    def get_recommended_users(self, args):
+
+        limit = args.get('limit', 10)
+        topics = args.get('topic', [])
+        try:
+            total_score = db.func.sum(Reputation.score).label('total_score')
+            top_users_reputation = Reputation.query.with_entities(
+                    User,
+                    total_score,
+                )\
+                .join(Reputation.user)\
+                .filter(Reputation.topic_id.in_(topics))\
+                .group_by(User)\
+                .having(total_score > 0)\
+                .order_by(desc(total_score))\
+                .limit(limit).all()
+            results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
+            
+            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
     def _parse_topic(self, data, topic=None):
         if topic is None:
             topic = Topic()

@@ -24,6 +24,8 @@ get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
 topic_endorse_user_request = TopicDto.topic_endorse_user_request
 upload_parser = TopicDto.upload_parser
 recommened_topic_parser = TopicDto.model_recommened_topic_parser
+top_user_reputation_args_parser = TopicDto.top_user_reputation_args_parser
+top_user_reputation_response = TopicDto.top_user_reputation_response
 
 
 @api.route('/<string:topic_id_or_slug>/file')
@@ -185,3 +187,15 @@ class UpdateTopicColor(Resource):
 
         controller = TopicController()
         return controller.update_color()
+
+
+@api.route('/recommended-users')
+class QuestionRecommendedUsers(Resource):
+    @api.expect(top_user_reputation_args_parser)
+    @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
+    def get(self):
+        """ Get recommended users for question."""
+
+        args = top_user_reputation_args_parser.parse_args()
+        controller = QuestionController()
+        return controller.get_recommended_users(args=args)

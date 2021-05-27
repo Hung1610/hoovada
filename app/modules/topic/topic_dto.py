@@ -107,6 +107,15 @@ class TopicDto(Dto):
     model_recommened_topic_parser.add_argument('question_id', type=int, required=False, help='Recommend topic by question id')
     model_recommened_topic_parser.add_argument('size', type=int, required=False, default=20, help='Number of returned topics')
 
+    top_user_reputation_args_parser = reqparse.RequestParser()
+    top_user_reputation_args_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
+    top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=False, help='Relevant topics IDs')
+    
+    top_user_reputation_response = api.model('top_user_reputation_response', {
+        'user': fields.Nested(model_question_user, description='The user information'),
+        'total_score': fields.Integer(default=0, description='The total reputation score of user for relevant topics'),
+    })
+
     @classmethod
     def get_endorsed_users_parser(cls):
         get_endorsed_users_parser = cls.paginated_request_parser.copy()
