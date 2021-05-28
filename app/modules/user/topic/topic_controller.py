@@ -147,7 +147,8 @@ class TopicController(Controller):
         try:
             user = User.query.filter_by(id=user_id).first()
             if not user:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('User', user_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
             user_endorsed_topics = TopicUserEndorse.query.distinct()\
                 .filter_by(endorsed_id=user.id)\
                 .join(Topic, isouter=True)\

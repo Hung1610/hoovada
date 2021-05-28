@@ -79,6 +79,11 @@ class QuestionController(Controller):
         if question is not None:
             return send_error(message=messages.ERR_ALREADY_EXISTS)   
 
+        # default fixed_topic
+        if 'fixed_topic_id' not in data:
+            topic = Topic.query.filter(Topic.name == 'Những lĩnh vực khác', Topic.is_fixed == True).first()
+            data['fixed_topic_id'] = topic.id
+
         question = self._parse_question(data=data, question=None)
         try:     
             if question.topics is not None and len(question.topics) > 5:
@@ -914,5 +919,6 @@ class QuestionController(Controller):
                 question.slug = slugify(question.title)
                 db.session.commit()
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            pass
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))

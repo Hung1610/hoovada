@@ -92,9 +92,11 @@ class TopicController(Controller):
                     topic = Topic(name=topic_name, is_fixed=True, user_id=admin_user.id, color_code="#675DDA")
                     db.session.add(topic)
                     db.session.commit()
+
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create  fixed topic: {}'.format(str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def create(self, data):
@@ -135,11 +137,12 @@ class TopicController(Controller):
             controller = TopicBookmarkController()
             controller.create(topic_id=topic.id)
             
-            return send_result(message='Topic was created successfully.', data=marshal(topic, TopicDto.model_topic_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_topic_response))
 
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create topic {}'.format(str(e)))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_query(self):
@@ -173,7 +176,7 @@ class TopicController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error('Could not load topics: {}'.format(str(e)))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_count(self, args):
@@ -182,48 +185,66 @@ class TopicController(Controller):
             return send_result({'count': count}, message='Success')
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load topics. Contact your administrator for solution.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error("Topic ID is null")
-        if object_id.isdigit():
-            topic = Topic.query.filter_by(id=object_id).first()
-        else:
-            topic = Topic.query.filter_by(slug=object_id).first()
-        if topic is None:
-            return send_error(message="Could not find topic by this ID {}".format(object_id))
-        return send_result(data=marshal(topic, TopicDto.model_topic_response), message='Success')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        try:
+            if object_id.isdigit():
+                topic = Topic.query.filter_by(id=object_id).first()
+            else:
+                topic = Topic.query.filter_by(slug=object_id).first()
+
+            if topic is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+
+            return send_result(data=marshal(topic, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_sub_topics(self, object_id):
         if object_id is None:
-            return send_error(message='Please give the topic ID.')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         if object_id.isdigit():
             topic = Topic.query.filter_by(id=object_id).first()
         else:
             topic = Topic.query.filter_by(slug=object_id).first()
+
         if topic is None:
-            return send_result(message='Could not find any topic.')
+            return send_error(message=messages.ERR_NOT_FOUND)
+
         if topic.is_fixed:
             id = topic.id
             result = topic.__dict__
             sub_topics = Topic.query.filter_by(parent_id=id).all()
             result['sub_topics'] = sub_topics
-            return send_result(data=marshal(result, TopicDto.model_topic_response), message='Success')
+            return send_result(data=marshal(result, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)
         else:
-            return send_result(
-                message='The topic with the ID {} does not contain any sub-topics (Hint: send the ID of the fixed topic)')
+            return send_error(message=messages.ERR_NOT_FOUND)
+
 
     def update(self, object_id, data):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         if object_id.isdigit():
             topic = Topic.query.filter_by(id=object_id).first()
         else:
             topic = Topic.query.filter_by(slug=object_id).first()
         
         if not topic:
-            return send_error(message='Topic with the ID {} not found.'.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         if 'name' in data:
             data['name'].strip().capitalize()
@@ -244,34 +265,49 @@ class TopicController(Controller):
             result = topic._asdict()
             bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
-            return send_result(message='Update successfully', data=marshal(result, TopicDto.model_topic_response))
+
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, TopicDto.model_topic_response))
 
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not update topic: {}'.format(str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         try:
             if object_id.isdigit():
                 topic = Topic.query.filter_by(id=object_id).first()
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
+
             if not topic:
-                return send_error(message="Topic with ID {} not found".format(object_id))
-            else:
-                Reputation.query.filter(Reputation.topic_id == topic.id).delete(synchronize_session=False)
-                db.session.delete(topic)
-                topic_dsl = ESTopic(_id=topic.id)
-                topic_dsl.delete()
-                db.session.commit()
-                return send_result(message='Topic was deleted.')
+                return send_error(message=messages.ERR_NOT_FOUND)
+
+            Reputation.query.filter(Reputation.topic_id == topic.id).delete(synchronize_session=False)
+            db.session.delete(topic)
+            topic_dsl = ESTopic(_id=topic.id)
+            topic_dsl.delete()
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
+
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not delete user with ID {}'.format(object_id))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def create_endorsed_users(self, object_id, data):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         try:
             if not 'user_id' in data:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
@@ -279,8 +315,10 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(id=object_id).first()
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
+            
             if not topic:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             user_id = data['user_id']
             user = User.query.filter_by(id=user_id).first()
             if not user:
@@ -303,18 +341,25 @@ class TopicController(Controller):
                 db.session.add(endorse)
                 db.session.commit()
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(endorse.endorsed, TopicDto.model_endorsed_user))
+        
         except Exception as e:
-            print(e)
+            db.session.rollback()
+            print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
+
     def delete_endorsed_users(self, object_id, user_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         try:
             if object_id.isdigit():
                 topic = Topic.query.filter_by(id=object_id).first()
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             user = User.query.filter_by(id=user_id).first()
             if not user:
                 return send_error(message=messages.ERR_NOT_FOUND)
@@ -332,13 +377,21 @@ class TopicController(Controller):
 
             db.session.delete(endorse)
             db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
 
-            return send_result(message='TopicEndorse was deleted.')
         except Exception as e:
-            print(e)
-            return send_error(message=messages.ERR_DELETE_FAILED.format('TopicEndorse', e))
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
+
 
     def get_endorsed_users(self, object_id, args):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if not isinstance(args, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         page, per_page = args.get('page', 1), args.get('per_page', 10)
         try:
             if object_id.isdigit():
@@ -358,10 +411,17 @@ class TopicController(Controller):
             res['data'] = marshal(results, TopicDto.model_endorsed_user)
             return res, code
         except Exception as e:
-            print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e))
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def get_bookmarked_users(self, object_id, args):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if not isinstance(args, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+            
         page, per_page = args.get('page', 1), args.get('per_page', 10)
         try:
             if object_id.isdigit():
@@ -386,12 +446,13 @@ class TopicController(Controller):
             res['data'] = marshal(results, TopicDto.model_endorsed_user)
             return res, code
         except Exception as e:
-            print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format('Topic', e))
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def create_with_file(self, object_id):
         if object_id is None:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("Topic ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
 
         if 'file' not in request.files:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
@@ -421,8 +482,10 @@ class TopicController(Controller):
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_topic_response))
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def update_slug(self):
         topics = Topic.query.all()
@@ -432,8 +495,10 @@ class TopicController(Controller):
                 db.session.commit()
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message=e)
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def update_color(self):
         topics = Topic.query.filter(Topic.is_fixed == True).all()
@@ -444,8 +509,10 @@ class TopicController(Controller):
 
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message=e)
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def get_recommended_users(self, args):
 
@@ -464,7 +531,7 @@ class TopicController(Controller):
                 .order_by(desc(total_score))\
                 .limit(limit).all()
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
-            
+
             return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
