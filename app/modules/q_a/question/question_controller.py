@@ -207,7 +207,7 @@ class QuestionController(Controller):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('emails_or_usernames'))
 
             if object_id is None:
-                return send_error("Question ID is null")
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
                 
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
@@ -215,7 +215,7 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(slug=object_id).first()
             
             if question is None:
-                return send_error(message='Could not find question with the ID {}'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
             
             current_user = g.current_user
             emails_or_usernames = data['emails_or_usernames']
@@ -468,7 +468,7 @@ class QuestionController(Controller):
             proposal = self._parse_proposal(data=data, proposal=proposal)
 
             if proposal.topics.count('1') > 5:
-                return send_error(message='Question cannot have more than 5 topics.')
+                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             proposal.last_activity = datetime.utcnow()
             proposal.slug = slugify(proposal.title)
