@@ -29,7 +29,6 @@ ERR_FAILED_UPLOAD = 'Failed to upload file. Issue {}!'
 
 # General
 ERR_WRONG_DATA_FORMAT = 'Wrong data format!'
-ERR_LACKING_QUERY_PARAMS = 'Query parameters not provided!'
 ERR_PLEASE_PROVIDE = 'Please provide {}!'
 ERR_NOT_FOUND_WITH_ID = '{} not found with ID: {}!'
 ERR_ISSUE = 'Issue: {}!'

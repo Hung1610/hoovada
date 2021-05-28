@@ -15,7 +15,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class EmploymentDto(Dto):
     name = 'user_employment'
-    api = Namespace(name, description="User-Employment operations")
+    api = Namespace(name, description="User employment operations")
 
     model_request = api.model('user_employment_request', {
         'user_id': fields.Integer(required=True, description='The user ID'),

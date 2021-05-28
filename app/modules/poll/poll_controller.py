@@ -70,10 +70,10 @@ class PollController(Controller):
         if not isinstance(data['poll_topics'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         poll_topics = data['poll_topics']
-        if len(poll_topics) > 5:
-            return send_error(message=messages.ERR_ISSUE.format('Poll must have maximum 5 topics'))
+
         if len(data['poll_selects']) < 2:
             return send_error(message=messages.ERR_ISSUE.format('Poll must have minimum 2 selections'))
+
         current_user = g.current_user
         data['user_id'] = current_user.id
         
@@ -152,7 +152,7 @@ class PollController(Controller):
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('Poll', e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
     
     def _add_fields(self, poll_dict):
         current_user = g.current_user
@@ -172,20 +172,21 @@ class PollController(Controller):
                 poll_dict["is_downvoted_by_me"] = True
         return poll_dict
     
+
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
         
-        if object_id.isdigit():
-            poll = Poll.query.filter_by(id=object_id).first()
-        else:
-            poll = Poll.query.filter_by(slug=object_id).first()
+        try:
+            if object_id.isdigit():
+                poll = Poll.query.filter_by(id=object_id).first()
+            else:
+                poll = Poll.query.filter_by(slug=object_id).first()
 
-        current_user = g.current_user
-        if poll is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
+            current_user = g.current_user
+            if poll is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
 
-        else:
             result = poll._asdict()
             result['user'] = poll.user
             result['topics'] = poll.topics
@@ -195,12 +196,16 @@ class PollController(Controller):
             # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
             result = self._add_fields(result)
             update_seen_poll.send(current_user.id, poll.id)
-            return send_result(data=marshal(result, PollDto.model_response))
+            return send_result(data=marshal(result, PollDto.model_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Poll ID"))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("id"))
 
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -254,7 +259,7 @@ class PollController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Poll', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def _parse_poll(self, data, poll=None):

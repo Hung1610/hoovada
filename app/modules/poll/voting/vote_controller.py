@@ -104,8 +104,9 @@ class PollVoteController(Controller):
 
 
     def get_by_id(self, object_id):
-        if id is None:
-            return send_error(message='Please provide id')
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("id"))
+            
         vote = PollVote.query.filter_by(id=object_id).first()
         if vote is None:
             return send_error(message=messages.ERR_NOT_FOUND)

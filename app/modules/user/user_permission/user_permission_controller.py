@@ -9,14 +9,9 @@ from flask_restx import marshal
 # own modules
 from common.db import db
 from app.constants import messages
-from app.modules.user.user_permission.user_permission_dto import \
-    UserPermissionDto
+from app.modules.user.user_permission.user_permission_dto import UserPermissionDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
-
-# from app.settings.config import BaseConfig as Config
-# from common.utils.util import encode_file_name
-# from common.utils.types import UserRole
 
 UserPermission = db.get_model('UserPermission')
 Permission = db.get_model('Permission')
