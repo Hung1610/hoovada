@@ -60,8 +60,10 @@ class ArticleController(Controller):
         if not 'html' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('html'))
 
-        if not 'fixed_topic_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+        # default fixed_topic
+        if 'fixed_topic_id' not in data:
+            topic = Topic.query.filter(Topic.name == 'Những lĩnh vực khác', Topic.is_fixed == True).first()
+            data['fixed_topic_id'] = topic.id
 
         # Handling user
         current_user = g.current_user  
@@ -81,10 +83,6 @@ class ArticleController(Controller):
 
             if article.scheduled_date is not None and article.scheduled_date < datetime.now():
                 return send_error(message=messages.ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT)
-
-            if article.topics is not None:
-                if len(article.topics) > 5:
-                    return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             db.session.add(article)
             db.session.flush()
@@ -295,8 +293,6 @@ class ArticleController(Controller):
 
         article = self._parse_article(data=data, article=article)
         try:  
-            if article.topics is not None and len(article.topics) > 5:
-                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             article.updated_date = datetime.utcnow()
             article.last_activity = datetime.utcnow()

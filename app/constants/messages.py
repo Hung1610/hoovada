@@ -98,8 +98,6 @@ ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with questio
 ERR_USER_ALREADY_ANSWERED = 'This user has already answered this question!'
 ERR_USER_INFO_MORE_THAN_1 = 'More than 1 user information is selected!'
 
-########### Topics Module #################
-ERR_TOPICS_MORE_THAN_5 = 'Number of topics is more than 5!'
 
 ########### User Module #################
 ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'

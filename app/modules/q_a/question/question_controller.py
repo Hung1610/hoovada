@@ -86,8 +86,6 @@ class QuestionController(Controller):
 
         question = self._parse_question(data=data, question=None)
         try:     
-            if question.topics is not None and len(question.topics) > 5:
-                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
             
             question.created_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
@@ -467,8 +465,6 @@ class QuestionController(Controller):
             proposal = self._parse_proposal(data=proposal_data, proposal=None)
             proposal = self._parse_proposal(data=data, proposal=proposal)
 
-            if proposal.topics.count('1') > 5:
-                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             proposal.last_activity = datetime.utcnow()
             proposal.slug = slugify(proposal.title)
@@ -548,9 +544,6 @@ class QuestionController(Controller):
 
         question = self._parse_question(data=data, question=question)
         try:
-
-            if question.topics is not None and len(question.topics) > 5:
-                return send_error(message=messages.ERR_TOPICS_MORE_THAN_5)
 
             question.updated_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
