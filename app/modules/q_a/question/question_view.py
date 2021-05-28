@@ -24,8 +24,6 @@ api = QuestionDto.api
 get_parser = QuestionDto.get_parser
 get_similar_questions_parser = QuestionDto.get_similar_questions_parser
 question_invite_request = QuestionDto.question_invite_request
-top_user_reputation_args_parser = QuestionDto.top_user_reputation_args_parser
-top_user_reputation_response = QuestionDto.top_user_reputation_response
 model_topic = QuestionDto.model_topic
 get_relevant_topics_parser = QuestionDto.get_relevant_topics_parser
 model_answer_request = QuestionDto.model_answer_request
@@ -56,18 +54,6 @@ class QuestionList(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.create(data=data)
-
-
-@api.route('/recommended-users')
-class QuestionRecommendedUsers(Resource):
-    @api.expect(top_user_reputation_args_parser)
-    @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
-    def get(self):
-        """ Get recommended users for question."""
-
-        args = top_user_reputation_args_parser.parse_args()
-        controller = QuestionController()
-        return controller.get_recommended_users(args=args)
 
 
 @api.route('/recommended-topics')

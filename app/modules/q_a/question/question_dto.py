@@ -131,14 +131,6 @@ class QuestionDto(Dto):
         'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
     })
 
-    top_user_reputation_args_parser = reqparse.RequestParser()
-    top_user_reputation_args_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
-    top_user_reputation_args_parser.add_argument('topic', type=int, action='append', required=False, help='Relevant topics IDs')
-
-    top_user_reputation_response = api.model('top_user_reputation_response', {
-        'user': fields.Nested(model_question_user, description='The user information'),
-        'total_score': fields.Integer(default=0, description='The total reputation score of user for relevant topics'),
-    })
 
     question_invite_request = api.model('question_invite_request', {
         'emails_or_usernames': fields.List(fields.String, description='The list of emails/usernames to invite by'),

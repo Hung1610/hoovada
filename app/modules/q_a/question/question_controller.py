@@ -74,11 +74,6 @@ class QuestionController(Controller):
         if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
-        # Handling question body (if provided)
-        if 'question' in data:
-            if is_sensitive(data['question'], True):
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)        
-
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
         if question is not None:
@@ -332,35 +327,6 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def get_recommended_users(self, args):
-        try:
-            if args.get('limit'):
-                limit = int(args['limit'])
-            else:
-                return send_error(message='Please provide limit')
-            if args.get('topic'):
-                topics = args['topic']
-            else:
-                topics = []
-
-            total_score = db.func.sum(Reputation.score).label('total_score')
-            top_users_reputation = Reputation.query.with_entities(
-                    User,
-                    total_score,
-                )\
-                .join(Reputation.user)\
-                .filter(Reputation.topic_id.in_(topics))\
-                .group_by(User)\
-                .having(total_score > 0)\
-                .order_by(desc(total_score))\
-                .limit(limit).all()
-            results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
-            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message=messages.MSG_CREATE_SUCCESS)
-
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
     def get_recommended_topics(self, args):
         try:
             size = 20
@@ -560,11 +526,7 @@ class QuestionController(Controller):
 
             if is_sensitive(data['title']):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
-        # Handling question body (if provided)
-        if 'question' in data:
-            if is_sensitive(data['question'], True):
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)      
+                
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
