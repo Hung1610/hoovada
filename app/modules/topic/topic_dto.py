@@ -22,6 +22,7 @@ class TopicDto(Dto):
 
     model_user = api.model('model_user', {
         'id': fields.Integer(readonly=True),
+        'email': fields.String(required=False),
         'display_name': fields.String(required=False),
         'profile_pic_url': fields.String(required=False),
         'profile_views': fields.Integer(default=False),
