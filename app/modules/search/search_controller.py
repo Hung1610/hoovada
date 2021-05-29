@@ -96,7 +96,7 @@ class SearchController():
             size = int(args['size'])
         
         if filters is not None and 'is_fixed' in filters:
-            is_fixed = int(filters['is_fixed'])
+            is_fixed = bool(filters['is_fixed'])
 
         s = ESTopic.search()
         q = Q("multi_match", query=args['value'], fields=["name"])
@@ -329,9 +329,12 @@ class SearchController():
                 'from': args.get('from'),
                 'size': args.get('size')
             }
+
+
             filters = {
-                'is_fixed': args.get('is_fixed', 1)
+                'is_fixed': bool(args['is_fixed'], True)
             }
+
             topics = self._search_topic(search_args, filters)
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
 
