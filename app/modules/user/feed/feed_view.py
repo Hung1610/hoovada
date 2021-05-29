@@ -13,6 +13,7 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
+api = UserFeedDto.api
 
 @api.deprecated
 @api.route('/feed')
@@ -21,7 +22,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class UserGetFeed(Resource):
     @token_required
     def get(self):
-        """Get current user's feed with only feed type's data"""
+        """Get current user's feed with limited data"""
 
         args = UserFeedDto.model_user_feed_request.parse_args()
         args['get_data'] = False
