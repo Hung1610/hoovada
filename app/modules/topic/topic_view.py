@@ -19,13 +19,11 @@ api = TopicDto.api
 parser = TopicDto.model_get_parser
 topic_request = TopicDto.model_topic_request
 topic_response = TopicDto.model_topic_response
-endorsed_user_dto = TopicDto.model_endorsed_user
-get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
 topic_endorse_user_request = TopicDto.topic_endorse_user_request
 upload_parser = TopicDto.upload_parser
 recommened_topic_parser = TopicDto.model_recommened_topic_parser
-top_user_reputation_args_parser = TopicDto.top_user_reputation_args_parser
-top_user_reputation_response = TopicDto.top_user_reputation_response
+endorsed_user_dto = TopicDto.model_user
+get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
 
 
 @api.route('/<string:topic_id_or_slug>/file')
@@ -190,12 +188,12 @@ class UpdateTopicColor(Resource):
 
 
 @api.route('/recommended-users')
-class QuestionRecommendedUsers(Resource):
-    @api.expect(top_user_reputation_args_parser)
-    @api.response(code=200, model=top_user_reputation_response, description='Model for top users response.')
-    def get(self):
-        """ Get recommended users for question."""
+class TopicRecommendedUsers(Resource):
+    @api.expect(TopicDto.model_recommended_users_args_parser)
+    @api.response(code=200, model=TopicDto.model_recommended_users_response, description='Model for recommended users response.')
+    def get(self, topic_id_or_slug):
+        """ Get recommended good users for given topic id or name"""
 
-        args = top_user_reputation_args_parser.parse_args()
-        controller = QuestionController()
-        return controller.get_recommended_users(args=args)
+        args = TopicDto.model_recommended_users_args_parser.parse_args()
+        controller = TopicController()
+        return controller.get_recommended_users_by_topic(object_id=topic_id_or_slug, args=args)

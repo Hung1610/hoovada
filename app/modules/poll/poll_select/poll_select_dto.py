@@ -22,9 +22,18 @@ class PollSelectDto(Dto):
     api = Namespace(name, description="Poll Select operations")
 
     model_user = api.model('user', {
-        'id': fields.Integer(readonly=True, description='The ID of the user'),
-        'profile_pic_url': fields.String(description='The profile url of the user'),
-        'display_name': fields.String(description='The display name url of the user'),
+        'id': fields.Integer(readonly=True),
+        'display_name': fields.String(required=False),
+        'profile_pic_url': fields.String(required=False),
+        'profile_views': fields.Integer(default=False),
+        'endorsed_count': fields.Integer(required=False),
+        'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),    
+        'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
+        'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
+        'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed or not'),
+        'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_poll_user_selects = api.model('poll_select_request', {

@@ -340,7 +340,7 @@ class TopicController(Controller):
                 endorse.topic_id = topic.id
                 db.session.add(endorse)
                 db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(endorse.endorsed, TopicDto.model_endorsed_user))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(endorse.endorsed, TopicDto.model_user))
         
         except Exception as e:
             db.session.rollback()
@@ -399,7 +399,8 @@ class TopicController(Controller):
             else:
                 topic = Topic.query.filter_by(slug=object_id).first()
             if not topic:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             g.endorsed_topic_id = object_id
             user_ids = [user.id for user in topic.endorsed_users]
             query = User.query.filter(User.id.in_(user_ids)).paginate(page, per_page, error_out=False)
@@ -408,7 +409,7 @@ class TopicController(Controller):
             for user in res.get('data'):
                 result = user._asdict()
                 results.append(result)
-            res['data'] = marshal(results, TopicDto.model_endorsed_user)
+            res['data'] = marshal(results, TopicDto.model_user)
             return res, code
         except Exception as e:
             print(e.__str__())
@@ -430,7 +431,7 @@ class TopicController(Controller):
                 topic = Topic.query.filter_by(slug=object_id).first()
             
             if not topic:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Topic', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
             
             current_user = g.current_user 
             query = topic.bookmarked_users.paginate(page, per_page, error_out=False)
@@ -443,7 +444,7 @@ class TopicController(Controller):
                     result['is_followed_by_me'] = True if follow else False
                 results.append(result)
             
-            res['data'] = marshal(results, TopicDto.model_endorsed_user)
+            res['data'] = marshal(results, TopicDto.model_user)
             return res, code
         except Exception as e:
             print(e.__str__())
@@ -461,8 +462,10 @@ class TopicController(Controller):
             topic = Topic.query.filter_by(id=object_id).first()
         else:
             topic = Topic.query.filter_by(slug=object_id).first()
+
         if topic is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('topic', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
+
         media_file = request.files.get('file', None)
         if not media_file:
             return send_error(message=messages.ERR_NO_FILE)
@@ -487,52 +490,41 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
-    def update_slug(self):
-        topics = Topic.query.all()
-        try:
-            for topic in topics:
-                topic.slug = '{}'.format(slugify(topic.name))
-                db.session.commit()
-            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+    def get_recommended_users_by_topic(self, object_id, args):
+        '''Main logic for API GET /topic/recommended-users'''
+
+        if object_id is None:
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
+
+        if not isinstance(args, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
 
-    def update_color(self):
-        topics = Topic.query.filter(Topic.is_fixed == True).all()
-        try:
-            for topic in topics:
-                topic.color_code = "#675DDA"
-                db.session.commit()
-
-            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
-
-
-    def get_recommended_users(self, args):
+        if object_id.isdigit():
+            topic = Topic.query.filter_by(id=object_id).first()
+        else:
+            topic = Topic.query.filter_by(slug=object_id).first()
+        
+        if topic is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         limit = args.get('limit', 10)
-        topics = args.get('topic', [])
         try:
             total_score = db.func.sum(Reputation.score).label('total_score')
+
             top_users_reputation = Reputation.query.with_entities(
                     User,
                     total_score,
                 )\
                 .join(Reputation.user)\
-                .filter(Reputation.topic_id.in_(topics))\
+                .filter(Reputation.topic_id == topics.id)\
                 .group_by(User)\
                 .having(total_score > 0)\
                 .order_by(desc(total_score))\
                 .limit(limit).all()
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
 
-            return send_result(data=marshal(results, QuestionDto.top_user_reputation_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(results, TopicDto.model_recommended_users_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
@@ -606,3 +598,30 @@ class TopicController(Controller):
                     pass
 
         return topic
+
+
+    def update_slug(self):
+        topics = Topic.query.all()
+        try:
+            for topic in topics:
+                topic.slug = '{}'.format(slugify(topic.name))
+                db.session.commit()
+            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def update_color(self):
+        topics = Topic.query.filter(Topic.is_fixed == True).all()
+        try:
+            for topic in topics:
+                topic.color_code = "#675DDA"
+                db.session.commit()
+
+            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))

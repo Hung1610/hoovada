@@ -213,13 +213,11 @@ class SearchController():
         return users 
 
     def search(self, args):
-        """ Search data from elastic search server.
-        """
-        valueSearch = args.get('value')
-        
-        if not valueSearch:
-            return send_result(data={}, message='Search value not provided')
-                
+
+        if 'value' not in args:
+            return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
+        valueSearch = args.get('value')      
         if any(ext in valueSearch for ext in extensionsToCheck) == True:
             emailSearch = True
         else:
@@ -229,42 +227,53 @@ class SearchController():
             'from': '0',
             'size': '10'
         }
-        users = self._search_user(search_args, emailSearch)
-        questions = self._search_question(search_args)
-        topics = self._search_topic(search_args)
-        articles = self._search_article(search_args)
-        posts = self._search_post(valueSearch)
-        polls = self._search_poll(search_args)
-        data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts, 'polls': polls}
-        return send_result(data, message='Success')
+        try:
+            users = self._search_user(search_args, emailSearch)
+            questions = self._search_question(search_args)
+            topics = self._search_topic(search_args)
+            articles = self._search_article(search_args)
+            posts = self._search_post(valueSearch)
+            polls = self._search_poll(search_args)
+            data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts, 'polls': polls}
+
+            return send_result(data, message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))        
 
 
     def search_article_by_title(self, args):
         try:
             if not args.get('value'):
-                return send_error(message='Please provide the title to search.')
+                return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
                 'size': args.get('size')
             }
             articles = self._search_article(search_args)
-            return send_result(data=marshal(articles, SearchDto.model_search_article_res), message='Success')
+            return send_result(data=marshal(articles, SearchDto.model_search_article_res), message=messages.MSG_GET_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
+
     def search_user_by_name_or_email(self, args):
         try:
             if not args.get('value'):
-                return send_error(message='Please provide the display name or email to search.')
+                return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
                 'size': args.get('size')
             }
             users = self._search_user(search_args, emailSearch=True)
-            return send_result(data=marshal(users, SearchDto.model_search_user_response), message='Success')
+            return send_result(data=marshal(users, SearchDto.model_search_user_response), message=messages.MSG_GET_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -272,55 +281,65 @@ class SearchController():
     def search_poll_by_title(self, args):
         try:
             if not args.get('value'):
-                return send_error(message='Please provide the title to search.')
+                return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
                 'size': args.get('size')
             }
             polls = self._search_poll(search_args)
-            return send_result(data=marshal(polls, SearchDto.model_search_poll_response), message='Success')
+            return send_result(data=marshal(polls, SearchDto.model_search_poll_response), message=messages.MSG_GET_SUCCESS)
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
+
     def search_question_by_title(self, args):
         try:
             if not args.get('value'):
-                return send_error(message='Please provide the title to search.')
+                return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
                 'size': args.get('size')
             }
             questions = self._search_question(search_args)
-            return send_result(data=marshal(questions, SearchDto.model_search_question_response), message='Success')
+            return send_result(data=marshal(questions, SearchDto.model_search_question_response), message=messages.MSG_GET_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
+
     def search_topic_by_name(self, args):
         try:
             if not args.get('value'):
-                return send_error(message='Please provide the title to search.')
+                return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
                 'size': args.get('size')
             }
             filters = {
-                'is_fixed': args.get('is_fixed')
+                'is_fixed': args.get('is_fixed', True)
             }
             topics = self._search_topic(search_args, filters)
-            return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message='Success')
+            return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
     
+
     def search_friend_by_name_or_email(self, args, user_id):
         try:
             if not args.get('value'):
-                return send_error(message='Please provide the title to search.')
+                return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
@@ -328,7 +347,8 @@ class SearchController():
                 'is_approved': args.get('is_approved')
             }
             user_friends = self._search_user_friend(search_args, user_id)
-            return send_result(data=marshal(user_friends, SearchDto.model_search_user_friend_response), message='Success')
+            return send_result(data=marshal(user_friends, SearchDto.model_search_user_friend_response), message=messages.MSG_GET_SUCCESS)
+        
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

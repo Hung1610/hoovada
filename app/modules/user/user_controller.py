@@ -113,10 +113,6 @@ class UserController(Controller):
             if user.is_deactivated is True:
                 return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
 
-            # only you can access your homepage if you are private
-            if user.is_private is True and user.id != current_user.id:
-                return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
-
             # when call to this function, increase the profile_views
             if current_user.id != user.id:
                 user.profile_views += 1
@@ -140,10 +136,6 @@ class UserController(Controller):
                 return send_error(message=messages.ERR_NOT_LOGIN)
 
             if user.is_deactivated is True:
-                return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
-
-            # only you can access your homepage if you are private
-            if user.is_private is True and user.id != current_user.id:
                 return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
 
             # when call to this function, increase the profile_views

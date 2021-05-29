@@ -196,6 +196,7 @@ class QuestionController(Controller):
                 result['is_bookmarked_by_me'] = True if bookmark else False
             
             update_seen_questions.send(question.id, current_user.id)
+
         return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
 
 
@@ -243,7 +244,7 @@ class QuestionController(Controller):
             if bookmark is not None:
                 result['is_bookmarked_by_me'] = True if bookmark else False
 
-            return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+            return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()
@@ -262,7 +263,7 @@ class QuestionController(Controller):
             else:
                 return send_error(message=messages.ERR_NOT_FOUND)
             db.session.commit()
-            return send_result(data=marshal(result, QuestionDto.model_question_response), message='Success')
+            return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()
@@ -323,7 +324,7 @@ class QuestionController(Controller):
                         result['is_bookmarked_by_me'] = True if bookmark else False
                 
                 results.append(result)
-            return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
         
         except Exception as e:
             print(e.__str__())
@@ -349,7 +350,8 @@ class QuestionController(Controller):
                 if topic is not None and topic.is_fixed == 0:
                     topics.append(topic)
             print(topics)
-            return send_result(data=marshal(topics, QuestionDto.model_topic))
+            return send_result(data=marshal(topics, QuestionDto.model_topic), message=messages.MSG_GET_SUCCESS)
+
         except Exception as e:
             print(e)
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -389,7 +391,7 @@ class QuestionController(Controller):
 
             proposals = query.all()
             
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(proposals, QuestionDto.model_question_proposal_response))
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(proposals, QuestionDto.model_question_proposal_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -539,7 +541,7 @@ class QuestionController(Controller):
 
         #handling user
         current_user = g.current_user
-        if not UserRole.is_admin(current_user.admin):
+        if question.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         question = self._parse_question(data=data, question=question)

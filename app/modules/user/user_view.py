@@ -61,7 +61,7 @@ class UserMention(Resource):
 
 
 @api.deprecated
-@api.route('/all/count')
+@api.route('/all/count', doc=False)
 @api.expect(user_get_parser)
 class UserListCount(Resource):
     def get(self):
