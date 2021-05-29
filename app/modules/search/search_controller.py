@@ -332,7 +332,7 @@ class SearchController():
 
 
             filters = {
-                'is_fixed': bool(args['is_fixed'], True)
+                'is_fixed': bool(args.get('is_fixed', True))
             }
 
             topics = self._search_topic(search_args, filters)
