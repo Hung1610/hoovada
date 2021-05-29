@@ -90,10 +90,13 @@ class SearchController():
         is_fixed = 0
         if args['from'] is not None:
             start_from = int(args['from'])
+        
         if args['size']:
             size = int(args['size'])
-        if filters is not None:
-            is_fixed = filters['filters']
+        
+        if filters is not None and 'is_fixed' in filters:
+            is_fixed = filters['is_fixed']
+
         s = ESTopic.search()
         q = Q("multi_match", query=args['value'], fields=["name"])
         s = s.query(q)
