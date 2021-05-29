@@ -84,6 +84,7 @@ class SearchController():
                 })
         return articles
 
+
     def _search_topic(self, args, filters=None):
         start_from = 0
         size = 10
@@ -113,6 +114,7 @@ class SearchController():
                     "name": h.name
                 })
         return topics
+
 
     def _search_question(self, args):
         start_from = 0
@@ -328,7 +330,7 @@ class SearchController():
                 'size': args.get('size')
             }
             filters = {
-                'is_fixed': args.get('is_fixed', True)
+                'is_fixed': int(args.get('is_fixed', 1))
             }
             topics = self._search_topic(search_args, filters)
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
