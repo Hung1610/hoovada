@@ -27,10 +27,8 @@ class TopicDto(Dto):
         'profile_views': fields.Integer(default=False),
         'endorsed_count': fields.Integer(required=False),
         'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
-        
         'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
         'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
-
         'is_followed_by_me': fields.Boolean(default=False, description='The user is followed by me or not'),
         'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
         'is_friended_by_me': fields.Boolean(default=False, description='The user is followed by me or not'),

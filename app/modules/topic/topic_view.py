@@ -187,7 +187,7 @@ class UpdateTopicColor(Resource):
         return controller.update_color()
 
 
-@api.route('/recommended-users')
+@api.route('/<string:topic_id_or_slug>/recommended-users')
 class TopicRecommendedUsers(Resource):
     @api.expect(TopicDto.model_recommended_users_args_parser)
     @api.response(code=200, model=TopicDto.model_recommended_users_response, description='Model for recommended users response.')
