@@ -517,7 +517,7 @@ class TopicController(Controller):
                     total_score,
                 )\
                 .join(Reputation.user)\
-                .filter(Reputation.topic_id == topics.id)\
+                .filter(Reputation.topic_id == topic.id)\
                 .group_by(User)\
                 .having(total_score > 0)\
                 .order_by(desc(total_score))\
