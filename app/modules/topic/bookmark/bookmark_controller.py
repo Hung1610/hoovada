@@ -42,7 +42,7 @@ class TopicBookmarkController(Controller):
         try:
             bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == data['user_id'], TopicBookmark.topic_id == data['topic_id']).first()
             if bookmark:
-                return send_error(message=messages.ERR_ALREADY_EXISTS)
+                return send_result(message=messages.MSG_CREATED_SUCCESS, data=marshal(bookmark, TopicBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -119,7 +119,7 @@ class TopicBookmarkController(Controller):
 
 
     def delete(self, topic_id):
-        if object_id is None:
+        if topic_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         current_user = g.current_user
