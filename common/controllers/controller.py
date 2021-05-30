@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from abc import ABC, abstractmethod
+from abc import ABC
+from common.utils.response import paginated_result, send_error
 
 # own modules
 from common.db import db
@@ -81,35 +82,39 @@ class Controller(ABC):
         query = query.paginate(page, per_page, False)
         return query
 
-    @abstractmethod
     def create(self, *args, **kwargs):
         """
         Create object and insert to database.
         """
         pass
 
-    @abstractmethod
     def get(self, *args, **kwargs):
         """
         Return all objects from database
         """
-        pass
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
 
-    @abstractmethod
+            return res, code
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=e)
+
+
     def get_by_id(self, *args, **kwargs):
         """
         Get object from database by ID
         """
         pass
 
-    @abstractmethod
     def update(self, *args, **kwargs):
         """
         Updata object from search_data in database
         """
         pass
 
-    @abstractmethod
     def delete(self, *args, **kwargs):
         """
         Delete object from database.
