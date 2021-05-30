@@ -10,6 +10,7 @@ from flask import g
 from flask_restx import marshal
 
 # own modules
+from app.constants import messages
 from common.db import db
 from app.modules.topic.bookmark.bookmark_dto import TopicBookmarkDto
 from common.controllers.controller import Controller
