@@ -1260,6 +1260,27 @@ def upgrade():
     )
     op.create_index(op.f('ix_answer_improvement_vote_improvement_id'), 'answer_improvement_vote', ['improvement_id'], unique=False)
     op.create_index(op.f('ix_answer_improvement_vote_user_id'), 'answer_improvement_vote', ['user_id'], unique=False)
+    
+    op.create_table('career',
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.Unicode(length=255), nullable=True),
+    sa.Column('slug', sa.String(length=255), nullable=True),
+    sa.Column('description', sa.UnicodeText(), nullable=True),
+    sa.Column('requirements', sa.UnicodeText(), nullable=True),
+    sa.Column('location', sa.UnicodeText(), nullable=True),
+    sa.Column('contact', sa.UnicodeText(), nullable=True),
+    sa.Column('salary_from', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('salary_to', sa.Integer(), server_default='0', nullable=True),
+    sa.Column('expire_date', sa.DateTime(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_career_slug'), 'career', ['slug'], unique=False)
+    op.create_index(op.f('ix_career_user_id'), 'career', ['user_id'], unique=False)
     # ### end Alembic commands ###
 
 
@@ -1485,4 +1506,7 @@ def downgrade():
     op.drop_table('permission')
     op.drop_table('language')
     op.drop_table('blacklist_tokens')
+    op.drop_index(op.f('ix_career_user_id'), table_name='career')
+    op.drop_index(op.f('ix_career_slug'), table_name='career')
+    op.drop_table('career')
     # ### end Alembic commands ###
