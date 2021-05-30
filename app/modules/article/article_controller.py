@@ -153,7 +153,7 @@ class ArticleController(Controller):
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
-            return send_result({'count': count}, message='Success')
+            return send_result({'count': count}, message=messages.MSG_GET_SUCCESS)
         
         except Exception as e:
             print(e.__str__())

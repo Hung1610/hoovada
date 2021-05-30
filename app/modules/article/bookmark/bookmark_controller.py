@@ -86,7 +86,7 @@ class ArticleBookmarkController(Controller):
         if bookmark is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         
-        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
+        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
 
 
 
