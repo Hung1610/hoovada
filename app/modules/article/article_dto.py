@@ -47,7 +47,6 @@ class ArticleDto(Dto):
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
 
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
@@ -68,7 +67,6 @@ class ArticleDto(Dto):
         'share_count': fields.Integer(default=0, description='The amount of sharing'),
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'user': fields.Nested(model_article_user, description='The user information'),
         'fixed_topic': fields.Nested(model_topic, description='The fixed topic'),
@@ -90,7 +88,6 @@ class ArticleDto(Dto):
     model_get_parser.add_argument('from_date', type=str, required=False, help='Search articles created later than this date.')
     model_get_parser.add_argument('to_date', type=str, required=False, help='Search articles created before this data.')
     model_get_parser.add_argument('draft', type=inputs.boolean, required=False, help='Search articles that are drafts.')
-    model_get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search articles that are deleted.')
     model_get_parser.add_argument('user_id', type=int, required=False, help='Search all articles created by user.')
     model_get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count' ", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count'), action='append',)

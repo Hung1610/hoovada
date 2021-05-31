@@ -467,13 +467,6 @@ class ArticleController(Controller):
                 print(e.__str__())
                 pass
             
-        if 'is_deleted' in data:
-            try:
-                article.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-            
         if 'topic_ids' in data:
             topic_ids = data['topic_ids']
             topics = []

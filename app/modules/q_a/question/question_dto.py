@@ -44,7 +44,6 @@ class QuestionDto(Dto):
         'answer': fields.String(description='The content of the answer'),
         'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
         'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
     })
 
     model_question_request = api.model('question_request', {
@@ -56,7 +55,6 @@ class QuestionDto(Dto):
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
     })
@@ -83,7 +81,6 @@ class QuestionDto(Dto):
         'is_private': fields.Boolean(default=False, description='The question is private or not'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
         'invited_users': fields.List(fields.Nested(model_question_user), description='The list of invited users'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'allow_video_answer': fields.Boolean(default=False, description='The question allows video answer or not'),
         'allow_audio_answer': fields.Boolean(default=False, description='The question allows audio answer or not'),
 
@@ -157,7 +154,6 @@ class QuestionDto(Dto):
     get_parser.add_argument('topic_id', type=int, required=False, action='split', help='Search all questions related to topic.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search questions created later that this date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search questions created before this data.')
-    get_parser.add_argument('is_deleted', type=inputs.boolean, required=False, help='Search questions that are deleted.')
     get_parser.add_argument('is_shared', type=inputs.boolean, required=False, help='Search questions that are shared.')
     get_parser.add_argument('order_by_desc', help="Order by descending. Allowed fields: 'created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count', 'answer_count'", type=str,
                             choices=('created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count',  'answer_count'), action='append',)
