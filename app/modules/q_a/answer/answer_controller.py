@@ -18,7 +18,6 @@ from common.controllers.controller import Controller
 from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import is_sensitive
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
@@ -37,6 +36,8 @@ UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
 Question = db.get_model('Question')
 QuestionUserInvite = db.get_model('QuestionUserInvite')
+QuestionBookmark = db.get_model('QuestionBookmark')
+QuestionVote = db.get_model('QuestionVote')
 UserAnswerProfile = db.get_model('UserAnswerProfile')
 UserLanguage = db.get_model('UserLanguage')
 UserEmployment = db.get_model('UserEmployment')
@@ -73,9 +74,6 @@ class AnswerController(Controller):
         answer = Answer.query.with_deleted().filter_by(question_id=data['question_id'], user_id=data['user_id']).first()
         if answer:            
             return send_error(message=messages.ERR_USER_ALREADY_ANSWERED, data={'answer_id': answer.id})
-
-        if is_sensitive(data['answer'], True):
-            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         answer = self._parse_answer(data=data, answer=None)
         try:
@@ -149,7 +147,7 @@ class AnswerController(Controller):
 
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('answer', object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
         
         question = answer.question
 
@@ -215,10 +213,18 @@ class AnswerController(Controller):
                     if vote is not None:
                         result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
                     bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
                     if bookmark is not None:
                         result['is_bookmarked_by_me'] = True if bookmark else False
+
+
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    if vote is not None:
+                        result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                        result['question']['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                    if bookmark is not None:
+                        result['question']['is_bookmarked_by_me'] = True if bookmark else False
 
                 results.append(result)
             res['data'] = marshal(results, AnswerDto.model_response)
@@ -247,17 +253,25 @@ class AnswerController(Controller):
                 if vote is not None:
                     result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                
                 bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
                 if bookmark is not None:
                     result['is_bookmarked_by_me'] = True if bookmark else False
+
+
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                if vote is not None:
+                    result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['question']['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                if bookmark is not None:
+                    result['question']['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(data=marshal(result, AnswerDto.model_response), message=messages.MSG_GET_SUCCESS)
 
 
     def update(self, object_id, data):
         if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("id"))
 
         if data is None or not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
@@ -280,8 +294,6 @@ class AnswerController(Controller):
         if 'answer' in data:
             if data['answer'] == '':
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
-            if is_sensitive(data['answer'], True):
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         answer = self._parse_answer(data=data, answer=answer)
         try:
@@ -330,11 +342,18 @@ class AnswerController(Controller):
                 if vote is not None:
                     result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
                 bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
                 if bookmark is not None:
                     result['is_bookmarked_by_me'] = True if bookmark else False
 
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                if vote is not None:
+                    result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
+                    result['question']['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                if bookmark is not None:
+                    result['question']['is_bookmarked_by_me'] = True if bookmark else False
+                        
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:

@@ -78,10 +78,12 @@ class ArticleController(Controller):
         if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
+
+
         article = self._parse_article(data=data, article=None)
         try:
 
-            if article.scheduled_date is not None and article.scheduled_date < datetime.now():
+            if article.scheduled_date is not None and article.scheduled_date < datetime.utcnow():
                 return send_error(message=messages.ERR_ARTICLE_SCHEDULED_BEFORE_CURRENT)
 
             db.session.add(article)
