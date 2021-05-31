@@ -7,6 +7,7 @@ from datetime import datetime
 #third-party modules
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
 from common.enum import VotingStatusEnum

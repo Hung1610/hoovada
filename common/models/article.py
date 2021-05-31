@@ -10,6 +10,7 @@ from sqlalchemy import event
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
 from common.enum import VotingStatusEnum

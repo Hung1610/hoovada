@@ -9,6 +9,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
 from sqlalchemy.ext.declarative import declared_attr
+from flask import g
 
 # own modules
 from common.enum import VotingStatusEnum

@@ -10,6 +10,7 @@ from flask import g
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin

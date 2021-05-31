@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 # third-party modules
 from sqlalchemy_utils import aggregated
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import expression
+from flask import g
 
 # own modules
 from common.models.mixins import AuditCreateMixin, AuditUpdateMixin

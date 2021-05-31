@@ -34,7 +34,7 @@ class QuestionBookmarkController(Controller):
         data = {}
         current_user = g.current_user
         data['user_id'] = current_user.id
-        data['question_id'] = question_id
+        data['question_id'] = object_id
         try:
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == data['user_id'],
                                              QuestionBookmark.question_id == data['question_id']).first()

@@ -174,7 +174,7 @@ class QuestionController(Controller):
         if current_user:
             update_seen_questions.send(question.id, current_user.id)
 
-        return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
+        return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
 
 
     def invite(self, object_id, data):
@@ -352,7 +352,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create_question_deletion_proposal(self, object_id):
