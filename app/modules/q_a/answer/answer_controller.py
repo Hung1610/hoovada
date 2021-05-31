@@ -139,7 +139,7 @@ class AnswerController(Controller):
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
-            
+
         if 'file' not in request.files:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
@@ -219,7 +219,7 @@ class AnswerController(Controller):
                         result['is_bookmarked_by_me'] = True if bookmark else False
 
 
-                    question_id = result['question']['id']
+                    question_id = result['question'].id
                     vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question_id).first()
                     if vote is not None:
                         result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
@@ -262,7 +262,7 @@ class AnswerController(Controller):
                     result['is_bookmarked_by_me'] = True if bookmark else False
 
 
-                question_id = result['question']['id']
+                question_id = result['question'].id
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question_id).first()
                 if vote is not None:
                     result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
@@ -355,7 +355,7 @@ class AnswerController(Controller):
                 if bookmark is not None:
                     result['is_bookmarked_by_me'] = True if bookmark else False
 
-                question_id = result['question']['id']
+                question_id = result['question'].id
                 vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question_id).first()
                 if vote is not None:
                     result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
