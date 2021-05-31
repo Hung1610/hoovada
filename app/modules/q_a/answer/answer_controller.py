@@ -353,7 +353,7 @@ class AnswerController(Controller):
                 bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
                 if bookmark is not None:
                     result['question']['is_bookmarked_by_me'] = True if bookmark else False
-                        
+
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
@@ -437,13 +437,6 @@ class AnswerController(Controller):
                 answer.question_id = int(data['question_id'])
             except Exception as e:
                 print(e.__str__())
-                pass
-
-        if 'is_deleted' in data:
-            try:
-                answer.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                print(e)
                 pass
                 
         if 'allow_comments' in data:

@@ -717,14 +717,6 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
-        if 'is_deleted' in data:
-            try:
-                question.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                question.is_deleted = False
-                print(e.__str__())
-                pass
-
         if 'is_private' in data:
             try:
                 question.is_private = bool(data['is_private'])
@@ -849,15 +841,7 @@ class QuestionController(Controller):
                 proposal.is_private = False
                 print(e.__str__())
                 pass
-
-        if 'is_deleted' in data:
-            try:
-                proposal.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                proposal.is_deleted = False
-                print(e.__str__())
-                pass
-
+                
         if 'is_anonymous' in data:
             try:
                 proposal.is_anonymous = bool(data['is_anonymous'])
