@@ -139,6 +139,7 @@ class AnswerController(Controller):
     def create_with_file(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("Answer ID"))
+            
         if 'file' not in request.files:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
 
@@ -242,12 +243,14 @@ class AnswerController(Controller):
 
         answer = Answer.query.filter_by(id=object_id).first()
         if answer is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', object_id))
-        else:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        try:
             # get user information for each answer.
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
+
             current_user = g.current_user
             if current_user:
                 vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
@@ -269,6 +272,10 @@ class AnswerController(Controller):
                     result['question']['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(data=marshal(result, AnswerDto.model_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def update(self, object_id, data):
