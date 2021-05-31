@@ -63,6 +63,7 @@ class CommentController(BaseCommentController):
                 if current_user:
                     favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
                     result['is_favorited_by_me'] = True if favorite else False
+                    
                 results.append(result)
             return send_result(marshal(results, CommentDto.model_response), message='Success')
         else:

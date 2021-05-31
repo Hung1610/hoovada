@@ -9,6 +9,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
 
 # own modules
+from common.enum import VotingStatusEnum
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.db import db
 from common.enum import FileTypeEnum
@@ -77,6 +78,30 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     answer_bookmarks = db.relationship("AnswerBookmark", cascade='all,delete-orphan')
     answer_comments = db.relationship("AnswerComment", cascade='all,delete-orphan', primaryjoin="and_(Answer.id == remote(AnswerComment.answer_id),\
                         remote(AnswerComment.user_id) == User.id, remote(User.is_deactivated) == False)")
+
+    @property
+    def is_bookmarked_by_me(self):
+        AnswerBookmark = db.get_model('AnswerBookmark')
+        if g.current_user:
+            bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == g.current_user.id, AnswerBookmark.topic_id == self.id).first()
+            return True if bookmark else False
+        return False
+
+    @property
+    def is_upvoted_by_me(self):
+        AnswerVote = db.get_model('AnswerVote')
+        if g.current_user:
+            vote = AnswerVote.query.filter(AnswerVote.user_id == g.current_user.id, AnswerVote.topic_id == self.id).first()
+            return True if VotingStatusEnum(2).name == vote.vote_status.name else False
+        return False
+
+    @property
+    def is_downvoted_by_me(self):
+        AnswerVote = db.get_model('AnswerVote')
+        if g.current_user:
+            vote = AnswerVote.query.filter(AnswerVote.user_id == g.current_user.id, AnswerVote.topic_id == self.id).first()
+            return True if VotingStatusEnum(3).name == vote.vote_status.name else False
+        return False
 
 
 class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin):

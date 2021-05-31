@@ -15,7 +15,6 @@ from app.constants import messages
 from app.modules.q_a.answer.answer_dto import AnswerDto
 from app.modules.q_a.answer.bookmark.bookmark_controller import AnswerBookmarkController
 from common.controllers.controller import Controller
-from common.enum import FileTypeEnum, VotingStatusEnum
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
@@ -30,8 +29,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 User = db.get_model('User')
 Answer = db.get_model('Answer')
-AnswerVote = db.get_model('AnswerVote')
-AnswerBookmark = db.get_model('AnswerBookmark')
 UserFriend = db.get_model('UserFriend')
 UserFollow = db.get_model('UserFollow')
 Question = db.get_model('Question')
@@ -208,16 +205,6 @@ class AnswerController(Controller):
                 result = answer._asdict()
                 user = User.query.filter_by(id=answer.user_id).first()
                 result['user'] = user
-
-                if current_user:
-                    vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-
                 results.append(result)
             res['data'] = marshal(results, AnswerDto.model_response)
             return res, code
@@ -240,16 +227,6 @@ class AnswerController(Controller):
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
-
-            current_user = g.current_user
-            if current_user:
-                vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-                if vote is not None:
-                    result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
-                if bookmark is not None:
-                    result['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(data=marshal(result, AnswerDto.model_response), message=messages.MSG_GET_SUCCESS)
 
@@ -325,15 +302,6 @@ class AnswerController(Controller):
             result = answer._asdict()
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
-
-            if current_user:
-                vote = AnswerVote.query.filter(AnswerVote.user_id == current_user.id, AnswerVote.answer_id == answer.id).first()
-                if vote is not None:
-                    result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                    result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == current_user.id, AnswerBookmark.answer_id == answer.id).first()
-                if bookmark is not None:
-                    result['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
 

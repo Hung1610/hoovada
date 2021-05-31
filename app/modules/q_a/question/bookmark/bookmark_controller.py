@@ -27,7 +27,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class QuestionBookmarkController(Controller):
 
-    def create(self, question_id):
+    def create(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
@@ -103,11 +103,15 @@ class QuestionBookmarkController(Controller):
         pass
 
 
-    def delete(self, question_id):
+    def delete(self, object_id):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         current_user = g.current_user
         user_id = current_user.id
         try:
-            bookmark = QuestionBookmark.query.filter_by(question_id=question_id, user_id=user_id).first()
+            bookmark = QuestionBookmark.query.filter_by(question_id=object_id, user_id=user_id).first()
             if bookmark is None:
                 return send_result(message=messages.ERR_NOT_FOUND)
            

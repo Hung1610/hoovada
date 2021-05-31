@@ -20,7 +20,6 @@ from app.constants import messages
 from common.db import db
 from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller
-from common.models.vote import ArticleVote, VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
@@ -33,7 +32,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-ArticleBookmark= db.get_model('ArticleBookmark')
 Article = db.get_model('Article')
 ArticleShare = db.get_model('ArticleShare')
 Topic = db.get_model('Topic')
@@ -130,18 +128,7 @@ class ArticleController(Controller):
                 user = User.query.filter_by(id=article.user_id).first()
                 result['user'] = user
                 result['topics'] = article.topics
-                result['fixed_topic'] = article.fixed_topic
-
-                if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-                
+                result['fixed_topic'] = article.fixed_topic                
                 results.append(result)
 
             res['data'] = marshal(results, ArticleDto.model_article_response)
@@ -187,17 +174,6 @@ class ArticleController(Controller):
 
             current_user = g.current_user
             if current_user:
-                vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                if vote is not None:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-
                 update_seen_articles.send(article.id, current_user.id)
             
             return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
@@ -249,16 +225,6 @@ class ArticleController(Controller):
                 result['user'] = article.user
                 result['topics'] = article.topics
 
-                if current_user:
-                    vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-                    bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-
                 results.append(result)
             return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, ArticleDto.model_article_response))
 
@@ -306,16 +272,6 @@ class ArticleController(Controller):
             result = article._asdict()
             result['user'] = article.user
             result['topics'] = article.topics
-
-            vote = ArticleVote.query.filter(ArticleVote.user_id == current_user.id, ArticleVote.article_id == article.id).first()                    
-            if vote is not None:
-                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == current_user.id, ArticleBookmark.article_id == article.id).first()
-            if bookmark is not None:
-                result['is_bookmarked_by_me'] = True if bookmark else False
-
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:

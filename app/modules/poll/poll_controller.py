@@ -18,7 +18,6 @@ from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
 from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
-from common.models.vote import VotingStatusEnum
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -26,7 +25,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-PollVote = db.get_model('PollVote')
 PollBookmark = db.get_model('PollBookmark')
 Poll = db.get_model('Poll')
 PollTopic = db.get_model('PollTopic')
@@ -143,8 +141,6 @@ class PollController(Controller):
             if res['data'] is not None:
                 for poll in res['data']:
                     if poll:
-                        # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
-                        poll_dict = self._add_fields(poll._asdict())
                         results.append(poll_dict)
 
             res['data'] = marshal(results, PollDto.model_response)
@@ -153,25 +149,7 @@ class PollController(Controller):
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
-    
-    def _add_fields(self, poll_dict):
-        current_user = g.current_user
-        poll_bookmark = PollBookmark.query.filter_by(user_id=current_user.id, poll_id=poll_dict["id"]).first()
-        if poll_bookmark is not None:
-            poll_dict["is_bookmarked_by_me"] = True
-        else:
-            poll_dict["is_bookmarked_by_me"] = False
-        poll_dict["is_upvoted_by_me"] = False
-        poll_dict["is_downvoted_by_me"] = False
-        poll_votes = PollVote.query.filter_by(user_id=current_user.id, poll_id=poll_dict["id"]).all()
-        for poll_vote in poll_votes:
-            print(poll_vote.vote_status)
-            if poll_vote.vote_status == VotingStatusEnum.UPVOTED:
-                poll_dict["is_upvoted_by_me"] = True
-            if poll_vote.vote_status == VotingStatusEnum.DOWNVOTED:
-                poll_dict["is_downvoted_by_me"] = True
-        return poll_dict
-    
+
 
     def get_by_id(self, object_id):
         if object_id is None:
@@ -192,9 +170,6 @@ class PollController(Controller):
             result['topics'] = poll.topics
             result['fixed_topic'] = poll.fixed_topic
             result['poll_selects'] = poll.poll_selects
-
-            # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
-            result = self._add_fields(result)
             update_seen_poll.send(current_user.id, poll.id)
             return send_result(data=marshal(result, PollDto.model_response), message=messages.MSG_GET_SUCCESS)
 
@@ -228,9 +203,6 @@ class PollController(Controller):
             poll.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll._asdict()
-            
-            # Return is_upvoted_by_me, is_downvoted_by_me and is_bookmarked_by_me
-            result = self._add_fields(result)
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollDto.model_response))
         except Exception as e:
             db.session.rollback()

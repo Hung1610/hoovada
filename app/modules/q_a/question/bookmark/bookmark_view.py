@@ -48,11 +48,11 @@ class BookmarkQuestion(Resource):
         """Create a bookmark on current user"""
 
         controller = QuestionBookmarkController()
-        return controller.create(question_id=question_id)
+        return controller.create(object_id=question_id)
 
     @token_required
     def delete(self, question_id):
         """Delete bookmark on current user"""
         
         controller = QuestionBookmarkController()
-        return controller.delete(question_id=question_id)
+        return controller.delete(object_id=question_id)
