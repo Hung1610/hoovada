@@ -218,11 +218,12 @@ class AnswerController(Controller):
                         result['is_bookmarked_by_me'] = True if bookmark else False
 
 
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                    question_id = result['question']['id']
+                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question_id).first()
                     if vote is not None:
                         result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                         result['question']['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question_id).first()
                     if bookmark is not None:
                         result['question']['is_bookmarked_by_me'] = True if bookmark else False
 
@@ -258,11 +259,12 @@ class AnswerController(Controller):
                     result['is_bookmarked_by_me'] = True if bookmark else False
 
 
-                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                question_id = result['question']['id']
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question_id).first()
                 if vote is not None:
                     result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['question']['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question_id).first()
                 if bookmark is not None:
                     result['question']['is_bookmarked_by_me'] = True if bookmark else False
 
@@ -346,11 +348,12 @@ class AnswerController(Controller):
                 if bookmark is not None:
                     result['is_bookmarked_by_me'] = True if bookmark else False
 
-                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
+                question_id = result['question']['id']
+                vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question_id).first()
                 if vote is not None:
                     result['question']['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
                     result['question']['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
+                bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question_id).first()
                 if bookmark is not None:
                     result['question']['is_bookmarked_by_me'] = True if bookmark else False
 
