@@ -57,7 +57,7 @@ class ArticleComment(Model, BaseComment):
     def is_favorited_by_me(self):
         ArticleCommentFavorite = db.get_model('ArticleCommentFavorite')
         if g.current_user:
-            favorite = PostFavorite.query.filter(ArticleCommentFavorite.user_id == g.current_user.id, ArticleCommentFavorite.article_comment_id == self.id).first()
+            favorite = ArticleCommentFavorite.query.filter(ArticleCommentFavorite.user_id == g.current_user.id, ArticleCommentFavorite.article_comment_id == self.id).first()
             return True if favorite is not None else False
         
         return False
@@ -77,7 +77,7 @@ class PostComment(Model, BaseComment):
     def is_favorited_by_me(self):
         PostCommentFavorite = db.get_model('PostCommentFavorite')
         if g.current_user:
-            favorite = PostFavorite.query.filter(PostCommentFavorite.user_id == g.current_user.id, PostCommentFavorite.post_comment_id == self.id).first()
+            favorite = PostCommentFavorite.query.filter(PostCommentFavorite.user_id == g.current_user.id, PostCommentFavorite.post_comment_id == self.id).first()
             return True if favorite is not None else False
         return False
 
@@ -97,7 +97,7 @@ class AnswerComment(Model, BaseComment):
     def is_favorited_by_me(self):
         AnswerCommentFavorite = db.get_model('AnswerCommentFavorite')
         if g.current_user:
-            favorite = PostFavorite.query.filter(AnswerCommentFavorite.user_id == g.current_user.id, AnswerCommentFavorite.answer_comment_id == self.id).first()
+            favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == g.current_user.id, AnswerCommentFavorite.answer_comment_id == self.id).first()
             return True if favorite is not None else False
 
         return False
@@ -117,7 +117,7 @@ class QuestionComment(Model, BaseComment):
     def is_favorited_by_me(self):
         QuestionCommentFavorite = db.get_model('QuestionCommentFavorite')
         if g.current_user:
-            favorite = QuestionFavorite.query.filter(QuestionCommentFavorite.user_id == g.current_user.id, QuestionCommentFavorite.question_comment_id == self.id).first()
+            favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == g.current_user.id, QuestionCommentFavorite.question_comment_id == self.id).first()
             return True if favorite is not None else False
 
         return False
@@ -137,6 +137,6 @@ class PollComment(Model, BaseComment):
     def is_favorited_by_me(self):
         PollCommentFavorite = db.get_model('PollCommentFavorite')
         if g.current_user:
-            favorite = PollFavorite.query.filter(PollCommentFavorite.user_id == g.current_user.id, PollCommentFavorite.poll_comment_id == self.id).first()
+            favorite = PollCommentFavorite.query.filter(PollCommentFavorite.user_id == g.current_user.id, PollCommentFavorite.poll_comment_id == self.id).first()
             return True if favorite is not None else False
         return False
