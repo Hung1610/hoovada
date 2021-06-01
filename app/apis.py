@@ -141,4 +141,7 @@ def init_api():
     api.add_namespace(ns_poll_report, '/poll')
     api.add_namespace(ns_poll_bookmark, '/poll')
 
+    api.add_namespace(ns_company, '/company')
+    api.add_namespace(ns_company_user, '/company')
+
     return api

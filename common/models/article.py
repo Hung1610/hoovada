@@ -13,6 +13,7 @@ from sqlalchemy_utils import aggregated
 
 # own modules
 from common.db import db
+from common.enum import OwnTypeEnum
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.models.model import Model
 
@@ -41,6 +42,11 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     views_count = db.Column(db.Integer, server_default="0")
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='CASCADE'), nullable=True, index=True)
+    company = db.relationship('Company', uselist=False, lazy=True)
+    own_type = db.Column(db.Enum(OwnTypeEnum, validate_strings=True),server_default="user", nullable=False, index=True)
+    is_company_published = db.Column(db.Boolean, server_default=expression.false())
+    published_at = db.Column(db.DateTime)
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):

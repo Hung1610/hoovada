@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from sqlalchemy.sql import expression
+from app.modules.company.company_controller import Company
 from datetime import datetime
 
 # third-party modules
@@ -37,6 +39,7 @@ ArticleBookmark= db.get_model('ArticleBookmark')
 Article = db.get_model('Article')
 ArticleShare = db.get_model('ArticleShare')
 Topic = db.get_model('Topic')
+Company = db.get_model('Company')
 TopicBookmark = db.get_model('TopicBookmark')
 User = db.get_model('User')
 UserFollow = db.get_model('UserFollow')
@@ -48,9 +51,8 @@ class ArticleController(Controller):
     query_classname = 'Article'
     special_filtering_fields = ['from_date', 'to_date', 'title', 'topic_id', 'article_ids', 'draft']    
     allowed_ordering_fields = ['created_date', 'updated_date', 'upvote_count', 'comment_count', 'share_count']
-
+    
     def create(self, data):
-
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
@@ -60,6 +62,17 @@ class ArticleController(Controller):
         if not 'html' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('html'))
 
+        if not 'own_type' in data:
+            data['own_type'] = 'user'
+        
+        if data['own_type'] == 'company' and not 'company_id' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format(' company_id when provided own_type is company!'))
+        
+        if 'company_id' in data:
+            company = Company.query.filter_by(id=data['company_id']).first()
+            if company is None:
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Company', data['company_id']))
+        
         # default fixed_topic
         if 'fixed_topic_id' not in data:
             topic = Topic.query.filter(Topic.name == 'Những lĩnh vực khác', Topic.is_fixed == True).first()
@@ -71,10 +84,11 @@ class ArticleController(Controller):
 
         # handling title
         data['title'] = data['title'].strip().capitalize()
+
+        # check exist
         article = Article.query.filter(Article.title == data['title']).first()
         if article:
             return send_error(message=messages.ERR_ALREADY_EXISTS)
-
         if is_sensitive(data['title']):
             return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
@@ -292,7 +306,13 @@ class ArticleController(Controller):
                 return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         article = self._parse_article(data=data, article=article)
-        try:  
+        if article.own_type == 'company' and article.company_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format(' company_id when provided own_type is company!'))
+        if article.company_id is not None:
+            company = Company.query.filter_by(id=article.company_id).first()
+            if company is None:
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Company', article.company_id))
+        try:
 
             article.updated_date = datetime.utcnow()
             article.last_activity = datetime.utcnow()
@@ -483,6 +503,25 @@ class ArticleController(Controller):
                     print(e.__str__())
                     pass
             article.topics = topics
+        
+        if 'own_type' in data:
+            try:
+                article.own_type = data['own_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'company_id' in data:
+            try:
+                article.company_id = data['company_id']
+            except Exception as e:
+                print(e.__str__())
+                pass
+        if 'is_company_published' in data:
+            try:
+                article.is_company_published = bool(data['is_company_published'])
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         if g.current_user_is_admin:
             if 'allow_voting' in data:
