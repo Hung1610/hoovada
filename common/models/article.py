@@ -44,6 +44,17 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
 
+    topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery', uselist=True)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+    scheduled_date = db.Column(db.DateTime)
+    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    is_draft = db.Column(db.Boolean, server_default=expression.false())
+    votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
+    article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
+    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan', primaryjoin="and_(Article.id == remote(ArticleComment.article_id), remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
+    article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
+
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text("vote_status = 'UPVOTED'"), 1, 0)), 0)
@@ -63,18 +74,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     @aggregated('article_comments', db.Column(db.Integer, server_default="0", nullable=False))
     def comment_count(self):
         return db.func.count('1')
-
-    topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery', uselist=True)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow)
-    scheduled_date = db.Column(db.DateTime)
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
-    is_draft = db.Column(db.Boolean, server_default=expression.false())
-    votes = db.relationship("ArticleVote", cascade='all,delete-orphan')
-    article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
-    article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan', primaryjoin="and_(Article.id == remote(ArticleComment.article_id), remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
-    article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
-
+        
     @property
     def is_bookmarked_by_me(self):
         ArticleBookmark = db.get_model('ArticleBookmark')

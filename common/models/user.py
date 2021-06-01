@@ -72,7 +72,7 @@ class User(Model):
     show_nsfw = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     is_deactivated = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     is_private = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
-    is_first_log_in = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    is_first_log_in = db.Column(db.Boolean, server_default=expression.true(), nullable=False)
     confirmed = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     is_birthday_hidden = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     admin = db.Column(db.Boolean, server_default=expression.false(), nullable=False)

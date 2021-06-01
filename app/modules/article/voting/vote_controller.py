@@ -48,17 +48,17 @@ class VoteController(Controller):
         try:
             # add or update vote
             is_insert = True
-            old_vote_status = None
-            vote = ArticleVote.query.filter(ArticleVote.user_id == data['user_id'], \
-                ArticleVote.article_id == data['article_id']).first()
+            vote = ArticleVote.query.filter(ArticleVote.user_id == data['user_id'], ArticleVote.article_id == data['article_id']).first()
+
             if vote:
-                old_vote_status = vote.vote_status
                 is_insert = False
+            
             vote = self._parse_vote(data=data, vote=vote)
             vote.created_date = datetime.utcnow()
             vote.updated_date = datetime.utcnow()
             if is_insert:
                 db.session.add(vote)
+
             db.session.commit()
             article = vote.article
             # get user who was created article and was voted
