@@ -520,15 +520,14 @@ class AuthController:
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_INVALID_NUMBER)      
         
-        user = User.get_user_by_phone_number(phone_number)
-        if user is None:
-            return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
+        try:
+            user = User.get_user_by_phone_number(phone_number)
+            if user is None:
+                return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
-        code = send_verification_sms(phone_number)
-        if code is not None:
-            return send_result(message=messages.MSG_PHONE_SENT)
-
-
+            code = send_verification_sms(phone_number)
+            if code is not None:
+                return send_result(message=messages.MSG_PHONE_SENT)
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
