@@ -19,7 +19,6 @@ from common.db import db
 from common.es import get_model
 from common.cache import cache
 from common.controllers.controller import Controller
-from common.enum import VotingStatusEnum
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.sensitive_words import is_sensitive
 from common.utils.util import strip_tags
@@ -44,8 +43,6 @@ Answer = db.get_model('Answer')
 Question = db.get_model('Question')
 QuestionProposal = db.get_model('QuestionProposal')
 QuestionShare = db.get_model('QuestionShare')
-QuestionBookmark = db.get_model('QuestionBookmark')
-QuestionVote = db.get_model('QuestionVote')
 
 ESQuestion = get_model("Question")
 ESTopic = get_model("Topic")
@@ -137,17 +134,6 @@ class QuestionController(Controller):
                 result['user'] = question.user
                 result['fixed_topic'] = question.fixed_topic
                 result['topics'] = question.topics
-                if current_user:
-                    
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-                
                 results.append(result)
             
             res['data'] = marshal(results, QuestionDto.model_question_response)
@@ -186,18 +172,9 @@ class QuestionController(Controller):
         result['fixed_topic'] = question.fixed_topic
         
         if current_user:
-            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-            if vote is not None:
-                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-            if bookmark is not None:
-                result['is_bookmarked_by_me'] = True if bookmark else False
-            
             update_seen_questions.send(question.id, current_user.id)
 
-        return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
+        return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
 
 
     def invite(self, object_id, data):
@@ -234,15 +211,6 @@ class QuestionController(Controller):
             result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
-
-            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-            if vote is not None:
-                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-            
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id,QuestionBookmark.question_id == question.id).first()
-            if bookmark is not None:
-                result['is_bookmarked_by_me'] = True if bookmark else False
 
             return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
         
@@ -311,18 +279,7 @@ class QuestionController(Controller):
 
                 result['user'] = question.user
                 result['topics'] = question.topics
-                result['fixed_topic'] = question.fixed_topic
-
-                if current_user is not None:
-                    vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-                    if vote is not None:
-                        result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                        result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-                    
-                    bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-                    if bookmark is not None:
-                        result['is_bookmarked_by_me'] = True if bookmark else False
-                
+                result['fixed_topic'] = question.fixed_topic                
                 results.append(result)
             return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
         
@@ -395,7 +352,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create_question_deletion_proposal(self, object_id):
@@ -562,16 +519,6 @@ class QuestionController(Controller):
             result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
-
-            vote = QuestionVote.query.filter(QuestionVote.user_id == current_user.id, QuestionVote.question_id == question.id).first()
-            if vote is not None:
-                result['is_upvoted_by_me'] = True if VotingStatusEnum(2).name == vote.vote_status.name else False
-                result['is_downvoted_by_me'] = True if VotingStatusEnum(3).name == vote.vote_status.name else False
-
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == current_user.id, QuestionBookmark.question_id == question.id).first()
-            if bookmark is not None:
-                result['is_bookmarked_by_me'] = True if bookmark else False
-            
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
         
         except Exception as e:
@@ -717,14 +664,6 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
 
-        if 'is_deleted' in data:
-            try:
-                question.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                question.is_deleted = False
-                print(e.__str__())
-                pass
-
         if 'is_private' in data:
             try:
                 question.is_private = bool(data['is_private'])
@@ -849,15 +788,7 @@ class QuestionController(Controller):
                 proposal.is_private = False
                 print(e.__str__())
                 pass
-
-        if 'is_deleted' in data:
-            try:
-                proposal.is_deleted = bool(data['is_deleted'])
-            except Exception as e:
-                proposal.is_deleted = False
-                print(e.__str__())
-                pass
-
+                
         if 'is_anonymous' in data:
             try:
                 proposal.is_anonymous = bool(data['is_anonymous'])

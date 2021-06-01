@@ -84,6 +84,7 @@ class SearchController():
                 })
         return articles
 
+
     def _search_topic(self, args, filters=None):
         start_from = 0
         size = 10
@@ -95,7 +96,9 @@ class SearchController():
             size = int(args['size'])
         
         if filters is not None and 'is_fixed' in filters:
-            is_fixed = filters['is_fixed']
+            is_fixed = int(filters['is_fixed'])
+        else:
+            is_fixed = 1
 
         s = ESTopic.search()
         q = Q("multi_match", query=args['value'], fields=["name"])
@@ -113,6 +116,7 @@ class SearchController():
                     "name": h.name
                 })
         return topics
+
 
     def _search_question(self, args):
         start_from = 0
@@ -319,17 +323,28 @@ class SearchController():
 
     def search_topic_by_name(self, args):
         try:
+            if not isinstance(args, dict):
+                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
             if not args.get('value'):
                 return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
+
+            if args['is_fixed'] is None:
+                is_fixed = 1
+            else:
+                is_fixed = int(args.get('is_fixed', 1))
 
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
                 'size': args.get('size')
             }
+
+
             filters = {
-                'is_fixed': args.get('is_fixed', True)
+                'is_fixed': is_fixed
             }
+
             topics = self._search_topic(search_args, filters)
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
 

@@ -52,14 +52,15 @@ class UserFeedController(Controller):
                     data = marshal(resp['data'], UserFeedDto.model_feed_details_response)
                 else:
                     data = marshal(resp['data'], UserFeedDto.model_feed_all_data_details_response)
-                return send_paginated_result(data=data, page=page, total=len(data), message='Success')
+                    
+                return send_paginated_result(data=data, page=page, total=len(data), message=messages.MSG_GET_SUCCESS)
             
             else:
-                return send_error(message=messages.ERR_ISSUE.format(resp.get('message')))   
+                return send_error(message=messages.ERR_GET_FAILED.format(e))
         
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('user feed', str(e)))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
     def get_by_id(self):
         return

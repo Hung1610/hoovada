@@ -25,6 +25,9 @@
             "request": "launch",
             "module": "flask",
             "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "FLASK_APP":"app.manage:flask_app"
+            },
             "args": [
                 "db",
                 "migrate"
@@ -37,6 +40,9 @@
             "request": "launch",
             "module": "flask",
             "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "FLASK_APP":"app.manage:flask_app"
+            },
             "args": [
                 "db",
                 "upgrade"

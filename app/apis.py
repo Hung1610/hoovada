@@ -10,6 +10,7 @@ from flask_restx import Api, Namespace, Resource
 
 # own modules
 from app.modules import *
+from app.modules.admin.career.career_view import api as ns_career
 from common.utils.response import send_result
 from common.cache import cache
 
@@ -143,5 +144,6 @@ def init_api():
 
     api.add_namespace(ns_company, '/company')
     api.add_namespace(ns_company_user, '/company')
+    api.add_namespace(ns_career, '/admin/career')
 
     return api

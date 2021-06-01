@@ -9,8 +9,10 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
 from sqlalchemy.ext.declarative import declared_attr
+from flask import g
 
 # own modules
+from common.enum import VotingStatusEnum
 from common.db import db
 from common.models.model import Model
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
@@ -113,6 +115,31 @@ class Question(Model, BaseQuestion):
     question_favorites = db.relationship("QuestionFavorite", cascade='all,delete-orphan')
     question_bookmarks = db.relationship("QuestionBookmark", cascade='all,delete-orphan')
     bookmarked_users = db.relationship("User", secondary='question_bookmark')
+
+
+    @property
+    def is_bookmarked_by_me(self):
+        QuestionBookmark = db.get_model('QuestionBookmark')
+        if g.current_user:
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == g.current_user.id, QuestionBookmark.question_id == self.id).first()
+            return True if bookmark else False
+        return False
+
+    @property
+    def is_upvoted_by_me(self):
+        QuestionVote = db.get_model('QuestionVote')
+        if g.current_user:
+            vote = QuestionVote.query.filter(QuestionVote.user_id == g.current_user.id, QuestionVote.question_id == self.id).first()
+            return True if VotingStatusEnum(2).name == vote.vote_status.name else False
+        return False
+
+    @property
+    def is_downvoted_by_me(self):
+        QuestionVote = db.get_model('QuestionVote')
+        if g.current_user:
+            vote = QuestionVote.query.filter(QuestionVote.user_id == g.current_user.id, QuestionVote.question_id == self.id).first()
+            return True if VotingStatusEnum(3).name == vote.vote_status.name else False
+        return False
 
 
 class QuestionProposal(Model, BaseQuestion):

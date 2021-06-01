@@ -42,7 +42,7 @@ class AnswerBookmarkController(Controller):
             bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == data['user_id'],
                                              AnswerBookmark.answer_id == data['answer_id']).first()
             if bookmark:
-                return send_error(message=messages.ERR_ALREADY_EXISTS)
+                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, AnswerBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()

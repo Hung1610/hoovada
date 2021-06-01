@@ -10,8 +10,10 @@ from sqlalchemy import event
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
+from common.enum import VotingStatusEnum
 from common.db import db
 from common.enum import OwnTypeEnum
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
@@ -79,6 +81,31 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan', primaryjoin="and_(Article.id == remote(ArticleComment.article_id), remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
 
+    @property
+    def is_bookmarked_by_me(self):
+        ArticleBookmark = db.get_model('ArticleBookmark')
+        if g.current_user:
+            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == g.current_user.id, ArticleBookmark.article_id == self.id).first()
+            return True if bookmark else False
+        return False
+
+    @property
+    def is_upvoted_by_me(self):
+        ArticleVote = db.get_model('ArticleVote')
+        if g.current_user:
+            vote = ArticleVote.query.filter(ArticleVote.user_id == g.current_user.id, ArticleVote.article_id == self.id).first()
+            if vote is not None:
+                return True if VotingStatusEnum(2).name == vote.vote_status.name else False
+        return False
+
+    @property
+    def is_downvoted_by_me(self):
+        ArticleVote = db.get_model('ArticleVote')
+        if g.current_user:
+            vote = ArticleVote.query.filter(ArticleVote.user_id == g.current_user.id, ArticleVote.article_id == self.id).first()
+            if vote is not None:
+                return True if VotingStatusEnum(3).name == vote.vote_status.name else False
+        return False
 
     @staticmethod
     def generate_slug(target, value, oldvalue, initiator):

@@ -34,7 +34,7 @@ class ArticleBookmarkController(Controller):
         try:
             bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == data['user_id'], ArticleBookmark.article_id == data['article_id']).first()
             if bookmark:
-                return send_result(message=messages.ERR_ALREADY_EXISTS)
+                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, ArticleBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -86,7 +86,7 @@ class ArticleBookmarkController(Controller):
         if bookmark is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         
-        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message='Success')
+        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
 
 
 

@@ -27,19 +27,19 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 class QuestionBookmarkController(Controller):
 
-    def create(self, question_id):
+    def create(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         data = {}
         current_user = g.current_user
         data['user_id'] = current_user.id
-        data['question_id'] = question_id
+        data['question_id'] = object_id
         try:
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == data['user_id'],
                                              QuestionBookmark.question_id == data['question_id']).first()
             if bookmark:
-                return send_error(message=messages.ERR_ALREADY_EXISTS)
+                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, QuestionBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -103,11 +103,15 @@ class QuestionBookmarkController(Controller):
         pass
 
 
-    def delete(self, question_id):
+    def delete(self, object_id):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         current_user = g.current_user
         user_id = current_user.id
         try:
-            bookmark = QuestionBookmark.query.filter_by(question_id=question_id, user_id=user_id).first()
+            bookmark = QuestionBookmark.query.filter_by(question_id=object_id, user_id=user_id).first()
             if bookmark is None:
                 return send_result(message=messages.ERR_NOT_FOUND)
            

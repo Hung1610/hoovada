@@ -24,7 +24,6 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-QuestionCommentFavorite = db.get_model('QuestionCommentFavorite')
 Question = db.get_model('Question')
 QuestionComment = db.get_model('QuestionComment')
 User = db.get_model('User')
@@ -44,29 +43,29 @@ class CommentController(BaseCommentController):
             except Exception as e:
                 print(e.__str__())
                 pass
+        try:
+            current_user = g.current_user 
+            query = QuestionComment.query
+            query = query.join(User, isouter=True).filter(User.is_deactivated == False)
+            if question_id is not None:
+                query = query.filter(QuestionComment.question_id == question_id)
+                
+            if user_id is not None:
+                query = query.filter(QuestionComment.user_id == user_id)
+                
+            comments = query.all()
+            if comments is not None and len(comments) > 0:
+                results = list()
+                for comment in comments:
+                    result = comment.__dict__
+                    result['user'] = comment.user
+                        
+                    results.append(result)
+                return send_result(marshal(results, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
 
-        current_user = g.current_user 
-        query = QuestionComment.query
-        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
-        if question_id is not None:
-            query = query.filter(QuestionComment.question_id == question_id)
-            
-        if user_id is not None:
-            query = query.filter(QuestionComment.user_id == user_id)
-            
-        comments = query.all()
-        if comments is not None and len(comments) > 0:
-            results = list()
-            for comment in comments:
-                result = comment.__dict__
-                result['user'] = comment.user
-                if current_user:
-                    favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                results.append(result)
-            return send_result(marshal(results, CommentDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any comments.')
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create(self, question_id, data):
@@ -113,7 +112,7 @@ class CommentController(BaseCommentController):
 
             result = comment.__dict__
             result['user'] = comment.user
-            return send_result(message='QuestionComment was created successfully', data=marshal(result, CommentDto.model_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, CommentDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -128,15 +127,12 @@ class CommentController(BaseCommentController):
         current_user = g.current_user 
         comment = QuestionComment.query.filter_by(id=object_id).first()
         if comment is None:
-            return send_error(message='Could not find comment with the ID {}'.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         try:
             result = comment.__dict__
             result['user'] = comment.user
-            if current_user:
-                favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
-            return send_result(data=marshal(result, CommentDto.model_response), message='Success')
+            return send_result(data=marshal(result, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
@@ -154,7 +150,7 @@ class CommentController(BaseCommentController):
 
         comment = QuestionComment.query.filter_by(id=object_id).first()
         if comment is None:
-            return send_error(message='QuestionComment with the ID {} not found.'.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
         
 
         current_user = g.current_user 
@@ -173,37 +169,26 @@ class CommentController(BaseCommentController):
             result = comment.__dict__
             result['user'] = comment.user
             
-            if current_user:
-                favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == current_user.id, QuestionCommentFavorite.question_comment_id == comment.id).first()
-                result['is_favorited_by_me'] = True if favorite else False
-            
-            return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, CommentDto.model_response))
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=ERR_UPDATE_FAILED.format('Comment', str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def delete(self, object_id):
         try:
             comment = QuestionComment.query.filter_by(id=object_id).first()
             if comment is None:
-                return send_error(message='QuestionComment with the ID {} not found.'.format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
         
-            # ---------Delete from other tables----------#
-            # delete from vote
-
-            # delete from share
-
-            # delete favorite
-
             db.session.delete(comment)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            return send_result(message='QuestionComment with the ID {} was deleted.'.format(object_id))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
 
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not delete comment with the ID {}.'.format(object_id))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))

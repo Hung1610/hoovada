@@ -43,6 +43,7 @@ from common.models.vote import (ArticleVote,
 from common.models.timeline import Timeline
 from common.models.permission import Permission
 from common.models.poll import Poll, PollSelect, PollTopic, PollUserSelect
+from common.models.career import Career
 
 from common.models.company import Company, CompanyStatusEnum, CompanyUser, CompanyUserStatusEnum
 

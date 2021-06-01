@@ -25,7 +25,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 User = db.get_model('User')
 Post = db.get_model('Post')
 PollComment = db.get_model('PollComment')
-PollCommentFavorite = db.get_model('PollCommentFavorite')
+
 
 class CommentController(BaseCommentController):
 
@@ -42,28 +42,28 @@ class CommentController(BaseCommentController):
                 print(e.__str__())
                 pass
 
-        query = PollComment.query
-        query = query.join(User, isouter=True).filter(User.is_deactivated == False)
-        if poll_id is not None:
-            query = query.filter(PollComment.poll_id == poll_id)
-        if user_id is not None:
-            query = query.filter(PollComment.user_id == user_id)
-            
-        comments = query.all()
-        if comments is not None and len(comments) > 0:
-            results = list()
-            for comment in comments:
-                result = comment.__dict__
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
-                if g.current_user is not None and g.current_user.id is not None:
-                    favorite = PollCommentFavorite.query.filter(PollCommentFavorite.user_id == g.current_user.id,
-                                        PollCommentFavorite.poll_comment_id == comment.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                results.append(result)
-            return send_result(marshal(results, CommentDto.model_response), message='Success')
-        else:
-            return send_result(message='Could not find any comments.')
+        try:
+            query = PollComment.query
+            query = query.join(User, isouter=True).filter(User.is_deactivated == False)
+            if poll_id is not None:
+                query = query.filter(PollComment.poll_id == poll_id)
+            if user_id is not None:
+                query = query.filter(PollComment.user_id == user_id)
+                
+            comments = query.all()
+            if comments is not None and len(comments) > 0:
+                results = list()
+                for comment in comments:
+                    result = comment.__dict__
+                    user = User.query.filter_by(id=comment.user_id).first()
+                    result['user'] = user
+                    results.append(result)
+                return send_result(marshal(results, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def create(self, poll_id, data):
         if not isinstance(data, dict):
@@ -94,38 +94,35 @@ class CommentController(BaseCommentController):
 
             db.session.commit()
 
-            try:
-                result = comment.__dict__
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
-                return send_result(message='PollComment was created successfully', data=marshal(result, CommentDto.model_response))
-            except Exception as e:
-                print(e.__str__())
-                return send_result(data=marshal(comment, CommentDto.model_response))
+            result = comment.__dict__
+            user = User.query.filter_by(id=comment.user_id).first()
+            result['user'] = user
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, CommentDto.model_response))
+
         
         except Exception as e:
+            db.session.rollback()
             print(e.__str__())
-            return send_error(message='Could not create comment')
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
         if object_id is None:
-            return send_error('PollComment ID is null')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
         comment = PollComment.query.filter_by(id=object_id).first()
         if comment is None:
-            return send_error(message='Could not find comment with the ID {}'.format(object_id))
-        else:
-            try:
-                result = comment.__dict__
-                user = User.query.filter_by(id=comment.user_id).first()
-                result['user'] = user
-                if g.current_user is not None and g.current_user.id is not None:
-                    favorite = PollCommentFavorite.query.filter(PollCommentFavorite.user_id == g.current_user.id,
-                        PollCommentFavorite.poll_comment_id == comment.id).first()
-                    result['is_favorited_by_me'] = True if favorite else False
-                return send_result(data=marshal(result, CommentDto.model_response), message='Success')
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message='Could not get comment with the ID {}'.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
+        try:
+            result = comment.__dict__
+            user = User.query.filter_by(id=comment.user_id).first()
+            result['user'] = user
+
+            return send_result(data=marshal(result, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def update(self, object_id, data):
         if object_id is None:
@@ -137,7 +134,7 @@ class CommentController(BaseCommentController):
         
         comment = PollComment.query.filter_by(id=object_id).first()
         if comment is None:
-            return send_error(message='PollComment with the ID {} not found.'.format(object_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         current_user = g.current_user 
         if current_user and current_user.id != comment.user_id:
@@ -154,27 +151,24 @@ class CommentController(BaseCommentController):
             result = comment.__dict__
             user = User.query.filter_by(id=comment.user_id).first()
             result['user'] = user
-            return send_result(message='Update successfully', data=marshal(result, CommentDto.model_response))
+            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, CommentDto.model_response))
         
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(code=500, message='Could not update comment.')
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
 
     def delete(self, object_id):
         try:
             comment = PollComment.query.filter_by(id=object_id).first()
             if comment is None:
-                return send_error(message='PollComment with the ID {} not found.'.format(object_id))
-            else:
-                # ---------Delete from other tables----------#
-                # delete from share
-                # delete favorite
+                return send_error(message=messages.ERR_NOT_FOUND)
 
-                db.session.delete(comment)
-                db.session.commit()
-                return send_result(message='PollComment with the ID {} was deleted.'.format(object_id))
+            db.session.delete(comment)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
-            print(e.__str__())
             db.session.rollback()
-            return send_error(message='Could not delete comment with the ID {}.'.format(object_id))
+            print(e.__str__())
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))

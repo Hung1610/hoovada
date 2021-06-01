@@ -17,7 +17,6 @@ from common.db import db
 from app.constants import messages
 from app.modules.post.post_dto import PostDto
 from common.controllers.controller import Controller
-from common.enum import VotingStatusEnum
 from common.models import UserFollow, UserFriend
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.wasabi import upload_file
@@ -70,7 +69,7 @@ class PostController(Controller):
                 print(e)
                 pass
                 
-            return send_result(message=messages.MSG_CREATE_SUCCESS,data=marshal(result, PostDto.model_post_response))
+            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -167,16 +166,13 @@ class PostController(Controller):
                 current_user = g.current_user
                 if current_user:
                     update_seen_posts.send(post.id, g.current_user.id)
-                    favorite = PostFavorite.query.filter(PostFavorite.user_id == current_user.id, PostFavorite.post_id == post.id).first()
-                    if favorite is not None:
-                        result['is_favorited_by_me'] = True if favorite else False
 
                 result['user'] = user
             res['data'] = marshal(results, PostDto.model_post_response)
             return res, code
             
         except Exception as e:
-            return send_error(message=messages.ERR_GET_FAILED.format('Post', str(e)))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create_with_file(self, object_id):
@@ -233,23 +229,17 @@ class PostController(Controller):
         if post is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         
-        else:
-            try:
-                post.views_count += 1
-                db.session.commit()
-                result = post.__dict__
-                result['user'] = post.user
+        try:
+            post.views_count += 1
+            db.session.commit()
+            result = post.__dict__
+            result['user'] = post.user
 
-                current_user = g.current_user
-                if current_user:
-                    favorite = PostFavorite.query.filter(PostFavorite.user_id == current_user.id, PostFavorite.post_id == post.id).first()
-                    if favorite is not None:
-                        result['is_favorited_by_me'] = True if favorite else False
+            return send_result(data=marshal(result, PostDto.model_post_response), message=messages.MSG_GET_SUCCESS)
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-                return send_result(data=marshal(result, PostDto.model_post_response), message='Success')
-            except Exception as e:
-                print(e)
-                pass
 
     def update(self, object_id, data):
         
@@ -279,12 +269,6 @@ class PostController(Controller):
             db.session.commit()            
             result = post.__dict__
 
-            current_user = g.current_user
-            if current_user:
-                favorite = PostFavorite.query.filter(PostFavorite.user_id == current_user.id, PostFavorite.post_id == post.id).first()
-                if favorite is not None:
-                    result['is_favorited_by_me'] = True if favorite else False
-
             result['user'] = post.user
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
         except Exception as e:
@@ -309,12 +293,12 @@ class PostController(Controller):
             post_dsl = ESPost(_id=post.id)
             post_dsl.delete()
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS.format('Post'))
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
         
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Post', str(e)))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def get_post_of_friend(self,args):
@@ -340,18 +324,20 @@ class PostController(Controller):
 
         current_user = g.current_user
 
-        query = db.session.query(Post)\
-        .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\
-        .outerjoin(UserFriend,and_(UserFriend.friended_id==Post.user_id and UserFollow.friend_id==current_user.id))\
-        .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
-        .group_by(Post)\
-        .order_by(desc(Post.share_count + Post.favorite_count),desc(Post.created_date))
-        posts = query.offset(page * page_size).limit(page_size).all()
+        try:
+            query = db.session.query(Post)\
+            .outerjoin(UserFollow,and_(UserFollow.followed_id==Post.user_id, UserFollow.follower_id==current_user.id))\
+            .outerjoin(UserFriend,and_(UserFriend.friended_id==Post.user_id and UserFollow.friend_id==current_user.id))\
+            .filter(or_(UserFollow.followed_id > 0,UserFriend.friended_id>0))\
+            .group_by(Post)\
+            .order_by(desc(Post.share_count + Post.favorite_count),desc(Post.created_date))
+            posts = query.offset(page * page_size).limit(page_size).all()
 
-        if posts is not None and len(posts) > 0:
-            return send_result(data=marshal(posts, PostDto.model_post_response), message='Success')
-        else:
-            return send_result(message='Could not find any posts')
+            return send_result(data=marshal(posts, PostDto.model_post_response), message=messages.MSG_GET_SUCCESS)
+
+        except Exception as e:
+            print(e)
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def _parse_post(self, data, post=None):

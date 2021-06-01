@@ -47,7 +47,6 @@ class AnswerImprovementDto(Dto):
         'file_url': fields.String(description='The file url'),
         'file_type': fields.String(description='The file type', attribute='file_type.name'),
         'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
-        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
         'user': fields.Nested(answer_improvement_user, description='The user information', attribute='display_user'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),        

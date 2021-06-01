@@ -8,6 +8,7 @@ from datetime import datetime
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import expression
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
 from common.db import db
@@ -47,9 +48,19 @@ class ArticleComment(Model, BaseComment):
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'), index=True)
     article = db.relationship('Article', lazy=True)
     favorites = db.relationship("ArticleCommentFavorite", cascade='all,delete-orphan')
+
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):
         return db.func.count('1')
+
+    @property
+    def is_favorited_by_me(self):
+        ArticleCommentFavorite = db.get_model('ArticleCommentFavorite')
+        if g.current_user:
+            favorite = PostFavorite.query.filter(ArticleCommentFavorite.user_id == g.current_user.id, ArticleCommentFavorite.article_comment_id == self.id).first()
+            if favorite is not None:
+                return favorite
+        return False
 
 
 class PostComment(Model, BaseComment):
@@ -62,6 +73,15 @@ class PostComment(Model, BaseComment):
     def favorite_count(self):
         return db.func.count('1')  
 
+    @property
+    def is_favorited_by_me(self):
+        PostCommentFavorite = db.get_model('PostCommentFavorite')
+        if g.current_user:
+            favorite = PostFavorite.query.filter(PostCommentFavorite.user_id == g.current_user.id, PostCommentFavorite.post_comment_id == self.id).first()
+            if favorite is not None:
+                return favorite
+        return False
+
 
 class AnswerComment(Model, BaseComment):
     __tablename__ = 'answer_comment'
@@ -69,9 +89,19 @@ class AnswerComment(Model, BaseComment):
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), index=True)
     answer = db.relationship('Answer', lazy=True)
     favorites = db.relationship("AnswerCommentFavorite", cascade='all,delete-orphan')
+
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):
         return db.func.count('1')
+
+    @property
+    def is_favorited_by_me(self):
+        AnswerCommentFavorite = db.get_model('AnswerCommentFavorite')
+        if g.current_user:
+            favorite = PostFavorite.query.filter(AnswerCommentFavorite.user_id == g.current_user.id, AnswerCommentFavorite.answer_comment_id == self.id).first()
+            if favorite is not None:
+                return favorite
+        return False
 
 
 class QuestionComment(Model, BaseComment):
@@ -84,6 +114,16 @@ class QuestionComment(Model, BaseComment):
     def favorite_count(self):
         return db.func.count('1')
 
+    @property
+    def is_favorited_by_me(self):
+        QuestionCommentFavorite = db.get_model('QuestionCommentFavorite')
+        if g.current_user:
+            favorite = QuestionFavorite.query.filter(QuestionCommentFavorite.user_id == g.current_user.id, QuestionCommentFavorite.question_comment_id == self.id).first()
+            if favorite is not None:
+                return favorite
+        return False
+
+
 class PollComment(Model, BaseComment):
     __tablename__ = 'poll_comment'
     
@@ -93,3 +133,12 @@ class PollComment(Model, BaseComment):
     @aggregated('favorites', db.Column(db.Integer))
     def favorite_count(self):
         return db.func.count('1')  
+
+    @property
+    def is_favorited_by_me(self):
+        PollCommentFavorite = db.get_model('PollCommentFavorite')
+        if g.current_user:
+            favorite = PollFavorite.query.filter(PollCommentFavorite.user_id == g.current_user.id, PollCommentFavorite.poll_comment_id == self.id).first()
+            if favorite is not None:
+                return favorite
+        return False

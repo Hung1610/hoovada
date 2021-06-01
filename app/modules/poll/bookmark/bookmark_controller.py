@@ -50,7 +50,7 @@ class PollBookmarkController(Controller):
                 query = query.filter(PollBookmark.created_date <= to_date)
             bookmarks = query.all()
             if bookmarks is not None and len(bookmarks) > 0:
-                return send_result(data=marshal(bookmarks, PollBookmarkDto.model_response), message='Success')
+                return send_result(data=marshal(bookmarks, PollBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
             else:
                 return send_result(message=messages.ERR_NOT_FOUND)
 
@@ -69,7 +69,7 @@ class PollBookmarkController(Controller):
             bookmark = PollBookmark.query.filter(PollBookmark.user_id == data['user_id'],
                                              PollBookmark.poll_id == data['poll_id']).first()
             if bookmark:
-                return send_error(message=messages.ERR_ALREADY_EXISTS, data={'user_id': data['user_id'], 'poll_id': data['poll_id']})
+                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, PollBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -81,6 +81,7 @@ class PollBookmarkController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
+
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll bookmark id'))
@@ -88,7 +89,7 @@ class PollBookmarkController(Controller):
         if bookmark is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         else:
-            return send_result(data=marshal(bookmark, PollBookmarkDto.model_response), message='Success')
+            return send_result(data=marshal(bookmark, PollBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
 
     def update(self, object_id, data):
         pass

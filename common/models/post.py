@@ -10,6 +10,7 @@ from flask import g
 from sqlalchemy.sql import expression
 from sqlalchemy.sql import func
 from sqlalchemy_utils import aggregated
+from flask import g
 
 # own modules
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
@@ -56,10 +57,12 @@ class Post(Model, AuditCreateMixin, AuditUpdateMixin):
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
     post_favorites = db.relationship("PostFavorite", cascade='all,delete-orphan')
 
+
     @property
-    def is_seen_by_me(self):
-        UserSeenPost = db.get_model('UserSeenPost')
+    def is_favorited_by_me(self):
+        PostFavorite = db.get_model('PostFavorite')
         if g.current_user:
-            seen = UserSeenPost.query.with_entities(UserSeenPost.id).filter(UserSeenPost.user_id == g.current_user.id, UserSeenPost.post_id == self.id).first()
-            return True if seen else False
+            favorite = PostFavorite.query.filter(PostFavorite.user_id == g.current_user.id, PostFavorite.post_id == self.id).first()
+            if favorite is not None:
+                return favorite
         return False
