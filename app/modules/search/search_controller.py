@@ -85,7 +85,7 @@ class SearchController():
         return articles
 
 
-    def _search_topic(self, args, filters=None):
+    def _search_topic(self, args):
         start_from = 0
         size = 10
         
@@ -96,7 +96,7 @@ class SearchController():
             size = int(args['size'])
         
         is_fixed = None
-        if filters is not None and 'is_fixed' in filters:
+        if 'is_fixed' in filters:
             is_fixed = filters['is_fixed']
 
         s = ESTopic.search()
@@ -337,15 +337,11 @@ class SearchController():
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
-                'size': args.get('size')
+                'size': args.get('size'),
+                'is_fixed': is_fixed,
             }
 
-
-            filters = {
-                'is_fixed': is_fixed
-            }
-
-            topics = self._search_topic(search_args, filters)
+            topics = self._search_topic(search_args)
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
