@@ -96,8 +96,8 @@ class SearchController():
             size = int(args['size'])
         
         is_fixed = None
-        if 'is_fixed' in filters:
-            is_fixed = filters['is_fixed']
+        if 'is_fixed' in args:
+            is_fixed = int(args['is_fixed'])
 
         s = ESTopic.search()
         q = Q("multi_match", query=args['value'], fields=["name"])
