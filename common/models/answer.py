@@ -84,7 +84,7 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     def is_bookmarked_by_me(self):
         AnswerBookmark = db.get_model('AnswerBookmark')
         if g.current_user:
-            bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == g.current_user.id, AnswerBookmark.topic_id == self.id).first()
+            bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == g.current_user.id, AnswerBookmark.answer_id == self.id).first()
             return True if bookmark else False
         return False
 
@@ -92,7 +92,7 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     def is_upvoted_by_me(self):
         AnswerVote = db.get_model('AnswerVote')
         if g.current_user:
-            vote = AnswerVote.query.filter(AnswerVote.user_id == g.current_user.id, AnswerVote.topic_id == self.id).first()
+            vote = AnswerVote.query.filter(AnswerVote.user_id == g.current_user.id, AnswerVote.answer_id == self.id).first()
             return True if VotingStatusEnum(2).name == vote.vote_status.name else False
         return False
 
@@ -100,7 +100,7 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
     def is_downvoted_by_me(self):
         AnswerVote = db.get_model('AnswerVote')
         if g.current_user:
-            vote = AnswerVote.query.filter(AnswerVote.user_id == g.current_user.id, AnswerVote.topic_id == self.id).first()
+            vote = AnswerVote.query.filter(AnswerVote.user_id == g.current_user.id, AnswerVote.answer_id == self.id).first()
             return True if VotingStatusEnum(3).name == vote.vote_status.name else False
         return False
 

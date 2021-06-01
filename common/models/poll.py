@@ -79,7 +79,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     def is_bookmarked_by_me(self):
         PollBookmark = db.get_model('PollBookmark')
         if g.current_user:
-            bookmark = PollBookmark.query.filter(PollBookmark.user_id == g.current_user.id, PollBookmark.topic_id == self.id).first()
+            bookmark = PollBookmark.query.filter(PollBookmark.user_id == g.current_user.id, PollBookmark.poll_id == self.id).first()
             return True if bookmark else False
         return False
 
@@ -87,7 +87,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     def is_upvoted_by_me(self):
         PollVote = db.get_model('PollVote')
         if g.current_user:
-            vote = PollVote.query.filter(PollVote.user_id == g.current_user.id, PollVote.topic_id == self.id).first()
+            vote = PollVote.query.filter(PollVote.user_id == g.current_user.id, PollVote.poll_id == self.id).first()
             return True if VotingStatusEnum(2).name == vote.vote_status.name else False
         return False
 
@@ -95,7 +95,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     def is_downvoted_by_me(self):
         PollVote = db.get_model('PollVote')
         if g.current_user:
-            vote = PollVote.query.filter(PollVote.user_id == g.current_user.id, PollVote.topic_id == self.id).first()
+            vote = PollVote.query.filter(PollVote.user_id == g.current_user.id, PollVote.poll_id == self.id).first()
             return True if VotingStatusEnum(3).name == vote.vote_status.name else False
         return False
 

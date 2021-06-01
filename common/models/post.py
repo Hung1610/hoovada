@@ -62,7 +62,7 @@ class Post(Model, AuditCreateMixin, AuditUpdateMixin):
     def is_favorited_by_me(self):
         PostFavorite = db.get_model('PostFavorite')
         if g.current_user:
-            favorite = PostFavorite.query.filter(PostFavorite.user_id == g.current_user.id, PostFavorite.topic_id == self.id).first()
+            favorite = PostFavorite.query.filter(PostFavorite.user_id == g.current_user.id, PostFavorite.post_id == self.id).first()
             if favorite is not None:
                 return favorite
         return False

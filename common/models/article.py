@@ -79,7 +79,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     def is_bookmarked_by_me(self):
         ArticleBookmark = db.get_model('ArticleBookmark')
         if g.current_user:
-            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == g.current_user.id, ArticleBookmark.topic_id == self.id).first()
+            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == g.current_user.id, ArticleBookmark.article_id == self.id).first()
             return True if bookmark else False
         return False
 
@@ -87,7 +87,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     def is_upvoted_by_me(self):
         ArticleVote = db.get_model('ArticleVote')
         if g.current_user:
-            vote = ArticleVote.query.filter(ArticleVote.user_id == g.current_user.id, ArticleVote.topic_id == self.id).first()
+            vote = ArticleVote.query.filter(ArticleVote.user_id == g.current_user.id, ArticleVote.article_id == self.id).first()
             if vote is not None:
                 return True if VotingStatusEnum(2).name == vote.vote_status.name else False
         return False
@@ -96,7 +96,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     def is_downvoted_by_me(self):
         ArticleVote = db.get_model('ArticleVote')
         if g.current_user:
-            vote = ArticleVote.query.filter(ArticleVote.user_id == g.current_user.id, ArticleVote.topic_id == self.id).first()
+            vote = ArticleVote.query.filter(ArticleVote.user_id == g.current_user.id, ArticleVote.article_id == self.id).first()
             if vote is not None:
                 return True if VotingStatusEnum(3).name == vote.vote_status.name else False
         return False

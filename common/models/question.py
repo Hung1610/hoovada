@@ -121,7 +121,7 @@ class Question(Model, BaseQuestion):
     def is_bookmarked_by_me(self):
         QuestionBookmark = db.get_model('QuestionBookmark')
         if g.current_user:
-            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == g.current_user.id, QuestionBookmark.topic_id == self.id).first()
+            bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == g.current_user.id, QuestionBookmark.question_id == self.id).first()
             return True if bookmark else False
         return False
 
@@ -129,7 +129,7 @@ class Question(Model, BaseQuestion):
     def is_upvoted_by_me(self):
         QuestionVote = db.get_model('QuestionVote')
         if g.current_user:
-            vote = QuestionVote.query.filter(QuestionVote.user_id == g.current_user.id, QuestionVote.topic_id == self.id).first()
+            vote = QuestionVote.query.filter(QuestionVote.user_id == g.current_user.id, QuestionVote.question_id == self.id).first()
             return True if VotingStatusEnum(2).name == vote.vote_status.name else False
         return False
 
@@ -137,7 +137,7 @@ class Question(Model, BaseQuestion):
     def is_downvoted_by_me(self):
         QuestionVote = db.get_model('QuestionVote')
         if g.current_user:
-            vote = QuestionVote.query.filter(QuestionVote.user_id == g.current_user.id, QuestionVote.topic_id == self.id).first()
+            vote = QuestionVote.query.filter(QuestionVote.user_id == g.current_user.id, QuestionVote.question_id == self.id).first()
             return True if VotingStatusEnum(3).name == vote.vote_status.name else False
         return False
 
