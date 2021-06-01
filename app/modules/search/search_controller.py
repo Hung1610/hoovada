@@ -331,7 +331,7 @@ class SearchController():
                 return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
 
             is_fixed  = None
-            if 'is_fixed' in args and args['is_fixed'] not None:
+            if 'is_fixed' in args and args['is_fixed'] is not None:
                 is_fixed = int(args.get('is_fixed'))
 
             search_args = {
