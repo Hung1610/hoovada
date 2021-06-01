@@ -86,7 +86,7 @@ class AuthController:
             return send_error(message=messages.ERR_ACCOUNT_EXISTED)
 
         if check_user_by_display_name(display_name):
-            return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
+            return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED)
             
         try:
             user = create_user_by_email(data)
@@ -96,7 +96,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()            
-            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(str(e)))
+            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(e))
 
 
     def confirm_email(self, token):
@@ -123,7 +123,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_result(message=messages.ERR_REGISTRATION_FAILED.format(str(e))) 
+            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(e))
 
 
     def resend_confirmation(self, data):
@@ -154,7 +154,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(str(e)))
+            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(e))
 
     
     ##### CHANGE OR RESET PASSWORD BY MAIL #####
@@ -182,7 +182,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))
+            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(e))
 
 
     def reset_password_by_email_confirm(self, token):
@@ -300,7 +300,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Google", str(e)))
+            return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format(e))
 
 
     def login_with_facebook(self, data):
@@ -330,7 +330,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format("Facebook", str(e)))
+            return send_error(message=messages.ERR_SOCIAL_LOGIN_FAILED.format(e))
 
 
     ##### SMS registration #####
@@ -343,7 +343,7 @@ class AuthController:
 
         display_name = data['display_name']
         if check_user_by_display_name(display_name):
-            return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED.format(display_name))
+            return send_error(message=messages.ERR_DISPLAY_NAME_EXISTED)
 
         if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
@@ -391,7 +391,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_REGISTRATION_FAILED)
+            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(e))
 
        
     def confirm_sms(self, data):
@@ -429,7 +429,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(str(e)))           
+            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(e))        
             
     
     def resend_confirmation_sms(self, data):
@@ -451,13 +451,10 @@ class AuthController:
             code = send_verification_sms(phone_number)
             if code is not None:
                 return send_result(message=messages.MSG_PHONE_SENT)
-            else:
-                return send_error(message=essages.ERR_REGISTRATION_FAILED.format("Sending sms verification failed!"))
-
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(str(e))) 
+            return send_error(message=messages.ERR_REGISTRATION_FAILED.format(e))
 
     ##### Phone reset password  #####
     def change_password_by_token(self, data):
@@ -507,7 +504,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))        
+            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(e))      
 
 
     def reset_password_by_sms(self, data):
@@ -527,18 +524,15 @@ class AuthController:
         if user is None:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
-        try:
-            code = send_verification_sms(phone_number)
-            if code is not None:
-                return send_result(message=messages.MSG_PHONE_SENT)
+        code = send_verification_sms(phone_number)
+        if code is not None:
+            return send_result(message=messages.MSG_PHONE_SENT)
 
-            else:
-                return send_error(message=essages.ERR_RESET_PASSWORD_FAILED.format("Sending sms verification failed!"))
 
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))
+            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(e))  
 
 
     def reset_password_by_sms_confirm(self, data):
@@ -569,7 +563,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))        
+            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(e))      
 
     def send_OTP(self, data):
         """Reset password request by SMS OTP"""
@@ -592,7 +586,7 @@ class AuthController:
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
-            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(str(e)))
+            return send_error(message=messages.ERR_RESET_PASSWORD_FAILED.format(e))  
 
     ##### Phone login #####
 

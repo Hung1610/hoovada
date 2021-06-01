@@ -53,7 +53,7 @@ ERR_NO_EMAIL = "Please provide an Email!"
 ERR_INVALID_INPUT_EMAIL = "Email is not valid!"
 ERR_INVALID_CONFIMED_PASSWORD = "The confirmed password is not correct!"
 ERR_INVALID_INPUT_PASSWORD = "The password length must have at least 8!"
-ERR_DISPLAY_NAME_EXISTED = "The display name '{}' has already existed!"
+ERR_DISPLAY_NAME_EXISTED = "The display name has already existed!"
 ERR_INCORRECT_EMAIL_OR_PASSWORD = "Email or password is incorrect!"
 ERR_BANNED_ACCOUNT = "This account is banned!"
 ERR_CODE_INCORRECT_EXPIRED = "The code is incorrect or expired!"
@@ -78,7 +78,7 @@ MSG_LOGOUT_SUCESS = "Successfully logged out."
 ERR_LOGOUT_FAILED = "Failed to log out with issue {}"
 
 # Social login
-ERR_SOCIAL_LOGIN_FAILED = "{} login failed with issue {}!"
+ERR_SOCIAL_LOGIN_FAILED = "Social login failed with issue {}!"
 
 # phone
 ERR_INVALID_NUMBER = "Please provide a valid phone number!"

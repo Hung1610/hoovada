@@ -46,11 +46,9 @@ class QuestionVoteController(Controller):
         try:
             # add or update vote
             is_insert = True
-            old_vote_status = None
             vote = QuestionVote.query.filter(QuestionVote.user_id == data['user_id'], QuestionVote.question_id == data['question_id']).first()
             
             if vote:
-                old_vote_status = vote.vote_status
                 is_insert = False
             
             vote = self._parse_vote(data=data, vote=vote)
