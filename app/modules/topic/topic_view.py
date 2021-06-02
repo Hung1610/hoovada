@@ -201,7 +201,7 @@ class TopicRecommendedUsers(Resource):
 @api.route('/recommended-topics')
 class RecommendedTopics(Resource):
     @api.expect(TopicDto.model_recommended_topics_parser)
-    @api.response(code=200, model=model_topic, description='Model for topic response.')
+    @api.response(code=200, model=topic_response, description='Model for topic response.')
     def get(self):
         """ Get recommended topics based on title."""
 
