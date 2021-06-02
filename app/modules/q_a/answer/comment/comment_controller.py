@@ -56,7 +56,7 @@ class CommentController(BaseCommentController):
             if comments is not None and len(comments) > 0:
                 results = list()
                 for comment in comments:
-                    result = comment.__dict__
+                    result = comment._asdict()
                     result['user'] = comment.user
 
                     results.append(result)
@@ -106,7 +106,7 @@ class CommentController(BaseCommentController):
 
             db.session.commit()
 
-            result = comment.__dict__
+            result = comment._asdict()
             result['user'] = comment.user
             if comment.answer.user:                    
                 if comment.answer.user.is_online and comment.answer.user.new_answer_comment_notify_settings:
@@ -133,7 +133,7 @@ class CommentController(BaseCommentController):
 
         current_user = g.current_user 
         try:
-            result = comment.__dict__
+            result = comment._asdict()
             result['user'] = comment.user
 
             return send_result(data=marshal(result, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
@@ -165,7 +165,7 @@ class CommentController(BaseCommentController):
         try:
             comment.updated_date = datetime.utcnow()
             db.session.commit()
-            result = comment.__dict__
+            result = comment._asdict()
             result['user'] = comment.user
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, CommentDto.model_response))
         

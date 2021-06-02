@@ -85,20 +85,19 @@ class SearchController():
         return articles
 
 
-    def _search_topic(self, args, filters=None):
+    def _search_topic(self, args):
         start_from = 0
         size = 10
-        is_fixed = 0
+        
         if args['from'] is not None:
             start_from = int(args['from'])
         
         if args['size']:
             size = int(args['size'])
         
-        if filters is not None and 'is_fixed' in filters:
-            is_fixed = int(filters['is_fixed'])
-        else:
-            is_fixed = 1
+        is_fixed = None
+        if 'is_fixed' in args:
+            is_fixed = int(args['is_fixed'])
 
         s = ESTopic.search()
         q = Q("multi_match", query=args['value'], fields=["name"])
@@ -109,12 +108,14 @@ class SearchController():
         topics = []
         for h in hits:
             topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
-            if topic is not None and topic.is_fixed == is_fixed:
-                topics.append({
-                    "id": h.meta.id,
-                    "slug": h.slug,
-                    "name": h.name
-                })
+
+            if topic is not None:
+                if (is_fixed in [0,1] and topic.is_fixed == is_fixed) or is_fixed is None:
+                    topics.append({
+                        "id": h.meta.id,
+                        "slug": h.slug,
+                        "name": h.name
+                    })
         return topics
 
 
@@ -329,23 +330,18 @@ class SearchController():
             if not args.get('value'):
                 return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
 
-            if args['is_fixed'] is None:
-                is_fixed = 1
-            else:
-                is_fixed = int(args.get('is_fixed', 1))
+            is_fixed  = None
+            if 'is_fixed' in args and args['is_fixed'] is not None:
+                is_fixed = int(args.get('is_fixed'))
 
             search_args = {
                 'value': args.get('value'),
                 'from': args.get('from'),
-                'size': args.get('size')
+                'size': args.get('size'),
+                'is_fixed': is_fixed,
             }
 
-
-            filters = {
-                'is_fixed': is_fixed
-            }
-
-            topics = self._search_topic(search_args, filters)
+            topics = self._search_topic(search_args)
             return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:

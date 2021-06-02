@@ -81,6 +81,6 @@ class SearchDto(Dto):
 
     search_topic_request_parser = reqparse.RequestParser()
     search_topic_request_parser.add_argument('value', type=str, required=True, help='Value to search')
-    search_topic_request_parser.add_argument('is_fixed', type=bool, required=False, help='Get fixed topics. Default to 0(false)')
+    search_topic_request_parser.add_argument('is_fixed', type=int, required=False, help='Set 1 to get only fixed_topic, 0 to get only non fixed_topic, do not set to get all')
     search_topic_request_parser.add_argument('from', type=str, required=False, help='From index')
     search_topic_request_parser.add_argument('size', type=str, required=False, help='Number of records returned')

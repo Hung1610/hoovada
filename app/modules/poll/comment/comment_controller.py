@@ -54,7 +54,7 @@ class CommentController(BaseCommentController):
             if comments is not None and len(comments) > 0:
                 results = list()
                 for comment in comments:
-                    result = comment.__dict__
+                    result = comment._asdict()
                     user = User.query.filter_by(id=comment.user_id).first()
                     result['user'] = user
                     results.append(result)
@@ -94,7 +94,7 @@ class CommentController(BaseCommentController):
 
             db.session.commit()
 
-            result = comment.__dict__
+            result = comment._asdict()
             user = User.query.filter_by(id=comment.user_id).first()
             result['user'] = user
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, CommentDto.model_response))
@@ -114,7 +114,7 @@ class CommentController(BaseCommentController):
         if comment is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         try:
-            result = comment.__dict__
+            result = comment._asdict()
             user = User.query.filter_by(id=comment.user_id).first()
             result['user'] = user
 
@@ -148,7 +148,7 @@ class CommentController(BaseCommentController):
         try:
             comment.updated_date = datetime.utcnow()
             db.session.commit()
-            result = comment.__dict__
+            result = comment._asdict()
             user = User.query.filter_by(id=comment.user_id).first()
             result['user'] = user
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, CommentDto.model_response))

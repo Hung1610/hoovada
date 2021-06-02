@@ -23,7 +23,6 @@ from common.db import db
 from common.dramatiq_producers import update_seen_articles
 from common.controllers.controller import Controller
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
 from common.utils.util import strip_tags
 from elasticsearch_dsl import Q
@@ -87,10 +86,6 @@ class ArticleController(Controller):
         article = Article.query.filter(Article.title == data['title']).first()
         if article:
             return send_error(message=messages.ERR_ALREADY_EXISTS)
-        if is_sensitive(data['title']):
-            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-
-
 
         article = self._parse_article(data=data, article=None)
         try:
@@ -270,8 +265,6 @@ class ArticleController(Controller):
         # Handling title
         if 'title' in data:
             data['title'] = data['title'].strip().capitalize()
-            if is_sensitive(data['title']):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         article = self._parse_article(data=data, article=article)
         if article.own_type == 'company' and article.company_id is None:
