@@ -20,7 +20,6 @@ from common.es import get_model
 from common.cache import cache
 from common.controllers.controller import Controller
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import is_sensitive
 from common.utils.util import strip_tags
 from common.dramatiq_producers import update_seen_questions
 from app.modules.q_a.question.question_dto import QuestionDto
@@ -68,8 +67,6 @@ class QuestionController(Controller):
         if not data['title'].endswith('?'):
             return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
 
-        if is_sensitive(data['title']):
-            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
@@ -149,32 +146,39 @@ class QuestionController(Controller):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
-        if object_id.isdigit():
-            question = Question.query.filter_by(id=object_id).first()
-        else:
-            question = Question.query.filter_by(slug=object_id).first()
-        
-        if question is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        current_user = g.current_user
-        if question.is_private:
-            if current_user:
-                if not current_user == question.user:
-                    if not question.invited_users.contains(current_user):
-                        return send_error(message='Question can be seen by invitations only!')
+        try:
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
             else:
-                return send_error(message='Question can be seen by invitations only!') 
+                question = Question.query.filter_by(slug=object_id).first()
+            
+            if question is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
 
-        result = question._asdict()
-        result['user'] = question.user
-        result['topics'] = question.topics
-        result['fixed_topic'] = question.fixed_topic
-        
-        if current_user:
-            update_seen_questions.send(question.id, current_user.id)
+            current_user = g.current_user
+            if question.is_private:
+                if current_user:
+                    if not current_user == question.user:
+                        if not question.invited_users.contains(current_user):
+                            return send_error(message='Question can be seen by invitations only!')
+                else:
+                    return send_error(message='Question can be seen by invitations only!') 
 
-        return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
+            result = question._asdict()
+            result['user'] = question.user
+            result['topics'] = question.topics
+            result['fixed_topic'] = question.fixed_topic
+            
+            if current_user:
+                update_seen_questions.send(question.id, current_user.id)
+
+            return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
+
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
 
     def invite(self, object_id, data):
@@ -217,7 +221,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message="Invite failed. Error: " + e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def decline_invited_question(self, object_id):
@@ -236,7 +240,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message="Decline invite failed. Error: " + e.__str__())  
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def invite_friends(self, object_id):
@@ -250,7 +254,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message="Invite failed. Error: " + e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_similar(self, args):
@@ -409,14 +413,7 @@ class QuestionController(Controller):
                 data['title'] = data['title'].strip().capitalize()
                 
                 if not data['title'].endswith('?'):
-                    return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
-
-                if is_sensitive(data['title']):
-                    return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)       
-
-            if 'question' in data:
-                if is_sensitive(data['question'], True):
-                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)               
+                    return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)         
 
             proposal_data = question._asdict()
             proposal_data['question_id'] = question.id
@@ -483,10 +480,6 @@ class QuestionController(Controller):
             data['title'] = data['title'].strip().capitalize()
             if not data['title'].endswith('?'):
                 return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
-
-            if is_sensitive(data['title']):
-                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
-                
 
         if object_id.isdigit():
             question = Question.query.filter_by(id=object_id).first()
