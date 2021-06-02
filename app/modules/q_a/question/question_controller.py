@@ -213,7 +213,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message="Invite failed. Error: " + e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def decline_invited_question(self, object_id):
@@ -232,7 +232,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message="Decline invite failed. Error: " + e.__str__())  
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def invite_friends(self, object_id):
@@ -246,7 +246,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message="Invite failed. Error: " + e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_similar(self, args):
