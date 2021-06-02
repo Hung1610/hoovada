@@ -175,17 +175,6 @@ class UpdateTopicSlug(Resource):
         return controller.update_slug()
 
 
-@api.deprecated
-@api.route('/update_color', doc=False)
-class UpdateTopicColor(Resource):
-    @admin_token_required()
-    def post(self):
-        """Randomize color for fix topics"""
-
-        controller = TopicController()
-        return controller.update_color()
-
-
 @api.route('/<string:topic_id_or_slug>/recommended-users')
 class TopicRecommendedUsers(Resource):
     @api.expect(TopicDto.model_recommended_users_args_parser)

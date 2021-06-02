@@ -615,7 +615,6 @@ class TopicController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
-
         return topic
 
 
@@ -625,20 +624,6 @@ class TopicController(Controller):
             for topic in topics:
                 topic.slug = '{}'.format(slugify(topic.name))
                 db.session.commit()
-            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
-
-
-    def update_color(self):
-        topics = Topic.query.filter(Topic.is_fixed == True).all()
-        try:
-            for topic in topics:
-                topic.color_code = "#675DDA"
-                db.session.commit()
-
             return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
         except Exception as e:
             db.session.rollback()

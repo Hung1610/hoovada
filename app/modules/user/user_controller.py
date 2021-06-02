@@ -42,7 +42,7 @@ ESUserFriend = get_model('UserFriend')
 
 class UserController(Controller):
     query_classname = 'User'
-    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'email_or_name', 'is_mutual_friend']
+    special_filtering_fields = ['from_date', 'to_date', 'endorsed_topic_id', 'is_endorsed', 'is_mutual_friend']
     allowed_ordering_fields = ['question_count', 'answer_count', 'post_count', 'reputation']
 
 
@@ -99,30 +99,8 @@ class UserController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def get_by_id(self, object_id):
-        
-        if object_id is None:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
-        
-        try:
-            current_user = g.current_user
-            user = User.query.filter_by(id=object_id).first()
-            if user is None:
-                return send_error(message=messages.ERR_NOT_LOGIN)
-            
-            if user.is_deactivated is True:
-                return send_error(data=messages.ERR_USER_PRIVATE_OR_DEACTIVATED)
-
-            # when call to this function, increase the profile_views
-            if current_user.id != user.id:
-                user.profile_views += 1
-                db.session.commit()
-
-            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
-
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
+    def get_by_id(self):
+        pass
 
 
     def get_by_user_name(self, user_name):
@@ -183,7 +161,7 @@ class UserController(Controller):
         if 'email' in data:
             return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
-        if 'password' in data and data['password'] is None:
+        if 'password' in data:
             return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
         if 'profile_views' in data:
@@ -226,6 +204,13 @@ class UserController(Controller):
                 data['last_name'] = data['last_name'].strip()
                 if data['last_name'] == '':
                     return send_error(message=messages.ERR_PLEASE_PROVIDE.format('last_name'))                
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'is_first_log_in' in data:
+            try:
+                data['is_first_log_in'] = bool(data['is_first_log_in'])          
             except Exception as e:
                 print(e.__str__())
                 pass

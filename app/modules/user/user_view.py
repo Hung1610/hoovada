@@ -77,7 +77,7 @@ class UserSocialAccount(Resource):
     @api.expect(user_get_social_parser)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
-        """Get all information for specific user with ID `id`"""
+        """Get social account by user_name"""
 
         controller = UserController()
         args = user_get_social_parser.parse_args()
@@ -89,7 +89,7 @@ class UserSocialAccount(Resource):
 class User(Resource):
     @api.response(code=200, model=user_response, description='Model for user response.')
     def get(self, user_name):
-        """Get all information for specific user with ID `id`"""
+        """Get user information by user_name"""
 
         controller = UserController()
         return controller.get_by_user_name(user_name)
@@ -97,7 +97,7 @@ class User(Resource):
     @api.expect(user_request, validate=True)
     @api.response(code=200, model=user_response, description='Model for user response.')
     def patch(self, user_name):
-        """Update an existed user in the system"""
+        """Update user by user_name"""
 
         data = api.payload
         controller = UserController()
@@ -105,7 +105,7 @@ class User(Resource):
 
     @admin_token_required(role=[UserRole.SUPER_ADMIN])
     def delete(self, user_name):
-        """ Delete the user with the user_name `user_name`"""
+        """ Delete the user by user_name"""
 
         controller = UserController()
         return controller.delete(user_name=user_name)
