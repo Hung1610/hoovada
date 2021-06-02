@@ -43,7 +43,7 @@ class ArticleList(Resource):
     @api.expect(_article_dto_request)
     @api.response(code=200, model=_article_dto_response, description='Model for article response.')
     def post(self):
-        """Create new article"""
+        """Create new article. Provide own_type == company and company_id when sending article to company"""
 
         data = api.payload
         controller = ArticleController()
