@@ -41,7 +41,6 @@ ERR_NOT_FOUND = 'Not found!'
 ERR_FAVORITE_NOT_ALLOWED = 'Favorite not allowed!'
 ERR_VOTING_NOT_ALLOWED = 'Voting not allowed!'
 ERR_COMMENT_NOT_ALLOWED = 'Comment not allowed!'
-ERR_NOT_ALLOWED_PARAMS = 'The parameter {} is not allowed!'
 
 ########### Authentication Module #################
 

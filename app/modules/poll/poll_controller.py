@@ -16,6 +16,7 @@ from app.constants import messages
 from slugify import slugify
 from app.modules.poll.poll_dto import PollDto
 from common.dramatiq_producers import update_seen_poll
+from common.utils.sensitive_words import is_sensitive
 from common.es import get_model
 
 __author__ = "hoovada.com team"
@@ -78,6 +79,10 @@ class PollController(Controller):
         poll = Poll.query.filter(Poll.title == data['title']).first()
         if poll is not None:
             return send_error(message=messages.ERR_ALREADY_EXISTS)    
+
+        # check sensitive words for title
+        if is_sensitive(data['title']):
+            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         poll = self._parse_poll(data=data, poll=None)     
         try:
@@ -190,6 +195,8 @@ class PollController(Controller):
 
         if 'title' in data:
             data['title'] = data['title'].strip().capitalize()
+            if is_sensitive(data['title']):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
             
         poll = self._parse_poll(data=data, poll=poll)
         try:

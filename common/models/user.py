@@ -72,13 +72,12 @@ class User(Model):
     show_nsfw = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     is_deactivated = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     is_private = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
-    is_first_log_in = db.Column(db.Boolean, server_default=expression.true(), nullable=False)
+    is_first_log_in = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     confirmed = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     is_birthday_hidden = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     admin = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     verified_document = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     show_fullname_instead_of_display_name = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
-    joined_collaboration = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
 
     # these fields are deprecated, set false by default
     new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)

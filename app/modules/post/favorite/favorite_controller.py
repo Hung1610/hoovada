@@ -45,7 +45,7 @@ class FavoriteController(Controller):
         try:
             favorite = PostFavorite.query.filter(PostFavorite.user_id == data['user_id'], PostFavorite.post_id == data['post_id']).first()
             if favorite:
-                return send_result(message=messages.ERR_ALREADY_EXISTS)
+                return send_result(message=messages.ERR_ISSUE.format('Post already favorited'))
 
             favorite = self._parse_favorite(data=data, favorite=None)
             favorite.created_date = datetime.utcnow()

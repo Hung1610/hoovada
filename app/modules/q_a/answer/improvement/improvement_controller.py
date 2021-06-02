@@ -16,6 +16,7 @@ from app.modules.q_a.answer.improvement.improvement_dto import AnswerImprovement
 from common.enum import VotingStatusEnum, FileTypeEnum
 from common.controllers.controller import Controller
 from common.utils.response import paginated_result, send_error, send_result
+from common.utils.sensitive_words import is_sensitive
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
@@ -29,6 +30,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 User = db.get_model('User')
 Answer = db.get_model('Answer')
 AnswerImprovement = db.get_model('AnswerImprovement')
+AnswerImprovementVote = db.get_model('AnswerImprovementVote')
 
 
 class AnswerImprovementController(Controller):
@@ -38,14 +40,12 @@ class AnswerImprovementController(Controller):
     def create(self, data, answer_id):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-
         if not 'content' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('content'))
 
         answer = Answer.query.filter_by(id=answer_id).first()
         if answer is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
+            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Answer', answer_id))
         if not answer.allow_improvement:
             return send_error(message=messages.ERR_ISSUE.format('Answer does not allow improvement'))
 
@@ -56,6 +56,10 @@ class AnswerImprovementController(Controller):
         try:
             # add new answer
             improvement = self._parse_improvement(data=data, improvement=None)
+
+            if is_sensitive(improvement.content):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+            
             db.session.add(improvement)
             db.session.commit()
             result = improvement._asdict()
@@ -64,6 +68,20 @@ class AnswerImprovementController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.join(User, isouter=True).filter(db.or_(AnswerImprovement.user == None, User.is_deactivated != True))
+        
+        return query
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(AnswerImprovement.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        if params.get('to_date'):
+            query = query.filter(AnswerImprovement.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+
+        return query
 
     def get(self, args):
         try:
@@ -80,48 +98,49 @@ class AnswerImprovementController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
+            return send_error(message=messages.ERR_GET_FAILED.format('AnswerImprovement', e))
 
     def get_by_id(self, object_id):
         try:
             improvement = AnswerImprovement.query.filter_by(id=object_id).first()
             if improvement is None:
-                return send_error(message=messages.ERR_NOT_FOUND)
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('AnswerImprovement', object_id))
                 
             result = improvement._asdict()
             result['user'] = improvement.user
             return send_result(data=marshal(result, AnswerImprovementDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
+            return send_error(message=messages.ERR_GET_FAILED.format('AnswerImprovement', e))
 
     def update(self, object_id, data):
         try:
             improvement = AnswerImprovement.query.filter_by(id=object_id).first()
             if improvement is None:
-                return send_error(message=messages.ERR_NOT_FOUND)
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('AnswerImprovement', object_id))
 
+            current_user = g.current_user
             improvement = self._parse_improvement(data=data, improvement=improvement)
             if improvement.content.__str__().strip().__eq__(''):
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer content'))
 
+            if is_sensitive(improvement.content):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
             if improvement.answer_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('answer_id'))
-
             if improvement.user_id is None:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('user_id'))
             improvement.updated_date = datetime.utcnow()
 
             db.session.commit()
+            # get user information for each answer.
             result = improvement._asdict()
             result['user'] = improvement.user
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerImprovementDto.model_response))
         except Exception as e:
-            db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
-
 
     def delete(self, object_id):
         try:
@@ -133,24 +152,8 @@ class AnswerImprovementController(Controller):
                 db.session.commit()
                 return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
-            db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
-
-
-    def get_query(self):
-        query = self.get_model_class().query
-        query = query.join(User, isouter=True).filter(db.or_(AnswerImprovement.user == None, User.is_deactivated != True))
-        return query
-
-    def apply_filtering(self, query, params):
-        query = super().apply_filtering(query, params)
-        if params.get('from_date'):
-            query = query.filter(AnswerImprovement.created_date >= dateutil.parser.isoparse(params.get('from_date')))
-        if params.get('to_date'):
-            query = query.filter(AnswerImprovement.created_date <= dateutil.parser.isoparse(params.get('to_date')))
-
-        return query
+            return send_error(message=messages.MSG_DELETE_SUCCESS)
 
     def _parse_improvement(self, data, improvement=None):
         if improvement is None:

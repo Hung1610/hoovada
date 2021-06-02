@@ -107,6 +107,8 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('topic name'))
 
         data['name'] = data['name'].strip().capitalize()
+        if is_sensitive(data['name']):
+            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         if not 'parent_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('parent_id'))
@@ -246,7 +248,9 @@ class TopicController(Controller):
 
         if 'name' in data:
             data['name'].strip().capitalize()
-            
+            if is_sensitive(data['name']):
+                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
+
         if 'description' in data:
             if is_sensitive(data['description']):
                 return send_error(message=messages.ERR_BODY_INAPPROPRIATE)    

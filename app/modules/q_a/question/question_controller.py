@@ -20,6 +20,7 @@ from common.es import get_model
 from common.cache import cache
 from common.controllers.controller import Controller
 from common.utils.response import paginated_result, send_error, send_result
+from common.utils.sensitive_words import is_sensitive
 from common.utils.util import strip_tags
 from common.dramatiq_producers import update_seen_questions
 from app.modules.q_a.question.question_dto import QuestionDto
@@ -66,6 +67,9 @@ class QuestionController(Controller):
         data['title'] = data['title'].strip().capitalize()
         if not data['title'].endswith('?'):
             return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+        if is_sensitive(data['title']):
+            return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
 
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
@@ -213,7 +217,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message="Invite failed. Error: " + e.__str__())
 
 
     def decline_invited_question(self, object_id):
@@ -232,7 +236,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e)
-            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+            return send_error(message="Decline invite failed. Error: " + e.__str__())  
 
 
     def invite_friends(self, object_id):
@@ -246,7 +250,7 @@ class QuestionController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message="Invite failed. Error: " + e.__str__())
 
 
     def get_similar(self, args):
@@ -405,7 +409,14 @@ class QuestionController(Controller):
                 data['title'] = data['title'].strip().capitalize()
                 
                 if not data['title'].endswith('?'):
-                    return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)            
+                    return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+                if is_sensitive(data['title']):
+                    return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)       
+
+            if 'question' in data:
+                if is_sensitive(data['question'], True):
+                    return send_error(message=messages.ERR_BODY_INAPPROPRIATE)               
 
             proposal_data = question._asdict()
             proposal_data['question_id'] = question.id
@@ -472,6 +483,9 @@ class QuestionController(Controller):
             data['title'] = data['title'].strip().capitalize()
             if not data['title'].endswith('?'):
                 return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+            if is_sensitive(data['title']):
+                return send_error(message=messages.ERR_TITLE_INAPPROPRIATE)
                 
 
         if object_id.isdigit():

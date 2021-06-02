@@ -230,13 +230,6 @@ class UserController(Controller):
                 print(e.__str__())
                 pass
 
-        if 'is_first_log_in' in data:
-            try:
-                data['is_first_log_in'] = bool(data['is_first_log_in'])       
-            except Exception as e:
-                print(e.__str__())
-                pass
-
         try:
             user = User.query.filter_by(display_name=user_name).first()
             if not user:
