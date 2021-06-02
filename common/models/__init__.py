@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from common.enum import CompanyUserStatusEnum
 from common.models.answer import Answer, AnswerImprovement
 from common.models.article import Article
 from common.models.ban import UserBan
@@ -43,6 +44,8 @@ from common.models.timeline import Timeline
 from common.models.permission import Permission
 from common.models.poll import Poll, PollSelect, PollTopic, PollUserSelect
 from common.models.career import Career
+
+from common.models.company import Company, CompanyStatusEnum, CompanyUser, CompanyUserStatusEnum
 
 # These tables/models will be ignored by Alembic/Flask-Migrate
 from common.models.ignored import ApschedulerJobs

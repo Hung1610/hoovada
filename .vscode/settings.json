@@ -5,6 +5,6 @@
         "**/.git": false
     },
     "terminal.integrated.allowMnemonics": true,
-    "python.pythonPath": "venv/bin/python",
+    "python.pythonPath": ".vent/bin/python",
     "terminal.integrated.shell.linux": "/bin/bash"
 }

@@ -78,6 +78,7 @@ class User(Model):
     admin = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     verified_document = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     show_fullname_instead_of_display_name = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    joined_collaboration = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
 
     # these fields are deprecated, set false by default
     new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
