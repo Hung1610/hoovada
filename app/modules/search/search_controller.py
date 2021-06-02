@@ -60,11 +60,11 @@ class SearchController():
                     "profile_pic_url": user.profile_pic_url,
                     "endorsed_count": user.endorsed_count,
                     'is_facebook_linked': user.is_facebook_linked,
-                    'is_google_linked': user.is_facebook_linked,
-                    'is_endorsed_by_me': user.is_facebook_linked,
-                    'is_approved_friend': user.is_facebook_linked,
-                    'is_friended_by_me': user.is_facebook_linked,
-                    'is_followed_by_me': user.is_facebook_linked,
+                    'is_google_linked': user.is_google_linked,
+                    'is_endorsed_by_me': user.is_endorsed_by_me,
+                    'is_approved_friend': user.is_approved_friend,
+                    'is_friended_by_me': user.is_friended_by_me,
+                    'is_followed_by_me': user.is_followed_by_me,
                 })
                 
         return users
