@@ -47,6 +47,10 @@ class ArticleDto(Dto):
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'is_company_published': fields.Boolean(default=False, description='The article is published by company or not'),
+        'own_type': fields.String(default='user', description='The own type of company. Must be one of values user or company'),
+        'company_id': fields.String(description='The ID of company who owns this article. Must be specified when own_type is company'),
 
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
@@ -74,6 +78,9 @@ class ArticleDto(Dto):
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
+        'is_company_published': fields.Boolean(default=False, description='The article is published by company or not'),
+        'own_type': fields.String(default='user', description='The own type of company. Must be one of values user or company'),
+        'company_id': fields.String(description='The ID of company who owns this article. Must be specified when own_type is company'),
 
         'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
         'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),

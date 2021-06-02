@@ -15,6 +15,7 @@ from flask import g
 # own modules
 from common.enum import VotingStatusEnum
 from common.db import db
+from common.enum import OwnTypeEnum
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.models.model import Model
 
@@ -43,6 +44,11 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     views_count = db.Column(db.Integer, server_default="0")
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='CASCADE'), nullable=True, index=True)
+    company = db.relationship('Company', uselist=False, lazy=True)
+    own_type = db.Column(db.Enum(OwnTypeEnum, validate_strings=True),server_default="user", nullable=False, index=True)
+    is_company_published = db.Column(db.Boolean, server_default=expression.false())
+    published_at = db.Column(db.DateTime)
 
     topics = db.relationship('Topic', secondary=article_topics, backref='articles', lazy='subquery', uselist=True)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
