@@ -3,19 +3,20 @@
 
 # built-in modules
 from abc import ABC
-from common.utils.response import paginated_result, send_error
-
-# own modules
-from common.db import db
 
 # third-party modules
 from sqlalchemy.sql.expression import true
 from flask import g
 
+# own modules
+from common.db import db
+from common.utils.response import paginated_result, send_error
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
+
 
 class Controller(ABC):
     """ This class will control all interactions between clients, database server and other things"""
