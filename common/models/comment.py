@@ -58,8 +58,8 @@ class ArticleComment(Model, BaseComment):
         ArticleCommentFavorite = db.get_model('ArticleCommentFavorite')
         if g.current_user:
             favorite = ArticleCommentFavorite.query.filter(ArticleCommentFavorite.user_id == g.current_user.id, ArticleCommentFavorite.article_comment_id == self.id).first()
-            return True if favorite is not None else False
-        
+            if favorite is not None:
+                return True
         return False
 
 
@@ -78,7 +78,8 @@ class PostComment(Model, BaseComment):
         PostCommentFavorite = db.get_model('PostCommentFavorite')
         if g.current_user:
             favorite = PostCommentFavorite.query.filter(PostCommentFavorite.user_id == g.current_user.id, PostCommentFavorite.post_comment_id == self.id).first()
-            return True if favorite is not None else False
+            if favorite is not None:
+                return True
         return False
 
 
@@ -98,8 +99,8 @@ class AnswerComment(Model, BaseComment):
         AnswerCommentFavorite = db.get_model('AnswerCommentFavorite')
         if g.current_user:
             favorite = AnswerCommentFavorite.query.filter(AnswerCommentFavorite.user_id == g.current_user.id, AnswerCommentFavorite.answer_comment_id == self.id).first()
-            return True if favorite is not None else False
-
+            if favorite is not None:
+                return True
         return False
 
 
@@ -118,8 +119,8 @@ class QuestionComment(Model, BaseComment):
         QuestionCommentFavorite = db.get_model('QuestionCommentFavorite')
         if g.current_user:
             favorite = QuestionCommentFavorite.query.filter(QuestionCommentFavorite.user_id == g.current_user.id, QuestionCommentFavorite.question_comment_id == self.id).first()
-            return True if favorite is not None else False
-
+            if favorite is not None:
+                return True
         return False
 
 
@@ -138,5 +139,6 @@ class PollComment(Model, BaseComment):
         PollCommentFavorite = db.get_model('PollCommentFavorite')
         if g.current_user:
             favorite = PollCommentFavorite.query.filter(PollCommentFavorite.user_id == g.current_user.id, PollCommentFavorite.poll_comment_id == self.id).first()
-            return True if favorite is not None else False
+            if favorite is not None:
+                return True
         return False
