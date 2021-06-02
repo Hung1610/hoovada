@@ -52,23 +52,21 @@ class SearchController():
         for h in hits:
             user = db.session.query(User).filter_by(id=h.meta.id).first()
             user_ban = db.session.query(UserBan).filter_by(user_id=h.meta.id).first()
-            if user is not None and user.is_private != 1 and user.is_deactivated != 1 and user_ban is None:
-                users.append(user)
-                """
+            if user is not None and user.is_private != 1 and user.is_deactivated != 1 and user_ban is None: 
                 users.append({
                     "id": h.meta.id,
                     "display_name": h.display_name,
                     "email": h.email,
-                    "profile_pic_url": h.profile_pic_url,
-                    "endorsed_count": h.endorsed_count,
-                    'is_facebook_linked': h.is_facebook_linked,
-                    'is_google_linked': h.is_facebook_linked,
-                    'is_endorsed_by_me': h.is_facebook_linked,
-                    'is_approved_friend': h.is_facebook_linked,
-                    'is_friended_by_me': h.is_facebook_linked,
-                    'is_followed_by_me': h.is_facebook_linked,
+                    "profile_pic_url": user.profile_pic_url,
+                    "endorsed_count": user.endorsed_count,
+                    'is_facebook_linked': user.is_facebook_linked,
+                    'is_google_linked': user.is_facebook_linked,
+                    'is_endorsed_by_me': user.is_facebook_linked,
+                    'is_approved_friend': user.is_facebook_linked,
+                    'is_friended_by_me': user.is_facebook_linked,
+                    'is_followed_by_me': user.is_facebook_linked,
                 })
-                """
+                
         return users
 
     def _search_article(self, args):
