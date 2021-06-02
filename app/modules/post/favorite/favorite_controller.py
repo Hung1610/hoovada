@@ -45,7 +45,7 @@ class FavoriteController(Controller):
         try:
             favorite = PostFavorite.query.filter(PostFavorite.user_id == data['user_id'], PostFavorite.post_id == data['post_id']).first()
             if favorite:
-                return send_result(message=messages.ERR_ISSUE.format('Post already favorited'))
+                return send_result(message=messages.ERR_ALREADY_EXISTS)
 
             favorite = self._parse_favorite(data=data, favorite=None)
             favorite.created_date = datetime.utcnow()
@@ -110,11 +110,17 @@ class FavoriteController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-        favorite = PostFavorite.query.filter_by(id=object_id).first()
-        if favorite is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-        else:
+
+        try:
+            favorite = PostFavorite.query.filter_by(id=object_id).first()
+
+            if favorite is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+
             return send_result(data=marshal(favorite, FavoriteDto.model_response), message=messages.MSG_GET_SUCCESS)
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def update(self, object_id, data):
@@ -131,10 +137,10 @@ class FavoriteController(Controller):
             favorite = PostFavorite.query.filter_by(post_id=post_id, user_id=user_id).first()
             if favorite is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
-            else:
-                db.session.delete(favorite)
-                db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS)
+                
+            db.session.delete(favorite)
+            db.session.commit()
+            return send_result(message=messages.MSG_DELETE_SUCCESS)
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
