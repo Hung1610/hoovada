@@ -233,7 +233,7 @@ class ShareController(Controller):
             if shares is not None and len(shares) > 0:
                 results = list()
                 for share in shares:
-                    result = ArticleShare.__dict__
+                    result = ArticleShare._asdict()
 
                     # get user article
                     article = Article.query.filter_by(id=ArticleShare.article_id).first()

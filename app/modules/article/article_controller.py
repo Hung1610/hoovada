@@ -123,7 +123,7 @@ class ArticleController(Controller):
 
             results = []
             for article in articles:
-                result = article.__dict__
+                result = article._asdict()
 
                 user = User.query.filter_by(id=article.user_id).first()
                 result['user'] = user

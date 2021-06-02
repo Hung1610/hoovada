@@ -222,7 +222,7 @@ class TopicController(Controller):
 
         if topic.is_fixed:
             id = topic.id
-            result = topic.__dict__
+            result = topic._asdict()
             sub_topics = Topic.query.filter_by(parent_id=id).all()
             result['sub_topics'] = sub_topics
             return send_result(data=marshal(result, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)

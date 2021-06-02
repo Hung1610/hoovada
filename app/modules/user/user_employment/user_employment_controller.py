@@ -82,7 +82,7 @@ class EmploymentController(Controller):
             user_employments = query.all()
             results = list()
             for user_employment in user_employments:
-                result = user_employment.__dict__
+                result = user_employment._asdict()
                 results.append(result)
             
             return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))

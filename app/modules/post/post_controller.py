@@ -60,7 +60,7 @@ class PostController(Controller):
             post_dsl.save()
             db.session.commit()
             try:
-                result = post.__dict__
+                result = post._asdict()
                 user = User.query.filter_by(id=post.user_id).first()
                 result['user'] = user
                 result['is_favorited_by_me'] = False
@@ -161,7 +161,7 @@ class PostController(Controller):
             posts = res.get('data')
             results = []
             for post in posts:
-                result = post.__dict__
+                result = post._asdict()
                 user = User.query.filter_by(id=post.user_id).first()
                 current_user = g.current_user
                 if current_user:
@@ -232,7 +232,7 @@ class PostController(Controller):
         try:
             post.views_count += 1
             db.session.commit()
-            result = post.__dict__
+            result = post._asdict()
             result['user'] = post.user
 
             return send_result(data=marshal(result, PostDto.model_post_response), message=messages.MSG_GET_SUCCESS)
@@ -267,7 +267,7 @@ class PostController(Controller):
             post_dsl.update(html=strip_tags(post.html), updated_date=post.updated_date)
 
             db.session.commit()            
-            result = post.__dict__
+            result = post._asdict()
 
             result['user'] = post.user
             return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
