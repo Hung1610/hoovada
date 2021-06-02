@@ -292,32 +292,6 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def get_recommended_topics(self, args):
-        try:
-            size = 20
-            if 'size' in args:
-                size = int(args['limit'])
-            if not 'title' in args:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
-            s = ESTopic.search()
-            q = Q("multi_match", query=args['title'], fields=['name'])
-            s = s.query(q)
-            s = s[0:size + 1]
-            response = s.execute()
-            hits = response.hits
-            topics = []
-            for h in hits:
-                topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
-                if topic is not None and topic.is_fixed == 0:
-                    topics.append(topic)
-            print(topics)
-            return send_result(data=marshal(topics, QuestionDto.model_topic), message=messages.MSG_GET_SUCCESS)
-
-        except Exception as e:
-            print(e)
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
-
     def get_proposals(self, object_id, args):
         try:
             if object_id is None:

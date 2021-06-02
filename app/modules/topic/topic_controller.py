@@ -26,7 +26,6 @@ from common.es import get_model
 from common.utils.util import strip_tags
 from elasticsearch_dsl import Q
 
-Question = db.get_model('Question')
 ESTopic = get_model('Topic')
 
 __author__ = "hoovada.com team"
@@ -486,7 +485,7 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
-    def get_recommended_users_by_topic(self, object_id, args):
+    def get_recommended_users(self, object_id, args):
         '''Main logic for API GET /topic/recommended-users'''
 
         if object_id is None:
@@ -522,6 +521,30 @@ class TopicController(Controller):
 
             return send_result(data=marshal(results, TopicDto.model_recommended_users_response), message=messages.MSG_GET_SUCCESS)
 
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def get_recommended_topics(self, args):
+        try:
+            size = 20
+            if 'size' in args:
+                size = int(args['limit'])
+            if not 'title' in args:
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
+            s = ESTopic.search()
+            q = Q("multi_match", query=args['title'], fields=['name'])
+            s = s.query(q)
+            s = s[0:size + 1]
+            response = s.execute()
+            hits = response.hits
+            topics = []
+            for h in hits:
+                topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
+                if topic is not None and topic.is_fixed == 0:
+                    topics.append(topic)
+            return send_result(data=marshal(topics, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))

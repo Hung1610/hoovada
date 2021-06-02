@@ -31,7 +31,6 @@ class PollTopicDto(Dto):
     model_topic = api.model('topic', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'slug': fields.String(description='The slug of the topic'),
-        'color_code': fields.String(description='The color code for topic'),
         'name': fields.String(description='The name of the topic'),
         'description': fields.String(description='Description about topic'),
         'is_fixed': fields.Boolean(description='Is a fixed topic'),

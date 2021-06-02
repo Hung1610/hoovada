@@ -50,7 +50,6 @@ class TopicDto(Dto):
     model_topic_request = api.model('topic_request', {
         'name': fields.String(required=True, description='The name of the topic'),
         'parent_id': fields.Integer(required=True, description='The ID of the parent topic'),
-        'color_code': fields.String(description='The color code for topic'),
         'description': fields.String(description='Description about topic'),
         'is_nsfw': fields.Boolean(default=False, description='This topic is nsfw or not'),
         'allow_follow': fields.Boolean(default=False, description='This topic allows following or not'),
@@ -60,7 +59,6 @@ class TopicDto(Dto):
         'id': fields.Integer(readonly=True),
         'name': fields.String(description='The name of the topic'),
         'description': fields.String(description='Description about the topic'),
-        'color_code': fields.String(description='The color code for topic'),
     })
 
     # define the model for response
@@ -68,7 +66,6 @@ class TopicDto(Dto):
         'id': fields.Integer(requried=False, readonly=True, description='The ID of the topic'),
         'slug': fields.String(description='The slug of the topic'),
         'name': fields.String(description='The name of the topic'),
-        'color_code': fields.String(description='The color code for topic'),
         'file_url': fields.String(description='The file url for topic'),
         'user_id': fields.Integer(description='The user ID'),
         'parent_id': fields.Integer(description='The ID of parent (fixed) topic'),
@@ -104,9 +101,6 @@ class TopicDto(Dto):
     upload_parser = api.parser()
     upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
 
-    model_recommened_topic_parser = reqparse.RequestParser()
-    model_recommened_topic_parser.add_argument('question_id', type=int, required=False, help='Recommend topic by question id')
-    model_recommened_topic_parser.add_argument('size', type=int, required=False, default=20, help='Number of returned topics')
 
     @classmethod
     def get_endorsed_users_parser(cls):
@@ -120,3 +114,8 @@ class TopicDto(Dto):
         'user': fields.Nested(model_user, description='The user information'),
         'total_score': fields.Integer(default=0, description='The total reputation score'),
     })
+
+
+    model_recommended_topics_parser = reqparse.RequestParser()
+    model_recommended_topics_parser.add_argument('title', type=str, required=False, help='Title by which to get relevant topics')
+    model_recommended_topics_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')

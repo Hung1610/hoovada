@@ -21,7 +21,6 @@ topic_request = TopicDto.model_topic_request
 topic_response = TopicDto.model_topic_response
 topic_endorse_user_request = TopicDto.topic_endorse_user_request
 upload_parser = TopicDto.upload_parser
-recommened_topic_parser = TopicDto.model_recommened_topic_parser
 endorsed_user_dto = TopicDto.model_user
 get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
 
@@ -196,4 +195,16 @@ class TopicRecommendedUsers(Resource):
 
         args = TopicDto.model_recommended_users_args_parser.parse_args()
         controller = TopicController()
-        return controller.get_recommended_users_by_topic(object_id=topic_id_or_slug, args=args)
+        return controller.get_recommended_users(object_id=topic_id_or_slug, args=args)
+
+
+@api.route('/recommended-topics')
+class RecommendedTopics(Resource):
+    @api.expect(TopicDto.model_recommended_topics_parser)
+    @api.response(code=200, model=model_topic, description='Model for topic response.')
+    def get(self):
+        """ Get recommended topics based on title."""
+
+        args = TopicDto.model_recommended_topics_parser.parse_args()
+        controller = TopicController()
+        return controller.get_recommended_topics(args=args)

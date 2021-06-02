@@ -21,7 +21,6 @@ class QuestionDto(Dto):
     model_topic = api.model('topic_for_question', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'slug': fields.String(description='The slug of the topic'),
-        'color_code': fields.String(description='The color code for topic'),
         'name': fields.String(description='The name of the topic'),
         'description': fields.String(description='Description about topic')
     })
@@ -141,11 +140,6 @@ class QuestionDto(Dto):
     get_similar_questions_parser.add_argument('title', type=str, required=False, help='Title by which to get similar questions')
     get_similar_questions_parser.add_argument('limit', type=int, default=30, required=False, help='Limit amount to return')
     get_similar_questions_parser.add_argument('exclude_question_id', type=str, required=False, help='Exclude question with this id')
-
-    get_relevant_topics_parser = reqparse.RequestParser()
-    get_relevant_topics_parser.add_argument('title', type=str, required=False, help='Title by which to get relevant topics')
-    get_relevant_topics_parser.add_argument('limit', type=int, default=10, required=True, help='Limit amount to return')
-
 
     get_parser = Dto.paginated_request_parser.copy()
     get_parser.add_argument('title', type=str, required=False, help='Search question by its title')

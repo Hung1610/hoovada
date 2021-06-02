@@ -24,8 +24,6 @@ api = QuestionDto.api
 get_parser = QuestionDto.get_parser
 get_similar_questions_parser = QuestionDto.get_similar_questions_parser
 question_invite_request = QuestionDto.question_invite_request
-model_topic = QuestionDto.model_topic
-get_relevant_topics_parser = QuestionDto.get_relevant_topics_parser
 model_answer_request = QuestionDto.model_answer_request
 model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
@@ -54,19 +52,6 @@ class QuestionList(Resource):
         data = api.payload
         controller = QuestionController()
         return controller.create(data=data)
-
-
-@api.route('/recommended-topics')
-class QuestionRecommendedTopics(Resource):
-    @api.expect(get_relevant_topics_parser)
-    @api.response(code=200, model=model_topic, description='Model for topic response.')
-    def get(self):
-        """ Get recommended topics based on title."""
-
-        args = get_relevant_topics_parser.parse_args()
-        controller = QuestionController()
-        return controller.get_recommended_topics(args=args)
-
 
 @api.route('/similar')
 class QuestionSimilar(Resource):
