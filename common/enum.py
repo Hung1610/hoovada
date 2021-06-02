@@ -43,19 +43,3 @@ class TimelineActivityEnum(enum.Enum):
 class FrequencySettingEnum(enum.Enum):
     weekly = 1
     daily = 2
-
-class CompanyStatusEnum(enum.Enum):
-    submitted = 1
-    approved = 2
-    rejected = 3
-    deactivated = 4
-
-class CompanyUserStatusEnum(enum.Enum):
-    submitted = 1
-    approved = 2
-    rejected = 3
-    deactivated = 4
-
-class OwnTypeEnum(enum.Enum):
-    user = 1
-    company = 2
