@@ -36,9 +36,14 @@ class SearchDto(Dto):
         'id': fields.Integer(readonly=True, description='Id of user'),
         'display_name': fields.String(description='The display name of the user'),
         'email': fields.String(description='The email of the user'),
-        'display_name': fields.String(description='The display name of the user'),
         'profile_pic_url': fields.String(description='The profile picture of the user'),
-        'cover_pic_url': fields.String(description='The cover picture of the user'),
+        'endorsed_count': fields.Integer(required=False),
+        'is_facebook_linked': fields.Boolean(default=False, description='The user is facebook social linked or not'),
+        'is_google_linked': fields.Boolean(default=False, description='The user is google social linked or not'),
+        'is_endorsed_by_me': fields.Boolean(default=False, description='The user is endorsed or not'),
+        'is_approved_friend': fields.Boolean(default=False, description='The user is approved friend or not'),
+        'is_friended_by_me': fields.Boolean(default=False, description='The user is befriended or not'),
+        'is_followed_by_me': fields.Boolean(default=False, description='The user is followed or not'),
     })
 
     model_search_question_response = api.model('search_question_response', {
