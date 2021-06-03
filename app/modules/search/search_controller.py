@@ -53,19 +53,7 @@ class SearchController():
             user = db.session.query(User).filter_by(id=h.meta.id).first()
             user_ban = db.session.query(UserBan).filter_by(user_id=h.meta.id).first()
             if user is not None and user.is_private != 1 and user.is_deactivated != 1 and user_ban is None: 
-                users.append({
-                    "id": h.meta.id,
-                    "display_name": h.display_name,
-                    "email": h.email,
-                    "profile_pic_url": user.profile_pic_url,
-                    "endorsed_count": user.endorsed_count,
-                    'is_facebook_linked': user.is_facebook_linked,
-                    'is_google_linked': user.is_google_linked,
-                    'is_endorsed_by_me': user.is_endorsed_by_me,
-                    'is_approved_friend': user.is_approved_friend,
-                    'is_friended_by_me': user.is_friended_by_me,
-                    'is_followed_by_me': user.is_followed_by_me,
-                })
+                users.append(user._asdict())
                 
         return users
 
@@ -86,11 +74,7 @@ class SearchController():
         for h in hits:
             article = db.session.query(Article).filter_by(id=h.meta.id).first()
             if article is not None and article.is_deleted != 1 and article.is_draft != 1:
-                articles.append({
-                    "id": h.meta.id,
-                    "slug": h.slug,
-                    "title": h.title
-                })
+                articles.append(article._asdict())
         return articles
 
 
@@ -120,11 +104,7 @@ class SearchController():
 
             if topic is not None:
                 if (is_fixed in [0,1] and topic.is_fixed == is_fixed) or is_fixed is None:
-                    topics.append({
-                        "id": h.meta.id,
-                        "slug": h.slug,
-                        "name": h.name
-                    })
+                    topics.append(topic._asdict())
         return topics
 
 
@@ -145,13 +125,7 @@ class SearchController():
         for h in hits:
             question = db.session.query(Question).filter_by(id=h.meta.id).first()
             if question is not None and question.is_deleted != 1 and question.is_private != 1:
-                questions.append({
-                    "id": h.meta.id,
-                    "slug": h.slug,
-                    "question": question.question,
-                    "title": h.title,
-                    "answers_count": question.answers_count
-                })
+                questions.append(question._asdict())
         return questions
     
     def _search_post(self, valueSearch):
@@ -163,10 +137,11 @@ class SearchController():
         hits = response.hits
         posts = []
         for h in hits:
-            posts.append({
-                "id": h.meta.id,
-                "highlighted_html": list(h.meta.highlight.html),
-            })
+            post = db.session.query(Post).filter_by(id=h.meta.id).first()
+            if post is not None:
+                result = post._asdict()
+                result['highlighted_html'] = list(h.meta.highlight.html)
+                posts.append(result)
         return posts
     
     def _search_poll(self, args):
@@ -184,10 +159,9 @@ class SearchController():
         hits = response.hits
         polls = []
         for h in hits:
-            polls.append({
-                "id": h.meta.id,
-                "title": h.title
-            })
+            poll = db.session.query(Poll).filter_by(id=h.meta.id).first()
+            if poll is not None:
+                polls.append(poll._asdict())
         return polls
     
     def _search_user_friend(self, args, user_id):
@@ -215,18 +189,7 @@ class SearchController():
             # must validate db's record before being sent to client
             user_friend = db.session.query(UserFriend).filter_by(id=h.meta.id).first()
             if user_friend is not None:
-                users.append({
-                    "id": h.meta.id,
-                    "friend_id": h.friend_id,
-                    "friend_display_name": user_friend.friend.display_name,
-                    "friend_email": user_friend.friend.email,
-                    "friend_profile_pic_url": user_friend.friend.profile_pic_url,
-                    "friended_id": h.friended_id,
-                    "friended_display_name": user_friend.friended.display_name,
-                    "friended_email": user_friend.friended.email,
-                    "friended_profile_pic_url": user_friend.friended.profile_pic_url,
-                    "is_approved": h.is_approved
-                })
+                users.append(user_friend._asdict())
         return users 
 
     def search(self, args):
@@ -234,18 +197,14 @@ class SearchController():
         if 'value' not in args:
             return send_result(data={}, message=messages.ERR_PLEASE_PROVIDE.format('value'))
 
-        valueSearch = args.get('value')      
-        if any(ext in valueSearch for ext in extensionsToCheck) == True:
-            emailSearch = True
-        else:
-            emailSearch = False
+        valueSearch = args.get('value')
         search_args = {
             'value': valueSearch,
             'from': '0',
             'size': '10'
         }
         try:
-            users = self._search_user(search_args, emailSearch)
+            users = self._search_user(search_args, emailSearch=True)
             questions = self._search_question(search_args)
             topics = self._search_topic(search_args)
             articles = self._search_article(search_args)
@@ -253,7 +212,7 @@ class SearchController():
             polls = self._search_poll(search_args)
             data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts, 'polls': polls}
 
-            return send_result(data, message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(data, SearchDto.model_event_search_response), message=messages.MSG_GET_SUCCESS)
 
         except Exception as e:
             print(e.__str__())

@@ -23,10 +23,6 @@ class SearchDto(Dto):
         'title': fields.String(description='The title of the article'),
     })
 
-    search_response = api.model('response', {
-        'message': fields.String(required=True)
-    })
-
     model_search_poll_response = api.model('search_poll_response', {
         'id': fields.Integer(readonly=True, description='Id of poll'),
         'title': fields.String(description='The title of the poll'),
@@ -61,16 +57,44 @@ class SearchDto(Dto):
     })
 
     model_search_user_friend_response = api.model('search_user_friend_response', {
-        'id': fields.Integer(readonly=True, description='Id of user friend'),
-        'friend_id': fields.Integer(readonly=True, description='Id of friend'),
-        'friend_display_name': fields.String(readonly=True, description='Display name of friend'),
-        'friend_email': fields.String(readonly=True, description='Email of friend'),
-        'friend_profile_pic_url': fields.String(readonly=True, description='Profile picture url of friend'),
-        'friended_id': fields.Integer(readonly=True, description='Id of friended'),
-        'friended_display_name': fields.String(readonly=True, description='Display name of friended'),
-        'friended_email': fields.String(readonly=True, description='Email of friended'),
-        'friended_profile_pic_url': fields.String(readonly=True, description='Profile picture url of friended'),
-        "is_approved": fields.Integer(readonly=True, description='Status of friend request'),
+        'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
+        'friend_id': fields.Integer(required=False, description='The user ID who has sent friend request'),
+        'friend':fields.Nested(model_search_user_response, description='The information of the user who sends friend request'),
+        'friended_id': fields.Integer(required=False, description='The user ID who has been friendd'),
+        'friended':fields.Nested(model_search_user_response, description='The information of the friended user'),
+        'is_approved': fields.Boolean(default=False, description='This friend request is approved or not'),
+        'created_date': fields.DateTime(required=False, description='The created date'),
+        'updated_date': fields.DateTime(required=False, description='The updated date')
+    })
+
+    model_post_response = api.model('search_post_response', {
+        'id': fields.Integer(readonly=True, description=''),
+        'user': fields.Nested(model_search_user_response, description='The user information'),
+        'created_date': fields.DateTime(description='The created date'),
+        'updated_date': fields.DateTime(description='The updated date'),
+        'views_count': fields.Integer(default=0, description='The amount of post views'),
+        'last_activity': fields.DateTime(description='The last time this post was updated.'),
+        
+        'share_count': fields.Integer(default=0, description='The amount of sharing'),
+        'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
+        'comment_count': fields.Integer(default=0, description='The amount of comments'),
+        
+        'is_favorited_by_me':fields.Boolean(default=False, description='The favorited status of current user'),
+        'is_anonymous': fields.Boolean(default=False, description='The post is created anonymously'),
+        'file_url': fields.String(description='The file url'),
+        'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
+        'allow_favorite': fields.Boolean(default=True, description='Allow favorite or not'),
+        'highlighted_html': fields.String(description='The content including the keyword of the post'),
+    })
+
+    model_event_search_response = api.model('event_search_response', {
+        'user': fields.Nested(model_search_user_response, description='The user information'),
+        'question': fields.Nested(model_search_question_response, description='The question information'),
+        'topic': fields.Nested(model_search_topic_response, description='The toppic information'),
+        'article': fields.Nested(model_search_article_res, description='The article information'),
+        'post': fields.Nested(model_post_response, description='The post information'),
+        'polls': fields.Nested(model_search_poll_response, description='The poll information'),
+
     })
 
 
