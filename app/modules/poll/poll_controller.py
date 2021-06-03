@@ -38,38 +38,35 @@ class PollController(Controller):
     query_classname = 'Poll'
 
     def create(self, data):
-        print(data)
+
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'title' in data or data['title'] == '':
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll title'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
         
         if not 'allow_multiple_user_select' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll allow_multiple_user_select'))
-
-        if not 'expire_after_seconds' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll expire_after_seconds'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('allow_multiple_user_select'))
         
         if not 'fixed_topic_id' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll fixed_topic_id'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
+
         fixed_topic = Topic.query.filter_by(id=data['fixed_topic_id']).first()
         
-        if (not fixed_topic) or (fixed_topic and fixed_topic.is_fixed != 1):
-            return send_error(message=messages.ERR_ISSUE.format('Fixed topic is not found or not fixed'))
+        if (fixed_topic is None) or (fixed_topic and fixed_topic.is_fixed != 1):
+            return send_error(message=messages.ERR_NOT_FOUND)
         
         if not 'poll_selects' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll poll_selects'))
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll_selects'))
         
         if not isinstance(data['poll_selects'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        
+        if len(data['poll_selects']) < 2:
+            return send_error(message=messages.ERR_ISSUE.format('Poll must have minimum 2 selections'))
+
         if not isinstance(data['poll_topics'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         poll_topics = data['poll_topics']
-
-        if len(data['poll_selects']) < 2:
-            return send_error(message=messages.ERR_ISSUE.format('Poll must have minimum 2 selections'))
 
         current_user = g.current_user
         data['user_id'] = current_user.id
@@ -84,7 +81,6 @@ class PollController(Controller):
         try:
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
-            poll.is_expire = False
             poll.slug = slugify(poll.title)
             db.session.add(poll)
             db.session.flush()
@@ -205,7 +201,10 @@ class PollController(Controller):
 
 
     def delete(self, object_id):
-        
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format("id"))
+
         if object_id.isdigit():
             poll = Poll.query.filter_by(id=object_id).first()
         else:
@@ -239,6 +238,13 @@ class PollController(Controller):
                 print(e.__str__())
                 pass
 
+        if 'html' in data:
+            try:
+                poll.html = data['html']
+            except Exception as e:
+                print(e.__str__())
+                pass
+                
         if 'allow_multiple_user_select' in data:
             try:
                 poll.allow_multiple_user_select = bool(data['allow_multiple_user_select'])
