@@ -15,7 +15,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = SearchDto.api
-search_response = SearchDto.search_response
 
 parser = reqparse.RequestParser()
 parser.add_argument('value', type=str, required=False, help='The value of the search')
@@ -24,7 +23,7 @@ parser.add_argument('value', type=str, required=False, help='The value of the se
 @api.route('/event_search')
 @api.expect(parser)
 class Search(Resource):
-    @api.response(code=200, model=search_response, description='Model for success response.')
+    @api.response(code=200, model=SearchDto.model_event_search_response, description='Model for success response.')
     def get(self):
         """ Search everything"""
 
