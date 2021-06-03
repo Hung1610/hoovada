@@ -354,6 +354,8 @@ class QuestionController(Controller):
 
             proposal_data = question._asdict()
             proposal_data['is_parma_delete'] = True
+            proposal_data['question_id'] = question.id
+            proposal_data['topics'] = [topic.id for topic in question.topics]
             proposal = self._parse_proposal(data=proposal_data)
             db.session.add(proposal)
             db.session.commit()
