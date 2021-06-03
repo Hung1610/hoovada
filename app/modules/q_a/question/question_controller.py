@@ -347,7 +347,7 @@ class QuestionController(Controller):
             if question is None or question.is_deleted is True:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
-            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_approved=0)
+            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_parma_delete=1, is_approved=0)
             if question_deletion_proposal is not None or len(question_deletion_proposal) > 0:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
@@ -394,7 +394,6 @@ class QuestionController(Controller):
             proposal_data['topics'] = [topic.id for topic in question.topics]
             proposal = self._parse_proposal(data=proposal_data, proposal=None)
             proposal = self._parse_proposal(data=data, proposal=proposal)
-
 
             proposal.last_activity = datetime.utcnow()
             proposal.slug = slugify(proposal.title)
