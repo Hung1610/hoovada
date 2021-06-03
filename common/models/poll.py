@@ -24,7 +24,8 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     __tablename__ = 'poll'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.UnicodeText)
+    title = db.Column(db.Unicode(255))
+    html = db.Column(db.UnicodeText)
     slug = db.Column(db.String(255), index=True)
     allow_multiple_user_select = db.Column(db.Boolean, server_default=expression.false())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True) 
