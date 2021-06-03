@@ -34,10 +34,7 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     topics = db.relationship("Topic", secondary="poll_topic", backref='polls', lazy='subquery', uselist=True)
     fixed_topic_id = db.Column(db.Integer, db.ForeignKey('topic.id', ondelete='CASCADE'), nullable=False)
     fixed_topic = db.relationship("Topic", uselist=False, secondary="poll_topic", lazy=True)
-
-    expire_after_seconds = db.Column(db.Integer, server_default="86400") # 1 day
-    is_expire = db.Column(db.Boolean, server_default=expression.false())
-    
+    expire_after_seconds = db.Column(db.Integer, server_default="86400") # 1 day    
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
     is_anonymous = db.Column(db.Boolean, server_default=expression.false())

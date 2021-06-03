@@ -81,7 +81,6 @@ class PollController(Controller):
         try:
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
-            poll.is_expire = False
             poll.slug = slugify(poll.title)
             db.session.add(poll)
             db.session.flush()
