@@ -71,6 +71,7 @@ class ShareDto(Dto):
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'user': fields.Nested(model_user, description='The info of creator'),
         'title': fields.String(default=None, description='The title of the poll'),
+        'html': fields.String(description='The content of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
         'poll_selects': fields.Nested(model_poll_select, description='List all selections of a poll'),

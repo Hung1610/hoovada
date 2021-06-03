@@ -339,6 +339,7 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         try:
+            question = None
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -347,13 +348,15 @@ class QuestionController(Controller):
             if question is None or question.is_deleted is True:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
-            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_parma_delete=1, is_approved=0)
-            if question_deletion_proposal is not None or len(question_deletion_proposal) > 0:
+            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_parma_delete=1, is_approved=0).first()
+            if question_deletion_proposal is not None:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
-            data = {}
-            data['is_parma_delete'] = True
-            proposal = self._parse_proposal(data=data, proposal=question)
+            proposal_data = question._asdict()
+            proposal_data['is_parma_delete'] = True
+            proposal_data['question_id'] = question.id
+            proposal_data['topics'] = [topic.id for topic in question.topics]
+            proposal = self._parse_proposal(data=proposal_data, proposal=None)
             db.session.add(proposal)
             db.session.commit()
 
@@ -373,6 +376,7 @@ class QuestionController(Controller):
             if not isinstance(data, dict):
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
             
+            question = None
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -725,13 +729,6 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
         
-        if 'accepted_question_id' in data:
-            try:
-                proposal.accepted_question_id = int(data['accepted_question_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        
         if 'allow_video_question' in data:
             try:
                 proposal.allow_video_question = bool(data['allow_video_question'])
@@ -747,6 +744,7 @@ class QuestionController(Controller):
                 proposal.allow_audio_question = True
                 print(e.__str__())
                 pass
+
         if 'is_private' in data:
             try:
                 proposal.is_private = bool(data['is_private'])
