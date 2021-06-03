@@ -339,6 +339,7 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         try:
+            question = None
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -373,6 +374,7 @@ class QuestionController(Controller):
             if not isinstance(data, dict):
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
             
+            question = None
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
