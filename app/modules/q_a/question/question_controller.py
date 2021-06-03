@@ -351,9 +351,9 @@ class QuestionController(Controller):
             if question_deletion_proposal is not None:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
-            data = {}
-            data['is_parma_delete'] = True
-            proposal = self._parse_proposal(data=data, proposal=question)
+            proposal_data = question._asdict()
+            proposal_data['is_parma_delete'] = True
+            proposal = self._parse_proposal(data=proposal_data)
             db.session.add(proposal)
             db.session.commit()
 
@@ -725,13 +725,6 @@ class QuestionController(Controller):
                 print(e.__str__())
                 pass
         
-        if 'accepted_question_id' in data:
-            try:
-                proposal.accepted_question_id = int(data['accepted_question_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        
         if 'allow_video_question' in data:
             try:
                 proposal.allow_video_question = bool(data['allow_video_question'])
@@ -747,6 +740,7 @@ class QuestionController(Controller):
                 proposal.allow_audio_question = True
                 print(e.__str__())
                 pass
+
         if 'is_private' in data:
             try:
                 proposal.is_private = bool(data['is_private'])
