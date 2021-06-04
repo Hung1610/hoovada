@@ -16,15 +16,11 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class BaseConfig(CommonBaseConfig):
     # debug mode is turned off by default
     DEBUG = False
+    SQLALCHEMY_ECHO = False
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
-
-    DEBUG = True
-    DEBUG_TB_ENABLED = True
-    SQLALCHEMY_ECHO = True
-    PRESERVE_CONTEXT_ON_EXCEPTION = False
-
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,

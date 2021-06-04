@@ -16,7 +16,6 @@ from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.controllers.comment_controller import BaseCommentController
 from common.models import Article, ArticleComment, User
 from common.utils.response import send_error, send_result
-from common.utils.sensitive_words import is_sensitive
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -66,9 +65,6 @@ class CommentController(BaseCommentController):
         
         if not 'comment' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('comment'))
-
-        if is_sensitive(data['comment']):
-            return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         current_user = g.current_user
         data['user_id'] = current_user.id
@@ -147,9 +143,6 @@ class CommentController(BaseCommentController):
         if current_user and current_user.id != comment.user_id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
         
-        if 'comment' in data:
-            if is_sensitive(data['comment']):
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)
 
         comment = self._parse_comment(data=data, comment=comment)
         try:

@@ -21,6 +21,8 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 class BaseConfig(CommonBaseConfig):
     # debug mode is turned off by default
     DEBUG = False
+    SQLALCHEMY_ECHO = False
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
 
     # Flask-Apscheduler configurations
     SCHEDULER_JOBSTORES = {
@@ -83,12 +85,8 @@ class BaseConfig(CommonBaseConfig):
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
 
-    DEBUG = True
-    DEBUG_TB_ENABLED = True
-    SQLALCHEMY_ECHO = True
-    PRESERVE_CONTEXT_ON_EXCEPTION = False
     BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
-    SWAGGER_UI_DOC_EXPANSION = 'none'
+    SWAGGER_UI_DOC_EXPANSION = 'full'
     SWAGGER_UI_OPERATION_ID = True
     SWAGGER_UI_REQUEST_DURATION = True
 
@@ -106,9 +104,6 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     """production configuration."""
 
-    DEBUG = False
-    
-    SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset={charset}'.format(
          user=BaseConfig.DB_USER,
          password=BaseConfig.DB_PASSWORD,

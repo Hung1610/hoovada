@@ -30,7 +30,6 @@ __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-PostFavorite = db.get_model('PostFavorite')
 User = db.get_model('User')
 Post = db.get_model('Post')
 ESPost = get_model("Post")

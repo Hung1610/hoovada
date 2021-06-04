@@ -18,7 +18,6 @@ from app.modules.topic.topic_dto import TopicDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
 from common.utils.response import paginated_result, send_error, send_result
-from common.utils.sensitive_words import is_sensitive
 from common.utils.util import encode_file_name
 from common.utils.wasabi import upload_file
 from app.modules.topic.bookmark.bookmark_controller import TopicBookmarkController
@@ -109,10 +108,6 @@ class TopicController(Controller):
 
         if not 'parent_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('parent_id'))
-
-        if 'description' in data:
-            if is_sensitive(data['description']):
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)            
 
         # check topic already exists
         topic = Topic.query.filter(Topic.name == data['name']).first()
@@ -246,9 +241,6 @@ class TopicController(Controller):
         if 'name' in data:
             data['name'].strip().capitalize()
 
-        if 'description' in data:
-            if is_sensitive(data['description']):
-                return send_error(message=messages.ERR_BODY_INAPPROPRIATE)    
 
         try:
             topic = self._parse_topic(data=data, topic=topic)
