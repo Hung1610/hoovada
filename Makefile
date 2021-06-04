@@ -5,7 +5,6 @@ GIT_BRANCH 		:= $$(git branch | grep \* | cut -d ' ' -f2)
 DATE 			:= $$(date +'%d%b%Y')
 
 API   			:= ${REGISTRY}:api-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
-SOCKETIO 		:= ${REGISTRY}:socketio-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
 SCHEDULED_JOBS  := ${REGISTRY}:scheduled-jobs-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
 NGINX			:= ${REGISTRY}:nginx-${GIT_COMMIT}-${GIT_BRANCH}-${DATE}
 
@@ -20,23 +19,18 @@ scheduled-jobs:
 	@docker build -t ${SCHEDULED_JOBS} -f ./docker/scheduled_jobs/Dockerfile .
 	@docker push ${SCHEDULED_JOBS}
 
-socketio:
-	@docker build -t ${SOCKETIO} -f ./docker/app_socketio/Dockerfile .
-	@docker push ${SOCKETIO}
 
 deploy-staging:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-test --record
-	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n interactive-service --context=do-sgp1-test --record
 
-all-staging: interactive scheduled-jobs socketio deploy-staging
+all-staging: interactive scheduled-jobs deploy-staging
 
 deploy-live:
 	@kubectl set image deployment/app app=${API} nginx=${NGINX} -n interactive-service --context=do-sgp1-production --record
 	@kubectl set image deployment/scheduled-jobs scheduled-jobs=${SCHEDULED_JOBS} -n interactive-service --context=do-sgp1-production --record
-	@kubectl set image deployment/socketio socketio=${SOCKETIO} nginx=${NGINX} -n interactive-service --context=do-sgp1-production--record
 
-all-live: interactive scheduled-jobs socketio deploy-live
+all-live: interactive scheduled-jobs deploy-live
 
 login:
 	@docker login registry.gitlab.com
