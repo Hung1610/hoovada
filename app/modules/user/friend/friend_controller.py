@@ -8,7 +8,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request, g
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import and_
 
@@ -70,12 +70,12 @@ class UserFriendController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error("Could not load error, please try again later.")
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create(self, object_id):
         data = {}
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['friend_id'] = current_user.id
         data['friended_id'] = object_id
 
@@ -125,19 +125,24 @@ class UserFriendController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
-        friend = UserFriend.query.filter_by(id=object_id).first()
-        if friend is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Friend', object_id))
-        else:
-            return send_result(data=marshal(friend, UserFriendDto.model_response), message='Success')
+
+        try:
+            friend = UserFriend.query.filter_by(id=object_id).first()
+            if friend is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            return send_result(data=marshal(friend, UserFriendDto.model_response), message=messages.MSG_GET_SUCCESS)
+        
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def update(self, object_id, data):
+    def update(self):
         pass
 
 
     def approve(self, object_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))        
         
@@ -173,7 +178,7 @@ class UserFriendController(Controller):
 
 
     def disapprove(self, object_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('object_id'))
@@ -185,19 +190,21 @@ class UserFriendController(Controller):
                 
             if friend.is_approved:
                 return send_result(message='Already friend.')
+
             if friend.friend_id == user_id:
                 friended_id = friend.friended_id
             if friend.friended_id == user_id:
                 friended_id = friend.friend_id
             return self.delete(friended_id)
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_ISSUE.format(e))
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
       
     def delete(self, object_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             user_friends = UserFriend.query.filter(\
@@ -253,10 +260,10 @@ class UserFriendController(Controller):
                 .limit(limit)\
                 .all()
             results = [{'user': user, 'total_score': total_score} for user, total_score in top_users]
-            return send_result(data=marshal(results, UserFriendDto.top_user_friend_response), message='Success')
+            return send_result(data=marshal(results, UserFriendDto.top_user_friend_response), message=messages.MSG_GET_SUCCESS)
         except Exception as e:
             print(e)
-            return send_error(message="Get recommended users failed. Error: " + e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def _parse_friend(self, data, friend=None):

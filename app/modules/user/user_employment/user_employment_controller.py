@@ -71,10 +71,9 @@ class EmploymentController(Controller):
                 print(e.__str__())
                 pass
         try:
-            query = db.session.query(UserEmployment)
+            query = UserEmployment.query
 
-            query = query.join(User, isouter=True)\
-                .filter((UserEmployment.user == None) | (User.is_deactivated == False))
+            query = query.join(User, isouter=True).filter((UserEmployment.user == None) | (User.is_deactivated == False))
 
             if user_id is not None:
                 query = query.filter(UserEmployment.user_id == user_id)
