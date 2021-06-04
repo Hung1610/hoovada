@@ -8,6 +8,7 @@ Project Overview
 
 - We follow this [structure example](https://github.com/frol/flask-restplus-server-example)
 - Configuration file is at app/settings/config.py, we use environment variables to manage conf in production.
+- For any change in DB, please put the command into sql/
 
 ### Built with
 
@@ -134,7 +135,7 @@ $ docker-compose rm
 - Swagger:  http://localhost:5000/api/v1/openapi
 - adminer:  http://localhost:80, user/password/db: dev/hoovada/hoovada
 
-#### Generate new migration file
+#### Generate new migration file (deprecated)
 
 When you have changes for database. E.g: adding new table, you hate to do [migration](https://flask-migrate.readthedocs.io/)
 
