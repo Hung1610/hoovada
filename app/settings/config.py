@@ -86,7 +86,7 @@ class DevelopmentConfig(BaseConfig):
     """Development configuration."""
 
     BCRYPT_LOG_ROUNDS = 4  # For faster tests; needs at least 4 to avoid "ValueError: Invalid rounds"
-    SWAGGER_UI_DOC_EXPANSION = 'full'
+    SWAGGER_UI_DOC_EXPANSION = 'none'
     SWAGGER_UI_OPERATION_ID = True
     SWAGGER_UI_REQUEST_DURATION = True
 
