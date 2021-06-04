@@ -77,8 +77,7 @@ class EducationController(Controller):
         try:
             query = UserEducation.query
 
-            query = query.join(User, isouter=True)\
-                .filter((UserEducation.user == None) | (User.is_deactivated == False))
+            query = query.join(User, isouter=True).filter((UserEducation.user == None) | (User.is_deactivated == False))
 
             if user_id is not None:
                 query = query.filter(UserEducation.user_id == user_id)
