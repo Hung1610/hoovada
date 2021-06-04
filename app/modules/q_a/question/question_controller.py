@@ -347,8 +347,8 @@ class QuestionController(Controller):
             if question is None or question.is_deleted is True:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
-            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_parma_delete=1, is_approved=0).first()
-            if question_deletion_proposal is not None:
+            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_parma_delete=True, is_approved=False).first()
+            if question_deletion_proposal is not None or len(question_deletion_proposal) > 0:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
             proposal_data = question._asdict()
