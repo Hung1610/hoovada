@@ -14,10 +14,10 @@ from sqlalchemy import and_
 
 # own modules
 from common.utils.util import send_friend_request_notif_email
-from common.utils.onesignal_notif import push_notif_to_specific_users
 from common.db import db
 from app.constants import messages
 from app.modules.user.friend.friend_dto import UserFriendDto
+from common.dramatiq_producers import push_notif_to_specific_users_produce
 from common.controllers.controller import Controller
 from common.models import Reputation, User, UserFriend
 from common.utils.response import paginated_result, send_error, send_result
@@ -102,7 +102,7 @@ class UserFriendController(Controller):
                 if friend.friended.is_online and friend.friended.friend_request_notify_settings:
                     display_name =  current_user.display_name if current_user else 'Khách'
                     message = display_name + ' đã yêu cầu làm bạn!'
-                    push_notif_to_specific_users(message, [friend.friended.id])
+                    push_notif_to_specific_users_produce(message, [friend.friended.id])
                 elif friend.friended.friend_request_email_settings:
                     send_friend_request_notif_email(friend.friended, current_user)
 

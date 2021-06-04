@@ -17,7 +17,7 @@ from common.db import db
 from app.modules.user.user_dto import UserDto
 from common.controllers.controller import Controller
 from common.utils.file_handler import get_file_name_extension
-from common.utils.onesignal_notif import push_notif_to_specific_users
+from common.dramatiq_producers import push_notif_to_specific_users_produce
 from common.utils.response import paginated_result, send_error, send_result
 from common.utils.types import UserRole
 from common.utils.util import encode_file_name
@@ -449,7 +449,7 @@ class UserController(Controller):
                 if not user_mention_info:
                     return send_error(message=messages.ERR_NOT_FOUND)
                 
-                push_notif_to_specific_users(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
+                push_notif_to_specific_users_produce(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
                                                                                                 user_mention_info.display_name),
                                                                                                 user_ids=[user_mentioned_id])
                 return send_result(message=messages.MSG_UPDATE_SUCCESS)

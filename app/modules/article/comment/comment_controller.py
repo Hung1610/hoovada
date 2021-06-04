@@ -12,7 +12,7 @@ from flask_restx import marshal
 from app.constants import messages
 from common.db import db
 from app.modules.article.comment.comment_dto import CommentDto
-from common.utils.onesignal_notif import push_notif_to_specific_users
+from common.dramatiq_producers import push_notif_to_specific_users_produce
 from common.controllers.comment_controller import BaseCommentController
 from common.models import Article, ArticleComment, User
 from common.utils.response import send_error, send_result
@@ -99,7 +99,7 @@ class CommentController(BaseCommentController):
                 if comment.article.user.is_online and comment.article.user.new_article_comment_notify_settings:
                     display_name =  comment.user.display_name if comment.user else 'Khách'
                     message = display_name + ' có bình luận bài viết!'
-                    push_notif_to_specific_users(message, [comment.article.user_id])
+                    push_notif_to_specific_users_produce(message, [comment.article.user_id])
 
             return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, CommentDto.model_response))
 

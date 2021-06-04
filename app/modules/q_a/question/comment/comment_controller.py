@@ -13,7 +13,7 @@ from common.db import db
 from common.cache import cache
 from app.constants import messages
 from app.modules.q_a.question.comment.comment_dto import CommentDto
-from common.utils.onesignal_notif import push_notif_to_specific_users
+from common.dramatiq_producers import push_notif_to_specific_users_produce
 from common.controllers.comment_controller import BaseCommentController
 from common.utils.response import send_error, send_result
 
@@ -102,7 +102,7 @@ class CommentController(BaseCommentController):
                 if comment.question.user and comment.question.user.is_online and comment.question.user.new_question_comment_notify_settings:
                     display_name =  comment.user.display_name if comment.user else 'Khách'
                     message = display_name + ' đã bình luận câu hỏi!'
-                    push_notif_to_specific_users(message, [comment.question.user_id])
+                    push_notif_to_specific_users_produce(message, [comment.question.user_id])
             except Exception as e:
                 print(e.__str__())
                 pass
