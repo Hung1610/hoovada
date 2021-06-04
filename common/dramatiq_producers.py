@@ -34,6 +34,21 @@ dramatiq.set_broker(rabbitmq_broker)
 def test():
     rabbitmq_broker.enqueue(Message(queue_name='app_queue', actor_name='test', args=(), kwargs={}, options={}))
 
+
+def push_notif_to_specific_users_produce(message, user_ids):
+    rabbitmq_broker.enqueue(Message(queue_name='app_notif_queue', \
+        actor_name='push_notif_to_specific_users', \
+        args=(), \
+        kwargs={'message': message, 'user_ids': user_ids}, \
+        options={}))
+
+def push_basic_notification_produce(message):
+    rabbitmq_broker.enqueue(Message(queue_name='app_notif_queue', \
+        actor_name='push_basic_notification', \
+        args=(), \
+        kwargs={'message': message}, \
+        options={}))
+
 @dramatiq.actor()
 def send_weekly_registered_users():
     pass
