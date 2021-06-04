@@ -339,7 +339,6 @@ class QuestionController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
         try:
-            question = None
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -771,18 +770,18 @@ class QuestionController(Controller):
 
         if 'allow_comments' in data:
             try:
-                question.allow_comments = bool(data['allow_comments'])
+                proposal.allow_comments = bool(data['allow_comments'])
             except Exception as e:
-                question.allow_comments = False
+                proposal.allow_comments = False
                 print(e.__str__())
                 pass
 
         if g.current_user_is_admin:
             if 'allow_voting' in data:
                 try:
-                    question.allow_voting = bool(data['allow_voting'])
+                    proposal.allow_voting = bool(data['allow_voting'])
                 except Exception as e:
-                    question.allow_voting = False
+                    proposal.allow_voting = False
                     print(e.__str__())
                     pass
 
