@@ -77,6 +77,12 @@ class UserController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.filter((User.is_deactivated == False))
+        return query
+
+
     def get(self, args):
         try:
             g.endorsed_topic_id = args.get('endorsed_topic_id')

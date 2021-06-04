@@ -5,12 +5,12 @@
 from datetime import datetime
 
 # third-party modules
-from flask import request
 from flask_restx import marshal
 
 # own modules
 from app.constants import messages
 from common.db import db
+from common.models import User
 from app.modules.user.education.education_dto import EducationDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
@@ -76,6 +76,10 @@ class EducationController(Controller):
 
         try:
             query = UserEducation.query
+
+            query = query.join(User, isouter=True)\
+                .filter((UserEducation.user == None) | (User.is_deactivated == False))
+
             if user_id is not None:
                 query = query.filter(UserEducation.user_id == user_id)
             if school is not None:
@@ -86,7 +90,7 @@ class EducationController(Controller):
                 query = query.filter(UserEducation.secondary_major == secondary_major)
                 
             educations = query.all()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(educations, EducationDto.model_response))
+            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(educations, EducationDto.model_response))
 
         except Exception as e:
             db.session.rollback()
