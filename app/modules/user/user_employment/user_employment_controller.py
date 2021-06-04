@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.models.user import User
 from datetime import datetime
 
 # third-party modules
@@ -11,7 +12,6 @@ from flask_restx import marshal
 # own modules
 from app.constants import messages
 from common.db import db
-from flask import g
 from app.modules.user.user_employment.user_employment_dto import EmploymentDto
 from common.controllers.controller import Controller
 from common.utils.response import send_error, send_result
@@ -72,6 +72,9 @@ class EmploymentController(Controller):
                 pass
         try:
             query = db.session.query(UserEmployment)
+
+            query = query.join(User, isouter=True)\
+                .filter((UserEmployment.user == None) | (User.is_deactivated == False))
 
             if user_id is not None:
                 query = query.filter(UserEmployment.user_id == user_id)

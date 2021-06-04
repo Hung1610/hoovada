@@ -37,6 +37,14 @@ class UserFriendController(Controller):
     special_filtering_fields = ['from_date', 'to_date', 'user_id', 'display_name', 'is_mutual']
     allowed_ordering_fields = ['created_date', 'updated_date']
 
+
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.join(User, isouter=True)
+        query = query.filter((User.is_deactivated == False))
+        return query
+
+
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
         if params.get('from_date'):

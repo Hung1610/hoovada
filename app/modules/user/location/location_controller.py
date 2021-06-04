@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
+from common.models.user import User
 from datetime import datetime
 
 # third-party modules
-from flask import request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -68,6 +69,15 @@ class LocationController(Controller):
 
         try:
             query = UserLocation.query
+
+            query = query.join(User, isouter=True)\
+                .filter((UserLocation.user == None) | (User.is_deactivated == False))
+                
+            if g.current_user:
+                query = query.filter((User.is_private == False) | (User.id == g.current_user.id))
+            else:
+                query = query.filter((User.is_private == False))
+
             if user_id is not None:
                 query = query.filter(UserLocation.user_id == user_id)
             

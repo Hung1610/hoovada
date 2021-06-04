@@ -5,7 +5,6 @@
 from datetime import datetime
 
 # third-party modules
-from flask import request
 from flask_restx import marshal
 
 # own modules
@@ -72,6 +71,10 @@ class TopicController(Controller):
                 pass
         try:
             query = UserTopic.query
+
+            query = query.join(User, isouter=True)\
+                .filter((UserTopic.user == None) | (User.is_deactivated == False))
+
             if user_id is not None:
                 query = query.filter(UserTopic.user_id == user_id)
             if fixed_topic_id is not None:

@@ -5,10 +5,11 @@
 from datetime import datetime
 
 # third-party modules
-from flask import request
+from flask import g
 from flask_restx import marshal
 
 # own modules
+from common.models import User
 from common.db import db
 from app.modules.user.language.language_dto import LanguageDto
 from common.controllers.controller import Controller
@@ -59,6 +60,15 @@ class LanguageController(Controller):
                 
         try:
             query = UserLanguage.query
+
+            query = query.join(User, isouter=True)\
+                .filter((UserLanguage.user == None) | (User.is_deactivated == False))
+                
+            if g.current_user:
+                query = query.filter((User.is_private == False) | (User.id == g.current_user.id))
+            else:
+                query = query.filter((User.is_private == False))
+
             if user_id is not None:
                 query = query.filter(UserLanguage.user_id == user_id)
 
