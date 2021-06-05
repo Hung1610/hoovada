@@ -143,7 +143,7 @@ class TopicController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
-        if params.get('topic_ids') and len(params.get('topic_ids')) > 0:
+        if params.get('topic_ids') and params.get('topic_ids') != '': 
             query = query.filter(Topic.id.in_(params.get('topic_ids')))
 
         if params.get('hot'):
@@ -154,9 +154,9 @@ class TopicController(Controller):
     def get(self, args):
         try:
             query = self.get_query_results(args)
+            res, code = paginated_result(query)
 
             """
-            res, code = paginated_result(query)
             topics = res.get('data')
             results = []
             for topic in topics:
@@ -164,9 +164,8 @@ class TopicController(Controller):
                 result['parent'] = topic.parent
                 result['children'] = topic.children
                 results.append(result)
-            
-            res['data'] = marshal(results, TopicDto.model_topic_response)
             """
+            res['data'] = marshal(results, TopicDto.model_topic_response)
             return paginated_result(query=query)
         except Exception as e:
             print(e.__str__())
@@ -176,7 +175,7 @@ class TopicController(Controller):
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
-            return send_result({'count': count}, message=messages.MSG_GET_SUCCESS)
+            return send_result({'count': count})
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -219,7 +218,7 @@ class TopicController(Controller):
             result = topic._asdict()
             sub_topics = Topic.query.filter_by(parent_id=id).all()
             result['sub_topics'] = sub_topics
-            return send_result(data=marshal(result, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(result, TopicDto.model_topic_response))
         else:
             return send_error(message=messages.ERR_NOT_FOUND)
 
@@ -255,7 +254,7 @@ class TopicController(Controller):
             bookmark = TopicBookmark.query.filter(TopicBookmark.user_id == current_user.id, TopicBookmark.topic_id == topic.id).first()
             result['is_bookmarked_by_me'] = True if bookmark else False
 
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, TopicDto.model_topic_response))
+            return send_result(data=marshal(result, TopicDto.model_topic_response))
 
         except Exception as e:
             db.session.rollback()
@@ -281,7 +280,7 @@ class TopicController(Controller):
             topic_dsl = ESTopic(_id=topic.id)
             topic_dsl.delete()
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -329,7 +328,7 @@ class TopicController(Controller):
                 endorse.topic_id = topic.id
                 db.session.add(endorse)
                 db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(endorse.endorsed, TopicDto.model_user))
+            return send_result(data=marshal(endorse.endorsed, TopicDto.model_user))
         
         except Exception as e:
             db.session.rollback()
@@ -361,12 +360,13 @@ class TopicController(Controller):
                     TopicUserEndorse.endorsed_id == user.id,\
                     TopicUserEndorse.topic_id == topic.id).\
                 first()
+
             if not endorse:
-                return send_error(message="Topic with ID {} not found".format(object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             db.session.delete(endorse)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -425,6 +425,7 @@ class TopicController(Controller):
             current_user = g.current_user 
             query = topic.bookmarked_users.paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
+            
             results = []
             for user in res.get('data'):
                 result = user._asdict()
