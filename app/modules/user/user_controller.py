@@ -173,53 +173,17 @@ class UserController(Controller):
         if 'profile_views' in data:
             return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
-        if 'gender' in data:
-            try:
-                data['gender'] = str(data['gender'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if 'about_me' in data:
-            try:
-                data['about_me'] = data['about_me'].strip()
-            except Exception as e:
-                print(e.__str__())
-                pass
-
         if 'display_name' in data:
-            try:
-                data['display_name'] = data['display_name'].strip()
-                if data['display_name'] == '':
-                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))                
-            except Exception as e:
-                print(e.__str__())
-                pass
+            if data['display_name'] == '':
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))                
 
         if 'first_name' in data:
-            try:
-                data['first_name'] = data['first_name'].strip()
-                if data['first_name'] == '':
-                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('first_name'))                
-            except Exception as e:
-                print(e.__str__())
-                pass
+            if data['first_name'] == '':
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('first_name'))                
 
         if 'last_name' in data:
-            try:
-                data['last_name'] = data['last_name'].strip()
-                if data['last_name'] == '':
-                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('last_name'))                
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if 'is_first_log_in' in data:
-            try:
-                data['is_first_log_in'] = bool(data['is_first_log_in'])          
-            except Exception as e:
-                print(e.__str__())
-                pass
+            if data['last_name'] == '':
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('last_name'))                
 
         try:
             user = User.query.filter_by(display_name=user_name).first()
@@ -401,7 +365,49 @@ class UserController(Controller):
     def _parse_user(self, data, user=None):
         if user is None:
             user = User()
-        user._from_dict(data)
+
+       if 'gender' in data:
+            try:
+                user.gender = str(data['gender'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'about_me' in data:
+            try:
+                user.about_me = data['about_me'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'display_name' in data:
+            try:
+                user.display_name = data['display_name'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'first_name' in data:
+            try:
+                user.first_name = data['first_name'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'last_name' in data:
+            try:
+                user.last_name = data['last_name'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'is_first_log_in' in data:
+            try:
+                user.is_first_log_in = bool(data['is_first_log_in'])          
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         return user
 
 

@@ -155,7 +155,8 @@ class TopicController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
-            current_user = g.current_user
+
+            """
             topics = res.get('data')
             results = []
             for topic in topics:
@@ -165,7 +166,8 @@ class TopicController(Controller):
                 results.append(result)
             
             res['data'] = marshal(results, TopicDto.model_topic_response)
-            return res, code
+            """
+            return paginated_result(query=query, message=messages.MSG_GET_SUCCESS)
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -174,7 +176,7 @@ class TopicController(Controller):
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
-            return send_result({'count': count}, message='Success')
+            return send_result({'count': count}, message=messages.MSG_GET_SUCCESS)
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
