@@ -38,12 +38,6 @@ class QuestionDto(Dto):
         'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
     
-    model_answer_request = api.model('answer_question_request', {
-        'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
-        'answer': fields.String(description='The content of the answer'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
-        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
-    })
 
     model_question_request = api.model('question_request', {
         'title': fields.String(description='The title of the question'),

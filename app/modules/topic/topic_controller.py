@@ -143,7 +143,7 @@ class TopicController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
-        if 'topic_ids' in params and params.get('topic_ids') is not None: 
+        if params.get('topic_ids'): 
             query = query.filter(Topic.id.in_(params.get('topic_ids')))
 
         if params.get('hot'):

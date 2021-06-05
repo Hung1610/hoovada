@@ -122,19 +122,24 @@ class QuestionController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
-            current_user = g.current_user
+
+            '''
             results = []
             for question in res.get('data'):
                 result = question._asdict()
                 # get user info
+
                 result['user'] = question.user
                 result['fixed_topic'] = question.fixed_topic
                 result['topics'] = question.topics
                 results.append(result)
             
             res['data'] = marshal(results, QuestionDto.model_question_response)
-
-            return res, code
+            '''
+            for question in res.get('data'):
+                if question.is_anonymous is True:
+                    question.user = None
+            return res
 
         except Exception as e:
             print(e.__str__())
@@ -213,7 +218,7 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
 
-            return send_result(data=marshal(result, QuestionDto.model_question_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -232,7 +237,7 @@ class QuestionController(Controller):
             else:
                 return send_error(message=messages.ERR_NOT_FOUND)
             db.session.commit()
-            return send_result(data=marshal(result, QuestionDto.model_question_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -399,7 +404,7 @@ class QuestionController(Controller):
             proposal.slug = slugify(proposal.title)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
