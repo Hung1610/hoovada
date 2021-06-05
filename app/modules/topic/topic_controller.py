@@ -156,16 +156,17 @@ class TopicController(Controller):
             query = self.get_query_results(args)
             res, code = paginated_result(query)
 
-            """
+            
             topics = res.get('data')
+            '''
             results = []
             for topic in topics:
                 result = topic._asdict()
                 result['parent'] = topic.parent
                 result['children'] = topic.children
                 results.append(result)
-            """
-            res['data'] = marshal(results, TopicDto.model_topic_response)
+            '''
+            res['data'] = marshal(topics, TopicDto.model_topic_response)
             return res
         except Exception as e:
             print(e.__str__())
