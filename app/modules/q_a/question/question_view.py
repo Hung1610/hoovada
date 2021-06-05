@@ -30,6 +30,9 @@ model_request = QuestionDto.model_question_request
 model_response = QuestionDto.model_question_response
 proposal_get_parser = QuestionDto.proposal_get_parser
 
+# response model
+MODEL_QUESTION_CREATE_UPDATE_RESPONSE = QuestionDto.model_question_create_update_response
+
 
 @api.route('')
 class QuestionList(Resource):
@@ -45,7 +48,7 @@ class QuestionList(Resource):
 
     @token_required
     @api.expect(model_request)
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_CREATE_UPDATE_RESPONSE, description='Model for question response.')
     def post(self):
         """ Create new question"""
 
@@ -82,7 +85,7 @@ class Question(Resource):
 
     @token_required
     @api.expect(model_request)
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_CREATE_UPDATE_RESPONSE, description='Model for question response.')
     def patch(self, id_or_slug):
         """ Update question by question Id or slug"""
 
@@ -186,7 +189,6 @@ class QuestionApprove(Resource):
 @api.route('/update_slug')
 class UpdateSlug(Resource):
     @admin_token_required()
-    @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
         """ Update Slug using question Id or slug"""
 

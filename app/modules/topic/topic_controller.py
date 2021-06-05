@@ -154,9 +154,9 @@ class TopicController(Controller):
     def get(self, args):
         try:
             query = self.get_query_results(args)
-            res, code = paginated_result(query)
 
             """
+            res, code = paginated_result(query)
             topics = res.get('data')
             results = []
             for topic in topics:
@@ -167,7 +167,7 @@ class TopicController(Controller):
             
             res['data'] = marshal(results, TopicDto.model_topic_response)
             """
-            return paginated_result(query=query, message=messages.MSG_GET_SUCCESS)
+            return paginated_result(query=query)
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -195,7 +195,7 @@ class TopicController(Controller):
             if topic is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
-            return send_result(data=marshal(topic, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(topic, TopicDto.model_topic_response))
 
         except Exception as e:
             print(e.__str__())
