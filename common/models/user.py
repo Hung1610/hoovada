@@ -16,6 +16,7 @@ from common.db import db
 from common.enum import FrequencySettingEnum
 from common.models.model import Model
 from common.utils.types import UserRole
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -78,6 +79,7 @@ class User(Model):
     admin = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     verified_document = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
     show_fullname_instead_of_display_name = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
+    joined_collaboration = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
 
     # these fields are deprecated, set false by default
     new_answer_notify_settings = db.Column(db.Boolean, server_default=expression.false(), nullable=False)
@@ -469,7 +471,7 @@ class UserPermission(Model):
     allow = db.Column(db.Boolean, server_default=expression.false())
 
 
-class UserTopic(Model):
+class UserTopic(Model, OrganizationRole):
     __tablename__ = 'user_topic'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -483,7 +485,7 @@ class UserTopic(Model):
     is_visible = db.Column(db.Boolean, server_default=expression.false())
 
 
-class UserSeenQuestion(Model):
+class UserSeenQuestion(Model, OrganizationRole):
     """Define the questions that the user has seen."""
     __tablename__ = 'user_seen_question'
 
@@ -495,7 +497,7 @@ class UserSeenQuestion(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class UserSeenPost(Model):
+class UserSeenPost(Model, OrganizationRole):
     """
     Define the posts that the user has seen.
     """
@@ -509,7 +511,7 @@ class UserSeenPost(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class UserSeenArticle(Model):
+class UserSeenArticle(Model, OrganizationRole):
     """
     Define the articles that the user has seen.
     """
@@ -523,7 +525,7 @@ class UserSeenArticle(Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class UserSeenPoll(Model):
+class UserSeenPoll(Model, OrganizationRole):
     """
     Define the poll that the user has seen.
     """

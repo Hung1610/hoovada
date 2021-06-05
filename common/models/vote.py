@@ -11,17 +11,19 @@ from sqlalchemy.ext.declarative import declared_attr
 from common.db import db
 from common.enum import VotingStatusEnum
 from common.models.model import Model
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-class BaseVote(object):
+class BaseVote(OrganizationRole):
     id = db.Column(db.Integer, primary_key=True)
     vote_status = db.Column(db.Enum(VotingStatusEnum, validate_strings=True), nullable=False, server_default="NEUTRAL")
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
+
     
     @declared_attr
     def user_id(cls):

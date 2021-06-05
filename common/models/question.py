@@ -12,10 +12,11 @@ from sqlalchemy.ext.declarative import declared_attr
 from flask import g
 
 # own modules
-from common.enum import VotingStatusEnum
+from common.enum import VotingStatusEnum, EntityTypeEnum
 from common.db import db
 from common.models.model import Model
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -46,7 +47,7 @@ question_topics = db.Table('question_topic',
 
 
 # pylint: disable=R0201
-class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class BaseQuestion(SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin, OrganizationRole):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255))
     slug = db.Column(db.String(255), index=True)

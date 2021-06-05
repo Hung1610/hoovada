@@ -6,8 +6,9 @@ from datetime import datetime
 
 # own modules
 from common.db import db
-from common.enum import TimelineActivityEnum
+from common.enum import TimelineActivityEnum, EntityTypeEnum
 from common.models.model import Model
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -15,7 +16,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Timeline(Model):
+class Timeline(OrganizationRole):
     __tablename__ = 'timeline'
 
     id = db.Column(db.Integer, primary_key=True)

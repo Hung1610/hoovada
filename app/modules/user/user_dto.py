@@ -39,6 +39,7 @@ class UserDto(Dto):
         'about_me': fields.String(required=False, default=''),
 
         'is_private': fields.Boolean(default=False, description='The user is private or not'),
+        'joined_collaboration': fields.Boolean(default=False, description='The user joined collaboration program or not'),
         'is_deactivated': fields.Boolean(default=False, description='The user is deactivated or not'),
         'show_nsfw': fields.Boolean(default=True, description='The user wants nsfw topics shown or not'),
         'show_fullname_instead_of_display_name': fields.Boolean(required=False, default=True),
@@ -100,6 +101,7 @@ class UserDto(Dto):
         'about_me': fields.String(required=False),
         'about_me_markdown': fields.String(required=False),
         'about_me_html': fields.String(required=False),
+        'joined_collaboration': fields.Boolean(default=False, description='The user joined collaboration program or not'),
 
         'show_email_publicly_setting': fields.Boolean(required=False),
         'hoovada_digests_setting': fields.Boolean(required=False),
