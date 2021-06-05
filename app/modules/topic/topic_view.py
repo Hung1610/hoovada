@@ -60,6 +60,7 @@ class TopicList(Resource):
         controller = TopicController()
         return controller.create(data=data)
 
+
 @api.deprecated
 @api.route('/all/count')
 @api.expect(parser)

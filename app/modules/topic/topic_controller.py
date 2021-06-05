@@ -112,7 +112,7 @@ class TopicController(Controller):
         # check topic already exists
         topic = Topic.query.filter(Topic.name == data['name']).first()
         if topic is not None:
-            return send_error(message='The topic with name {} already exist'.format(data['name']))
+            return send_error(message=messages.ERR_ALREADY_EXISTS)
         
         current_user = g.current_user
         data['user_id'] = current_user.id
@@ -129,7 +129,7 @@ class TopicController(Controller):
             controller = TopicBookmarkController()
             controller.create(topic_id=topic.id)
             
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_topic_response))
+            return send_result(data=marshal(topic, TopicDto.model_topic_response))
 
         except Exception as e:
             db.session.rollback()
@@ -143,7 +143,7 @@ class TopicController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
-        if params.get('topic_ids') and params.get('topic_ids') != '': 
+        if 'topic_ids' in params and params.get('topic_ids') is not None: 
             query = query.filter(Topic.id.in_(params.get('topic_ids')))
 
         if params.get('hot'):
@@ -155,8 +155,6 @@ class TopicController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
-
-            
             topics = res.get('data')
             '''
             results = []
@@ -473,7 +471,7 @@ class TopicController(Controller):
 
             topic.file_url = url
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_topic_response))
+            return send_result(data=marshal(topic, TopicDto.model_topic_response))
         
         except Exception as e:
             db.session.rollback()
@@ -515,7 +513,7 @@ class TopicController(Controller):
                 .limit(limit).all()
             results = [{'user': user._asdict(), 'total_score': total_score} for user, total_score in top_users_reputation]
 
-            return send_result(data=marshal(results, TopicDto.model_recommended_users_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(results, TopicDto.model_recommended_users_response))
 
         except Exception as e:
             print(e.__str__())
@@ -540,7 +538,7 @@ class TopicController(Controller):
                 topic = db.session.query(Topic).filter_by(id=h.meta.id).first()
                 if topic is not None and topic.is_fixed == 0:
                     topics.append(topic)
-            return send_result(data=marshal(topics, TopicDto.model_topic_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(topics, TopicDto.model_topic_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -620,7 +618,7 @@ class TopicController(Controller):
             for topic in topics:
                 topic.slug = '{}'.format(slugify(topic.name))
                 db.session.commit()
-            return send_result(marshal(topics, TopicDto.model_topic_response), message='Success')
+            return send_result(marshal(topics, TopicDto.model_topic_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
