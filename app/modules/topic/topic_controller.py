@@ -143,7 +143,7 @@ class TopicController(Controller):
 
     def apply_filtering(self, query, params):
         query = super().apply_filtering(query, params)
-        if params.get('topic_ids'):
+        if params.get('topic_ids') and len(params.get('topic_ids')) > 0:
             query = query.filter(Topic.id.in_(params.get('topic_ids')))
 
         if params.get('hot'):
