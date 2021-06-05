@@ -47,6 +47,10 @@ from common.models.career import Career
 # These tables/models will be ignored by Alembic/Flask-Migrate
 from common.models.ignored import ApschedulerJobs
 
+from common.models.organization import Organization, OrganizationStatusEnum, OrganizationUser, OrganizationUserStatusEnum
+from common.enum import OrganizationUserStatusEnum
+
+
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"

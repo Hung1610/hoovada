@@ -17,6 +17,8 @@ from common.enum import VotingStatusEnum
 from common.db import db
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.models.model import Model
+from common.enum import EntityTypeEnum
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -29,7 +31,7 @@ article_topics = db.Table('topic_article',
     extend_existing=True
 )
 
-class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin, OrganizationRole):
     __tablename__ = 'article'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -74,6 +76,7 @@ class Article(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonym
     article_favorites = db.relationship("ArticleFavorite", cascade='all,delete-orphan')
     article_comments = db.relationship("ArticleComment", cascade='all,delete-orphan', primaryjoin="and_(Article.id == remote(ArticleComment.article_id), remote(ArticleComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     article_shares = db.relationship("ArticleShare", cascade='all,delete-orphan')
+    published_date = db.Column(db.DateTime)
 
     @property
     def is_bookmarked_by_me(self):
