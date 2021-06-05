@@ -166,7 +166,7 @@ class TopicController(Controller):
                 results.append(result)
             """
             res['data'] = marshal(results, TopicDto.model_topic_response)
-            return paginated_result(query=query)
+            return res
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -425,7 +425,7 @@ class TopicController(Controller):
             current_user = g.current_user 
             query = topic.bookmarked_users.paginate(page, per_page, error_out=False)
             res, code = paginated_result(query)
-            
+
             results = []
             for user in res.get('data'):
                 result = user._asdict()
