@@ -4,13 +4,11 @@
 # built-in modules
 from common.models.follow import UserFollow
 from app.modules.search.search_controller import ESUserFriend
-from datetime import datetime
 
 # third-party modules
 import dateutil.parser
 from flask import g
 from flask_restx import marshal
-from sqlalchemy import and_
 
 # own modules
 from common.utils.util import send_friend_request_notif_email
@@ -40,8 +38,9 @@ class UserFriendController(Controller):
 
     def get_query(self):
         query = self.get_model_class().query
-        query = query.join(User, isouter=True)
-        query = query.filter((User.is_deactivated == False))
+        query = query.filter((UserFriend.friend.has(User.is_deactivated == False)) &\
+            (UserFriend.friended.has(User.is_deactivated == False))
+        )
         return query
 
 
