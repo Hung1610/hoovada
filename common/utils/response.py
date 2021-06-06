@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# third-party modules
-from flask_restx import marshal
-
-# own modules
-from common.dto import Dto
-
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
@@ -14,7 +8,7 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 def send_result(data=None, message='OK', code=200, status=True):
-    """ Send result if no error"""
+
     res = {
         'status': status,
         'code': code,
@@ -25,7 +19,6 @@ def send_result(data=None, message='OK', code=200, status=True):
 
 
 def send_error(data=None, message='Failed', code=400, status=False):
-    """ Send result if error"""
 
     res = {
         'status': status,
@@ -34,6 +27,7 @@ def send_error(data=None, message='Failed', code=400, status=False):
         'data': data,
     }
     return res, code
+
 
 def paginated_result(query=None, message='OK', code=200, status=True):
     res = {
@@ -47,8 +41,8 @@ def paginated_result(query=None, message='OK', code=200, status=True):
     }
     return res, code
 
+
 def send_paginated_result(data=None, page=None, total=None, message='OK', code=200, status=True):
-    """ Send result if no error"""
 
     res = {
         'status': status,

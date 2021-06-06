@@ -38,12 +38,6 @@ class QuestionDto(Dto):
         'verified_document': fields.Boolean(default=False, description='The user document is verified or not'),
     })
     
-    model_answer_request = api.model('answer_question_request', {
-        'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
-        'answer': fields.String(description='The content of the answer'),
-        'allow_comments': fields.Boolean(default=True, description='The answer allows commenting or not'),
-        'allow_improvement': fields.Boolean(default=True, description='The answer allows improvement suggestion or not'),
-    })
 
     model_question_request = api.model('question_request', {
         'title': fields.String(description='The title of the question'),
@@ -59,7 +53,7 @@ class QuestionDto(Dto):
     })
 
     model_question_response = api.model('question_response', {
-        'id': fields.Integer(readonly=True, description=''),
+        'id': fields.Integer(readonly=True, description='The id of the question'),
         'title': fields.String(description='The title of the question'),
         'slug': fields.String(description='The slug of the question'),
         'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
@@ -125,6 +119,11 @@ class QuestionDto(Dto):
         'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
         'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),
         'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
+    })
+
+    model_question_create_update_response = api.model('question_create_update_response', {
+        'id': fields.Integer(readonly=True, description='The id of the question'),
+        'slug': fields.String(description='The slug of the question'),
     })
 
 

@@ -21,23 +21,27 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionDto.api
+
+# request model
 get_parser = QuestionDto.get_parser
 get_similar_questions_parser = QuestionDto.get_similar_questions_parser
 question_invite_request = QuestionDto.question_invite_request
-model_answer_request = QuestionDto.model_answer_request
-model_question_proposal_response = QuestionDto.model_question_proposal_response
 model_request = QuestionDto.model_question_request
-model_response = QuestionDto.model_question_response
 proposal_get_parser = QuestionDto.proposal_get_parser
+
+# response model
+MODEL_QUESTION_PROPOSAL_RESPONSE = QuestionDto.model_question_proposal_response
+MODEL_QUESTION_RESPONSE = QuestionDto.model_question_response
+MODEL_QUESTION_CREATE_UPDATE_RESPONSE = QuestionDto.model_question_create_update_response
 
 
 @api.route('')
 class QuestionList(Resource):
 
     @api.expect(get_parser)
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_RESPONSE, description='Model for question response.')
     def get(self):
-        """Get list of questions from params"""
+        """Get list of questions based on params"""
 
         args = get_parser.parse_args()
         controller = QuestionController()
@@ -45,7 +49,7 @@ class QuestionList(Resource):
 
     @token_required
     @api.expect(model_request)
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_CREATE_UPDATE_RESPONSE, description='Model for question response.')
     def post(self):
         """ Create new question"""
 
@@ -56,7 +60,7 @@ class QuestionList(Resource):
 @api.route('/similar')
 class QuestionSimilar(Resource):
     @api.expect(get_similar_questions_parser)
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_RESPONSE, description='Model for question response.')
     def get(self):
         """ Get similar questions."""
 
@@ -71,7 +75,7 @@ def get_question_key_prefix():
     
 @api.route('/<string:id_or_slug>')
 class Question(Resource):
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_RESPONSE, description='Model for question response.')
     @cache.cached(key_prefix=get_question_key_prefix)
     def get(self, id_or_slug):
         """ Get question by question Id or slug"""
@@ -82,7 +86,7 @@ class Question(Resource):
 
     @token_required
     @api.expect(model_request)
-    @api.response(code=200, model=model_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_CREATE_UPDATE_RESPONSE, description='Model for question response.')
     def patch(self, id_or_slug):
         """ Update question by question Id or slug"""
 
@@ -139,7 +143,7 @@ def get_question_proposal_key_prefix():
 @api.route('/<string:id_or_slug>/proposal')
 class QuestionProposal(Resource):
     @api.expect(proposal_get_parser)
-    @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
+    @api.response(code=200, model=MODEL_QUESTION_PROPOSAL_RESPONSE, description='Model for question response.')
     @cache.cached(key_prefix=get_question_proposal_key_prefix)
     def get(self, id_or_slug):
         """ Get list of questions proposal by question Id or slug"""
@@ -174,7 +178,6 @@ class QuestionDeleteProposal(Resource):
 @api.route('/all/proposal/<int:id>/approve')
 class QuestionApprove(Resource):
     @admin_token_required()
-    @api.response(code=200, model=model_question_proposal_response, description='Model for question response.')
     def patch(self, id):
         """Approve question change proposal"""
 
@@ -186,7 +189,6 @@ class QuestionApprove(Resource):
 @api.route('/update_slug')
 class UpdateSlug(Resource):
     @admin_token_required()
-    @api.response(code=200, model=model_response, description='Model for question response.')
     def post(self):
         """ Update Slug using question Id or slug"""
 

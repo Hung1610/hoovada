@@ -174,7 +174,7 @@ class UserFriendController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def disapprove(self, object_id):
@@ -200,7 +200,7 @@ class UserFriendController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
       
     def delete(self, object_id):

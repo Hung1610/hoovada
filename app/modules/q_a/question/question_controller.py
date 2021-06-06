@@ -110,8 +110,7 @@ class QuestionController(Controller):
             result['is_bookmarked_by_me'] = True
             result['is_upvoted_by_me'] = False
             result['is_downvoted_by_me'] = False
-            
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
+            return send_result(data=marshal(result, QuestionDto.model_question_create_update_response))
         
         except Exception as e:
             db.session.rollback()
@@ -123,7 +122,7 @@ class QuestionController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
-            current_user = g.current_user
+            """
             results = []
             for question in res.get('data'):
                 result = question._asdict()
@@ -134,7 +133,7 @@ class QuestionController(Controller):
                 results.append(result)
             
             res['data'] = marshal(results, QuestionDto.model_question_response)
-
+            """
             return res, code
 
         except Exception as e:
@@ -172,9 +171,7 @@ class QuestionController(Controller):
             if current_user:
                 update_seen_questions.send(question.id, current_user.id)
 
-            return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
-
-
+            return send_result(data=marshal(result, QuestionDto.model_question_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -216,7 +213,7 @@ class QuestionController(Controller):
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
 
-            return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -235,7 +232,7 @@ class QuestionController(Controller):
             else:
                 return send_error(message=messages.ERR_NOT_FOUND)
             db.session.commit()
-            return send_result(data=marshal(result, QuestionDto.model_question_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -285,7 +282,7 @@ class QuestionController(Controller):
                 result['topics'] = question.topics
                 result['fixed_topic'] = question.fixed_topic                
                 results.append(result)
-            return send_result(data=marshal(results, QuestionDto.model_question_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(results, QuestionDto.model_question_response))
         
         except Exception as e:
             print(e.__str__())
@@ -326,7 +323,7 @@ class QuestionController(Controller):
 
             proposals = query.all()
             
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(proposals, QuestionDto.model_question_proposal_response))
+            return send_result(data=marshal(proposals, QuestionDto.model_question_proposal_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -359,7 +356,7 @@ class QuestionController(Controller):
             db.session.add(proposal)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -402,7 +399,7 @@ class QuestionController(Controller):
             proposal.slug = slugify(proposal.title)
             db.session.add(proposal)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(proposal, QuestionDto.model_question_proposal_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -435,7 +432,7 @@ class QuestionController(Controller):
 
             proposal.is_approved = True
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(question, QuestionDto.model_question_response))
+            return send_result(data=marshal(question, QuestionDto.model_question_response))
         
         except Exception as e:
             db.session.rollback()
@@ -488,7 +485,7 @@ class QuestionController(Controller):
             result['user'] = question.user
             result['topics'] = question.topics
             result['fixed_topic'] = question.fixed_topic
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, QuestionDto.model_question_response))
+            return send_result(data=marshal(result, QuestionDto.model_question_create_update_response))
         
         except Exception as e:
             db.session.rollback()
@@ -524,7 +521,7 @@ class QuestionController(Controller):
                 db.session.commit()
                 cache.clear_cache(Question.__class__.__name__)
 
-                return send_result(message=messages.MSG_DELETE_SUCCESS)
+                return send_result()
         
         except Exception as e:
             db.session.rollback()

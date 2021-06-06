@@ -69,7 +69,7 @@ class UserController(Controller):
             user_dsl.save()
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(user, UserDto.model_response))
+            return send_result(data=marshal(user, UserDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -99,7 +99,7 @@ class UserController(Controller):
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
-            return send_result({'count': count}, message='Success')
+            return send_result({'count': count})
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -127,7 +127,7 @@ class UserController(Controller):
                 user.profile_views += 1
                 db.session.commit()
 
-            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(user, UserDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -148,7 +148,7 @@ class UserController(Controller):
             if args.get('provider'):
                 social_accounts_query.filter(SocialAccount.provider == args.get('provider'))
             
-            return send_result(data=marshal(social_accounts_query, UserDto.model_social_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(social_accounts_query, UserDto.model_social_response))
 
         except Exception as e:
             print(e.__str__())
@@ -173,53 +173,17 @@ class UserController(Controller):
         if 'profile_views' in data:
             return send_error(message=messages.ERR_NOT_AUTHORIZED)
 
-        if 'gender' in data:
-            try:
-                data['gender'] = str(data['gender'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if 'about_me' in data:
-            try:
-                data['about_me'] = data['about_me'].strip()
-            except Exception as e:
-                print(e.__str__())
-                pass
-
         if 'display_name' in data:
-            try:
-                data['display_name'] = data['display_name'].strip()
-                if data['display_name'] == '':
-                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))                
-            except Exception as e:
-                print(e.__str__())
-                pass
+            if data['display_name'] == '':
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))                
 
         if 'first_name' in data:
-            try:
-                data['first_name'] = data['first_name'].strip()
-                if data['first_name'] == '':
-                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('first_name'))                
-            except Exception as e:
-                print(e.__str__())
-                pass
+            if data['first_name'] == '':
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('first_name'))                
 
         if 'last_name' in data:
-            try:
-                data['last_name'] = data['last_name'].strip()
-                if data['last_name'] == '':
-                    return send_error(message=messages.ERR_PLEASE_PROVIDE.format('last_name'))                
-            except Exception as e:
-                print(e.__str__())
-                pass
-
-        if 'is_first_log_in' in data:
-            try:
-                data['is_first_log_in'] = bool(data['is_first_log_in'])          
-            except Exception as e:
-                print(e.__str__())
-                pass
+            if data['last_name'] == '':
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('last_name'))                
 
         try:
             user = User.query.filter_by(display_name=user_name).first()
@@ -254,7 +218,7 @@ class UserController(Controller):
                 pass
 
             db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(user, UserDto.model_response))
+            return send_result(data=marshal(user, UserDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -272,7 +236,7 @@ class UserController(Controller):
             user_dsl = ESUser(_id=user.id)
             user_dsl.delete()
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -289,32 +253,27 @@ class UserController(Controller):
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('avatar'))
 
         photo = args['avatar']
-        if photo:
-            filename = photo.filename
-            file_name, ext = get_file_name_extension(filename)
-            file_name = encode_file_name('user_' + str(user.id) + '_avatar') + ext
-            sub_folder = 'user' + '/' + encode_file_name(str(user.id))
-            try:
+        try:
+            if photo:
+                filename = photo.filename
+                file_name, ext = get_file_name_extension(filename)
+                file_name = encode_file_name('user_' + str(user.id) + '_avatar') + ext
+                sub_folder = 'user' + '/' + encode_file_name(str(user.id))
                 if user.profile_pic_url:
                     delete_file(file_path=user.profile_pic_url)
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
-
-            try:
                 user.profile_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_CREATE_SUCCESS)
-            except Exception as e:
-                db.session.rollback()
-                print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
+            else:
+                user.profile_pic_url = None
+                db.session.commit()
+            
+            return send_result(data=marshal(user, UserDto.model_response))
 
-        else:
-            user.profile_pic_url = None
-            db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_DELETE_SUCCESS)
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
 
 
     def upload_document(self, args):
@@ -327,34 +286,26 @@ class UserController(Controller):
    
         user = g.current_user
         photo = args['doc']
-        if photo:
-            filename = photo.filename
-            file_name, ext = get_file_name_extension(filename)
-            file_name = encode_file_name('user_' + str(user.id) + '_doc') + ext
-            sub_folder = 'user' + '/' + encode_file_name(str(user.id))
-            try:
+
+        try:
+            if photo:
+                filename = photo.filename
+                file_name, ext = get_file_name_extension(filename)
+                file_name = encode_file_name('user_' + str(user.id) + '_doc') + ext
+                sub_folder = 'user' + '/' + encode_file_name(str(user.id))
                 if user.document_pic_url:
                     delete_file(file_path=user.document_pic_url)
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
-
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
-
-            try:
                 user.document_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_CREATE_SUCCESS)
-            except Exception as e:
-                db.session.rollback()
-                print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
-        
-        else:
-            user.document_pic_url = None
-            db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_DELETE_SUCCESS)
+            else:
+                user.document_pic_url = None
+                db.session.commit()
+            return send_result(data=marshal(user, UserDto.model_response))
 
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
 
     def upload_cover(self, args):
 
@@ -366,31 +317,28 @@ class UserController(Controller):
 
         user = g.current_user
         photo = args['cover']
-        if photo:
-            filename = photo.filename
-            file_name, ext = get_file_name_extension(filename)
-            file_name = encode_file_name('user_' + str(user.id) + '_cover') + ext
-            sub_folder = 'user' + '/' + encode_file_name(str(user.id))
-            try:
+
+        try:
+            if photo:
+                filename = photo.filename
+                file_name, ext = get_file_name_extension(filename)
+                file_name = encode_file_name('user_' + str(user.id) + '_cover') + ext
+                sub_folder = 'user' + '/' + encode_file_name(str(user.id))
                 if user.cover_pic_url:
                     delete_file(file_path=user.cover_pic_url)
                 url = upload_file(file=photo, file_name=file_name, sub_folder=sub_folder)
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(str(e)))
-
-            try:
                 user.cover_pic_url = url
                 db.session.commit()
-                return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_CREATE_SUCCESS)
-            except Exception as e:
-                db.session.rollback()
-                print(e.__str__())
-                return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
-        else:
-            user.cover_pic_url = None
-            db.session.commit()
-            return send_result(data=marshal(user, UserDto.model_response), message=messages.MSG_DELETE_SUCCESS)
+            else:
+                user.cover_pic_url = None
+                db.session.commit()
+            
+            return send_result(data=marshal(user, UserDto.model_response))
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_FAILED_UPLOAD.format(e))
 
 
     def get_avatar(self):
@@ -401,7 +349,49 @@ class UserController(Controller):
     def _parse_user(self, data, user=None):
         if user is None:
             user = User()
-        user._from_dict(data)
+
+        if 'gender' in data:
+            try:
+                user.gender = str(data['gender'])
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'about_me' in data:
+            try:
+                user.about_me = data['about_me'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'display_name' in data:
+            try:
+                user.display_name = data['display_name'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'first_name' in data:
+            try:
+                user.first_name = data['first_name'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'last_name' in data:
+            try:
+                user.last_name = data['last_name'].strip()
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'is_first_log_in' in data:
+            try:
+                user.is_first_log_in = bool(data['is_first_log_in'])          
+            except Exception as e:
+                print(e.__str__())
+                pass
+
         return user
 
 
@@ -431,7 +421,7 @@ class UserController(Controller):
             users = query.offset(page * page_size).limit(page_size).all()
 
             if users is not None:
-                return send_result(data=marshal(users, UserDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(users, UserDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -458,7 +448,7 @@ class UserController(Controller):
                 push_notif_to_specific_users_produce(message="{} has mention you to {}'s comment".format(user_mention_info.display_name, 
                                                                                                 user_mention_info.display_name),
                                                                                                 user_ids=[user_mentioned_id])
-                return send_result(message=messages.MSG_UPDATE_SUCCESS)
+                return send_result()
 
         except Exception as e:
             print(e.__str__())
