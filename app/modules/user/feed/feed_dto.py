@@ -72,7 +72,6 @@ class UserFeedDto(Dto):
 	    'id': fields.Integer(readonly=True, description=''),
 	    'title': fields.String(description='The title of the question'),
 	    'slug': fields.String(description='The slug of the question'),
-	    'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
 	    'question': fields.String(description='The content of the question'),
 	    'created_date': fields.DateTime(description='The created date'),
 	    'updated_date': fields.DateTime(description='The updated date'),
@@ -88,7 +87,7 @@ class UserFeedDto(Dto):
 	    'is_private': fields.Boolean(default=False, description='The question is private or not'),
 	    'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
 	    'invited_users': fields.List(fields.Nested(model_user), description='The list of invited users'),
-	    'user': fields.Nested(model_user, description='The user information'),
+	    'user': fields.Nested(model_user, description='The user information', attribute='display_user'),
 	    'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),
 	    'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
 	    'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
@@ -108,14 +107,13 @@ class UserFeedDto(Dto):
 	    'downvote_count': fields.Integer(default=0, description='The amount of downvote'),
 	    'accepted': fields.Boolean(default=False, description='The answer was accepted or not'),
 	    'answer': fields.String(description='The content of the answer'),
-	    'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
 	    'question_id': fields.Integer(default=0, description='The ID of the question'),
 	    'comment_count': fields.Integer(default=0, description='The amount of comments on this answer'),
 	    'share_count': fields.Integer(default=0, description='The amount of shares on this answer'),
 	    'file_url': fields.String(description='The file url'),
 	    'file_type': fields.String(description='The file type', attribute='file_type.name'),
 	    'is_anonymous': fields.Boolean(default=False, description='The question is anonymous or not'),
-	    'user': fields.Nested(model_user, description='The user information'),        
+	    'user': fields.Nested(model_user, description='The user information', attribute='display_user'),        
 	    'question': fields.Nested(model_question, description='The question information'),
 	    'allow_comments': fields.Boolean(default=True, description='Allow comment or not'),
 	    'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
@@ -128,7 +126,7 @@ class UserFeedDto(Dto):
 
 	model_post = api.model('post', {
 	    'id': fields.Integer(readonly=True, description=''),
-	    'user': fields.Nested(model_user, description='The user information'),
+	    'user': fields.Nested(model_user, description='The user information', attribute='display_user'), 
 	    'html': fields.String(description='The content of the post'),
 	    'created_date': fields.DateTime(description='The created date'),
 	    'updated_date': fields.DateTime(description='The updated date'),
@@ -162,7 +160,7 @@ class UserFeedDto(Dto):
 	    'id': fields.Integer(required=False, readonly=True, description='The ID of the poll'),
 	    'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
 	    'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
-	    'user': fields.Nested(model_user, description='The detail of owner user'),
+	    'user': fields.Nested(model_user, description='The detail of owner user', attribute='display_user'), 
 	    'title': fields.String(default=None, description='The title of the poll'),
 		'slug': fields.String(default=None, description='The slug of the poll'),
 		'html': fields.String(description='The content of the poll'),
@@ -207,26 +205,6 @@ class UserFeedDto(Dto):
 
 	model_feed_all_data_response = api.model('feed_all_data_response', {
 		'data' : fields.Nested(model_feed_all_data_details_response, description='Feed all data', required=False)
-	})
-
-	model_article_feed_response = api.model('article_feed_response', {
-		'article_list': fields.List(fields.Integer(required=False), required=False),
-		'blog_name': fields.String(required=False),
-		'total': fields.Integer(required=False),
-	})
-
-	model_feed_details_response = api.model('feed_details_response', {
-		'feed_type': fields.String(required=False),
-		'article': fields.Nested(model_article_feed_response, required=False),
-		'question_id': fields.Integer(required=False),
-		'answer_id': fields.Integer(required=False),
-		'post_id': fields.Integer(required=False),
-		'poll_id': fields.Integer(required=False),
-		'ranked_score': fields.Float(required=False),
-	})
-
-	model_feed_response = api.model('get_feed_all_response', {
-		'data' : fields.Nested(model_feed_details_response, description='Feed', required=False)
 	})
 
 

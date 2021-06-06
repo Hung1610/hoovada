@@ -15,21 +15,6 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = UserFeedDto.api
 
-@api.deprecated
-@api.route('/feed')
-@api.expect(UserFeedDto.model_user_feed_request)
-@api.response(code=200, model=UserFeedDto.model_feed_response, description='Model for feed of user response (only feed IDs).')
-class UserGetFeed(Resource):
-    @token_required
-    def get(self):
-        """Get current user's feed with limited data"""
-
-        args = UserFeedDto.model_user_feed_request.parse_args()
-        args['get_data'] = False
-        controller = UserFeedController()
-        return controller.get(args)
-
-
 @api.route('/feed_all_data')
 @api.expect(UserFeedDto.model_user_feed_request)
 @api.response(code=200, model=UserFeedDto.model_feed_all_data_response, description='Model for feed of user response (all data).')
