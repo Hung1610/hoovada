@@ -119,7 +119,7 @@ class AnswerVoteController(Controller):
 
         vote = AnswerVote.query.filter_by(id=object_id).first()
         if vote is None:
-            return send_error(message=)
+            return send_error(message=messages.ERR_NOT_FOUND)
         else:
             return send_result(data=marshal(vote, AnswerVoteDto.model_response))
 

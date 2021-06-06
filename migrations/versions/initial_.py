@@ -1,8 +1,8 @@
-"""initial_
+"""update post table to add poll
 
-Revision ID: c730e325fc42
+Revision ID: f6c1cec97665
 Revises: 
-Create Date: 2021-06-05 10:33:18.115387
+Create Date: 2021-06-06 13:50:51.518883
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c730e325fc42'
+revision = 'f6c1cec97665'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -165,19 +165,6 @@ def upgrade():
     sa.UniqueConstraint('phone_number')
     )
     op.create_index(op.f('ix_user_display_name'), 'user', ['display_name'], unique=True)
-    op.create_table('user_employment',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('position', sa.String(length=255), nullable=True),
-    sa.Column('company', sa.String(length=255), nullable=True),
-    sa.Column('start_year', sa.Integer(), nullable=True),
-    sa.Column('end_year', sa.Integer(), nullable=True),
-    sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('is_current', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_user_employment_user_id'), 'user_employment', ['user_id'], unique=False)
     op.create_table('career',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
@@ -243,6 +230,20 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_education_user_id'), 'user_education', ['user_id'], unique=False)
+    op.create_table('user_employment',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('position', sa.String(length=255), nullable=True),
+    sa.Column('company', sa.String(length=255), nullable=True),
+    sa.Column('start_year', sa.Integer(), nullable=True),
+    sa.Column('end_year', sa.Integer(), nullable=True),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('is_current', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('is_visible', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_employment_user_id'), 'user_employment', ['user_id'], unique=False)
     op.create_table('user_friend',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('friend_id', sa.Integer(), nullable=True),
@@ -346,6 +347,7 @@ def upgrade():
     op.create_index(op.f('ix_poll_report_poll_id'), 'poll_report', ['poll_id'], unique=False)
     op.create_index(op.f('ix_poll_report_user_id'), 'poll_report', ['user_id'], unique=False)
     op.create_table('post',
+    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('entity_type', sa.Enum('user', 'organization', name='entitytypeenum'), server_default='user', nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -361,7 +363,6 @@ def upgrade():
     sa.Column('last_activity', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('allow_favorite', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('organization_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['organization_id'], ['organization.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
@@ -471,6 +472,7 @@ def upgrade():
     op.create_table('poll',
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('entity_type', sa.Enum('user', 'organization', name='entitytypeenum'), server_default='user', nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.Unicode(length=255), nullable=True),
@@ -482,7 +484,6 @@ def upgrade():
     sa.Column('expire_after_seconds', sa.Integer(), server_default='86400', nullable=True),
     sa.Column('allow_voting', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('allow_comments', sa.Boolean(), server_default=sa.text('true'), nullable=True),
-    sa.Column('is_anonymous', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('upvote_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('downvote_count', sa.Integer(), server_default='0', nullable=False),
     sa.Column('share_count', sa.Integer(), server_default='0', nullable=False),
@@ -1905,6 +1906,8 @@ def downgrade():
     op.drop_index(op.f('ix_user_friend_friended_id'), table_name='user_friend')
     op.drop_index(op.f('ix_user_friend_friend_id'), table_name='user_friend')
     op.drop_table('user_friend')
+    op.drop_index(op.f('ix_user_employment_user_id'), table_name='user_employment')
+    op.drop_table('user_employment')
     op.drop_index(op.f('ix_user_education_user_id'), table_name='user_education')
     op.drop_table('user_education')
     op.drop_table('user_ban')
@@ -1915,8 +1918,6 @@ def downgrade():
     op.drop_index(op.f('ix_career_user_id'), table_name='career')
     op.drop_index(op.f('ix_career_slug'), table_name='career')
     op.drop_table('career')
-    op.drop_index(op.f('ix_user_employment_user_id'), table_name='user_employment')
-    op.drop_table('user_employment')
     op.drop_index(op.f('ix_user_display_name'), table_name='user')
     op.drop_table('user')
     op.drop_index(op.f('ix_social_account_user_id'), table_name='social_account')
