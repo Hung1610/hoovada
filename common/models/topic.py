@@ -61,7 +61,7 @@ class Topic(Model, OrganizationRole):
     description = db.Column(db.String(255))
     is_nsfw = db.Column(db.Boolean, server_default=expression.false(), default=False)  # is this topic nsfw?
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.endorsed_id, TopicUserEndorse.topic_id], lazy='dynamic')
-    allow_follow = db.Column(db,Boolean, server_default=expression.true())
+    allow_follow = db.Column(db.Boolean, server_default=expression.true())
 
     @aggregated('endorsed_users', db.Column(db.Integer))
     def endorsers_count(self):

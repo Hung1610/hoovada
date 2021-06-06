@@ -1,8 +1,8 @@
 """update post table to add poll
 
-Revision ID: f6c1cec97665
+Revision ID: 11db95e8540f
 Revises: 
-Create Date: 2021-06-06 13:50:51.518883
+Create Date: 2021-06-06 15:54:23.436499
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f6c1cec97665'
+revision = '11db95e8540f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -404,6 +404,7 @@ def upgrade():
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('description', sa.String(length=255), nullable=True),
     sa.Column('is_nsfw', sa.Boolean(), server_default=sa.text('false'), nullable=True),
+    sa.Column('allow_follow', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('endorsers_count', sa.Integer(), nullable=True),
     sa.Column('bookmarkers_count', sa.Integer(), nullable=True),
     sa.Column('organization_id', sa.Integer(), nullable=True),
@@ -1526,6 +1527,29 @@ def upgrade():
     op.create_index(op.f('ix_question_comment_report_entity_type'), 'question_comment_report', ['entity_type'], unique=False)
     op.create_index(op.f('ix_question_comment_report_organization_id'), 'question_comment_report', ['organization_id'], unique=False)
     op.create_index(op.f('ix_question_comment_report_user_id'), 'question_comment_report', ['user_id'], unique=False)
+    op.create_table('timeline',
+    sa.Column('entity_type', sa.Enum('user', 'organization', name='entitytypeenum'), server_default='user', nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('question_id', sa.Integer(), nullable=True),
+    sa.Column('answer_id', sa.Integer(), nullable=True),
+    sa.Column('article_id', sa.Integer(), nullable=True),
+    sa.Column('activity', sa.Enum('FIRST_COMMENT', 'FIRST_UPVOTE', 'FIRST_SHARE', 'HUNDREDTH_COMMENT', 'HUNDREDTH_UPVOTE', 'HUNDREDTH_SHARE', name='timelineactivityenum'), nullable=True),
+    sa.Column('activity_date', sa.DateTime(), nullable=True),
+    sa.Column('organization_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['answer_id'], ['answer.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['article_id'], ['article.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['organization_id'], ['organization.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['question_id'], ['question.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_timeline_answer_id'), 'timeline', ['answer_id'], unique=False)
+    op.create_index(op.f('ix_timeline_article_id'), 'timeline', ['article_id'], unique=False)
+    op.create_index(op.f('ix_timeline_entity_type'), 'timeline', ['entity_type'], unique=False)
+    op.create_index(op.f('ix_timeline_organization_id'), 'timeline', ['organization_id'], unique=False)
+    op.create_index(op.f('ix_timeline_question_id'), 'timeline', ['question_id'], unique=False)
+    op.create_index(op.f('ix_timeline_user_id'), 'timeline', ['user_id'], unique=False)
     op.create_table('answer_comment_favorite',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('entity_type', sa.Enum('user', 'organization', name='entitytypeenum'), server_default='user', nullable=False),
@@ -1598,6 +1622,13 @@ def downgrade():
     op.drop_index(op.f('ix_answer_comment_favorite_organization_id'), table_name='answer_comment_favorite')
     op.drop_index(op.f('ix_answer_comment_favorite_entity_type'), table_name='answer_comment_favorite')
     op.drop_table('answer_comment_favorite')
+    op.drop_index(op.f('ix_timeline_user_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_question_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_organization_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_entity_type'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_article_id'), table_name='timeline')
+    op.drop_index(op.f('ix_timeline_answer_id'), table_name='timeline')
+    op.drop_table('timeline')
     op.drop_index(op.f('ix_question_comment_report_user_id'), table_name='question_comment_report')
     op.drop_index(op.f('ix_question_comment_report_organization_id'), table_name='question_comment_report')
     op.drop_index(op.f('ix_question_comment_report_entity_type'), table_name='question_comment_report')
