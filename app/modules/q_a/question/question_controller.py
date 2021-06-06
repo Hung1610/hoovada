@@ -122,24 +122,19 @@ class QuestionController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
-
-            '''
+            """
             results = []
             for question in res.get('data'):
                 result = question._asdict()
                 # get user info
-
                 result['user'] = question.user
                 result['fixed_topic'] = question.fixed_topic
                 result['topics'] = question.topics
                 results.append(result)
             
             res['data'] = marshal(results, QuestionDto.model_question_response)
-            '''
-            for question in res.get('data'):
-                if question.is_anonymous is True:
-                    question.user = None
-            return res
+            """
+            return res, code
 
         except Exception as e:
             print(e.__str__())

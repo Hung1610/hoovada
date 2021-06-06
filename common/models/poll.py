@@ -8,7 +8,7 @@ from sqlalchemy.sql import expression
 from flask import g
 
 # own modules
-from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
+from common.models.mixins import AuditCreateMixin, AuditUpdateMixin, AnonymousMixin
 from common.db import db
 from common.models.model import Model
 from common.enum import VotingStatusEnum
@@ -20,7 +20,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
+class Poll(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'poll'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +37,6 @@ class Poll(Model, AuditCreateMixin, AuditUpdateMixin):
     expire_after_seconds = db.Column(db.Integer, server_default="86400") # 1 day    
     allow_voting = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
-    is_anonymous = db.Column(db.Boolean, server_default=expression.false())
 
     @aggregated('votes', db.Column(db.Integer, server_default="0", nullable=False))
     def upvote_count(self):

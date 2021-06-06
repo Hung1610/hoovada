@@ -23,7 +23,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Post(Model, AuditCreateMixin, AuditUpdateMixin):
+class Post(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -56,7 +56,6 @@ class Post(Model, AuditCreateMixin, AuditUpdateMixin):
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan', primaryjoin="and_(Post.id == remote(PostComment.post_id), remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')
     post_favorites = db.relationship("PostFavorite", cascade='all,delete-orphan')
-
 
     @property
     def is_favorited_by_me(self):
