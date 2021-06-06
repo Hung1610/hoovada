@@ -16,7 +16,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Timeline(OrganizationRole):
+class Timeline(Model, OrganizationRole):
     __tablename__ = 'timeline'
 
     id = db.Column(db.Integer, primary_key=True)
