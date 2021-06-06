@@ -58,7 +58,7 @@ class Poll(Resource):
     @token_required
     @api.expect(poll_request)
     def patch(self, id_or_slug):
-        """Update the existing poll by poll id"""
+        """Update the existing poll by poll id or slug"""
 
         data = api.payload
         controller = PollController()
@@ -67,7 +67,7 @@ class Poll(Resource):
 
     @token_required
     def delete(self, id_or_slug):
-        """Delete existing poll by poll id"""
+        """Delete existing poll by poll id or slug"""
 
         controller = PollController()
         result = controller.delete(object_id=id_or_slug)

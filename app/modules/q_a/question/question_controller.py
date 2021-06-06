@@ -103,13 +103,6 @@ class QuestionController(Controller):
                 pass
             # response data
             result = question._asdict()
-            result['user'] = question.user
-            result['topics'] = question.topics
-            result['fixed_topic'] = question.fixed_topic
-
-            result['is_bookmarked_by_me'] = True
-            result['is_upvoted_by_me'] = False
-            result['is_downvoted_by_me'] = False
             return send_result(data=marshal(result, QuestionDto.model_question_create_update_response))
         
         except Exception as e:
@@ -205,12 +198,6 @@ class QuestionController(Controller):
                     pass
 
             db.session.commit()
-
-            result = question._asdict()
-            result['user'] = question.user
-            result['topics'] = question.topics
-            result['fixed_topic'] = question.fixed_topic
-
             return send_result()
         
         except Exception as e:
@@ -479,10 +466,6 @@ class QuestionController(Controller):
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
             result = question._asdict()
-
-            result['user'] = question.user
-            result['topics'] = question.topics
-            result['fixed_topic'] = question.fixed_topic
             return send_result(data=marshal(result, QuestionDto.model_question_create_update_response))
         
         except Exception as e:
@@ -510,16 +493,15 @@ class QuestionController(Controller):
             if not UserRole.is_admin(current_user.admin):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
-            else:
-                db.session.delete(question)
+            db.session.delete(question)
 
-                # delete from question Es index
-                question_dsl = ESQuestion(_id=question.id)
-                question_dsl.delete()
-                db.session.commit()
-                cache.clear_cache(Question.__class__.__name__)
+            # delete from question Es index
+            question_dsl = ESQuestion(_id=question.id)
+            question_dsl.delete()
+            db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
 
-                return send_result()
+            return send_result()
         
         except Exception as e:
             db.session.rollback()

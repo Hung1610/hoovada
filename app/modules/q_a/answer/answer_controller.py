@@ -107,10 +107,6 @@ class AnswerController(Controller):
             db.session.commit()
 
             result = answer._asdict()
-            result['is_upvoted_by_me'] = False
-            result['is_downvoted_by_me'] = False
-            result['is_bookmarked_by_me'] = True
-
             # if answer.user:
             #    followers = UserFollow.query.with_entities(UserFollow.follower_id)\
             #        .filter(UserFollow.followed_id == answer.user.id).all()
