@@ -284,7 +284,7 @@ class AuthController:
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
             if not 'access_token' in data or str(data['access_token']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_TOKEN)
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('access_token'))
             
             access_token = str(data['access_token'])
             resp = requests.get(Config.GOOGLE_PROFILE_URL, params={'access_token': access_token, 'alt': 'json'})
@@ -309,7 +309,7 @@ class AuthController:
                 return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
             if not 'access_token' in data or str(data['access_token']).strip().__eq__(''):
-                return send_error(message=messages.ERR_NO_TOKEN)
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('access_token'))
 
             access_token = str(data['access_token'])
             resp = requests.get(
@@ -361,7 +361,7 @@ class AuthController:
             return send_error(message=messages.ERR_INVALID_CONFIMED_PASSWORD)
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -399,14 +399,14 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
         
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_INVALID_NUMBER)
         
         if not 'code' in data or str(data['code']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PHONE_CODE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('code'))
         
         code = data['code']
         user = User.get_user_by_phone_number(phone_number)
@@ -437,7 +437,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
         
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -514,7 +514,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT) 
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -539,14 +539,14 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_INVALID_NUMBER)
 
         if not 'code' in data or str(data['code']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PHONE_CODE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('code'))
         
         code = data['code']
         user = User.get_user_by_phone_number(phone_number)
@@ -571,7 +571,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -593,7 +593,7 @@ class AuthController:
         """ Login user with phone number and password"""
 
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -629,7 +629,7 @@ class AuthController:
         """ Send code to login"""
 
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_INVALID_NUMBER)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         if not validate_phone_number(phone_number):
@@ -663,7 +663,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'phone_number' in data or str(data['phone_number']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PHONE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('phone_number'))
 
         phone_number = data['phone_number']
         code = data['code']
@@ -671,7 +671,7 @@ class AuthController:
             return send_error(message=messages.ERR_INVALID_NUMBER)
         
         if not 'code' in data or str(data['code']).strip().__eq__(''):
-            return send_error(message=messages.ERR_PHONE_NO_CODE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('code'))
         
         user = User.get_user_by_phone_number(phone_number)
         if user is None:
@@ -709,7 +709,7 @@ class AuthController:
         
         code = data.get('code')
         if not code:
-            return send_error(message=messages.ERR_NO_PHONE_CODE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('code'))
 
         if not validate_phone_number(phone_number):
             return send_error(message=messages.ERR_INVALID_NUMBER)
@@ -722,7 +722,7 @@ class AuthController:
         try:
             user.phone_number = phone_number
             db.session.commit()
-            return send_result(message=messages.MSG_CHANGE_NUMBER_SUCCESS)
+            return send_result()
         
         except Exception as e:
             print(e.__str__())
@@ -747,7 +747,7 @@ class AuthController:
             auth_token = api_key
 
         if auth_token is None:
-            return send_error(message=messages.ERR_NO_TOKEN)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('Authorization'))
         
         try:  
             user_id, _ = decode_auth_token(auth_token=auth_token)

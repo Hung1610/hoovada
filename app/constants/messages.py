@@ -28,7 +28,6 @@ ERR_FAVORITE_NOT_ALLOWED = 'Favorite not allowed!'
 ERR_VOTING_NOT_ALLOWED = 'Voting not allowed!'
 ERR_COMMENT_NOT_ALLOWED = 'Comment not allowed!'
 
-
 ########### Authentication Module #################
 
 # common
@@ -53,8 +52,6 @@ MSG_PASS_INPUT_PROMPT = "Please input a new password."
 MSG_EMAIL_SENT = "Please check your Email."
 MSG_PHONE_SENT = "Please check your phone message."
 
-ERR_NO_TOKEN = "PLease provide a token!"
-
 ## Authentication
 ERR_NOT_LOGIN = "You are not logged in!" 
 MSG_LOGOUT_SUCESS = "Successfully logged out."
@@ -65,9 +62,7 @@ ERR_SOCIAL_LOGIN_FAILED = "Social login failed with issue {}!"
 
 # phone
 ERR_INVALID_NUMBER = "Please provide a valid phone number!"
-ERR_NO_PHONE_CODE = "Please provide a valid code!"
 ERR_CHANGE_NUMBER_FAILED = "Changing phone number failed with issue {}!"
-MSG_CHANGE_NUMBER_SUCCESS = "Changing phone number is successful."
 
 ########### Article Module #################
 
