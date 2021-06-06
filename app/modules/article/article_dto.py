@@ -66,7 +66,7 @@ class ArticleDto(Dto):
         'comment_count': fields.Integer(default=0, description='The amount of comments'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
         'scheduled_date': fields.DateTime(description='The scheduled date'),
-        'user': fields.Nested(model_article_user, description='The user information'),
+        'user': fields.Nested(model_article_user, description='The user information', attribute='display_user'),
         'fixed_topic': fields.Nested(model_topic, description='The fixed topic'),
         'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),

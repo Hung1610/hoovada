@@ -43,7 +43,7 @@ class PostDto(Dto):
 
     model_post_response = api.model('post_response', {
         'id': fields.Integer(readonly=True, description=''),
-        'user': fields.Nested(model_post_user, description='The user information'),
+        'user': fields.Nested(model_post_user, description='The user information', attribute='display_user'),
         'html': fields.String(description='The content of the post'),
         'created_date': fields.DateTime(description='The created date'),
         'updated_date': fields.DateTime(description='The updated date'),

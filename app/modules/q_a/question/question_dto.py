@@ -56,7 +56,6 @@ class QuestionDto(Dto):
         'id': fields.Integer(readonly=True, description='The id of the question'),
         'title': fields.String(description='The title of the question'),
         'slug': fields.String(description='The slug of the question'),
-        'user_id': fields.Integer(description='The user ID', attribute='display_user_id'),
         'user': fields.Nested(model_question_user, description='The user information', attribute='display_user'),
         'fixed_topic_id': fields.Integer(description='The ID of the parent (fixed) topic'),
         'fixed_topic': fields.Nested(model_topic, description='The name of the parent (fixed) topic'),

@@ -59,7 +59,7 @@ class PollDto(Dto):
         'id': fields.Integer(required=False, readonly=True, description='The ID of the poll'),
         'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
         'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
-        'user': fields.Nested(model_user, description='The detail of poll creator'),
+        'user': fields.Nested(model_user, description='The detail of poll creator', attribute='display_user'),
         'title': fields.String(default=None, description='The title of the poll'),
         'html': fields.String(description='The content of the poll'),
         'slug': fields.String(default=None, description='The slug of the poll'),
