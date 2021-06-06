@@ -61,6 +61,7 @@ class PollController(Controller):
         
         if not isinstance(data['poll_selects'], list):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         if len(data['poll_selects']) < 2:
             return send_error(message=messages.ERR_ISSUE.format('Poll must have minimum 2 selections'))
 
@@ -75,7 +76,6 @@ class PollController(Controller):
         poll = Poll.query.filter(Poll.title == data['title']).first()
         if poll is not None:
             return send_error(message=messages.ERR_ALREADY_EXISTS)    
-
 
         poll = self._parse_poll(data=data, poll=None)     
         try:
@@ -109,14 +109,8 @@ class PollController(Controller):
             db.session.add(poll_bookmark)
 
             db.session.commit()
-            result = poll._asdict()
-
-            result['is_upvoted_by_me'] =  False
-            result['is_downvoted_by_me'] =  False
-            result['is_bookmarked_by_me'] = True
-
             update_seen_poll.send(current_user.id, poll.id)
-            return send_result( data=marshal(result, PollDto.model_response))
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -192,8 +186,7 @@ class PollController(Controller):
         try:
             poll.updated_date = datetime.utcnow()
             db.session.commit()
-            result = poll._asdict()
-            return send_result(data=marshal(result, PollDto.model_response))
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

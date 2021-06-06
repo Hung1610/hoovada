@@ -28,7 +28,7 @@ class PollList(Resource):
     @api.expect(get_parser)
     @api.response(code=200, model=poll_response, description='Model for poll response.')
     def get(self):
-        """ Get list of polls"""
+        """Get poll(s) by params"""
 
         controller = PollController()
         args = get_parser.parse_args()
@@ -37,16 +37,13 @@ class PollList(Resource):
 
     @token_required
     @api.expect(poll_request)
-    # @api.marshal_with(answer)
-    @api.response(code=200, model=poll_response, description='Model for poll response.')
     def post(self):
-        """
-        Create new poll.
-        """
+        """Create new poll."""
 
         data = api.payload
         controller = PollController()
         return controller.create(data=data)
+
 
 @api.route('/<string:id_or_slug>')
 class Poll(Resource):
@@ -60,8 +57,6 @@ class Poll(Resource):
 
     @token_required
     @api.expect(poll_request)
-    # @api.marshal_with(answer)s
-    @api.response(code=200, model=poll_response, description='Model for poll response.')
     def patch(self, id_or_slug):
         """Update the existing poll by poll id"""
 
