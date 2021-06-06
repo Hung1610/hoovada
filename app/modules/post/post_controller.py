@@ -65,6 +65,49 @@ class PostController(Controller):
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
+    def create_with_file(self, object_id):
+        if object_id is None:
+            return send_error(messages.ERR_PLEASE_PROVIDE.format("Post ID"))
+
+        if 'file' not in request.files:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
+
+        file_type = request.form.get('file_type', None)
+        media_file = request.files.get('file', None)
+
+        post = Post.query.filter_by(id=object_id).first()
+        if post is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        if not media_file:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))    
+            
+        if not file_type:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file type'))
+        try:
+            filename = media_file.filename
+            file_name, ext = get_file_name_extension(filename)
+            file_name = encode_file_name(file_name) + ext
+            sub_folder = 'post' + '/' + encode_file_name(str(post.id))
+            try:
+                url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
+            except Exception as e:
+                print(e.__str__())
+                return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
+
+            post.file_url = url
+            post.updated_date = datetime.utcnow()
+            post.last_activity = datetime.utcnow()
+            db.session.commit()
+            return send_result()
+        
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+            
+
     def get(self, args):
 
         # Get search parameters
@@ -162,50 +205,6 @@ class PostController(Controller):
             
         except Exception as e:
             return send_error(message=messages.ERR_GET_FAILED.format(e))
-
-
-    def create_with_file(self, object_id):
-        if object_id is None:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("Post ID"))
-
-        if 'file' not in request.files:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
-
-        file_type = request.form.get('file_type', None)
-        media_file = request.files.get('file', None)
-
-        post = Post.query.filter_by(id=object_id).first()
-        if post is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        if not media_file:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))    
-            
-        if not file_type:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file type'))
-        try:
-            filename = media_file.filename
-            file_name, ext = get_file_name_extension(filename)
-            file_name = encode_file_name(file_name) + ext
-            sub_folder = 'post' + '/' + encode_file_name(str(post.id))
-            try:
-                url = upload_file(file=media_file, file_name=file_name, sub_folder=sub_folder)
-            except Exception as e:
-                print(e.__str__())
-                return send_error(message=messages.ERR_ISSUE.format('Could not save your media file.'))
-
-            post.file_url = url
-            post.updated_date = datetime.utcnow()
-            post.last_activity = datetime.utcnow()
-            db.session.commit()
-            result = post._asdict()
-            result['user'] = post.user
-            return send_result()
-        
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
