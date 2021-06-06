@@ -13,15 +13,16 @@ from flask import g
 from common.enum import VotingStatusEnum
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin, SoftDeleteMixin
 from common.db import db
-from common.enum import FileTypeEnum
+from common.enum import FileTypeEnum, EntityTypeEnum
 from common.models.model import Model
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin, OrganizationRole):
     __tablename__ = 'answer'
     __table_args__ = (
         db.UniqueConstraint('user_id', 'question_id'),
@@ -105,7 +106,7 @@ class Answer(Model, SoftDeleteMixin, AuditCreateMixin, AuditUpdateMixin, Anonymo
         return False
 
 
-class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin):
+class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin, OrganizationRole):
     __tablename__ = 'answer_improvement'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -113,6 +114,7 @@ class AnswerImprovement(Model, AuditCreateMixin, AuditUpdateMixin):
     updated_date = db.Column(db.DateTime, default=datetime.utcnow)
     content = db.Column(db.UnicodeText)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True, index=True)
+
     user = db.relationship('User', lazy=True) # one-to-many relationship with table User
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), nullable=True, index=True)
     answer = db.relationship('Answer', lazy=True) # one-to-many relationship with table Answer

@@ -7,6 +7,7 @@ from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from common.dto import Dto
+from app.modules.organization.organization_dto import OrganizationDto
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -15,12 +16,13 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 class ArticleDto(Dto):
-    name = 'article'
+    name = 'organization_article'
     api = Namespace(name, description="Article operations")
 
     model_topic = api.model('topic_for_article', {
         'id': fields.Integer(readonly=True, description='The ID of the topic'),
         'name': fields.String(description='The name of the topic'),
+        'color_code': fields.String(description='The color code for topic'),
         'slug': fields.String(description='The slug of the topic'),
         'description': fields.String(description='Description about topic')
     })
@@ -46,8 +48,28 @@ class ArticleDto(Dto):
         'scheduled_date': fields.DateTime(description='The scheduled date'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
         'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
+        'is_deleted': fields.Boolean(default=False, description='The article is soft deleted or not'),
+        'organization_id': fields.String(description='The ID of organization who owns this article. Must be specified when sending the article to a organization'),
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
+    })
+
+    model_organization_article_response = api.model('organization_article_response', {
+        'id': fields.Integer(readonly=True, description='The ID of the organization'),
+        'display_name': fields.String(description='The display name of the organization'),
+        'description': fields.String(description='The description of the organization'),
+        'email': fields.String(description='The email of the organization'),
+        'website_url': fields.String(description='The website url of the organization'),
+        'status': fields.String(description='The current status of the organization'),
+        'phone_number': fields.String(description='The phone number of the organization'),
+        'logo_url': fields.String(description='The logo url of the organization'),
+        'created_date': fields.DateTime(description='The created date'),
+        'updated_date': fields.DateTime(description='The updated date'),
+        'user_id': fields.Integer(description='The ID of user owner of the organization'),
+        'user': fields.Nested(model_article_user, description='The user information'),
+        'user_count': fields.Integer(description='Number of users joined the organization'),
+        'article_count': fields.Integer(description='Number of articled published by the organization'),
+        'is_joined_by_me': fields.Boolean(description='Is joined in the organization by me'),
     })
 
     model_article_response = api.model('article_response', {
@@ -74,6 +96,7 @@ class ArticleDto(Dto):
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
         'entity_type': fields.String(default='user', description='The own type of organization. Must be one of values user or organization'),
         'organization_id': fields.String(description='The ID of organization who owns this article. Must be specified when entity_type is organization'),
+        'organization': fields.Nested(model_organization_article_response, description='The detail of organization'),
 
         'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
         'is_downvoted_by_me':fields.Boolean(default=False, description='is downvoted by current user.'),

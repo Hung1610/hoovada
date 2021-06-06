@@ -16,6 +16,8 @@ from flask import g
 from common.models.mixins import AnonymousMixin, AuditCreateMixin, AuditUpdateMixin
 from common.db import db
 from common.models.model import Model
+from common.enum import EntityTypeEnum
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,7 +25,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Post(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class Post(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin, OrganizationRole):
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -51,7 +53,6 @@ class Post(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
     last_activity = db.Column(db.DateTime, server_default=func.now())
     allow_favorite = db.Column(db.Boolean, server_default=expression.true())
     allow_comments = db.Column(db.Boolean, server_default=expression.true())
-    is_anonymous = db.Column(db.Boolean, server_default=expression.false())
 
     post_comments = db.relationship("PostComment", cascade='all,delete-orphan', primaryjoin="and_(Post.id == remote(PostComment.post_id), remote(PostComment.user_id) == User.id, remote(User.is_deactivated) == False)")
     post_shares = db.relationship("PostShare", cascade='all,delete-orphan')

@@ -14,6 +14,8 @@ from sqlalchemy.sql import expression
 # own modules
 from common.db import db
 from common.models.model import Model
+from common.enum import EntityTypeEnum
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -33,7 +35,7 @@ class TopicUserEndorse(Model):
     topic = db.relationship('Topic', lazy=True) # one-to-many relationship with table Topic
 
 
-class Topic(Model):
+class Topic(Model, OrganizationRole):
     __tablename__ = 'topic'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +61,7 @@ class Topic(Model):
     description = db.Column(db.String(255))
     is_nsfw = db.Column(db.Boolean, server_default=expression.false(), default=False)  # is this topic nsfw?
     endorsed_users = db.relationship('User', secondary='topic_user_endorse', foreign_keys=[TopicUserEndorse.endorsed_id, TopicUserEndorse.topic_id], lazy='dynamic')
-    
+
     @aggregated('endorsed_users', db.Column(db.Integer))
     def endorsers_count(self):
         return db.func.coalesce(db.func.sum(db.func.if_(db.text('IFNULL(is_deactivated, False) <> True'), 1, 0)), 0)

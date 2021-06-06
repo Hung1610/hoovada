@@ -76,3 +76,6 @@ from app.modules.poll.poll_topic import ns_poll_topic
 from app.modules.poll.poll_user_select import ns_poll_user_select
 from app.modules.poll import (ns_poll_comment, ns_poll_comment_favorite, ns_poll_comment_report, ns_poll_voting, ns_poll_share, ns_poll_report,ns_poll_bookmark)
 
+from app.modules.organization import (ns_organization)
+from app.modules.organization.user import (ns_organization_user)
+from app.modules.organization.article import (ns_organization_article)

@@ -11,7 +11,8 @@ from flask import g
 from common.models.mixins import AuditCreateMixin, AuditUpdateMixin, AnonymousMixin
 from common.db import db
 from common.models.model import Model
-from common.enum import VotingStatusEnum
+from common.enum import VotingStatusEnum, EntityTypeEnum
+from common.models.organization import OrganizationRole
 
 
 __author__ = "hoovada.com team"
@@ -20,7 +21,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-class Poll(Model, AuditCreateMixin, AuditUpdateMixin, AnonymousMixin):
+class Poll(Model, AuditCreateMixin, AuditUpdateMixin, OrganizationRole, AnonymousMixin):
     __tablename__ = 'poll'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -107,7 +108,7 @@ class PollTopic(Model, AuditCreateMixin, AuditUpdateMixin):
     poll = db.relationship('Poll', uselist=False, lazy=True)
 
 
-class PollSelect(Model, AuditCreateMixin, AuditUpdateMixin):
+class PollSelect(Model, AuditCreateMixin, AuditUpdateMixin, OrganizationRole):
     __tablename__ = 'poll_select'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -123,7 +124,7 @@ class PollSelect(Model, AuditCreateMixin, AuditUpdateMixin):
         return db.func.count('1')
 
 
-class PollUserSelect(Model, AuditCreateMixin, AuditUpdateMixin):
+class PollUserSelect(Model, AuditCreateMixin, AuditUpdateMixin, OrganizationRole):
     __tablename__ = 'poll_user_select'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)

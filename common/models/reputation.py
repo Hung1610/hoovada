@@ -10,13 +10,14 @@ from common.db import db
 from common.enum import VotingStatusEnum
 from common.models.mixins import AuditCreateMixin, AuditUpdateMixin
 from common.models.model import Model
+from common.models.organization import OrganizationRole
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
 __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
-class Reputation(Model, AuditCreateMixin, AuditUpdateMixin):
+class Reputation(Model, AuditCreateMixin, AuditUpdateMixin, OrganizationRole):
     __tablename__ = 'reputation'
 
     id = db.Column(db.Integer, primary_key=True)
