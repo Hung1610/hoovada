@@ -111,7 +111,7 @@ class OrganizationController(Controller):
             # response data
             result = organization._asdict()
             
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, OrganizationDto.model_organization_response))
+            return send_result( data=marshal(result, OrganizationDto.model_organization_response))
         
         except Exception as e:
             db.session.rollback()
@@ -137,7 +137,7 @@ class OrganizationController(Controller):
             organization.updated_date = datetime.utcnow()
             db.session.commit()
             result = organization._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, OrganizationDto.model_organization_response))
+            return send_result(data=marshal(result, OrganizationDto.model_organization_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -167,7 +167,7 @@ class OrganizationController(Controller):
             organization.status = organization_status
             db.session.commit()
             result = organization._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, OrganizationDto.model_organization_response))
+            return send_result(data=marshal(result, OrganizationDto.model_organization_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -181,7 +181,7 @@ class OrganizationController(Controller):
         if organization is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         result = organization._asdict()
-        return send_result(data=marshal(result, OrganizationDto.model_organization_response), message=messages.MSG_GET_SUCCESS)
+        return send_result(data=marshal(result, OrganizationDto.model_organization_response))
     
     def delete(self, object_id):
         try:
@@ -195,7 +195,7 @@ class OrganizationController(Controller):
 
             db.session.delete(organization)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

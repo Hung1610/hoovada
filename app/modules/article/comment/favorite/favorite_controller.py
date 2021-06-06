@@ -49,7 +49,7 @@ class ArticleCommentFavoriteController(Controller):
             favorite.updated_date = datetime.utcnow()
             db.session.add(favorite)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(favorite, ArticleCommentFavoriteDto.model_response))
+            return send_result( data=marshal(favorite, ArticleCommentFavoriteDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -98,7 +98,7 @@ class ArticleCommentFavoriteController(Controller):
                 query = query.filter(ArticleCommentFavorite.created_date <= to_date)
             favorites = query.all()
             if favorites is not None:
-                return send_result(data=marshal(favorites, ArticleCommentFavoriteDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(favorites, ArticleCommentFavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -135,7 +135,7 @@ class ArticleCommentFavoriteController(Controller):
 
             db.session.delete(favorite)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

@@ -212,7 +212,7 @@ class SearchController():
             polls = self._search_poll(search_args)
             data = {'question': questions, 'topic': topics, 'user': users, 'article': articles,'post': posts, 'polls': polls}
 
-            return send_result(data=marshal(data, SearchDto.model_event_search_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(data, SearchDto.model_event_search_response))
 
         except Exception as e:
             print(e.__str__())
@@ -230,7 +230,7 @@ class SearchController():
                 'size': args.get('size')
             }
             articles = self._search_article(search_args)
-            return send_result(data=marshal(articles, SearchDto.model_search_article_res), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(articles, SearchDto.model_search_article_res))
 
         except Exception as e:
             print(e.__str__())
@@ -248,7 +248,7 @@ class SearchController():
                 'size': args.get('size')
             }
             users = self._search_user(search_args, emailSearch=True)
-            return send_result(data=marshal(users, SearchDto.model_search_user_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(users, SearchDto.model_search_user_response))
 
         except Exception as e:
             print(e.__str__())
@@ -265,7 +265,7 @@ class SearchController():
                 'size': args.get('size')
             }
             polls = self._search_poll(search_args)
-            return send_result(data=marshal(polls, SearchDto.model_search_poll_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(polls, SearchDto.model_search_poll_response))
         
         except Exception as e:
             print(e.__str__())
@@ -283,7 +283,7 @@ class SearchController():
                 'size': args.get('size')
             }
             questions = self._search_question(search_args)
-            return send_result(data=marshal(questions, SearchDto.model_search_question_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(questions, SearchDto.model_search_question_response))
 
         except Exception as e:
             print(e.__str__())
@@ -310,7 +310,7 @@ class SearchController():
             }
 
             topics = self._search_topic(search_args)
-            return send_result(data=marshal(topics, SearchDto.model_search_topic_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(topics, SearchDto.model_search_topic_response))
 
         except Exception as e:
             print(e.__str__())
@@ -329,7 +329,7 @@ class SearchController():
                 'is_approved': args.get('is_approved')
             }
             user_friends = self._search_user_friend(search_args, user_id)
-            return send_result(data=marshal(user_friends, SearchDto.model_search_user_friend_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(user_friends, SearchDto.model_search_user_friend_response))
         
         except Exception as e:
             print(e.__str__())

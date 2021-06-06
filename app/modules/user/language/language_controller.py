@@ -39,7 +39,7 @@ class LanguageController(Controller):
             language = self._parse_language(data=data, language=None)
             db.session.add(language)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(language, LanguageDto.model_response))
+            return send_result( data=marshal(language, LanguageDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -69,7 +69,7 @@ class LanguageController(Controller):
                 query = query.filter(UserLanguage.language_id == language_id)
                 
             languages = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(languages, LanguageDto.model_response))
+            return send_result(data=marshal(languages, LanguageDto.model_response))
                 
         except Exception as e:
             print(e.__str__())
@@ -95,7 +95,7 @@ class LanguageController(Controller):
             language = self._parse_language(data=data, language=language)
             language.updated_date = datetime.utcnow()
             db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(language, LanguageDto.model_response))
+            return send_result(data=marshal(language, LanguageDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -114,7 +114,7 @@ class LanguageController(Controller):
 
             db.session.delete(language)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

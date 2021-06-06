@@ -51,16 +51,16 @@ class AuthController:
                 message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_EMAIL)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email'))
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password'))
         
         if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password_confirm'))
         
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_DISPLAY_NAME)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))
         
         if not 'is_policy_accepted' in data or str(data['is_policy_accepted']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
@@ -103,7 +103,7 @@ class AuthController:
 
         email = confirm_token(token)
         if email is None or email.strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_EMAIL)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email'))
 
         if is_valid_email(email) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
@@ -132,7 +132,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_EMAIL)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email'))
 
         if is_valid_email(data['email']) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
@@ -166,7 +166,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_EMAIL)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email'))
 
         if is_valid_email(data['email']) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
@@ -191,7 +191,7 @@ class AuthController:
         email = confirm_token(token)
 
         if email is None or email.strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_EMAIL)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email'))
 
         if is_valid_email(email) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)   
@@ -210,13 +210,13 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password'))
         
         if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password_confirm'))
         
         if not 'old_password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('old_password'))
 
         password_confirm = data['password_confirm']
         password = data['password']
@@ -339,7 +339,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if not 'display_name' in data or str(data['display_name']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_DISPLAY_NAME)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('display_name'))
 
         display_name = data['display_name']
         if check_user_by_display_name(display_name):
@@ -349,10 +349,10 @@ class AuthController:
             return send_error(message=messages.ERR_NO_POLICY_ACCEPTED)
 
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password'))
         
         if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password_confirm'))
 
         if len(check_password(data['password'])) > 0:
             return send_error(message=messages.ERR_INVALID_INPUT_PASSWORD)
@@ -464,16 +464,16 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
         if not 'reset_token' in data or str(data['reset_token']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp token!') 
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('reset_token'))
 
         if not 'token_type' in data or str(data['token_type']).strip().__eq__(''):
-            return send_error(message='Vui lòng cung cấp token type!')
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('token_type'))
         
         if not 'password_confirm' in data or str(data['password_confirm']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_CONFIRMED_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password_confirm'))
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_PASSWORD)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('password'))
 
         token = data['reset_token']
         password_confirm = data['password_confirm']
@@ -839,7 +839,7 @@ def create_user_by_email(data):
 def save_social_account(provider, data):
 
     if not 'email' in data or str(data['email']).strip().__eq__(''):
-        return send_error(message=messages.ERR_NO_EMAIL)
+        return send_error(message=messages.ERR_PLEASE_PROVIDE.format('email'))
 
     if is_valid_email(data['email']) is False:
         return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)

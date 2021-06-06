@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from common.models.follow import UserFollow
-from app.modules.search.search_controller import ESUserFriend
 
 # third-party modules
 import dateutil.parser
@@ -11,6 +9,8 @@ from flask import g
 from flask_restx import marshal
 
 # own modules
+from common.models.follow import UserFollow
+from app.modules.search.search_controller import ESUserFriend
 from common.utils.util import send_friend_request_notif_email
 from common.db import db
 from app.constants import messages
@@ -80,6 +80,7 @@ class UserFriendController(Controller):
 
         if data['friend_id'] == data['friended_id']:
             return send_result(message=messages.ERR_ISSUE.format('Cannot befriend self'))
+
         try:
             friend_entity = UserFriend.query.filter(db.or_(\
                 db.and_(UserFriend.friend_id == data['friend_id'], UserFriend.friended_id == data['friended_id']),\
@@ -113,7 +114,7 @@ class UserFriendController(Controller):
                 elif friend.friended.friend_request_email_settings:
                     send_friend_request_notif_email(friend.friended, current_user)
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(friend, UserFriendDto.model_response))
+            return send_result( data=marshal(friend, UserFriendDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -129,7 +130,7 @@ class UserFriendController(Controller):
             friend = UserFriend.query.filter_by(id=object_id).first()
             if friend is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
-            return send_result(data=marshal(friend, UserFriendDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(friend, UserFriendDto.model_response))
         
         except Exception as e:
             print(e.__str__())
@@ -227,7 +228,7 @@ class UserFriendController(Controller):
                 db.session.delete(follow)
                 db.session.commit()
 
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -259,7 +260,7 @@ class UserFriendController(Controller):
                 .limit(limit)\
                 .all()
             results = [{'user': user, 'total_score': total_score} for user, total_score in top_users]
-            return send_result(data=marshal(results, UserFriendDto.top_user_friend_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(results, UserFriendDto.top_user_friend_response))
         except Exception as e:
             print(e)
             return send_error(message=messages.ERR_GET_FAILED.format(e))

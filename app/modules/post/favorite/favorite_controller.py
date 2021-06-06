@@ -52,7 +52,7 @@ class FavoriteController(Controller):
             favorite.updated_date = datetime.utcnow()
             db.session.add(favorite)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(favorite, FavoriteDto.model_response))
+            return send_result( data=marshal(favorite, FavoriteDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -101,7 +101,7 @@ class FavoriteController(Controller):
             if to_date is not None:
                 query = query.filter(PostFavorite.created_date <= to_date)
             favorites = query.all()
-            return send_result(data=marshal(favorites, FavoriteDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(favorites, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -117,7 +117,7 @@ class FavoriteController(Controller):
             if favorite is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
-            return send_result(data=marshal(favorite, FavoriteDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(favorite, FavoriteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -140,7 +140,7 @@ class FavoriteController(Controller):
                 
             db.session.delete(favorite)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

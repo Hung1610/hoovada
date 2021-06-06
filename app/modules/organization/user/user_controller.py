@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -72,7 +71,7 @@ class OrganizationUserController(Controller):
             # response data
             result = organization_user._asdict()
             
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, OrganizationUserDto.model_organization_user_response))
+            return send_result( data=marshal(result, OrganizationUserDto.model_organization_user_response))
         
         except Exception as e:
             print(e)
@@ -107,7 +106,7 @@ class OrganizationUserController(Controller):
             # response data
             result = organization_user._asdict()
             
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, OrganizationUserDto.model_organization_user_response))
+            return send_result(data=marshal(result, OrganizationUserDto.model_organization_user_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -145,7 +144,7 @@ class OrganizationUserController(Controller):
 
             db.session.delete(organization_user)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

@@ -54,7 +54,7 @@ class PollUserSelectController(Controller):
                 return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
             db.session.delete(poll_user_select)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -96,7 +96,7 @@ class PollUserSelectController(Controller):
                 db.session.commit()
 
             result = poll_user_select._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollUserSelectDto.model_response))
+            return send_result( data=marshal(result, PollUserSelectDto.model_response))
         
         except Exception as e:
             db.session.rollback()

@@ -62,7 +62,7 @@ class ReputationController(Controller):
                         db.session.add(reputation_creator)
                     reputation_creator.updated_date = datetime.now()
                     db.session.commit()
-            return send_result(marshal(Reputation.query.all(), ReputationDto.model_response), message=messages.MSG_UPDATE_SUCCESS)
+            return send_result(marshal(Reputation.query.all(), ReputationDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

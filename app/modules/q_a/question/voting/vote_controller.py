@@ -65,7 +65,7 @@ class QuestionVoteController(Controller):
                 update_reputation.send(topic.id, user_voted.id)
                 update_reputation.send(topic.id, current_user.id, is_voter=True)
     
-            return send_result(data=marshal(vote, QuestionVoteDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(vote, QuestionVoteDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -112,7 +112,7 @@ class QuestionVoteController(Controller):
                 query = query.filter(QuestionVote.created_date <= to_date)
             votes = query.all()
             if votes is not None and len(votes) > 0:
-                return send_result(data=marshal(votes, QuestionVoteDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(votes, QuestionVoteDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -136,7 +136,7 @@ class QuestionVoteController(Controller):
             
             db.session.delete(vote)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

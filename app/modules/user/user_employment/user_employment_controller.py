@@ -52,7 +52,7 @@ class EmploymentController(Controller):
                                 .update({UserEmployment.is_current: 0}, synchronize_session=False)
 
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(user_employment, EmploymentDto.model_response))
+            return send_result( data=marshal(user_employment, EmploymentDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -87,7 +87,7 @@ class EmploymentController(Controller):
                 result = user_employment._asdict()
                 results.append(result)
             
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, EmploymentDto.model_response))
+            return send_result(data=marshal(results, EmploymentDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -120,7 +120,7 @@ class EmploymentController(Controller):
                 .update({UserEmployment.is_current: 0})
 
             db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(employment, EmploymentDto.model_response))
+            return send_result(data=marshal(employment, EmploymentDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -139,7 +139,7 @@ class EmploymentController(Controller):
 
             db.session.delete(employment)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()

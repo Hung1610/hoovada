@@ -7,31 +7,17 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-# Create Messages
-MSG_CREATE_SUCCESS = 'Created successfully.'
-ERR_CREATE_FAILED = 'Failed to create. Issue: {}!'
-
-# Get Messages
-MSG_GET_SUCCESS = 'Get successfully.'
-ERR_GET_FAILED = 'Failed to get. Issue: {}!'
-
-# Update Messages
-MSG_UPDATE_SUCCESS = 'Updated successfully.'
-ERR_UPDATE_FAILED = 'Failed to update. Issue: {}!'
-
-# Delete Messages
-MSG_DELETE_SUCCESS = 'Deleted successful.'
-ERR_DELETE_FAILED = 'Failed to delete. Issue: {}!'
-
-# File Messages
-ERR_NO_FILE = 'No file found in the request!'
+########### Common messages #################
 ERR_FAILED_UPLOAD = 'Failed to upload file. Issue {}!'
-
-# General
+ERR_CREATE_FAILED = 'Failed to create. Issue: {}!'
+ERR_GET_FAILED = 'Failed to get. Issue: {}!'
+ERR_UPDATE_FAILED = 'Failed to update. Issue: {}!'
+ERR_DELETE_FAILED = 'Failed to delete. Issue: {}!'
 ERR_WRONG_DATA_FORMAT = 'Wrong data format!'
 ERR_PLEASE_PROVIDE = 'Please provide {}!'
 ERR_NOT_FOUND_WITH_ID = '{} not found with ID: {}!'
 ERR_ISSUE = 'Issue: {}!'
+ERR_NOT_ALLOWED_PARAMS = 'The parameter {} is not allowed!'
 ERR_NOT_AUTHORIZED = 'You have no authority to perform this action!'
 ERR_TITLE_INAPPROPRIATE = 'Title content is inappropriate!'
 ERR_BODY_INAPPROPRIATE  = 'Body content is inappropriate!'
@@ -41,16 +27,12 @@ ERR_NOT_FOUND = 'Not found!'
 ERR_FAVORITE_NOT_ALLOWED = 'Favorite not allowed!'
 ERR_VOTING_NOT_ALLOWED = 'Voting not allowed!'
 ERR_COMMENT_NOT_ALLOWED = 'Comment not allowed!'
-ERR_NOT_ALLOWED_PARAMS = 'The parameter {} is not allowed!'
+
 
 ########### Authentication Module #################
 
 # common
 ERR_NO_POLICY_ACCEPTED = "You need to accept the policy!"
-ERR_NO_PASSWORD = "Please provide a password!"
-ERR_NO_CONFIRMED_PASSWORD = "Please provide confirmed password!"
-ERR_NO_DISPLAY_NAME = "Please provide a display name!"
-ERR_NO_EMAIL = "Please provide an Email!"
 ERR_INVALID_INPUT_EMAIL = "Email is not valid!"
 ERR_INVALID_CONFIMED_PASSWORD = "The confirmed password is not correct!"
 ERR_INVALID_INPUT_PASSWORD = "The password length must have at least 8!"
@@ -97,7 +79,8 @@ ERR_QUESTION_NOT_END_WITH_QUESION_MARK = 'Please end question title with questio
 ########### Answer Module #################
 ERR_USER_ALREADY_ANSWERED = 'This user has already answered this question!'
 ERR_USER_INFO_MORE_THAN_1 = 'More than 1 user information is selected!'
-
+ERR_ANSWER_AUDIO_ALLOWED = 'Question does not allow to answer by audio!'
+ERR_ANSWER_VIDEO_ALLOWED = 'Question does not allow to answer by video!'
 
 ########### User Module #################
 ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'

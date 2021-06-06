@@ -41,7 +41,7 @@ class LocationController(Controller):
                 UserLocation.query.filter_by(user_id=user_id).update({'is_current': False}, synchronize_session=False)
             db.session.add(location)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(location, LocationDto.model_response))
+            return send_result( data=marshal(location, LocationDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -81,7 +81,7 @@ class LocationController(Controller):
                 query = query.filter(UserLocation.is_current == is_current)
                 
             locations = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(locations, LocationDto.model_response))
+            return send_result(data=marshal(locations, LocationDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -109,7 +109,7 @@ class LocationController(Controller):
             if location.is_current:
                 UserLocation.query.filter(UserLocation.id != location.id, UserLocation.user_id == location.user_id).update({'is_current': False}, synchronize_session=False)
             db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(location, LocationDto.model_response))
+            return send_result(data=marshal(location, LocationDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -129,7 +129,7 @@ class LocationController(Controller):
             db.session.delete(location)
             db.session.commit()
 
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()

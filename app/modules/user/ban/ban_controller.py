@@ -75,7 +75,7 @@ class UserBanController(Controller):
                 db.session.commit()
                 results.append(ban)
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(results, UserBanDto.model_response))
+            return send_result( data=marshal(results, UserBanDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
@@ -100,7 +100,7 @@ class UserBanController(Controller):
             else:
                 db.session.delete(ban)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS)
+                return send_result()
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))

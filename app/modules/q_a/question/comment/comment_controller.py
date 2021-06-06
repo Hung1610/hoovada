@@ -60,7 +60,7 @@ class CommentController(BaseCommentController):
                     result['user'] = comment.user
                         
                     results.append(result)
-                return send_result(marshal(results, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(marshal(results, CommentDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -109,7 +109,7 @@ class CommentController(BaseCommentController):
 
             result = comment._asdict()
             result['user'] = comment.user
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, CommentDto.model_response))
+            return send_result( data=marshal(result, CommentDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -129,7 +129,7 @@ class CommentController(BaseCommentController):
         try:
             result = comment._asdict()
             result['user'] = comment.user
-            return send_result(data=marshal(result, CommentDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(result, CommentDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -162,7 +162,7 @@ class CommentController(BaseCommentController):
             result = comment._asdict()
             result['user'] = comment.user
             
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, CommentDto.model_response))
+            return send_result(data=marshal(result, CommentDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -179,7 +179,7 @@ class CommentController(BaseCommentController):
             db.session.delete(comment)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             print(e.__str__())

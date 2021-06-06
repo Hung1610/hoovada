@@ -62,7 +62,7 @@ class AnswerVoteController(Controller):
             for topic in answer.question.topics:
                 update_reputation.send(topic.id, user_voted.id)
                 update_reputation.send(topic.id, current_user.id, is_voter=True)
-            return send_result(data=marshal(vote, AnswerVoteDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(vote, AnswerVoteDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -106,7 +106,7 @@ class AnswerVoteController(Controller):
                 query = query.filter(AnswerVote.created_date <= to_date)
             votes = query.all()
             if votes is not None and len(votes) > 0:
-                return send_result(data=marshal(votes, AnswerVoteDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(votes, AnswerVoteDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -119,9 +119,9 @@ class AnswerVoteController(Controller):
 
         vote = AnswerVote.query.filter_by(id=object_id).first()
         if vote is None:
-            return send_error(message=messages.MSG_GET_SUCCESS)
+            return send_error(message=)
         else:
-            return send_result(data=marshal(vote, AnswerVoteDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(vote, AnswerVoteDto.model_response))
 
 
     def delete(self, answer_id):
@@ -137,7 +137,7 @@ class AnswerVoteController(Controller):
             
             db.session.delete(vote)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

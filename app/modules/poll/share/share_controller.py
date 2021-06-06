@@ -65,7 +65,7 @@ class ShareController(Controller):
             except Exception as e:
                 pass
                 
-            return send_result(data=marshal(share, ShareDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(share, ShareDto.model_response))
 
         except Exception as e:
             db.session.rollback()

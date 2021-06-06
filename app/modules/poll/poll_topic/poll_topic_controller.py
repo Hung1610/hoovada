@@ -69,7 +69,7 @@ class PollTopicController(Controller):
 
             db.session.delete(poll_topic)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -105,7 +105,7 @@ class PollTopicController(Controller):
             db.session.add(poll_topic)
             db.session.commit()
             result = poll_topic._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollTopicDto.model_response))
+            return send_result( data=marshal(result, PollTopicDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -135,7 +135,7 @@ class PollTopicController(Controller):
             poll_topic.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll_topic._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollTopicDto.model_response))
+            return send_result(data=marshal(result, PollTopicDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

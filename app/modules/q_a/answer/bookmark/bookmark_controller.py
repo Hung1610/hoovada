@@ -42,14 +42,14 @@ class AnswerBookmarkController(Controller):
             bookmark = AnswerBookmark.query.filter(AnswerBookmark.user_id == data['user_id'],
                                              AnswerBookmark.answer_id == data['answer_id']).first()
             if bookmark:
-                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, AnswerBookmarkDto.model_response))
+                return send_result( data=marshal(bookmark, AnswerBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
             bookmark.updated_date = datetime.utcnow()
             db.session.add(bookmark)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, AnswerBookmarkDto.model_response))
+            return send_result( data=marshal(bookmark, AnswerBookmarkDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -81,7 +81,7 @@ class AnswerBookmarkController(Controller):
 
             bookmarks = query.all()
             if bookmarks is not None and len(bookmarks) > 0:
-                return send_result(data=marshal(bookmarks, AnswerBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(bookmarks, AnswerBookmarkDto.model_response))
             else:
                 return send_result(message=messages.ERR_NOT_FOUND)
 
@@ -99,7 +99,7 @@ class AnswerBookmarkController(Controller):
             if bookmark is None:
                 return send_result(message=messages.ERR_NOT_FOUND)
 
-            return send_result(data=marshal(bookmark, AnswerBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(bookmark, AnswerBookmarkDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -122,7 +122,7 @@ class AnswerBookmarkController(Controller):
                 
             db.session.delete(bookmark)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

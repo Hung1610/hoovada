@@ -53,7 +53,7 @@ class UserFeedController(Controller):
                 else:
                     data = marshal(resp['data'], UserFeedDto.model_feed_all_data_details_response)
                     
-                return send_paginated_result(data=data, page=page, total=len(data), message=messages.MSG_GET_SUCCESS)
+                return send_paginated_result(data=data, page=page, total=len(data))
             
             else:
                 return send_error(message=messages.ERR_GET_FAILED.format(e))

@@ -116,7 +116,7 @@ class PollController(Controller):
             result['is_bookmarked_by_me'] = True
 
             update_seen_poll.send(current_user.id, poll.id)
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PollDto.model_response))
+            return send_result( data=marshal(result, PollDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -163,7 +163,7 @@ class PollController(Controller):
             result['fixed_topic'] = poll.fixed_topic
             result['poll_selects'] = poll.poll_selects
             update_seen_poll.send(current_user.id, poll.id)
-            return send_result(data=marshal(result, PollDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(result, PollDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -193,7 +193,7 @@ class PollController(Controller):
             poll.updated_date = datetime.utcnow()
             db.session.commit()
             result = poll._asdict()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PollDto.model_response))
+            return send_result(data=marshal(result, PollDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -220,7 +220,7 @@ class PollController(Controller):
         try:
             db.session.delete(poll)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

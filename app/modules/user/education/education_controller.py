@@ -89,7 +89,7 @@ class EducationController(Controller):
                 query = query.filter(UserEducation.secondary_major == secondary_major)
                 
             educations = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(educations, EducationDto.model_response))
+            return send_result(data=marshal(educations, EducationDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -120,7 +120,7 @@ class EducationController(Controller):
                 UserEducation.query.filter(UserEducation.id != education.id, UserEducation.user_id == education.user_id).update({'is_current': False}, synchronize_session=False)
             
             db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(education, EducationDto.model_response))
+            return send_result(data=marshal(education, EducationDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -140,7 +140,7 @@ class EducationController(Controller):
                 
             db.session.delete(education)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             print(e.__str__())

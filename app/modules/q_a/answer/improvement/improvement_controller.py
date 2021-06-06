@@ -59,7 +59,7 @@ class AnswerImprovementController(Controller):
             db.session.add(improvement)
             db.session.commit()
             result = improvement._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerImprovementDto.model_response))
+            return send_result( data=marshal(result, AnswerImprovementDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -119,7 +119,7 @@ class AnswerImprovementController(Controller):
             # get user information for each answer.
             result = improvement._asdict()
             result['user'] = improvement.user
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerImprovementDto.model_response))
+            return send_result(data=marshal(result, AnswerImprovementDto.model_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -134,7 +134,7 @@ class AnswerImprovementController(Controller):
             else:
                 db.session.delete(improvement)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS)
+                return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

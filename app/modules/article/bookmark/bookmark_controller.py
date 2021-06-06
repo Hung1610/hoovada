@@ -34,7 +34,7 @@ class ArticleBookmarkController(Controller):
         try:
             bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == data['user_id'], ArticleBookmark.article_id == data['article_id']).first()
             if bookmark:
-                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, ArticleBookmarkDto.model_response))
+                return send_result( data=marshal(bookmark, ArticleBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -42,7 +42,7 @@ class ArticleBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, ArticleBookmarkDto.model_response))
+            return send_result( data=marshal(bookmark, ArticleBookmarkDto.model_response))
         
         except Exception as e:
             print(e.__str__())
@@ -86,7 +86,7 @@ class ArticleBookmarkController(Controller):
         if bookmark is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         
-        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
+        return send_result(data=marshal(bookmark, ArticleBookmarkDto.model_response))
 
 
 
@@ -104,7 +104,7 @@ class ArticleBookmarkController(Controller):
             else:
                 db.session.delete(bookmark)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS)
+                return send_result()
 
         except Exception as e:
             db.session.rollback()

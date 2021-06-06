@@ -125,7 +125,7 @@ class AnswerController(Controller):
             #    friend_ids = [friend.adaptive_friend_id for friend in friends]
             #    new_answer_notify_user_list.send(answer.id, friend_ids)
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
+            return send_result( data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -150,13 +150,17 @@ class AnswerController(Controller):
         question = answer.question
 
         if not media_file:
-            return send_error(message=messages.ERR_NO_FILE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
+
         if not file_type:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file type'))
+        
         if FileTypeEnum(int(file_type)).name == FileTypeEnum.AUDIO.name and not question.allow_audio_answer:
-            return send_error(message=messages.ERR_ISSUE.format('Question does not allow answer by audio.'))
+            return send_error(message=messages.ERR_ANSWER_AUDIO_ALLOWED)
+        
         if FileTypeEnum(int(file_type)).name == FileTypeEnum.VIDEO.name and not question.allow_video_answer:
-            return send_error(message=messages.ERR_ISSUE.format('Question does not allow answer by video.'))
+            return send_error(message=messages.ERR_ANSWER_VIDEO_ALLOWED)
+        
         try:
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
@@ -185,7 +189,7 @@ class AnswerController(Controller):
             result['is_downvoted_by_me'] = False
             result['is_bookmarked_by_me'] = True
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
+            return send_result( data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -228,7 +232,7 @@ class AnswerController(Controller):
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
 
-            return send_result(data=marshal(result, AnswerDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -303,7 +307,7 @@ class AnswerController(Controller):
             user = User.query.filter_by(id=answer.user_id).first()
             result['user'] = user
 
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, AnswerDto.model_response))
+            return send_result(data=marshal(result, AnswerDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -323,7 +327,7 @@ class AnswerController(Controller):
 
             db.session.delete(answer)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())

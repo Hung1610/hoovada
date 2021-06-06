@@ -64,7 +64,7 @@ class UserFollowController(Controller):
                 query = query.filter(UserFollow.created_date <= to_date)
             follows = query.all()
 
-            return send_result(data=marshal(follows, UserFollowDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(follows, UserFollowDto.model_response))
         
         except Exception as e:
             print(e.__str__())
@@ -87,7 +87,7 @@ class UserFollowController(Controller):
             db.session.add(follow)
             db.session.commit()
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(follow, UserFollowDto.model_response))
+            return send_result( data=marshal(follow, UserFollowDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -104,7 +104,7 @@ class UserFollowController(Controller):
             if follow is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
             else:
-                return send_result(data=marshal(follow, UserFollowDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(follow, UserFollowDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -126,7 +126,7 @@ class UserFollowController(Controller):
 
             db.session.delete(follow)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -158,7 +158,7 @@ class UserFollowController(Controller):
                 .limit(limit)\
                 .all()
             results = [{'user': user, 'total_score': total_score} for user, total_score in top_users]
-            return send_result(data=marshal(results, UserFollowDto.top_user_followee_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(results, UserFollowDto.top_user_followee_response))
 
         except Exception as e:
             print(e.__str__())

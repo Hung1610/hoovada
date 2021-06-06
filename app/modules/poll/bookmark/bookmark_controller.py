@@ -50,7 +50,7 @@ class PollBookmarkController(Controller):
                 query = query.filter(PollBookmark.created_date <= to_date)
             bookmarks = query.all()
             if bookmarks is not None and len(bookmarks) > 0:
-                return send_result(data=marshal(bookmarks, PollBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(bookmarks, PollBookmarkDto.model_response))
             else:
                 return send_result(message=messages.ERR_NOT_FOUND)
 
@@ -69,14 +69,14 @@ class PollBookmarkController(Controller):
             bookmark = PollBookmark.query.filter(PollBookmark.user_id == data['user_id'],
                                              PollBookmark.poll_id == data['poll_id']).first()
             if bookmark:
-                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, PollBookmarkDto.model_response))
+                return send_result( data=marshal(bookmark, PollBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
             bookmark.updated_date = datetime.utcnow()
             db.session.add(bookmark)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, PollBookmarkDto.model_response))
+            return send_result( data=marshal(bookmark, PollBookmarkDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
@@ -89,7 +89,7 @@ class PollBookmarkController(Controller):
         if bookmark is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         else:
-            return send_result(data=marshal(bookmark, PollBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(bookmark, PollBookmarkDto.model_response))
 
     def update(self, object_id, data):
         pass
@@ -104,7 +104,7 @@ class PollBookmarkController(Controller):
             else:
                 db.session.delete(bookmark)
                 db.session.commit()
-                return send_result(message=messages.MSG_DELETE_SUCCESS.format(bookmark.id))
+                return send_result(.format(bookmark.id))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))

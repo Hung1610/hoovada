@@ -68,7 +68,7 @@ class PostController(Controller):
                 print(e)
                 pass
                 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
+            return send_result( data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -189,7 +189,8 @@ class PostController(Controller):
             return send_error(message=messages.ERR_NOT_FOUND)
 
         if not media_file:
-            return send_error(message=messages.ERR_NO_FILE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))    
+            
         if not file_type:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file type'))
         try:
@@ -209,7 +210,7 @@ class PostController(Controller):
             db.session.commit()
             result = post._asdict()
             result['user'] = post.user
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
+            return send_result( data=marshal(result, PostDto.model_post_response))
         
         except Exception as e:
             db.session.rollback()
@@ -234,7 +235,7 @@ class PostController(Controller):
             result = post._asdict()
             result['user'] = post.user
 
-            return send_result(data=marshal(result, PostDto.model_post_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             print(e)
             return send_error(message=messages.ERR_GET_FAILED.format(e))
@@ -269,7 +270,7 @@ class PostController(Controller):
             result = post._asdict()
 
             result['user'] = post.user
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, PostDto.model_post_response))
+            return send_result(data=marshal(result, PostDto.model_post_response))
         except Exception as e:
             db.session.rollback()
             print(e)
@@ -292,7 +293,7 @@ class PostController(Controller):
             post_dsl = ESPost(_id=post.id)
             post_dsl.delete()
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -332,7 +333,7 @@ class PostController(Controller):
             .order_by(desc(Post.share_count + Post.favorite_count),desc(Post.created_date))
             posts = query.offset(page * page_size).limit(page_size).all()
 
-            return send_result(data=marshal(posts, PostDto.model_post_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(posts, PostDto.model_post_response))
 
         except Exception as e:
             print(e)

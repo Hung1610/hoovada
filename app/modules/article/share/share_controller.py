@@ -60,7 +60,7 @@ class ShareController(Controller):
             except Exception as e:
                 pass
 
-            return send_result(data=marshal(share, ShareDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(share, ShareDto.model_response))
             
         except Exception as e:
             db.session.rollback()
@@ -121,7 +121,7 @@ class ShareController(Controller):
                 query = query.filter(ArticleShare.zalo == zalo)
             shares = query.all()
             if len(shares) > 0:
-                return send_result(data=marshal(shares, ShareDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(shares, ShareDto.model_response))
             else:
                 return send_result(messages.ERR_NOT_FOUND)
         except Exception as e:
@@ -138,7 +138,7 @@ class ShareController(Controller):
         if report is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         else:
-            return send_result(data=marshal(report, ShareDto.model_response), message=messages.MSG_GET_SUCCESS)
+            return send_result(data=marshal(report, ShareDto.model_response))
 
 
     def update(self, object_id, data):
@@ -240,8 +240,8 @@ class ShareController(Controller):
                     result['article'] = article
 
                     results.append(result)
-                return send_result(data=marshal(results, ShareDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(results, ShareDto.model_response))
             else:
-                return send_result(message=messages.MSG_GET_SUCCESS)
+                return send_result(message=)
         else:
             return send_error(message='Could not find questions. Please check your parameters again.')

@@ -27,7 +27,7 @@ class FileUploadController(Controller):
         file = data.get('file')
 
         if not file:
-            return send_error(message=messages.ERR_NO_FILE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
         
         try:
             filename = file.filename
@@ -36,7 +36,7 @@ class FileUploadController(Controller):
             sub_folder = '{}/{}'.format('file', current_user.id if current_user else 'guest')
             url = upload_file(file=file, file_name=file_name, sub_folder=sub_folder)
             result = {'url': url}
-            return send_result(data=marshal(result, FileUploadDto.model), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(result, FileUploadDto.model))
 
         except Exception as e:
             print(e.__str__())

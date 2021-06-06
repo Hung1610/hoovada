@@ -52,7 +52,7 @@ class PollVoteController(Controller):
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
-            return send_result(data=marshal(vote, PollVoteDto.model_response), message=messages.MSG_CREATE_SUCCESS)
+            return send_result(data=marshal(vote, PollVoteDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -96,7 +96,7 @@ class PollVoteController(Controller):
                 query = query.filter(PollVote.created_date <= to_date)
             votes = query.all()
             if votes is not None and len(votes) > 0:
-                return send_result(data=marshal(votes, PollVoteDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(votes, PollVoteDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -111,7 +111,7 @@ class PollVoteController(Controller):
         if vote is None:
             return send_error(message=messages.ERR_NOT_FOUND)
         
-        return send_result(data=marshal(vote, PollVoteDto.model_response), message=messages.MSG_GET_SUCCESS)
+        return send_result(data=marshal(vote, PollVoteDto.model_response))
 
 
     def delete(self, poll_id):
@@ -124,7 +124,7 @@ class PollVoteController(Controller):
             
             db.session.delete(vote)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

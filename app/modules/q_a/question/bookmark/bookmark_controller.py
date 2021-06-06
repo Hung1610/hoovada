@@ -39,7 +39,7 @@ class QuestionBookmarkController(Controller):
             bookmark = QuestionBookmark.query.filter(QuestionBookmark.user_id == data['user_id'],
                                              QuestionBookmark.question_id == data['question_id']).first()
             if bookmark:
-                return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, QuestionBookmarkDto.model_response))
+                return send_result( data=marshal(bookmark, QuestionBookmarkDto.model_response))
 
             bookmark = self._parse_bookmark(data=data, bookmark=None)
             bookmark.created_date = datetime.utcnow()
@@ -47,7 +47,7 @@ class QuestionBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(bookmark, QuestionBookmarkDto.model_response))
+            return send_result( data=marshal(bookmark, QuestionBookmarkDto.model_response))
         
         except Exception as e:
             db.session.rollback()
@@ -78,7 +78,7 @@ class QuestionBookmarkController(Controller):
 
             bookmarks = query.all()
             if bookmarks is not None:
-                return send_result(data=marshal(bookmarks, QuestionBookmarkDto.model_response), message=messages.MSG_GET_SUCCESS)
+                return send_result(data=marshal(bookmarks, QuestionBookmarkDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -92,7 +92,7 @@ class QuestionBookmarkController(Controller):
         try:
             bookmark = QuestionBookmark.query.filter_by(id=object_id).first()
             if bookmark is None:
-                return send_error(message=messages.MSG_GET_SUCCESS)
+                return send_error(message=)
 
         except Exception as e:
             print(e.__str__())
@@ -118,7 +118,7 @@ class QuestionBookmarkController(Controller):
             db.session.delete(bookmark)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

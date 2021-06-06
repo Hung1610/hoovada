@@ -55,7 +55,7 @@ class CareerController(Controller):
             db.session.commit()
 
             result = career._asdict()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, CareerDto.model_career_response))
+            return send_result( data=marshal(result, CareerDto.model_career_response))
 
         except Exception as e:
             print(e.__str__())
@@ -151,7 +151,7 @@ class CareerController(Controller):
 
             result = career._asdict()
 
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, CareerDto.model_career_response))
+            return send_result(data=marshal(result, CareerDto.model_career_response))
 
         except Exception as e:
             db.session.rollback()
@@ -171,7 +171,7 @@ class CareerController(Controller):
 
             db.session.delete(career)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()

@@ -40,7 +40,7 @@ class TopicController(Controller):
             topic = self._parse_topic(data=data, topic=None)
             db.session.add(topic)
             db.session.commit()
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(topic, TopicDto.model_response))
+            return send_result( data=marshal(topic, TopicDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -85,7 +85,7 @@ class TopicController(Controller):
                 query = query.filter(UserTopic.topic.is_fixed == True)
                 
             topics = query.all()
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(topics, TopicDto.model_response))
+            return send_result(data=marshal(topics, TopicDto.model_response))
 
         except Exception as e:
             print(e.__str__())
@@ -111,7 +111,7 @@ class TopicController(Controller):
             topic = self._parse_topic(data=data, topic=topic)
             topic.updated_date = datetime.utcnow()
             db.session.commit()
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(topic, TopicDto.model_response))
+            return send_result(data=marshal(topic, TopicDto.model_response))
 
         except Exception as e:
             db.session.rollback()
@@ -130,7 +130,7 @@ class TopicController(Controller):
 
             db.session.delete(topic)
             db.session.commit()
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             print(e.__str__())

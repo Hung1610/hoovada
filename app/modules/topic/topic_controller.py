@@ -455,7 +455,8 @@ class TopicController(Controller):
 
         media_file = request.files.get('file', None)
         if not media_file:
-            return send_error(message=messages.ERR_NO_FILE)
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('file'))
+            
         try:
             filename = media_file.filename
             file_name, ext = get_file_name_extension(filename)
