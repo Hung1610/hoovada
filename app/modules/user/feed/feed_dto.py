@@ -57,7 +57,7 @@ class UserFeedDto(Dto):
 	    'comment_count': fields.Integer(default=0, description='The amount of comments'),
 	    'is_anonymous': fields.Boolean(default=False, description='The article is anonymous or not'),
 	    'scheduled_date': fields.DateTime(description='The scheduled date'),
-	    'user': fields.Nested(model_user, description='The user information')
+	    'user': fields.Nested(model_user, description='The user information'),
 	    'fixed_topic': fields.Nested(model_topic, description='The fixed topic'),
 	    'topics': fields.List(fields.Nested(model_topic), description='The list of topics'),
 	    'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
@@ -146,21 +146,21 @@ class UserFeedDto(Dto):
 
 	model_poll_user_select = api.model('model_poll_user_select', {
 		'id': fields.Integer(readonly=True, description='The ID of the poll user select'),
-	    'user': fields.Nested(model_user, description='The detail of owner user'),
+	    'user': fields.Nested(model_user, description='The user information'),
 	})
 
 	model_poll_select = api.model('poll_select', {
 		'id': fields.Integer(readonly=True, description='The ID of the poll select'),
 	    'content': fields.String(description='The content of selection of a poll'),
 	    'poll_user_selects': fields.List(fields.Nested(model_poll_user_select), description='The list of users selecting'),
-	    'user': fields.Nested(model_user, description='User that select this selection')
+	    'user': fields.Nested(model_user, description='The user information')
 	})
 
 	model_poll = api.model('poll', {
 	    'id': fields.Integer(required=False, readonly=True, description='The ID of the poll'),
 	    'created_date': fields.DateTime(default=datetime.utcnow, description='The date poll was created'),
 	    'updated_date': fields.DateTime(default=datetime.utcnow, description='The date poll was updated'),
-	    'user': fields.Nested(model_user, description='The detail of owner user'), 
+	    'user': fields.Nested(model_user, description='The user information'), 
 	    'title': fields.String(default=None, description='The title of the poll'),
 		'slug': fields.String(default=None, description='The slug of the poll'),
 		'html': fields.String(description='The content of the poll'),
