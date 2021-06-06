@@ -221,27 +221,21 @@ class ShareController(Controller):
                 print(e.__str__())
                 pass
         if user_id is None :
-            send_error(message='Provide params to search.')
+            return send_error(message='Provide params to search.')
 
-        is_filter = False
-        if user_id is not None:
-            query = query.filter(ArticleShare.user_id == user_id)
-            is_filter = True
+        query = query.filter(ArticleShare.user_id == user_id)
 
-        if is_filter:
-            shares = query.order_by(desc(ArticleShare.created_date)).all()
-            if shares is not None and len(shares) > 0:
-                results = list()
-                for share in shares:
-                    result = ArticleShare._asdict()
+        shares = query.order_by(desc(ArticleShare.created_date)).all()
+        if shares is not None and len(shares) > 0:
+            results = list()
+            for share in shares:
+                result = ArticleShare._asdict()
 
-                    # get user article
-                    article = Article.query.filter_by(id=ArticleShare.article_id).first()
-                    result['article'] = article
+                # get user article
+                article = Article.query.filter_by(id=ArticleShare.article_id).first()
+                result['article'] = article
 
-                    results.append(result)
-                return send_result(data=marshal(results, ShareDto.model_response))
-            else:
-                return send_result(message=)
+                results.append(result)
+            return send_result(data=marshal(results, ShareDto.model_response))
         else:
-            return send_error(message='Could not find questions. Please check your parameters again.')
+            return send_result(message=messages.ERR_NOT_FOUND)

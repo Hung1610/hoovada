@@ -104,7 +104,7 @@ class PollBookmarkController(Controller):
             else:
                 db.session.delete(bookmark)
                 db.session.commit()
-                return send_result(.format(bookmark.id))
+                return send_result()
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))

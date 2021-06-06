@@ -92,8 +92,8 @@ class QuestionBookmarkController(Controller):
         try:
             bookmark = QuestionBookmark.query.filter_by(id=object_id).first()
             if bookmark is None:
-                return send_error(message=)
-
+                return send_error(message=messages.ERR_NOT_FOUND)
+            return send_result(data=marshal(bookmark, QuestionBookmarkDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
