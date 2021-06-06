@@ -58,17 +58,7 @@ class PostController(Controller):
             post_dsl = ESPost(_id=post.id, html=strip_tags(post.html), user_id=post.user_id, created_date=post.created_date, updated_date=post.created_date)
             post_dsl.save()
             db.session.commit()
-            try:
-                result = post._asdict()
-                user = User.query.filter_by(id=post.user_id).first()
-                result['user'] = user
-                result['is_favorited_by_me'] = False
-
-            except Exception as e:
-                print(e)
-                pass
-                
-            return send_result( data=marshal(result, PostDto.model_post_response))
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -210,7 +200,7 @@ class PostController(Controller):
             db.session.commit()
             result = post._asdict()
             result['user'] = post.user
-            return send_result( data=marshal(result, PostDto.model_post_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -267,10 +257,7 @@ class PostController(Controller):
             post_dsl.update(html=strip_tags(post.html), updated_date=post.updated_date)
 
             db.session.commit()            
-            result = post._asdict()
-
-            result['user'] = post.user
-            return send_result(data=marshal(result, PostDto.model_post_response))
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e)

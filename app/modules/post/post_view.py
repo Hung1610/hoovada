@@ -40,7 +40,6 @@ class PostList(Resource):
 
     @token_required
     @api.expect(_post_dto_request)
-    @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def post(self):
         """Create new post"""
 
@@ -63,22 +62,9 @@ class Post(Resource):
         controller = PostController()
         return controller.get_by_id(object_id=post_id)
 
-    @api.deprecated
-    @token_required
-    @api.expect(_post_dto_request)
-    @api.response(code=200, model=_post_dto_response, description='Model for post response.')
-    def put(self, post_id):
-        """Delete and re-create new post using old post Id"""
-
-        data = api.payload
-        controller = PostController()
-        result = controller.update(object_id=post_id, data=data)
-        cache.clear_cache(get_post_proposal_key_prefix())
-        return result
 
     @token_required
     @api.expect(_post_dto_request)
-    @api.response(code=200, model=_post_dto_response, description='Model for post response.')
     def patch(self, post_id):
         """Update existing post using post Id"""
 
@@ -102,6 +88,7 @@ parser_post_of_friend = reqparse.RequestParser()
 parser_post_of_friend.add_argument('page', type=int, required=False, help='Search posts by page.')
 parser_post_of_friend.add_argument('per_page', type=int, required=False, help='Get record number on page.')
 
+@api.deprecated
 @api.route('/post_of_friend')
 @api.expect(parser_post_of_friend)
 class PostOfFriend(Resource):
