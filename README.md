@@ -101,8 +101,6 @@ $ ./%HOME/.conda/envs/pypy_env/bin/python <path to project>/manage_socketio.py -
 - Setting up DB
 
 ```bash
-$ mysql -u username -p hoovada < ./sql/initial.sql
-
 CREATE USER IF NOT EXISTS <user>@'%' IDENTIFIED BY <password>;
 GRANT ALL PRIVILEGES ON hoovada.* TO <user>@'%';
 FLUSH PRIVILEGES;
