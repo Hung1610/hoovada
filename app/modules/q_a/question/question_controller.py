@@ -122,19 +122,19 @@ class QuestionController(Controller):
         try:
             query = self.get_query_results(args)
             res, code = paginated_result(query)
-            """
+            
             results = []
             for question in res.get('data'):
                 result = question._asdict()
                 # get user info
-                result['user'] = question.user
-                result['fixed_topic'] = question.fixed_topic
-                result['topics'] = question.topics
+                #result['user'] = question.user
+                #result['fixed_topic'] = question.fixed_topic
+                #result['topics'] = question.topics
                 results.append(result)
             
             res['data'] = marshal(results, QuestionDto.model_question_response)
-            """
-            return res, code
+            
+            return res
 
         except Exception as e:
             print(e.__str__())
