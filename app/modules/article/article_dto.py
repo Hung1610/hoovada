@@ -80,6 +80,11 @@ class ArticleDto(Dto):
         'is_bookmarked_by_me':fields.Boolean(default=False, description='is bookmarked by current user.'),
     })
 
+    model_article_create_update_response = api.model('article_response', {
+        'id': fields.Integer(readonly=True, description=''),
+        'slug': fields.String(description='The slug of the article'),
+    })
+
     model_get_parser = Dto.paginated_request_parser.copy()
     model_get_parser.add_argument('title', type=str, required=False, help='Search article by its title')
     model_get_parser.add_argument('fixed_topic_id', type=int, required=False, help='Search all articles related to fixed-topic.')

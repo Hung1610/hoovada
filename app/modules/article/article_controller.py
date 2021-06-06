@@ -98,7 +98,7 @@ class ArticleController(Controller):
             result['is_downvoted_by_me'] = False
             result['is_bookmarked_by_me'] = True
 
-            return send_result(message=messages.MSG_CREATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
+            return send_result(data=marshal(result, ArticleDto.model_article_create_update_response))
         
         except Exception as e:
             db.session.rollback()
@@ -136,7 +136,7 @@ class ArticleController(Controller):
     def get_count(self, args):
         try:
             count = self.get_query_results_count(args)
-            return send_result({'count': count}, message=messages.MSG_GET_SUCCESS)
+            return send_result({'count': count})
         
         except Exception as e:
             print(e.__str__())
@@ -170,7 +170,7 @@ class ArticleController(Controller):
             if current_user:
                 update_seen_articles.send(article.id, current_user.id)
             
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
+            return send_result(data=marshal(result, ArticleDto.model_article_response))
         
         except Exception as e:
             print(e.__str__())
@@ -220,7 +220,7 @@ class ArticleController(Controller):
                 result['topics'] = article.topics
 
                 results.append(result)
-            return send_result(message=messages.MSG_GET_SUCCESS, data=marshal(results, ArticleDto.model_article_response))
+            return send_result(data=marshal(results, ArticleDto.model_article_response))
 
         except Exception as e:
             print(e.__str__())
@@ -264,7 +264,7 @@ class ArticleController(Controller):
             result = article._asdict()
             result['user'] = article.user
             result['topics'] = article.topics
-            return send_result(message=messages.MSG_UPDATE_SUCCESS, data=marshal(result, ArticleDto.model_article_response))
+            return send_result(data=marshal(result, ArticleDto.model_article_create_update_response))
         
         except Exception as e:
             db.session.rollback()
@@ -295,7 +295,7 @@ class ArticleController(Controller):
             article_dsl.delete()
             db.session.commit()
             cache.clear_cache(Article.__class__.__name__)
-            return send_result(message=messages.MSG_DELETE_SUCCESS)
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -309,7 +309,7 @@ class ArticleController(Controller):
             for article in articles:
                 article.slug = slugify(article.title)
                 db.session.commit()
-            return send_result(data=marshal(articles, ArticleDto.model_article_response), message=messages.MSG_UPDATE_SUCCESS)
+            return send_result()
         
         except Exception as e:
             db.session.rollback()

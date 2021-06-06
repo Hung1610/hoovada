@@ -21,14 +21,20 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = ArticleDto.api
+
+# request model
 _article_dto_request = ArticleDto.model_article_request
-_article_dto_response = ArticleDto.model_article_response
 _article_get_params = ArticleDto.model_get_parser
 _article_get_similar_params = ArticleDto.get_similar_articles_parser
 
+# response model
+MODEL_ARTICLE_RESPONSE = ArticleDto.model_article_response
+MODEL_ARTICLE_CREATE_UPDATE_RESPONSE = ArticleDto.model_article_create_update_response
+
+
 @api.route('')
 class ArticleList(Resource):
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.response(code=200, model=MODEL_ARTICLE_RESPONSE, description='Model for article response.')
     @api.expect(_article_get_params)
     @cache.cached(query_string=True)
     def get(self):
@@ -41,7 +47,7 @@ class ArticleList(Resource):
 
     @token_required
     @api.expect(_article_dto_request)
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.response(code=200, model=MODEL_ARTICLE_CREATE_UPDATE_RESPONSE, description='Model for article response.')
     def post(self):
         """Create new article"""
 
@@ -67,7 +73,7 @@ def get_article_key_prefix():
 
 @api.route('/<string:id_or_slug>')
 class Article(Resource):
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.response(code=200, model=MODEL_ARTICLE_RESPONSE, description='Model for article response.')
     @cache.cached(key_prefix=get_article_key_prefix)
     def get(self, id_or_slug):
         """Get an article by article id or slug"""
@@ -77,7 +83,7 @@ class Article(Resource):
 
     @token_required
     @api.expect(_article_dto_request)
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.response(code=200, model=MODEL_ARTICLE_CREATE_UPDATE_RESPONSE, description='Model for article response.')
     def patch(self, id_or_slug):
         """Update existing article by article Id or slug"""
 
@@ -101,7 +107,7 @@ class Article(Resource):
 @api.route('/similar')
 class ArticleSimilar(Resource):
     @api.expect(_article_get_similar_params)
-    @api.response(code=200, model=_article_dto_response, description='Model for article response.')
+    @api.response(code=200, model=MODEL_ARTICLE_RESPONSE, description='Model for article response.')
     def get(self):
         """ Get similar articles"""
         
@@ -113,7 +119,6 @@ class ArticleSimilar(Resource):
 @api.route('/update_slug')
 class UpdateArticleSlug(Resource):
     @admin_token_required()
-    @api.response(code=200, model=_article_dto_response, description='Model for question response.')
     def post(self):
         """ Update Slug for article"""
 
