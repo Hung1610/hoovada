@@ -51,7 +51,7 @@ class AuthController:
                 message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
+            return send_error(message=messages.ERR_NO_EMAIL)
         
         if not 'password' in data or str(data['password']).strip().__eq__(''):
             return send_error(message=messages.ERR_NO_PASSWORD)
@@ -103,7 +103,7 @@ class AuthController:
 
         email = confirm_token(token)
         if email is None or email.strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
+            return send_error(message=messages.ERR_NO_EMAIL)
 
         if is_valid_email(email) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
@@ -132,7 +132,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
+            return send_error(message=messages.ERR_NO_EMAIL)
 
         if is_valid_email(data['email']) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
@@ -166,7 +166,7 @@ class AuthController:
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
         if not 'email' in data or str(data['email']).strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
+            return send_error(message=messages.ERR_NO_EMAIL)
 
         if is_valid_email(data['email']) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
@@ -191,7 +191,7 @@ class AuthController:
         email = confirm_token(token)
 
         if email is None or email.strip().__eq__(''):
-            return send_error(message=messages.ERR_NO_MAIL)
+            return send_error(message=messages.ERR_NO_EMAIL)
 
         if is_valid_email(email) is False:
             return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)   
@@ -820,9 +820,9 @@ def create_user_by_email(data):
 
         db.session.add(user)
         db.session.flush()
-        user_dsl = ESUser(_id=user.id, display_name=user.display_name, email=user.email,
-                        gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
-        user_dsl.save()
+        # user_dsl = ESUser(_id=user.id, display_name=user.display_name, email=user.email,
+        #                 gender=user.gender, age=user.age, reputation=user.reputation, first_name=user.first_name, middle_name=user.middle_name, last_name=user.last_name)
+        # user_dsl.save()
         db.session.commit()
         return user
 
@@ -839,7 +839,7 @@ def create_user_by_email(data):
 def save_social_account(provider, data):
 
     if not 'email' in data or str(data['email']).strip().__eq__(''):
-        return send_error(message=messages.ERR_NO_MAIL)
+        return send_error(message=messages.ERR_NO_EMAIL)
 
     if is_valid_email(data['email']) is False:
         return send_error(message=messages.ERR_INVALID_INPUT_EMAIL)
