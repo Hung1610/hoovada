@@ -170,13 +170,13 @@ class QuestionController(Controller):
 
 
     def invite(self, object_id, data):
-        try:
-            if not 'emails_or_usernames' in data:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('emails_or_usernames'))
+        if not 'emails_or_usernames' in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('emails_or_usernames'))
 
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-                
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        try:  
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
@@ -209,19 +209,16 @@ class QuestionController(Controller):
     def decline_invited_question(self, object_id):
         try:
             current_user = g.current_user           
-            result = None
             question_user_invite = QuestionUserInvite.query.filter_by(user_id=current_user.id, question_id=object_id).first()
-            if question_user_invite:
-                question_user_invite.status = 2
-                result = question_user_invite._asdict()
-            else:
+            if question_user_invite is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
+
+            question_user_invite.status = 2
             db.session.commit()
             return send_result()
-        
         except Exception as e:
             db.session.rollback()
-            print(e)
+            print(e.__str__())
             return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
@@ -303,6 +300,7 @@ class QuestionController(Controller):
             query = QuestionProposal.query.filter(QuestionProposal.question_id == question.id)
             if from_date is not None:
                 query = query.filter(QuestionProposal.proposal_created_date >= from_date)
+            
             if to_date is not None:
                 query = query.filter(QuestionProposal.proposal_created_date <= to_date)
 
@@ -350,13 +348,14 @@ class QuestionController(Controller):
 
  
     def create_question_update_proposal(self, object_id, data):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
             
-            if not isinstance(data, dict):
-                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-            
+        try: 
             question = None
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
