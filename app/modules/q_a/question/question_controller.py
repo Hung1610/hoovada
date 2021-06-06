@@ -126,9 +126,13 @@ class QuestionController(Controller):
             results = []
             for question in res.get('data'):
                 result = question._asdict()
+                result['user'] = question.user
+                result['fixed_topic'] = question.fixed_topic
+                result['topics'] = question.topics
                 results.append(result)
-                        
-            return marshal(results, QuestionDto.model_question_response)
+            
+            res['data'] = marshal(results, QuestionDto.model_question_response)
+            return res, code
 
         except Exception as e:
             print(e.__str__())

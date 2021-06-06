@@ -163,7 +163,9 @@ class TopicController(Controller):
                 result['children'] = topic.children
                 results.append(result)
             res['data'] = marshal(topics, TopicDto.model_topic_response)
-            return res
+            
+            return res, code
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
