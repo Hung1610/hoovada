@@ -1,5 +1,8 @@
 USE hoovada;
 
+ALTER TABLE topic DROP followers_count; 
+DROP TABLE topic_follow;
+
 UPDATE user SET
     new_answer_notify_settings = 0,
     new_answer_email_settings = 0,
