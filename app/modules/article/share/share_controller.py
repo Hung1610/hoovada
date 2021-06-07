@@ -37,6 +37,7 @@ class ShareController(Controller):
 
         data['user_id'] = current_user.id
         data['article_id'] = article_id
+        data = self.add_org_data(data)
         try:
             share = self._parse_share(data=data)
             share.created_date = datetime.utcnow()
@@ -106,6 +107,11 @@ class ShareController(Controller):
         try:
             query = ArticleShare.query
             if user_id is not None:
+                data_role = self.get_role_data()
+                if data_role['role'] == 'user':
+                    query = query.filter(ArticleShare.user_id == user_id, ArticleShare.entity_type == data_role['role'])
+                if data_role['role'] == 'organization':
+                    query = query.filter(ArticleShare.organization_id == data_role['organization_id'], ArticleShare.entity_type == data_role['role'])
                 query = query.filter(ArticleShare.user_id == user_id)
             if article_id is not None:
                 query = query.filter(ArticleShare.article_id == article_id)
@@ -203,7 +209,19 @@ class ShareController(Controller):
                 share.link_copied = bool(data['link_copied'])
             except Exception as e:
                 pass
+        if 'entity_type' in data:
+            try:
+                share.entity_type = data['entity_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
+        if 'organization_id' in data:
+            try:
+                share.organization_id = int(data['organization_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return share
 
 

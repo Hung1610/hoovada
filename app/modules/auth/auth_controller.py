@@ -8,7 +8,7 @@ from datetime import datetime
 # third-party modules
 from flask.templating import render_template
 import requests
-from flask import g
+from flask import g, session
 from flask_restx import marshal
 
 # own modules
@@ -19,6 +19,7 @@ from app.settings.config import BaseConfig as Config
 from common.models.ban import UserBan
 from common.models.blacklist import BlacklistToken
 from common.models.user import SocialAccount, User
+from common.models.organization import Organization
 from common.utils.response import send_error, send_result
 from common.utils.util import (check_password, check_verification,
                                confirm_token, convert_vietnamese_diacritics,
@@ -770,6 +771,30 @@ class AuthController:
 
         user = g.current_user
         return send_result(data=marshal(user, UserDto.model_response))
+    
+    def switch_role(self, data):
+        if 'role' not in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('a role'))
+        if 'role' in data and data['role'] not in ['user','organization']:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('a role in list (user, organization)'))
+        if 'role' in data and data['role'] == 'organization' and 'organization_id' not in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('organization_id when role is organization'))
+        if 'role' in data:
+            session['role'] = data['role']
+            if data['role'] == 'user' and 'organization_id' in session:
+                del session['organization_id']
+        if 'organization_id' in data and data['role'] == 'organization':
+            session['organization_id'] = data['organization_id']
+            org = Organization.query.filter_by(id=data['organization_id']).first()
+            if org is None:
+                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Organization',data['organization_id']))
+            if org.user_id != g.current_user.id:
+                return send_error(message=messages.ERR_NOT_AUTHORIZED)
+        return send_result()
+    
+    def get_current_role(self):
+        return send_result(data={'role': session['role'], 'organization_id': None if 'organization_id' not in session else session['organization_id']})
+
 
 
 def check_user_by_phone_number(phone_number):

@@ -30,6 +30,7 @@ GET_SIMILAR_ARTICLES_PARSER = ArticleDto.get_similar_articles_parser
 # response model
 MODEL_ARTICLE_RESPONSE = ArticleDto.model_article_response
 MODEL_ARTICLE_CREATE_UPDATE_RESPONSE = ArticleDto.model_article_create_update_response
+model_patch_status_request = ArticleDto.model_patch_status_request
 
 
 @api.route('')
@@ -114,3 +115,17 @@ class ArticleSimilar(Resource):
         args = GET_SIMILAR_ARTICLES_PARSER.parse_args()
         controller = ArticleController()
         return controller.get_similar(args=args)
+
+@api.route('/<string:id_or_slug>/status')
+class ArticleStatus(Resource):
+    @token_required
+    @api.expect(model_patch_status_request)
+    @api.response(code=200, model=MODEL_ARTICLE_RESPONSE, description='Model for article response.')
+    def patch(self, id_or_slug):
+        """Update status of a organization's article"""
+
+        data = api.payload
+        controller = ArticleController()
+        result = controller.org_update_status(object_id=id_or_slug, data=data)
+        cache.clear_cache(get_article_key_prefix())
+        return result

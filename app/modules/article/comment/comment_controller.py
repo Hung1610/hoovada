@@ -42,7 +42,11 @@ class CommentController(BaseCommentController):
             if article_id is not None:
                 query = query.filter(ArticleComment.article_id == article_id)
             if user_id is not None:
-                query = query.filter(ArticleComment.user_id == user_id)
+                data_role = self.get_role_data()
+                if data_role['role'] == 'user':
+                    query = query.filter(ArticleComment.user_id == user_id, ArticleComment.entity_type == 'user')
+                if data_role['role'] == 'organization':
+                    query = query.filter(ArticleComment.organization_id == data_role['organization_id'], ArticleComment.entity_type == 'organization')
                 
             comments = query.all()
             if comments is not None and len(comments) > 0:
@@ -75,6 +79,8 @@ class CommentController(BaseCommentController):
         
         if article.allow_comments is not None and article.allow_comments is False:
             return send_error(message=messages.ERR_COMMENT_NOT_ALLOWED)
+
+        data = self.add_org_data(data)
 
         data['article_id'] = article_id
 
@@ -142,7 +148,10 @@ class CommentController(BaseCommentController):
         current_user = g.current_user 
         if current_user and current_user.id != comment.user_id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-        
+        try:
+            data = self.add_org_data()
+        except Exception as e:
+            return send_error(message=messages.ERR_ISSUE.format(str(e)))        
 
         comment = self._parse_comment(data=data, comment=comment)
         try:

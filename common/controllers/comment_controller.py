@@ -51,4 +51,17 @@ class BaseCommentController(Controller):
                 except Exception as e:
                     print(e.__str__())
                     pass
+        if 'entity_type' in data:
+            try:
+                comment.entity_type = data['entity_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'organization_id' in data:
+            try:
+                comment.organization_id = int(data['organization_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return comment

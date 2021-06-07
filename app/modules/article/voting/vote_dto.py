@@ -28,7 +28,9 @@ class VoteDto(Dto):
         'article_id': fields.Integer(description='The ID of the article'), 
         'vote_status': fields.String(description='The voting status', attribute='vote_status.name'),
         'created_date': fields.DateTime(description='The date user voted'),
-        'updated_date': fields.DateTime(description='The date user modified vote value')
+        'updated_date': fields.DateTime(description='The date user modified vote value'),
+        'entity_type': fields.String(default='user', description='Type of entity, default is "user"'),
+        'organization_id': fields.String(description='The ID of organization. Must be specified when entity_type is organization'),
     })
 
     model_get_parser = reqparse.RequestParser()

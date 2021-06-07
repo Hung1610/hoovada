@@ -37,5 +37,7 @@ class CommentDto(Dto):
         'favorite_count': fields.Integer(default=0, description='The amount of favorite'),
         'updated_date': fields.DateTime(description='The date comment was updated'),
         'created_date': fields.DateTime(required=True, description='The date comment was created'),
-        'is_favorited_by_me': fields.Boolean(default=False, description='Is favorited by me')
+        'is_favorited_by_me': fields.Boolean(default=False, description='Is favorited by me'),
+        'entity_type': fields.String(default='user', description='Type of entity, default is "user"'),
+        'organization_id': fields.String(description='The ID of organization who owns this article. Must be specified when entity_type is organization'),
     })

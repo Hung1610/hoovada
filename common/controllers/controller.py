@@ -6,11 +6,13 @@ from abc import ABC
 
 # third-party modules
 from sqlalchemy.sql.expression import true
-from flask import g
+from flask import g, session
 
 # own modules
 from common.db import db
 from common.utils.response import paginated_result, send_error
+from app.constants import messages
+from common.models.organization import Organization
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -37,6 +39,9 @@ class Controller(ABC):
         return self.get_model_class().query
 
     def get_query_results(self, params=None):
+        if 'user_id' in params and params['user_id'] is not None: # add org params based on role in session
+            params = self.add_org_data(params)
+            print(params)
         query = self.get_query()
         if params:
             ordering_fields_asc, ordering_fields_desc = params.pop('order_by_asc', None), params.pop('order_by_desc', None)
@@ -121,3 +126,26 @@ class Controller(ABC):
         Delete object from database.
         """
         pass
+
+    def add_org_data(self, data):
+        if data is None:
+            data = {}
+        if 'role' not in session:
+            return data
+        if session['role'] == 'user':
+            data['entity_type'] = 'user'
+        if session['role'] == 'organization' and 'organization_id' in session:
+            data['entity_type'] = 'organization'
+            data['organization_id'] = session['organization_id']
+        return data
+    
+    def get_role_data(self):
+        data = {
+            'role': None,
+            'organization_id': None
+        }
+        if 'role' in session:
+            data['role'] = session['role']
+        if 'organization_id' in session:
+            data['organization_id'] = session['organization_id']
+        return data

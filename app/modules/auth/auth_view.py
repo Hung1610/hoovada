@@ -35,6 +35,7 @@ _auth_change_password_token = AuthDto.model_change_password_token
 _auth_change_password = AuthDto.model_change_password
 _auth_send_OTP_phone = AuthDto.model_send_OTP_phone
 _auth_change_phone_number = AuthDto.model_change_phone_number
+_model_switch_role = AuthDto.model_switch_role
 
 
 @api.route('/register')
@@ -297,3 +298,22 @@ class UserInfor(Resource):
 
         controller = AuthController()
         return controller.get_user_info(request)
+
+@api.route('/switch-role')
+class UserSwitchRole(Resource):
+    @token_required
+    @api.expect(_model_switch_role)
+    def post(self):
+        """ Switch role to user or organization (with organization_id)"""
+
+        controller = AuthController()
+        data = api.payload
+        return controller.switch_role(data)
+
+    @token_required
+    @api.response(code=200, model=_model_switch_role, description='Model for current role.')
+    def get(self):
+        """ Get current role"""
+
+        controller = AuthController()
+        return controller.get_current_role()   

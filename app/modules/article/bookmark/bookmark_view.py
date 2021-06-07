@@ -44,7 +44,6 @@ class BookmarkArticle(Resource):
     @api.response(code=200, model=_bookmark_response, description='The model for bookmark.')
     def post(self, article_id):
         """Create a bookmark using article_id"""
-
         controller = ArticleBookmarkController()
         return controller.create(article_id=article_id)
 

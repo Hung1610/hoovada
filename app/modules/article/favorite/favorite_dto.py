@@ -37,7 +37,9 @@ class FavoriteDto(Dto):
         'article_id': fields.Integer(required=False, description='The user ID who has been favorited'),
         'article':fields.Nested(model_favorite_article, description='The information of the article'),
         'created_date': fields.DateTime(required=False, description='The created date'),
-        'updated_date': fields.DateTime(required=False, description='The updated date')
+        'updated_date': fields.DateTime(required=False, description='The updated date'),
+        'entity_type': fields.String(default='user', description='Type of entity, default is "user"'),
+        'organization_id': fields.String(description='The ID of organization. Must be specified when entity_type is organization')
     })
 
     model_get_parser = reqparse.RequestParser()

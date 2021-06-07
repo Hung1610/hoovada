@@ -79,9 +79,11 @@ class FavoriteController(Controller):
 
         data['user_id'] = current_user.id
         data['article_id'] = article_id
+        data = self.add_org_data(data)
         try:
             favorite = ArticleFavorite.query.filter(ArticleFavorite.user_id == data['user_id'],
-                                             ArticleFavorite.article_id == data['article_id']).first()
+                                             ArticleFavorite.article_id == data['article_id'],
+                                             ArticleFavorite.entity_type == data['role']).first()
             if favorite:
                 return send_result(message=constants.msg_already_favorited)
 
@@ -138,10 +140,17 @@ class FavoriteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-        # if 'favorite_date' in data:
-        #     try:
-        #         favorite.favorite_date = dateutil.parser.isoparse(data['favorite_date'])
-        #     except Exception as e:
-        #         print(e.__str__())
-        #         pass
+        if 'entity_type' in data:
+            try:
+                favorite.entity_type = data['entity_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'organization_id' in data:
+            try:
+                favorite.organization_id = int(data['organization_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return favorite

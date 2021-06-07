@@ -39,4 +39,6 @@ class ShareDto(Dto):
         'mail': fields.Boolean(description=''),
         'link_copied': fields.Boolean(description=''),
         'article': fields.Nested(model_article, description='The article information'),
+        'entity_type': fields.String(default='user', description='Type of entity, default is "user"'),
+        'organization_id': fields.String(description='The ID of organization. Must be specified when entity_type is organization'),
     })

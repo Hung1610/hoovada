@@ -29,6 +29,8 @@ class ReportDto(Dto):
         'description': fields.String(description=''),
         'created_date': fields.DateTime(description=''),
         'report_type': fields.String(description='1 - General, 2 - Inappropriate, 3 - Duplicate', attribute='report_type.name'),
+        'entity_type': fields.String(default='user', description='Type of entity, default is "user"'),
+        'organization_id': fields.String(description='The ID of organization. Must be specified when entity_type is organization'),
     })
 
     get_parser = reqparse.RequestParser()
