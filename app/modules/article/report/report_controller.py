@@ -48,7 +48,11 @@ class ReportController(Controller):
             
         query = ArticleReport.query
         if user_id is not None:
-            query = query.filter(ArticleReport.user_id == user_id)
+            data_role = self.get_role_data()
+            if data_role['role'] == 'user':
+                query = query.filter(ArticleReport.user_id == user_id, ArticleReport.entity_type == data_role['role'])
+            if data_role['role'] == 'organization':
+                query = query.filter(ArticleReport.organization_id == data_role['organization_id'], ArticleReport.entity_type == data_role['role'])
         if article_id is not None:
             query = query.filter(ArticleReport.article_id == article_id)
         if from_date is not None:
@@ -65,7 +69,7 @@ class ReportController(Controller):
 
         if 'description' not in data:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("description"))
-        
+        data = self.add_org_data(data)      
         current_user = g.current_user
         data['user_id'] = current_user.id
         data['article_id'] = article_id
@@ -131,5 +135,17 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        if 'entity_type' in data:
+            try:
+                report.entity_type = data['entity_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
+        if 'organization_id' in data:
+            try:
+                report.organization_id = int(data['organization_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return report

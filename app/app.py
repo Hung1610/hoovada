@@ -6,7 +6,7 @@ from datetime import datetime
 from logging.config import dictConfig
 
 # third-party modules
-from flask import Flask, g, request
+from flask import Flask, g, request, session
 from flask_cors import CORS
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 from sqlalchemy_utils import create_database, database_exists
@@ -52,6 +52,8 @@ def init_basic_app():
     @app.before_request
     def before_request():
         g.current_user, _ = app.get_logged_user(request)
+        if 'role' not in session:
+            session['role'] = 'user'
         g.current_user_is_admin = False
         g.endorsed_topic_id = None
         g.friend_belong_to_user_id = None

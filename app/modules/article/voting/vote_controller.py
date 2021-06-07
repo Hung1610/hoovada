@@ -45,12 +45,19 @@ class VoteController(Controller):
 
         data['user_id'] = current_user.id
         data['article_id'] = article_id
+        data = self.add_org_data(data)
         try:
             # add or update vote
             is_insert = True
             old_vote_status = None
-            vote = ArticleVote.query.filter(ArticleVote.user_id == data['user_id'], \
-                ArticleVote.article_id == data['article_id']).first()
+            if 'entity_type' not in data or data['entity_type'] == 'user':
+                vote = ArticleVote.query.filter(ArticleVote.user_id == data['user_id'], \
+                    ArticleVote.article_id == data['article_id'], \
+                    ArticleVote.entity_type == 'user').first()
+            if 'entity_type' in data and data['entity_type'] == 'organization':
+                vote = ArticleVote.query.filter(ArticleVote.organization_id == data['organization_id'], \
+                    ArticleVote.article_id == data['article_id'], \
+                    ArticleVote.entity_type == 'organization').first()         
             if vote:
                 old_vote_status = vote.vote_status
                 is_insert = False
@@ -99,6 +106,11 @@ class VoteController(Controller):
         try:
             query = ArticleVote.query
             if user_id is not None:
+                data_role = self.get_role_data()
+                if data_role['role'] == 'user':
+                    query = query.filter(ArticleVote.user_id == user_id, ArticleVote.entity_type == data_role['role'])
+                if data_role['role'] == 'organization':
+                    query = query.filter(ArticleVote.organization_id == data_role['organization_id'], ArticleVote.entity_type == data_role['role'])
                 query = query.filter(ArticleVote.user_id == user_id)
             if article_id is not None:
                 query = query.filter(ArticleVote.article_id == article_id)
@@ -177,5 +189,17 @@ class VoteController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        if 'entity_type' in data:
+            try:
+                vote.entity_type = data['entity_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
+        if 'organization_id' in data:
+            try:
+                vote.organization_id = int(data['organization_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return vote

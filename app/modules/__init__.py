@@ -78,4 +78,3 @@ from app.modules.poll import (ns_poll_comment, ns_poll_comment_favorite, ns_poll
 
 from app.modules.organization import (ns_organization)
 from app.modules.organization.user import (ns_organization_user)
-from app.modules.organization.article import (ns_organization_article)

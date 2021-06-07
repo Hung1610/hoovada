@@ -146,6 +146,5 @@ def init_api():
     
     api.add_namespace(ns_organization, '/organization')
     api.add_namespace(ns_organization_user, '/organization')
-    api.add_namespace(ns_organization_article, '/organization')
 
     return api

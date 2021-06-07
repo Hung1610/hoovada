@@ -68,7 +68,10 @@ class ArticleController(Controller):
 
         # handling title
         data['title'] = data['title'].strip().capitalize()
-        article = Article.query.filter(Article.title == data['title']).first()
+        data = self.add_org_data(data)
+        if data['entity_type'] == 'organization':
+            data['is_draft'] = 1
+        article = Article.query.filter(Article.title == data['title'], Article.is_draft == 0).first()
         if article:
             return send_error(message=messages.ERR_ALREADY_EXISTS)
 
@@ -142,6 +145,41 @@ class ArticleController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
+    def org_update_status(self, object_id, data):
+        try:
+            if object_id is None:
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+            
+            if not isinstance(data, dict):
+                return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+            if object_id.isdigit():
+                article = Article.query.filter_by(id=object_id).first()
+            else:
+                article = Article.query.filter_by(slug=object_id).first()
+            
+            if article is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            if article.organization is None or article.organization.user_id is None:
+                return send_error(message=messages.ERR_ISSUE.format('Article must belong to an organization to perform this action'))
+            if g.current_user and g.current_user.id != article.organization.user_id:
+                return send_error(message=messages.ERR_NOT_AUTHORIZED)
+            if not 'status' in data:
+                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('status'))
+            if data['status'] == 'approved':
+                article.is_draft = 0
+                article.published_date = datetime.now()
+            elif data['status'] == "drafted":
+                article.is_draft = 1
+                article.published_date = None
+            else:
+                return send_error(message=messages.ERR_ISSUE.format('status must be: approved or drafted'))
+            db.session.commit()
+            return send_result(data=marshal(article, ArticleDto.model_article_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
     def get_by_id(self, object_id):
         
@@ -224,7 +262,38 @@ class ArticleController(Controller):
 
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))         
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+    def _update_article_from_org(self, article, data):
+        current_user = g.current_user
+        if article.organization.user_id != current_user.id:
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+        if 'is_draft' in data:
+            return send_error(code=401, message=messages.ERR_NOT_ALLOWED_PARAMS.format('is_draft'))
+
+        # Handling title
+        if 'title' in data:
+            data['title'] = data['title'].strip().capitalize()
+            
+        article = self._parse_article(data=data, article=article)
+        try:  
+
+            article.updated_date = datetime.utcnow()
+            article.last_activity = datetime.utcnow()
+            article_dsl = ESArticle(_id=article.id)
+            article_dsl.update(html=strip_tags(article.html), title=article.title, slug=article.slug, updated_date=article.updated_date)
+            db.session.commit()
+            cache.clear_cache(Article.__class__.__name__)
+
+            result = article._asdict()
+            result['user'] = article.user
+            result['topics'] = article.topics
+            return send_result(data=marshal(result, ArticleDto.model_article_create_update_response))
+        
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
 
 
     def update(self, object_id, data):
@@ -242,6 +311,9 @@ class ArticleController(Controller):
         
         if article is None:
             return send_error(message=messages.ERR_NOT_FOUND)
+        
+        if article.organization is not None and article.organization.user_id is not None:
+            return self._update_article_from_org(article, data)
 
         current_user = g.current_user
         if article.user_id != current_user.id and not UserRole.is_admin(current_user.admin):

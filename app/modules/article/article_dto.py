@@ -72,7 +72,7 @@ class ArticleDto(Dto):
         'allow_comments': fields.Boolean(default=True, description='Allow commenting or not'),
         'allow_voting': fields.Boolean(default=True, description='Allow voting or not'),
         'is_draft': fields.Boolean(default=False, description='The article is a draft or not'),
-        'entity_type': fields.String(default='user', description='The own type of organization. Must be one of values user or organization'),
+        'entity_type': fields.String(default='user', description='Type of entity, default is "user"'),
         'organization_id': fields.String(description='The ID of organization who owns this article. Must be specified when entity_type is organization'),
 
         'is_upvoted_by_me':fields.Boolean(default=False, description='is upvoted by current user.'),
@@ -105,3 +105,6 @@ class ArticleDto(Dto):
     get_similar_articles_parser.add_argument('topic_id', type=int, required=False, action='append', help='topic_id by which to get similar questions')
     get_similar_articles_parser.add_argument('limit', type=int, default=30, required=False, help='Limit amount to return')
     get_similar_articles_parser.add_argument('exclude_article_id', type=str, required=False, help='Exclude article with this id')
+
+    model_patch_status_request = Dto.paginated_request_parser.copy()
+    model_patch_status_request.add_argument('status', type=str, required=True, help='Update status of an article of an org. Must be one of approved or drafted')

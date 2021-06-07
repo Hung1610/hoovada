@@ -31,8 +31,12 @@ class ArticleBookmarkController(Controller):
         current_user = g.current_user
         data['user_id'] = current_user.id
         data['article_id'] = article_id
+        data = self.add_org_data(data)
         try:
-            bookmark = ArticleBookmark.query.filter(ArticleBookmark.user_id == data['user_id'], ArticleBookmark.article_id == data['article_id']).first()
+            bookmark = ArticleBookmark.query.filter(
+                ArticleBookmark.user_id == data['user_id'], 
+                ArticleBookmark.article_id == data['article_id'],
+                ArticleBookmark.entity_type == data['entity_type']).first()
             if bookmark:
                 return send_result( data=marshal(bookmark, ArticleBookmarkDto.model_response))
 
@@ -130,4 +134,17 @@ class ArticleBookmarkController(Controller):
                 print(e.__str__())
                 pass
 
+        if 'entity_type' in data:
+            try:
+                bookmark.entity_type = data['entity_type']
+            except Exception as e:
+                print(e.__str__())
+                pass
+
+        if 'organization_id' in data:
+            try:
+                bookmark.organization_id = int(data['organization_id'])
+            except Exception as e:
+                print(e.__str__())
+                pass
         return bookmark

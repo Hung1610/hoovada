@@ -102,3 +102,8 @@ class AuthDto(Dto):
         'phone_number': fields.String(required=True, description='The phone number for change'),
         'code': fields.String(required=True, description='The OTP code sent through SMS'),
     })
+
+    model_switch_role = api.model('switch_role', {
+        'role': fields.String(required=True, description='Current role. Must be either user or organization'),
+        'organization_id': fields.String(required=False, description='The ID of current organization. Must be specified when role is set to organization'),
+    })
