@@ -1603,6 +1603,11 @@ def upgrade():
     op.create_index(op.f('ix_answer_improvement_vote_improvement_id'), 'answer_improvement_vote', ['improvement_id'], unique=False)
     op.create_index(op.f('ix_answer_improvement_vote_organization_id'), 'answer_improvement_vote', ['organization_id'], unique=False)
     op.create_index(op.f('ix_answer_improvement_vote_user_id'), 'answer_improvement_vote', ['user_id'], unique=False)
+    
+    op.add_column('question_report', sa.Column('duplicated_question_id', sa.Integer(), nullable=True))
+    op.create_index(op.f('ix_question_report_duplicated_question_id'), 'question_report', ['duplicated_question_id'], unique=False)
+    op.create_foreign_key(None, 'question_report', 'question', ['duplicated_question_id'], ['id'], ondelete='CASCADE')
+    
     # ### end Alembic commands ###
 
 
@@ -1956,4 +1961,8 @@ def downgrade():
     op.drop_table('permission')
     op.drop_table('language')
     op.drop_table('blacklist_tokens')
+
+    op.drop_constraint(None, 'question_report', type_='foreignkey')
+    op.drop_index(op.f('ix_question_report_duplicated_question_id'), table_name='question_report')
+    op.drop_column('question_report', 'duplicated_question_id')
     # ### end Alembic commands ###

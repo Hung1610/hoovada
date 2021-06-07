@@ -41,6 +41,8 @@ class QuestionReport(Model, BaseReport):
     
     question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False, index=True)
     question = db.relationship('Question', lazy=True) # one-to-many relationship with table Question
+    duplicated_question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=True, index=True)
+    duplicated_question = db.relationship('Question', lazy=True)
 
 
 class QuestionCommentReport(Model, BaseReport):

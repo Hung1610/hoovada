@@ -64,7 +64,11 @@ class Controller(ABC):
                 if not key in self.special_filtering_fields:
                     filter_value = params[key]
                     if filter_value is not None:
-                        column_to_filter = getattr(self.get_model_class(), key)
+                        column_to_filter = None
+                        try:
+                            column_to_filter = getattr(self.get_model_class(), key)
+                        except AttributeError as e:
+                            pass
                         if key == 'is_deleted' and column_to_filter and filter_value == true:
                             query = query.with_deleted()
                         elif column_to_filter:
