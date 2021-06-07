@@ -67,7 +67,6 @@ class QuestionController(Controller):
         if not data['title'].endswith('?'):
             return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
 
-
         # Check if question already exists
         question = Question.query.filter(Question.title == data['title']).first()
         if question is not None:
@@ -79,7 +78,11 @@ class QuestionController(Controller):
             data['fixed_topic_id'] = topic.id
 
         question = self._parse_question(data=data, question=None)
-        try:     
+        try:
+
+            topic = Topic.query.filter(Topic.id == question.fixed_topic_id, Topic.is_fixed == True).first()
+            if topic is None:
+                return send_error(message=messages.ERR_FIXED_TOPIC_NOT_FOUND)
             
             question.created_date = datetime.utcnow()
             question.last_activity = datetime.utcnow()
@@ -167,6 +170,94 @@ class QuestionController(Controller):
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
+
+    def update(self, object_id, data):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        
+        if not isinstance(data, dict):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+        
+        # Handling question title
+        if 'title' in data:
+            data['title'] = data['title'].strip().capitalize()
+            if not data['title'].endswith('?'):
+                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
+
+        if object_id.isdigit():
+            question = Question.query.filter_by(id=object_id).first()
+        else:
+            question = Question.query.filter_by(slug=object_id).first()
+        
+        if question is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        #handling user
+        current_user = g.current_user
+        if question.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
+            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+        question = self._parse_question(data=data, question=question)
+        try:
+
+            if question.fixed_topic_id is not None:
+                topic = Topic.query.filter(Topic.id == question.fixed_topic_id, Topic.is_fixed == True).first()
+                if topic is None:
+                    return send_error(message=messages.ERR_FIXED_TOPIC_NOT_FOUND)
+
+            question.updated_date = datetime.utcnow()
+            question.last_activity = datetime.utcnow()
+            question.slug = slugify(question.title)
+            db.session.flush()
+            # index to ES server
+            question_dsl = ESQuestion(_id=question.id)
+            question_dsl.update(question=strip_tags(question.question), title=question.title, slug=question.slug, updated_date=question.updated_date)
+
+            db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
+            result = question._asdict()
+            return send_result(data=marshal(result, QuestionDto.model_question_create_update_response))
+        
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
+
+
+    def delete(self, object_id):
+
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        try:
+            if object_id.isdigit():
+                question = Question.query.filter_by(id=object_id).first()
+            else:
+                question = Question.query.filter_by(slug=object_id).first()
+            
+            if question is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+
+            #handling user
+            current_user = g.current_user
+            if not UserRole.is_admin(current_user.admin):
+                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
+
+            db.session.delete(question)
+
+            # delete from question Es index
+            question_dsl = ESQuestion(_id=question.id)
+            question_dsl.delete()
+            db.session.commit()
+            cache.clear_cache(Question.__class__.__name__)
+
+            return send_result()
+        
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def invite(self, object_id, data):
@@ -328,7 +419,7 @@ class QuestionController(Controller):
             if question is None or question.is_deleted is True:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
-            question_deletion_proposal = QuestionProposal.query.filter_by(question_id=question.id, is_parma_delete=1, is_approved=0).first()
+            question_deletion_proposal = QuestionProposal.query.filter_by(question_id==question.id, is_parma_delete==1, is_approved==0).first()
             if question_deletion_proposal is not None:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
@@ -380,6 +471,11 @@ class QuestionController(Controller):
             proposal = self._parse_proposal(data=proposal_data, proposal=None)
             proposal = self._parse_proposal(data=data, proposal=proposal)
 
+            if proposal.fixed_topic_id is not None:
+                topic = Topic.query.filter(Topic.id == proposal.fixed_topic_id, Topic.is_fixed == True).first()
+                if topic is None:
+                    return send_error(message=messages.ERR_FIXED_TOPIC_NOT_FOUND)
+
             proposal.last_activity = datetime.utcnow()
             proposal.slug = slugify(proposal.title)
             db.session.add(proposal)
@@ -423,90 +519,6 @@ class QuestionController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
-
-
-    def update(self, object_id, data):
-
-        if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-        
-        if not isinstance(data, dict):
-            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        
-        # Handling question title
-        if 'title' in data:
-            data['title'] = data['title'].strip().capitalize()
-            if not data['title'].endswith('?'):
-                return send_error(message=messages.ERR_QUESTION_NOT_END_WITH_QUESION_MARK)
-
-        if object_id.isdigit():
-            question = Question.query.filter_by(id=object_id).first()
-        else:
-            question = Question.query.filter_by(slug=object_id).first()
-        
-        if question is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        #handling user
-        current_user = g.current_user
-        if question.user_id != current_user.id and not UserRole.is_admin(current_user.admin):
-            return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
-        question = self._parse_question(data=data, question=question)
-        try:
-
-            question.updated_date = datetime.utcnow()
-            question.last_activity = datetime.utcnow()
-            question.slug = slugify(question.title)
-            db.session.flush()
-            # index to ES server
-            question_dsl = ESQuestion(_id=question.id)
-            question_dsl.update(question=strip_tags(question.question), title=question.title, slug=question.slug, updated_date=question.updated_date)
-
-            db.session.commit()
-            cache.clear_cache(Question.__class__.__name__)
-            result = question._asdict()
-            return send_result(data=marshal(result, QuestionDto.model_question_create_update_response))
-        
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
-
-
-    def delete(self, object_id):
-
-        if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-
-        try:
-            if object_id.isdigit():
-                question = Question.query.filter_by(id=object_id).first()
-            else:
-                question = Question.query.filter_by(slug=object_id).first()
-            
-            if question is None:
-                return send_error(message=messages.ERR_NOT_FOUND)
-
-            #handling user
-            current_user = g.current_user
-            if not UserRole.is_admin(current_user.admin):
-                return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
-            db.session.delete(question)
-
-            # delete from question Es index
-            question_dsl = ESQuestion(_id=question.id)
-            question_dsl.delete()
-            db.session.commit()
-            cache.clear_cache(Question.__class__.__name__)
-
-            return send_result()
-        
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
     def apply_filtering(self, query, params):
