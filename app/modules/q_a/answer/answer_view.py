@@ -3,7 +3,7 @@
 
 # third-party modules
 from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.q_a.answer.answer_controller import AnswerController
@@ -27,7 +27,7 @@ get_parser = AnswerDto.get_parser
 def get_article_proposal_key_prefix():
     return '{}{}'.format('get.article.proposals', request.view_args['id'])
 
-    
+
 @api.route('/<int:id>/file')
 @api.doc(params={'id': 'The answer ID'})
 class AnswerFile(Resource):
