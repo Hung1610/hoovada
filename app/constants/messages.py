@@ -44,18 +44,12 @@ ERR_ACCOUNT_EXISTED = "The account with this email or number has already existed
 ERR_ACCOUNT_NOT_REGISTERED = "Your account is not registered yet!"
 
 ERR_REGISTRATION_FAILED = "Registration failed with issue {}!"
-MSG_REGISTRATION_SUCCESS = "Account registration is successful."
-
 ERR_RESET_PASSWORD_FAILED = "Password reset or change failed with issue {}!"
-MSG_RESET_PASSWORD_SUCCESS = "Password reset or change is successful."
-MSG_PASS_INPUT_PROMPT = "Please input a new password."
-
 MSG_EMAIL_SENT = "Please check your Email."
 MSG_PHONE_SENT = "Please check your phone message."
 
 ## Authentication
 ERR_NOT_LOGIN = "You are not logged in!" 
-MSG_LOGOUT_SUCESS = "Successfully logged out."
 ERR_LOGOUT_FAILED = "Failed to log out with issue {}"
 
 # Social login

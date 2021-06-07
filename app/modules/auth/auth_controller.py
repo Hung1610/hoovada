@@ -111,7 +111,7 @@ class AuthController:
 
         user = User.get_user_by_email(email=email)
         if user is not None and user.confirmed is True:
-            return send_result(message=messages.MSG_REGISTRATION_SUCCESS)
+            return send_result()
 
         try:
             user.confirmed = True
@@ -119,7 +119,7 @@ class AuthController:
             db.session.commit()
             html = render_template('welcome.html', user=user)
             send_email(user.email, 'Hoovada - Chào mừng bạn tham gia vào cộng đồng!', html)
-            return send_result(message=messages.MSG_REGISTRATION_SUCCESS)
+            return send_result()
         
         except Exception as e:
             print(e.__str__())
@@ -146,7 +146,7 @@ class AuthController:
 
         # if already activated, do not send confirm email
         if user.confirmed is True:
-            return send_result(message=messages.MSG_REGISTRATION_SUCCESS)        
+            return send_result()        
         
         try:
             send_confirmation_email(to=email, user=user)
@@ -201,7 +201,7 @@ class AuthController:
         if not user:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
-        return send_result(data={'reset_token':token}, message=messages.MSG_PASS_INPUT_PROMPT)
+        return send_result(data={'reset_token':token})
 
 
     def change_password(self, data):
@@ -237,7 +237,7 @@ class AuthController:
         try:
             user.set_password(password=password)
             db.session.commit()
-            return send_result(message=messages.MSG_RESET_PASSWORD_SUCCESS)
+            return send_result()
         except Exception as e:
             print(e.__str__())
             db.session.rollback()
@@ -415,7 +415,7 @@ class AuthController:
             return send_error(message=messages.ERR_ACCOUNT_NOT_REGISTERED)
 
         if user.confirmed is True:
-            return send_error(message=messages.MSG_REGISTRATION_SUCCESS)
+            return send_error()
 
         try:
             if check_verification(phone_number, code) is False:
@@ -425,7 +425,7 @@ class AuthController:
             db.session.commit()
             html = render_template('welcome.html', user=user)
             send_email(user.email, 'Hoovada - Chào mừng bạn tham gia vào cộng đồng!', html)
-            return send_result(message=messages.MSG_REGISTRATION_SUCCESS)
+            return send_result()
                 
         except Exception as e:
             print(e.__str__())
@@ -500,7 +500,7 @@ class AuthController:
         try:
             user.set_password(password=password)
             db.session.commit()
-            return send_result(message=messages.MSG_RESET_PASSWORD_SUCCESS)
+            return send_result()
 
         except Exception as e:
             print(e.__str__())
@@ -759,7 +759,7 @@ class AuthController:
             user.last_seen = datetime.now()
             db.session.commit()
 
-            return send_result(message=messages.MSG_LOGOUT_SUCESS)
+            return send_result()
         
         except Exception as e:
             print(e.__str__())
