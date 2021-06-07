@@ -36,42 +36,6 @@ class UserFriendController(Controller):
     allowed_ordering_fields = ['created_date', 'updated_date']
 
 
-    def get_query(self):
-        query = self.get_model_class().query
-        query = query.filter((UserFriend.friend.has(User.is_deactivated == False)) &\
-            (UserFriend.friended.has(User.is_deactivated == False))
-        )
-        return query
-
-
-    def apply_filtering(self, query, params):
-        query = super().apply_filtering(query, params)
-        if params.get('from_date'):
-            query = query.filter(UserFriend.created_date >= dateutil.parser.isoparse(params.get('from_date')))
-        if params.get('to_date'):
-            query = query.filter(UserFriend.created_date <= dateutil.parser.isoparse(params.get('to_date')))
-        if params.get('user_id'):
-            g.friend_belong_to_user_id = params.get('user_id')
-            query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
-        if params.get('display_name'):
-            query = query.filter(
-                (UserFriend.friend.has(User.display_name.like('%' + params.get('display_name') + '%'))) |
-                (UserFriend.friended.has(User.display_name.like('%' + params.get('display_name') + '%'))))
-
-        return query
-
-
-    def get(self, args):
-        try:
-            query = self.get_query_results(args)
-            res, code = paginated_result(query)
-            res['data'] = marshal(res['data'], UserFriendDto.model_response)
-            return res, code
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
-
     def create(self, object_id):
         data = {}
         current_user = g.current_user
@@ -79,14 +43,15 @@ class UserFriendController(Controller):
         data['friended_id'] = object_id
 
         if data['friend_id'] == data['friended_id']:
-            return send_result(message=messages.ERR_ISSUE.format('Cannot befriend self'))
+            return send_result(message=messages.ERR_SEND_REQUEST_TO_ONESELF)
 
         try:
             friend_entity = UserFriend.query.filter(db.or_(\
                 db.and_(UserFriend.friend_id == data['friend_id'], UserFriend.friended_id == data['friended_id']),\
                 db.and_(UserFriend.friended_id == data['friend_id'], UserFriend.friend_id == data['friended_id']))).first()
+
             if friend_entity:
-                return send_result(message=messages.ERR_ISSUE.format('Already befriended'))
+                return send_result(message=messages.ERR_ALREADY_EXISTS)
 
             friend = self._parse_friend(data=data, friend=None)
             db.session.add(friend)
@@ -105,21 +70,60 @@ class UserFriendController(Controller):
                 print(e.__str__())
                 pass
 
-
             if friend.friended:
                 if friend.friended.is_online and friend.friended.friend_request_notify_settings:
                     display_name =  current_user.display_name if current_user else 'Khách'
                     message = display_name + ' đã yêu cầu làm bạn!'
                     push_notif_to_specific_users_produce(message, [friend.friended.id])
+
                 elif friend.friended.friend_request_email_settings:
                     send_friend_request_notif_email(friend.friended, current_user)
 
-            return send_result( data=marshal(friend, UserFriendDto.model_response))
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def get_query(self):
+        query = self.get_model_class().query
+        query = query.filter((UserFriend.friend.has(User.is_deactivated == False)) &\
+            (UserFriend.friended.has(User.is_deactivated == False))
+        )
+        return query
+
+
+    def apply_filtering(self, query, params):
+        query = super().apply_filtering(query, params)
+        if params.get('from_date'):
+            query = query.filter(UserFriend.created_date >= dateutil.parser.isoparse(params.get('from_date')))
+        
+        if params.get('to_date'):
+            query = query.filter(UserFriend.created_date <= dateutil.parser.isoparse(params.get('to_date')))
+        
+        if params.get('user_id'):
+            g.friend_belong_to_user_id = params.get('user_id')
+            query = query.filter(db.or_(UserFriend.friended_id == params.get('user_id'), UserFriend.friend_id == params.get('user_id')))
+        
+        if params.get('display_name'):
+            query = query.filter(
+                (UserFriend.friend.has(User.display_name.like('%' + params.get('display_name') + '%'))) |
+                (UserFriend.friended.has(User.display_name.like('%' + params.get('display_name') + '%'))))
+
+        return query
+
+
+    def get(self, args):
+        try:
+            query = self.get_query_results(args)
+            res, code = paginated_result(query)
+            res['data'] = marshal(res['data'], UserFriendDto.model_response)
+            return res, code
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def get_by_id(self, object_id):

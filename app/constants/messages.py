@@ -81,3 +81,4 @@ ERR_ANSWER_VIDEO_ALLOWED = 'Question does not allow to answer by video!'
 ########### User Module #################
 ERR_EMAIL_ALREADY_EXIST = 'The user with this email has existed!'
 ERR_USER_PRIVATE_OR_DEACTIVATED = 'The user is either private or deactivated!'
+ERR_SEND_REQUEST_TO_ONESELF = 'Sending request to oneself!'

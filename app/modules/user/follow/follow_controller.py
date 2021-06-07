@@ -77,6 +77,10 @@ class UserFollowController(Controller):
         data = {}
         data['follower_id'] = current_user.id
         data['followed_id'] = object_id
+
+        if data['follower_id'] == data['followed_id']:
+            return send_result(message=messages.ERR_SEND_REQUEST_TO_ONESELF)
+
         try:
             follow = UserFollow.query.filter(UserFollow.follower_id == data['follower_id'],
                                              UserFollow.followed_id == data['followed_id']).first()
@@ -87,7 +91,7 @@ class UserFollowController(Controller):
             db.session.add(follow)
             db.session.commit()
 
-            return send_result( data=marshal(follow, UserFollowDto.model_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
