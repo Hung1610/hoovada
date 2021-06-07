@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
-from app.modules.q_a.answer.report.report_controller import ReportController
 # own modules
-# from common.decorator import token_required
+from app.modules.q_a.answer.report.report_controller import ReportController
 from app.modules.q_a.answer.report.report_dto import AnswerReportDto
 from common.utils.decorator import admin_token_required, token_required
 
