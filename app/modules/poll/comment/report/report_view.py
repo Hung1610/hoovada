@@ -32,7 +32,6 @@ class PollCommentReport(Resource):
 
     @token_required
     @api.expect(report_request)
-    @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, comment_id):
 
         controller = ReportController()

@@ -107,7 +107,7 @@ class CommentController(BaseCommentController):
                     message = display_name + ' có bình luận bài viết!'
                     push_notif_to_specific_users_produce(message, [comment.article.user_id])
 
-            return send_result( data=marshal(result, CommentDto.model_response))
+            return send_result(data=marshal(result, CommentDto.model_response))
 
         except Exception as e:
             db.session.rollback()

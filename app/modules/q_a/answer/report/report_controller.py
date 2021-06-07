@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -29,6 +29,7 @@ User = db.get_model('User')
 
 
 class ReportController(Controller):
+
     def get(self, answer_id, args):
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
@@ -49,29 +50,30 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-            
-        query = AnswerReport.query
-        if user_id is not None:
-            query = query.filter(AnswerReport.user_id == user_id)
-        if answer_id is not None:
-            query = query.filter(AnswerReport.answer_id == answer_id)
-        if from_date is not None:
-            query = query.filter(AnswerReport.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(AnswerReport.created_date <= to_date)
+        try:
+            query = AnswerReport.query
+            if user_id is not None:
+                query = query.filter(AnswerReport.user_id == user_id)
+            if answer_id is not None:
+                query = query.filter(AnswerReport.answer_id == answer_id)
+            if from_date is not None:
+                query = query.filter(AnswerReport.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(AnswerReport.created_date <= to_date)
 
-        reports = query.all()
-        if reports is not None and len(reports) > 0:
-            return send_result(data=marshal(reports, AnswerReportDto.model_response), message='Success')
-        else:
-            return send_result(message='Report not found')
+            reports = query.all()
+            return send_result(data=marshal(reports, AnswerReportDto.model_response))
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create(self, answer_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['answer_id'] = answer_id
         try:
@@ -79,27 +81,33 @@ class ReportController(Controller):
             report.created_date = datetime.utcnow()
             db.session.add(report)
             db.session.commit()
-            return send_result(data=marshal(report, AnswerReportDto.model_response), message='Success')
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message='Failed to create answer report')
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def get_by_id(self, object_id):
-        query = AnswerReport.query
-        report = query.filter(AnswerReport.id == object_id).first()
-        if report is None:
-            return send_error(message='Report not found')
-        else:
-            return send_result(data=marshal(report, AnswerReportDto.model_response), message='Success')
+
+        try:
+            query = AnswerReport.query
+            report = query.filter(AnswerReport.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(report, AnswerReportDto.model_response))
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def update(self, object_id, data):
+    def update(self):
         pass
 
-    def delete(self, object_id):
+    def delete(self):
         pass
 
     def _parse_report(self, data, report=None):
@@ -128,6 +136,9 @@ class ReportController(Controller):
                 pass
 
         if 'description' in data:
-            report.description = data['description']
+            try:
+                report.description = data['description']
+            except Exception as e:
+                pass
 
         return report

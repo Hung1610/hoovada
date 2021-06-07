@@ -49,21 +49,26 @@ class ReportController(Controller):
                 print(e.__str__())
                 pass
         
-        query = QuestionReport.query
-        if user_id is not None:
-            query = query.filter(QuestionReport.user_id == user_id)
-        
-        if question_id is not None:
-            query = query.filter(QuestionReport.question_id == question_id)
-        
-        if from_date is not None:
-            query = query.filter(QuestionReport.created_date >= from_date)
-        
-        if to_date is not None:
-            query = query.filter(QuestionReport.created_date <= to_date)
-        
-        reports = query.all()        
-        return send_result(data=marshal(reports, QuestionReportDto.model_response), message='Success')
+        try:
+            query = QuestionReport.query
+            if user_id is not None:
+                query = query.filter(QuestionReport.user_id == user_id)
+            
+            if question_id is not None:
+                query = query.filter(QuestionReport.question_id == question_id)
+            
+            if from_date is not None:
+                query = query.filter(QuestionReport.created_date >= from_date)
+            
+            if to_date is not None:
+                query = query.filter(QuestionReport.created_date <= to_date)
+            
+            reports = query.all()        
+            return send_result(data=marshal(reports, QuestionReportDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def create(self, question_id, data):
@@ -73,15 +78,17 @@ class ReportController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         data['question_id'] = question_id
+
         if 'report_type' in data and data['report_type'] == 'DUPLICATE' and 'duplicated_question_id' not in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('duplicated_question_id'))
+        
         try:
             report = self._parse_report(data=data, report=None)
             report.created_date = datetime.utcnow()
             db.session.add(report)
             db.session.commit()
-            return send_result(data=marshal(report, QuestionReportDto.model_response), message='Success')
-        
+            return send_result()
+            
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -89,19 +96,26 @@ class ReportController(Controller):
 
 
     def get_by_id(self, object_id):
-        query = QuestionReport.query
-        report = query.filter(QuestionReport.id == object_id).first()
-        if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-            
-        return send_result(data=marshal(report, QuestionReportDto.model_response), message='Success')
+
+        try:
+            query = QuestionReport.query
+            report = query.filter(QuestionReport.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+                
+            return send_result(data=marshal(report, QuestionReportDto.model_response))
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
-    def update(self, object_id, data):
+    def update(self):
         pass
 
 
-    def delete(self, object_id):
+    def delete(self):
         pass
 
 
@@ -128,7 +142,10 @@ class ReportController(Controller):
                 pass
 
         if 'description' in data:
-            report.description = data['description']
+            try:
+                report.description = data['description']
+            except Exception as e:
+                pass
         
         if 'report_type' in data:
             try:

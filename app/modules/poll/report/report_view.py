@@ -35,7 +35,6 @@ class ReportUser(Resource):
 
     @token_required
     @api.expect(report_request)
-    @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, poll_id):
         """Create report"""
 
@@ -49,9 +48,7 @@ class Reporting(Resource):
     @admin_token_required()
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, id):
-        """
-        Get report by its ID.
-        """
+        """Get report by report IO"""
 
         controller = ReportController()
         return controller.get_by_id(object_id=id)

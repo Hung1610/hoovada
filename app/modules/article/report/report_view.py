@@ -27,9 +27,7 @@ class ReportUser(Resource):
     @api.expect(_get_parser)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, article_id):
-        """
-        Search all votes that satisfy conditions.
-        """
+        """Search all votes that satisfy conditions."""
 
         args = _get_parser.parse_args()
         controller = ReportController()
@@ -37,11 +35,8 @@ class ReportUser(Resource):
 
     @token_required
     @api.expect(report_request)
-    @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, article_id):
-        """
-        Make report
-        """
+        """Create article report"""
 
         controller = ReportController()
         data = api.payload
@@ -53,9 +48,7 @@ class Reporting(Resource):
     @admin_token_required()
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, id):
-        """
-        Get report by its ID.
-        """
+        """Get report by its ID"""
 
         controller = ReportController()
         return controller.get_by_id(object_id=id)

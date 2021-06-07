@@ -29,9 +29,7 @@ class AnswerCommentReport(Resource):
     @api.expect(_get_parser)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, comment_id):
-        """
-        Search all votes that satisfy conditions.
-        """
+        """Search all votes that satisfy conditions"""
 
         args = _get_parser.parse_args()
         controller = ReportController()
@@ -39,11 +37,8 @@ class AnswerCommentReport(Resource):
 
     @token_required
     @api.expect(report_request)
-    @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, comment_id):
-        """
-        Make report
-        """
+        """Create comment report"""
 
         controller = ReportController()
         data = api.payload

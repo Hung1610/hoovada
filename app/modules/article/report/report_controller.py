@@ -45,30 +45,33 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-            
-        query = ArticleReport.query
-        if user_id is not None:
-            data_role = self.get_role_data()
-            if data_role['role'] == 'user':
-                query = query.filter(ArticleReport.user_id == user_id, ArticleReport.entity_type == data_role['role'])
-            if data_role['role'] == 'organization':
-                query = query.filter(ArticleReport.organization_id == data_role['organization_id'], ArticleReport.entity_type == data_role['role'])
-        if article_id is not None:
-            query = query.filter(ArticleReport.article_id == article_id)
-        if from_date is not None:
-            query = query.filter(ArticleReport.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(ArticleReport.created_date <= to_date)
-        reports = query.all()
-        return send_result(data=marshal(reports, ReportDto.model_response), message='Success')
+        
+        try:
+            query = ArticleReport.query
+            if user_id is not None:
+                data_role = self.get_role_data()
+                if data_role['role'] == 'user':
+                    query = query.filter(ArticleReport.user_id == user_id, ArticleReport.entity_type == data_role['role'])
+                if data_role['role'] == 'organization':
+                    query = query.filter(ArticleReport.organization_id == data_role['organization_id'], ArticleReport.entity_type == data_role['role'])
+            if article_id is not None:
+                query = query.filter(ArticleReport.article_id == article_id)
+            if from_date is not None:
+                query = query.filter(ArticleReport.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(ArticleReport.created_date <= to_date)
+            reports = query.all()
+            return send_result(data=marshal(reports, ReportDto.model_response))
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
     def create(self, article_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
 
-        if 'description' not in data:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("description"))
         data = self.add_org_data(data)      
         current_user = g.current_user
         data['user_id'] = current_user.id
@@ -78,7 +81,7 @@ class ReportController(Controller):
             report.created_date = datetime.utcnow()
             db.session.add(report)
             db.session.commit()
-            return send_result(data=marshal(report, ReportDto.model_response), message='Success')
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -86,20 +89,26 @@ class ReportController(Controller):
 
 
     def get_by_id(self, object_id):
-        query = ArticleReport.query
-        report = query.filter(ArticleReport.id == object_id).first()
-        
-        if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-        
-        return send_result(data=marshal(report, ReportDto.model_response), message='Success')
+        try:
+            query = ArticleReport.query
+            report = query.filter(ArticleReport.id == object_id).first()
+            
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            
+            return send_result(data=marshal(report, ReportDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def update(self, object_id, data):
+    def update(self):
         pass
+
 
     def delete(self, object_id):
         pass
+
 
     def _parse_report(self, data, report=None):
         """ Parse dictionary form data to report"""

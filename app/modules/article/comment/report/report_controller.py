@@ -29,6 +29,7 @@ ArticleCommentReport = db.get_model('ArticleCommentReport')
 
 
 class ReportController(Controller):
+    
     def get(self, comment_id, args):
         user_id, from_date, to_date = None, None, None
         if 'user_id' in args:
@@ -49,26 +50,26 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
-            
-        query = ArticleCommentReport.query
-        if user_id is not None:
-            query = query.filter(ArticleCommentReport.user_id == user_id)
-        if comment_id is not None:
-            query = query.filter(ArticleCommentReport.comment_id == comment_id)
-        if from_date is not None:
-            query = query.filter(ArticleCommentReport.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(ArticleCommentReport.created_date <= to_date)
-        reports = query.all()
-        return send_result(data=marshal(reports, ArticleCommentReportDto.model_response), message='Success')
+        try:
+            query = ArticleCommentReport.query
+            if user_id is not None:
+                query = query.filter(ArticleCommentReport.user_id == user_id)
+            if comment_id is not None:
+                query = query.filter(ArticleCommentReport.comment_id == comment_id)
+            if from_date is not None:
+                query = query.filter(ArticleCommentReport.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(ArticleCommentReport.created_date <= to_date)
+            reports = query.all()
+            return send_result(data=marshal(reports, ArticleCommentReportDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
         
 
     def create(self, comment_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
-        
-        if 'description' not in data:
-            return send_error(messages.ERR_PLEASE_PROVIDE.format("description"))
         
         current_user = g.current_user
         data['user_id'] = current_user.id
@@ -78,7 +79,7 @@ class ReportController(Controller):
             report.created_date = datetime.utcnow()
             db.session.add(report)
             db.session.commit()
-            return send_result(data=marshal(report, ArticleCommentReportDto.model_response), message='Success')
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -86,19 +87,25 @@ class ReportController(Controller):
 
 
     def get_by_id(self, object_id):
-        query = ArticleCommentReport.query
-        report = query.filter(ArticleCommentReport.id == object_id).first()
-        if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-        
-        return send_result(data=marshal(report, ArticleCommentReportDto.model_response), message='Success')
+
+        try:
+            query = ArticleCommentReport.query
+            report = query.filter(ArticleCommentReport.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            
+            return send_result(data=marshal(report, ArticleCommentReportDto.model_response))
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def update(self, object_id, data):
+    def update(self):
         pass
 
 
-    def delete(self, object_id):
+    def delete(self):
         pass
 
 
