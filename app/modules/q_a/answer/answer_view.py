@@ -23,6 +23,11 @@ answer_request = AnswerDto.model_request
 answer_response = AnswerDto.model_response
 get_parser = AnswerDto.get_parser
 
+
+def get_article_proposal_key_prefix():
+    return '{}{}'.format('get.article.proposals', request.view_args['id'])
+
+    
 @api.route('/<int:id>/file')
 @api.doc(params={'id': 'The answer ID'})
 class AnswerFile(Resource):
@@ -56,8 +61,6 @@ class AnswerList(Resource):
         controller = AnswerController()
         return controller.create(data=data)
 
-def get_article_proposal_key_prefix():
-    return '{}{}'.format('get.article.proposals', request.view_args['id'])
 
 @api.route('/<int:id>')
 class Answer(Resource):

@@ -12,7 +12,7 @@ from flask_restx import Resource, reqparse
 from app.modules.article.article_controller import ArticleController
 from app.modules.article.article_dto import ArticleDto
 from common.cache import cache
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -23,9 +23,9 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 api = ArticleDto.api
 
 # request model
-_article_dto_request = ArticleDto.model_article_request
-_article_get_params = ArticleDto.model_get_parser
-_article_get_similar_params = ArticleDto.get_similar_articles_parser
+MODEL_ARTICLE_REQUEST = ArticleDto.model_article_request
+MODEL_GET_PARSER = ArticleDto.model_get_parser
+GET_SIMILAR_ARTICLES_PARSER = ArticleDto.get_similar_articles_parser
 
 # response model
 MODEL_ARTICLE_RESPONSE = ArticleDto.model_article_response
@@ -35,18 +35,18 @@ MODEL_ARTICLE_CREATE_UPDATE_RESPONSE = ArticleDto.model_article_create_update_re
 @api.route('')
 class ArticleList(Resource):
     @api.response(code=200, model=MODEL_ARTICLE_RESPONSE, description='Model for article response.')
-    @api.expect(_article_get_params)
+    @api.expect(MODEL_GET_PARSER)
     @cache.cached(query_string=True)
     def get(self):
         """Get all articles that satisfy conditions"""
 
-        args = _article_get_params.parse_args()
+        args = MODEL_GET_PARSER.parse_args()
         controller = ArticleController()
         return controller.get(args=args)
 
 
     @token_required
-    @api.expect(_article_dto_request)
+    @api.expect(MODEL_ARTICLE_REQUEST)
     @api.response(code=200, model=MODEL_ARTICLE_CREATE_UPDATE_RESPONSE, description='Model for article response.')
     def post(self):
         """Create new article"""
@@ -58,12 +58,12 @@ class ArticleList(Resource):
 
 @api.deprecated
 @api.route('/all/count')
-@api.expect(_article_get_params)
+@api.expect(MODEL_GET_PARSER)
 class ArticleListCount(Resource):
     def get(self):
         """Count number of articles that satisfy conditions"""
 
-        args = _article_get_params.parse_args()
+        args = MODEL_GET_PARSER.parse_args()
         controller = ArticleController()
         return controller.get_count(args=args)
 
@@ -82,7 +82,7 @@ class Article(Resource):
         return controller.get_by_id(object_id=id_or_slug)
 
     @token_required
-    @api.expect(_article_dto_request)
+    @api.expect(MODEL_ARTICLE_REQUEST)
     @api.response(code=200, model=MODEL_ARTICLE_CREATE_UPDATE_RESPONSE, description='Model for article response.')
     def patch(self, id_or_slug):
         """Update existing article by article Id or slug"""
@@ -106,21 +106,11 @@ class Article(Resource):
 
 @api.route('/similar')
 class ArticleSimilar(Resource):
-    @api.expect(_article_get_similar_params)
+    @api.expect(GET_SIMILAR_ARTICLES_PARSER)
     @api.response(code=200, model=MODEL_ARTICLE_RESPONSE, description='Model for article response.')
     def get(self):
         """ Get similar articles"""
         
-        args = _article_get_similar_params.parse_args()
+        args = GET_SIMILAR_ARTICLES_PARSER.parse_args()
         controller = ArticleController()
         return controller.get_similar(args=args)
-
-@api.deprecated
-@api.route('/update_slug')
-class UpdateArticleSlug(Resource):
-    @admin_token_required()
-    def post(self):
-        """ Update Slug for article"""
-
-        controller = ArticleController()
-        return controller.update_slug()

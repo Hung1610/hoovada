@@ -165,17 +165,6 @@ class CreateFixedTopic(Resource):
         return controller.create_fixed_topics()
 
 
-@api.deprecated
-@api.route('/update_slug', doc=False)
-class UpdateTopicSlug(Resource):
-    @admin_token_required()
-    def post(self):
-        """Update Slug for topics """
-
-        controller = TopicController()
-        return controller.update_slug()
-
-
 @api.route('/<string:topic_id_or_slug>/recommended-users')
 class TopicRecommendedUsers(Resource):
     @api.expect(TopicDto.model_recommended_users_args_parser)

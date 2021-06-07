@@ -303,20 +303,6 @@ class ArticleController(Controller):
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
 
-    def update_slug(self):
-        articles = Article.query.all()
-        try:
-            for article in articles:
-                article.slug = slugify(article.title)
-                db.session.commit()
-            return send_result()
-        
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
-
-
     def get_query(self):
         query = Article.query.join(User, isouter=True).filter(db.or_(Article.scheduled_date == None, datetime.utcnow() >= Article.scheduled_date))
         query = query.filter(db.or_(Article.user == None, User.is_deactivated != True))

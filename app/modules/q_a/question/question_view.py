@@ -34,6 +34,9 @@ MODEL_QUESTION_PROPOSAL_RESPONSE = QuestionDto.model_question_proposal_response
 MODEL_QUESTION_RESPONSE = QuestionDto.model_question_response
 MODEL_QUESTION_CREATE_UPDATE_RESPONSE = QuestionDto.model_question_create_update_response
 
+def get_question_key_prefix():
+    return '{}{}'.format('get.question', request.view_args['id_or_slug'])
+
 
 @api.route('')
 class QuestionList(Resource):
@@ -57,6 +60,7 @@ class QuestionList(Resource):
         controller = QuestionController()
         return controller.create(data=data)
 
+
 @api.route('/similar')
 class QuestionSimilar(Resource):
     @api.expect(get_similar_questions_parser)
@@ -69,10 +73,6 @@ class QuestionSimilar(Resource):
         return controller.get_similar(args=args)
 
 
-def get_question_key_prefix():
-    return '{}{}'.format('get.question', request.view_args['id_or_slug'])
-    
-    
 @api.route('/<string:id_or_slug>')
 class Question(Resource):
     @api.response(code=200, model=MODEL_QUESTION_RESPONSE, description='Model for question response.')
@@ -183,14 +183,3 @@ class QuestionApprove(Resource):
 
         controller = QuestionController()
         return controller.approve_proposal(object_id=id)
-
-
-@api.deprecated
-@api.route('/update_slug')
-class UpdateSlug(Resource):
-    @admin_token_required()
-    def post(self):
-        """ Update Slug using question Id or slug"""
-
-        controller = QuestionController()
-        controller.update_slug()

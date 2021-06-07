@@ -272,14 +272,15 @@ class QuestionController(Controller):
 
 
     def get_proposals(self, object_id, args):
-        try:
-            if object_id is None:
-                return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
 
+        try:
             if object_id.isdigit():
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
+
             if question is None:
                 return send_error(message=messages.ERR_NOT_FOUND)
             
@@ -642,7 +643,6 @@ class QuestionController(Controller):
                     print(e.__str__())
                     pass
 
-        topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
             topics = []
@@ -761,7 +761,6 @@ class QuestionController(Controller):
                     print(e.__str__())
                     pass
 
-        topic_ids = None
         if 'topics' in data:
             topic_ids = data['topics']
             topics = []
@@ -775,15 +774,3 @@ class QuestionController(Controller):
             proposal.topics = topics
 
         return proposal
-
-
-    def update_slug(self):
-        questions = Question.query.all()
-        try:
-            for question in questions:
-                question.slug = slugify(question.title)
-                db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))

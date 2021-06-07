@@ -45,14 +45,10 @@ class PollController(Controller):
         if not 'title' in data or data['title'] == '':
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('title'))
         
-        if not 'allow_multiple_user_select' in data:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('allow_multiple_user_select'))
-        
         if not 'fixed_topic_id' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('fixed_topic_id'))
 
         fixed_topic = Topic.query.filter_by(id=data['fixed_topic_id']).first()
-        
         if (fixed_topic is None) or (fixed_topic and fixed_topic.is_fixed != 1):
             return send_error(message=messages.ERR_NOT_FOUND)
         
