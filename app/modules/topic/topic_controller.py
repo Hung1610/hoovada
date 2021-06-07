@@ -44,57 +44,6 @@ class TopicController(Controller):
     query_classname = 'Topic'
     special_filtering_fields = ['hot', 'topic_ids']
     allowed_ordering_fields = ['created_date', 'updated_date']
-    
-    def create_fixed_topics(self):
-        fixed_topics = ["Những lĩnh vực khác", 
-                        "Du lịch",
-                        "Chính trị",
-                        "Tôn giáo",
-                        "Thể thao",
-                        "Ẩm thực",
-                        "Giáo dục & Việc làm",
-                        "Sức khỏe",
-                        "Văn học",
-                        "Động vật",
-                        "Ngôn ngữ",
-                        "Âm nhạc & Điện ảnh",
-                        "Nghệ thuật",
-                        "Trò chơi & Giải trí",
-                        "Nhà cửa & Xây dựng",
-                        "Tài nguyên & Môi trường",
-                        "Gia đình & Quan hệ xã hội",
-                        "Khoa học tự nhiên",
-                        "Khoa học xã hội và nhân văn",
-                        "Đầu tư kinh doanh", 
-                        "Công nghệ thông tin",
-                        "Thai nghén & Nuôi dạy con",
-                        "Luật pháp & Thủ tục", 
-                        "Xe cộ & Giao thông",
-                        "Mua sắm & Tiêu dùng",
-                        "Văn hóa trong và ngoài nước",
-                        "Điện tử & Máy móc",
-                        "Con người & Tâm sinh lý",
-                        "Hậu cần & Xuất nhập khẩu",
-                        "Lịch sử & Truyền thuyết",
-                        "Chuyện đời tư",
-                        "Lĩnh vực người lớn",
-                        "Truyền thông & Quảng cáo",
-                        "Tiếng lóng & Biệt ngữ",
-                        "hoovada.com"]
-
-        try:
-            admin_user = g.current_user
-            for topic_name in fixed_topics:
-                topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
-                if not topic:  # the topic does not exist
-                    topic = Topic(name=topic_name, is_fixed=True, user_id=admin_user.id, color_code="#675DDA")
-                    db.session.add(topic)
-                    db.session.commit()
-
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
 
     def create(self, data):
@@ -171,15 +120,6 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def get_count(self, args):
-        try:
-            count = self.get_query_results_count(args)
-            return send_result({'count': count})
-        except Exception as e:
-            print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format(e))
-
-
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
@@ -200,28 +140,6 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def get_sub_topics(self, object_id):
-        if object_id is None:
-            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
-
-        if object_id.isdigit():
-            topic = Topic.query.filter_by(id=object_id).first()
-        else:
-            topic = Topic.query.filter_by(slug=object_id).first()
-
-        if topic is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-        if topic.is_fixed:
-            id = topic.id
-            result = topic._asdict()
-            sub_topics = Topic.query.filter_by(parent_id=id).all()
-            result['sub_topics'] = sub_topics
-            return send_result(data=marshal(result, TopicDto.model_topic_response))
-        else:
-            return send_error(message=messages.ERR_NOT_FOUND)
-
-
     def update(self, object_id, data):
 
         if object_id is None:
@@ -240,8 +158,7 @@ class TopicController(Controller):
 
         if 'name' in data:
             data['name'].strip().capitalize()
-
-
+            
         try:
             topic = self._parse_topic(data=data, topic=topic)
             topic_dsl = ESTopic(_id=topic.id)
@@ -285,6 +202,89 @@ class TopicController(Controller):
             db.session.rollback()
             print(e.__str__())
             return send_error(message=messages.ERR_DELETE_FAILED.format(e))
+
+
+    def create_fixed_topics(self):
+        fixed_topics = ["Những lĩnh vực khác", 
+                        "Du lịch",
+                        "Chính trị",
+                        "Tôn giáo",
+                        "Thể thao",
+                        "Ẩm thực",
+                        "Giáo dục & Việc làm",
+                        "Sức khỏe",
+                        "Văn học",
+                        "Động vật",
+                        "Ngôn ngữ",
+                        "Âm nhạc & Điện ảnh",
+                        "Nghệ thuật",
+                        "Trò chơi & Giải trí",
+                        "Nhà cửa & Xây dựng",
+                        "Tài nguyên & Môi trường",
+                        "Gia đình & Quan hệ xã hội",
+                        "Khoa học tự nhiên",
+                        "Khoa học xã hội và nhân văn",
+                        "Đầu tư kinh doanh", 
+                        "Công nghệ thông tin",
+                        "Thai nghén & Nuôi dạy con",
+                        "Luật pháp & Thủ tục", 
+                        "Xe cộ & Giao thông",
+                        "Mua sắm & Tiêu dùng",
+                        "Văn hóa trong và ngoài nước",
+                        "Điện tử & Máy móc",
+                        "Con người & Tâm sinh lý",
+                        "Hậu cần & Xuất nhập khẩu",
+                        "Lịch sử & Truyền thuyết",
+                        "Chuyện đời tư",
+                        "Lĩnh vực người lớn",
+                        "Truyền thông & Quảng cáo",
+                        "Tiếng lóng & Biệt ngữ",
+                        "hoovada.com"]
+
+        try:
+            admin_user = g.current_user
+            for topic_name in fixed_topics:
+                topic = Topic.query.filter(Topic.name == topic_name, Topic.is_fixed == True).first()
+                if not topic:  # the topic does not exist
+                    topic = Topic(name=topic_name, is_fixed=True, user_id=admin_user.id, color_code="#675DDA")
+                    db.session.add(topic)
+                    db.session.commit()
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
+
+    def get_count(self, args):
+        try:
+            count = self.get_query_results_count(args)
+            return send_result({'count': count})
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def get_sub_topics(self, object_id):
+        if object_id is None:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+
+        if object_id.isdigit():
+            topic = Topic.query.filter_by(id=object_id).first()
+        else:
+            topic = Topic.query.filter_by(slug=object_id).first()
+
+        if topic is None:
+            return send_error(message=messages.ERR_NOT_FOUND)
+
+        if topic.is_fixed:
+            id = topic.id
+            result = topic._asdict()
+            sub_topics = Topic.query.filter_by(parent_id=id).all()
+            result['sub_topics'] = sub_topics
+            return send_result(data=marshal(result, TopicDto.model_topic_response))
+        else:
+            return send_error(message=messages.ERR_NOT_FOUND)
 
 
     def create_endorsed_users(self, object_id, data):
@@ -481,7 +481,6 @@ class TopicController(Controller):
 
 
     def get_recommended_users(self, object_id, args):
-        '''Main logic for API GET /topic/recommended-users'''
 
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
@@ -611,16 +610,3 @@ class TopicController(Controller):
                     print(e.__str__())
                     pass
         return topic
-
-
-    def update_slug(self):
-        topics = Topic.query.all()
-        try:
-            for topic in topics:
-                topic.slug = '{}'.format(slugify(topic.name))
-                db.session.commit()
-            return send_result(marshal(topics, TopicDto.model_topic_response))
-        except Exception as e:
-            db.session.rollback()
-            print(e.__str__())
-            return send_error(message=messages.ERR_CREATE_FAILED.format(e))

@@ -49,18 +49,19 @@ class VoteController(Controller):
         try:
             # add or update vote
             is_insert = True
-            old_vote_status = None
             if 'entity_type' not in data or data['entity_type'] == 'user':
                 vote = ArticleVote.query.filter(ArticleVote.user_id == data['user_id'], \
                     ArticleVote.article_id == data['article_id'], \
                     ArticleVote.entity_type == 'user').first()
+
             if 'entity_type' in data and data['entity_type'] == 'organization':
                 vote = ArticleVote.query.filter(ArticleVote.organization_id == data['organization_id'], \
                     ArticleVote.article_id == data['article_id'], \
                     ArticleVote.entity_type == 'organization').first()         
+            
             if vote:
-                old_vote_status = vote.vote_status
                 is_insert = False
+            
             vote = self._parse_vote(data=data, vote=vote)
             vote.created_date = datetime.utcnow()
             vote.updated_date = datetime.utcnow()

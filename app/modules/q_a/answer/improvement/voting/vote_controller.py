@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request, g
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -61,7 +61,8 @@ class AnswerImprovementVoteController(Controller):
             return res, code
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('AnswerImprovementVote', e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
         try:
@@ -74,12 +75,13 @@ class AnswerImprovementVoteController(Controller):
             return send_result(data=marshal(result, AnswerImprovementVoteDto.model_response))
         except Exception as e:
             print(e.__str__())
-            return send_error(message=messages.ERR_GET_FAILED.format('AnswerImprovementVote', e))
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def create(self, improvement_id, data):
         improvement = AnswerImprovement.query.filter_by(id=improvement_id).first()
         if improvement is None:
-            return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('AnswerImprovement', improvement_id))
+            return send_error(message=messages.ERR_NOT_FOUND)
 
         current_user = g.current_user
         data['user_id'] = current_user.id
@@ -88,24 +90,24 @@ class AnswerImprovementVoteController(Controller):
         try:
             # add or update vote
             is_insert = True
-            old_vote_status = None
-            vote = AnswerImprovementVote.query.filter(AnswerImprovementVote.user_id == data['user_id'], \
-                AnswerImprovementVote.improvement_id == data['improvement_id']).first()
+            vote = AnswerImprovementVote.query.filter(AnswerImprovementVote.user_id == data['user_id'], AnswerImprovementVote.improvement_id == data['improvement_id']).first()
+
             if vote:
-                old_vote_status = vote.vote_status
                 is_insert = False
+
             vote = self._parse_vote(data=data, vote=vote)
             vote.updated_date = datetime.utcnow()
             if is_insert:
                 db.session.add(vote)
             db.session.commit()
-            return send_result(data=marshal(vote, AnswerImprovementVoteDto.model_response), message='Success')
+            return send_result(data=marshal(vote, AnswerImprovementVoteDto.model_response))
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_CREATE_FAILED.format(e))
 
+
     def delete(self, improvement_id):
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         user_id = current_user.id
         try:
             vote = AnswerImprovementVote.query.filter_by(improvement_id=improvement_id, user_id=user_id).first()
@@ -114,29 +116,34 @@ class AnswerImprovementVoteController(Controller):
             else:
                 db.session.delete(vote)
                 db.session.commit()
-                return send_result(message='Answer vote deleted successfully')
+                return send_result()
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to delete answer vote')
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
-    def update(self, object_id, data):
+
+    def update(self):
         pass
+
 
     def _parse_vote(self, data, vote=None):
         if vote is None:
             vote = AnswerImprovementVote()
+
         if 'user_id' in data:
             try:
                 vote.user_id = int(data['user_id'])
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'improvement_id' in data:
              try:
                  vote.improvement_id = int(data['improvement_id'])
              except Exception as e:
                  print(e.__str__())
                  pass
+                 
         if 'vote_status' in data:
             try:
                 vote_status_value = int(data['vote_status'])
