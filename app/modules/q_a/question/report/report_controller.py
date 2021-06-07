@@ -73,6 +73,8 @@ class ReportController(Controller):
         current_user, _ = current_app.get_logged_user(request)
         data['user_id'] = current_user.id
         data['question_id'] = question_id
+        if 'report_type' in data and data['report_type'] == 'DUPLICATE' and 'duplicated_question_id' not in data:
+            return send_error(message=messages.ERR_PLEASE_PROVIDE.format('duplicated_question_id'))
         try:
             report = self._parse_report(data=data, report=None)
             report.created_date = datetime.utcnow()
@@ -117,6 +119,11 @@ class ReportController(Controller):
         if 'question_id' in data:
             try:
                 report.question_id = int(data['question_id'])
+            except Exception as e:
+                pass
+        if 'duplicated_question_id' in data:
+            try:
+                report.question_id = int(data['duplicated_question_id'])
             except Exception as e:
                 pass
 

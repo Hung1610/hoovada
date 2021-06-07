@@ -26,6 +26,7 @@ class QuestionReportDto(Dto):
         'id': fields.Integer(description=''),
         'user_id': fields.Integer(description=''),
         'question_id': fields.Integer(description=''),
+        'duplicated_question_id': fields.Integer(description=''),
         'report_type': fields.String(description='1 - General, 2 - Inappropriate, 3 - Duplicate', attribute='report_type.name'),
         'description': fields.String(description=''),
         'created_date': fields.DateTime(description=''),
@@ -34,6 +35,7 @@ class QuestionReportDto(Dto):
     get_parser = reqparse.RequestParser()
     get_parser.add_argument('user_id', type=str, required=False, help='Search reports by user_id')
     get_parser.add_argument('question_id', type=str, required=False, help='Search all reports by question_id.')
+    get_parser.add_argument('duplicated_question_id', type=str, required=False, help='Search all reports by duplicated_question_id.')
     get_parser.add_argument('from_date', type=str, required=False, help='Search all reports by start created date.')
     get_parser.add_argument('to_date', type=str, required=False, help='Search all reports by finish created date.')
 
