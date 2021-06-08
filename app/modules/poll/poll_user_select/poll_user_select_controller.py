@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # third-party modules
 from flask import current_app, request
@@ -80,7 +80,10 @@ class PollUserSelectController(Controller):
             poll_user_selects = PollUserSelect.query.filter_by(user_id=current_user.id).join(PollSelect).filter_by(poll_id=poll_select.poll.id).all()
             if len(poll_user_selects) > 0:
                 return send_error(message=messages.ERR_ISSUE.format('You are not allowed to choose multiple options'))
-
+        if poll_select.poll.expire_after_seconds is not None:
+            past = datetime.utcnow() - timedelta(seconds=poll_select.poll.expire_after_seconds)
+            if past > poll_select.poll.created_date:
+                return send_error(message=messages.ERR_ISSUE.format('Poll already expired'))
         try:
             poll_user_select = PollUserSelect.query.filter_by(user_id=current_user.id, poll_select_id=poll_select_id).first()
             if poll_user_select is None or len(poll_user_select) == 0:
