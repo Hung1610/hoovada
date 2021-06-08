@@ -73,7 +73,9 @@ class PollController(Controller):
         if poll is not None:
             return send_error(message=messages.ERR_ALREADY_EXISTS)    
 
-        poll = self._parse_poll(data=data, poll=None)     
+        poll = self._parse_poll(data=data, poll=None)
+        if 'never_expire' in data and data['never_expire'] == 1:
+            poll.expire_after_seconds = None
         try:
             poll.created_date = datetime.utcnow()
             poll.updated_date = datetime.utcnow()
@@ -179,6 +181,8 @@ class PollController(Controller):
             data['title'] = data['title'].strip().capitalize()
             
         poll = self._parse_poll(data=data, poll=poll)
+        if 'never_expire' in data and data['never_expire'] == 1:
+            poll.expire_after_seconds = None
         try:
             poll.updated_date = datetime.utcnow()
             db.session.commit()

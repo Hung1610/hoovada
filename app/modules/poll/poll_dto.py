@@ -92,6 +92,7 @@ class PollDto(Dto):
         'html': fields.String(description='The content of the poll'),
         'allow_multiple_user_select': fields.Boolean(description='Allow user to choose multiple selections'),
         'expire_after_seconds': fields.Integer(default=86400, description='The ID of the question'),
+        'never_expire': fields.Boolean(description='The poll never expires'),
         'fixed_topic_id': fields.Integer(default=86400, description='The ID of the fixed topic'),
         'poll_selects':fields.List(fields.String(description='The content of poll select'), description='The list of content of poll selects'),
         'poll_topics':fields.List(fields.Integer(required=False, description='The ID of the topic'), description='The list of id of poll topics'),
