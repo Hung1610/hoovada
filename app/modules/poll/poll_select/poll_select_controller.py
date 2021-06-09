@@ -49,11 +49,14 @@ class PollSelectController(Controller):
         try:
             if not poll_id:
                 return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll id'))
+
             poll_id = int(poll_id)
             poll_selects = PollSelect.query.filter_by(poll_id=poll_id).all()
             if poll_selects is None or len(poll_selects) == 0:
                 return send_result(message='Could not find any poll selects.')
-            return send_result(marshal(poll_selects, PollSelectDto.model_response), message='Success')
+            
+            return send_result(marshal(poll_selects, PollSelectDto.model_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format('Poll Select', e))
@@ -62,7 +65,7 @@ class PollSelectController(Controller):
         try:
             poll_select = PollSelect.query.filter_by(id=object_id).first()
             if poll_select is None:
-                return send_error(message=messages.ERR_NOT_FOUND_WITH_ID.format('Poll Select', object_id))
+                return send_error(message=messages.ERR_NOT_FOUND)
 
             current_user, _ = current_app.get_logged_user(request)
             if poll_select.user_id != current_user.id:
@@ -74,7 +77,7 @@ class PollSelectController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_DELETE_FAILED.format('Poll Select', e))
+            return send_error(message=messages.ERR_DELETE_FAILED.format(e))
 
     def create(self, data, poll_id):
         if not isinstance(data, dict):
@@ -114,6 +117,7 @@ class PollSelectController(Controller):
     def update(self, object_id, data):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
         if not 'content' in data:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('poll select content'))
 
@@ -139,4 +143,4 @@ class PollSelectController(Controller):
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
-            return send_error(message=messages.ERR_UPDATE_FAILED.format('PollSelect', str(e)))
+            return send_error(message=messages.ERR_UPDATE_FAILED.format(e))
