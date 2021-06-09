@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # built-in modules
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import current_app, request
 # third-party modules
@@ -95,7 +95,10 @@ class PollSelectController(Controller):
         
         if poll.user_id != current_user.id:
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
-
+        if poll.expire_after_seconds is not None:
+            past = datetime.utcnow() - timedelta(seconds=poll.expire_after_seconds)
+            if past > poll.created_date:
+                return send_error(message=messages.ERR_ISSUE.format('Poll already expired'))
         data['user_id'] = current_user.id
         data['poll_id'] = poll_id
         try:
