@@ -421,7 +421,7 @@ class QuestionController(Controller):
 
             question_deletion_proposal = QuestionProposal.query.filter(QuestionProposal.question_id==question.id)\
                                                                 .filter(QuestionProposal.is_parma_delete==1)\
-                                                                .filer(QuestionProposal.is_approved==0).first()
+                                                                .filter(QuestionProposal.is_approved==0).first()
             if question_deletion_proposal is not None:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
 
