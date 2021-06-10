@@ -63,3 +63,11 @@ class QuestionShareDto(Dto):
         'link_copied': fields.Boolean(description=''),
         'question': fields.Nested(model_question, description=''),
     })
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('user_id', type=str, required=False, help='Search shares by user_id')
+    parser.add_argument('from_date', type=str, required=False, help='Search all shares by start date.')
+    parser.add_argument('to_date', type=str, required=False, help='Search all shares by finish date.')
+    parser.add_argument('facebook', type=str, required=False, help='Search all shares to Facebook.')
+    parser.add_argument('twitter', type=str, required=False, help='Search all shares to Twitter.')
+    parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')

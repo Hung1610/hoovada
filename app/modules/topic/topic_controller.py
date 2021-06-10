@@ -327,7 +327,7 @@ class TopicController(Controller):
                 endorse.topic_id = topic.id
                 db.session.add(endorse)
                 db.session.commit()
-            return send_result(data=marshal(endorse.endorsed, TopicDto.model_user))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()
@@ -440,7 +440,7 @@ class TopicController(Controller):
             return send_error(message=messages.ERR_GET_FAILED.format(e))
 
 
-    def create_with_file(self, object_id):
+    def create_topic_avatar(self, object_id):
         if object_id is None:
             return send_error(messages.ERR_PLEASE_PROVIDE.format("id"))
 
@@ -472,7 +472,7 @@ class TopicController(Controller):
 
             topic.file_url = url
             db.session.commit()
-            return send_result(data=marshal(topic, TopicDto.model_topic_response))
+            return send_result()
         
         except Exception as e:
             db.session.rollback()

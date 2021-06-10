@@ -30,12 +30,11 @@ get_endorsed_users_parser = TopicDto.get_endorsed_users_parser()
 class TopicFile(Resource):
     @token_required
     @api.expect(upload_parser)
-    @api.response(code=200, model=topic_response, description='Model for answer response.')
     def post(self, topic_id_or_slug):
-        """Create media for topic by topic Id or slug"""
+        """Create avatar for topic by topic Id or slug"""
         
         controller = TopicController()
-        return controller.create_with_file(object_id=topic_id_or_slug)
+        return controller.create_topic_avatar(object_id=topic_id_or_slug)
 
 
 @api.route('')
@@ -82,6 +81,7 @@ class Topic(Resource):
         controller = TopicController()
         return controller.get_by_id(object_id=topic_id_or_slug)
 
+
     @token_required
     @api.expect(topic_request)
     @api.response(code=200, model=topic_response, description='Model for success response.')
@@ -92,10 +92,9 @@ class Topic(Resource):
         controller = TopicController()
         return controller.update(object_id=topic_id_or_slug, data=data)
 
-
     @admin_token_required()
     def delete(self, topic_id_or_slug):
-        """ Delete topic by topic Id or slug"""
+        """Delete topic by topic Id or slug"""
 
         controller = TopicController()
         return controller.delete(object_id=topic_id_or_slug)
@@ -114,7 +113,7 @@ class SubTopic(Resource):
 @api.route('/<string:topic_id_or_slug>/endorsed_users')
 class EndorseUserTopic(Resource):
     @api.expect(get_endorsed_users_parser)
-    @api.response(code=200, model=endorsed_user_dto, description='Endorsed users')
+    @api.response(code=200, model=endorsed_user_dto, description='Get Endorsed users')
     def get(self, topic_id_or_slug):
         """ Get endorsed users for topic by topic Id or slug"""
 
@@ -124,7 +123,6 @@ class EndorseUserTopic(Resource):
 
     @token_required
     @api.expect(topic_endorse_user_request)
-    @api.response(code=200, model=endorsed_user_dto, description='Endorsed users')
     def post(self, topic_id_or_slug):
         """ Create endorsed users for topic by topic Id or slug"""
 

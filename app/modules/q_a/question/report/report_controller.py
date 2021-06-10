@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -75,7 +75,7 @@ class ReportController(Controller):
         if not isinstance(data, dict):
             return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
         data['user_id'] = current_user.id
         data['question_id'] = question_id
 
@@ -135,6 +135,7 @@ class ReportController(Controller):
                 report.question_id = int(data['question_id'])
             except Exception as e:
                 pass
+                
         if 'duplicated_question_id' in data:
             try:
                 report.question_id = int(data['duplicated_question_id'])

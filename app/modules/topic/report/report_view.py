@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
-from app.modules.topic.report.report_controller import ReportController
 # own modules
-# from common.decorator import token_required
+from app.modules.topic.report.report_controller import ReportController
 from app.modules.topic.report.report_dto import TopicReportDto
-from common.utils.decorator import admin_token_required, token_required
+from common.utils.decorator import token_required
 
 __author__ = "hoovada.com team"
 __maintainer__ = "hoovada.com team"
@@ -27,9 +26,7 @@ class TopicReport(Resource):
     @api.expect(_get_parser)
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, topic_id):
-        """
-        Search all votes that satisfy conditions.
-        """
+        """Get all reports that satisfy conditions."""
 
         args = _get_parser.parse_args()
         controller = ReportController()
@@ -37,11 +34,8 @@ class TopicReport(Resource):
 
     @token_required
     @api.expect(report_request)
-    @api.response(code=200, model=report_response, description='The model for report response.')
     def post(self, topic_id):
-        """
-        Make report
-        """
+        """Create topic report"""
 
         controller = ReportController()
         data = api.payload
@@ -50,12 +44,10 @@ class TopicReport(Resource):
 
 @api.route('/all/report/<int:id>')
 class Reporting(Resource):
-    @admin_token_required()
+    @token_required
     @api.response(code=200, model=report_response, description='The model for report response.')
     def get(self, id):
-        """
-        Get report by its ID.
-        """
+        """Get report by its ID"""
 
         controller = ReportController()
         return controller.get_by_id(object_id=id)

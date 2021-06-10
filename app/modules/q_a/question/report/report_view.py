@@ -16,26 +16,25 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionReportDto.api
-report_request = QuestionReportDto.model_request
-report_response = QuestionReportDto.model_response
-_get_parser = QuestionReportDto.get_parser
+REPORT_RESPONSE = QuestionReportDto.model_response
+REPORT_REQUEST = QuestionReportDto.model_request
+GET_PARSER = QuestionReportDto.get_parser
+
 
 @api.route('/<int:question_id>/report')
 class QuestionReport(Resource):
     @token_required
-    @api.expect(_get_parser)
-    @api.response(code=200, model=report_response, description='The model for report response.')
+    @api.expect(GET_PARSER)
+    @api.response(code=200, model=REPORT_RESPONSE, description='The model for report response.')
     def get(self, question_id):
-        """
-        Search all votes that satisfy conditions.
-        """
+        """Search all votes that satisfy conditions"""
 
-        args = _get_parser.parse_args()
+        args = GET_PARSER.parse_args()
         controller = ReportController()
         return controller.get(question_id=question_id, args=args)
 
     @token_required
-    @api.expect(report_request)
+    @api.expect(REPORT_REQUEST)
     def post(self, question_id):
         """Create question report"""
 
@@ -47,11 +46,9 @@ class QuestionReport(Resource):
 @api.route('/all/report/<int:id>')
 class Reporting(Resource):
     @admin_token_required()
-    @api.response(code=200, model=report_response, description='The model for report response.')
+    @api.response(code=200, model=REPORT_RESPONSE, description='The model for report response.')
     def get(self, id):
-        """
-        Get report by its ID.
-        """
+        """Get report by its ID"""
 
         controller = ReportController()
         return controller.get_by_id(object_id=id)

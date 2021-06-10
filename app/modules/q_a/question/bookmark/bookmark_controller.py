@@ -47,8 +47,8 @@ class QuestionBookmarkController(Controller):
             db.session.add(bookmark)
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
-            return send_result( data=marshal(bookmark, QuestionBookmarkDto.model_response))
-        
+            return send_result()
+
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
@@ -77,8 +77,7 @@ class QuestionBookmarkController(Controller):
                 query = query.filter(QuestionBookmark.created_date <= dateutil.parser.isoparse(to_date))
 
             bookmarks = query.all()
-            if bookmarks is not None:
-                return send_result(data=marshal(bookmarks, QuestionBookmarkDto.model_response))
+            return send_result(data=marshal(bookmarks, QuestionBookmarkDto.model_response))
 
         except Exception as e:
             print(e.__str__())

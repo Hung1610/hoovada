@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -63,31 +63,36 @@ class ShareController(Controller):
             except Exception as e:
                 pass
 
-        query = TopicShare.query
-        if user_id is not None:
-            query = query.filter(TopicShare.user_id == user_id)
-        if topic_id is not None:
-            query = query.filter(TopicShare.topic_id == topic_id)
-        if from_date is not None:
-            query = query.filter(TopicShare.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(TopicShare.created_date <= to_date)
-        if facebook is not None:
-            query = query.filter(TopicShare.facebook == facebook)
-        if twitter is not None:
-            query = query.filter(TopicShare.twitter == twitter)
-        if zalo is not None:
-            query = query.filter(TopicShare.zalo == zalo)
-        shares = query.all()
-        if len(shares) > 0:
-            return send_result(data=marshal(shares, TopicShareDto.model_response), message='Success')
-        else:
-            return send_result('Topic shares not found.')
+        try:
+            query = TopicShare.query
+            if user_id is not None:
+                query = query.filter(TopicShare.user_id == user_id)
+            if topic_id is not None:
+                query = query.filter(TopicShare.topic_id == topic_id)
+            if from_date is not None:
+                query = query.filter(TopicShare.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(TopicShare.created_date <= to_date)
+            if facebook is not None:
+                query = query.filter(TopicShare.facebook == facebook)
+            if twitter is not None:
+                query = query.filter(TopicShare.twitter == twitter)
+            if zalo is not None:
+                query = query.filter(TopicShare.zalo == zalo)
+            shares = query.all()
+            return send_result(data=marshal(shares, TopicShareDto.model_response))
+
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def create(self, topic_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is not in the correct format')
-        current_user, _ = current_app.get_logged_user(request)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
 
         data['user_id'] = current_user.id
         data['topic_id'] = topic_id
@@ -111,24 +116,34 @@ class ShareController(Controller):
                 db.session.commit()
             except Exception as e:
                 pass
-            return send_result(data=marshal(share, TopicShareDto.model_response))
+            return send_result()
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to create topic share.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
-        query = TopicShare.query
-        report = query.filter(TopicShare.id == object_id).first()
-        if report is None:
-            return send_error(message='Topic share not found.')
-        else:
-            return send_result(data=marshal(report, TopicShareDto.model_response), message='Success')
+        try:
+            query = TopicShare.query
+            report = query.filter(TopicShare.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(report, TopicShareDto.model_response))
 
-    def update(self, object_id, data):
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def update(self):
         pass
 
-    def delete(self, object_id):
+
+    def delete(self):
         pass
+
 
     def _parse_share(self, data):
         share = TopicShare()

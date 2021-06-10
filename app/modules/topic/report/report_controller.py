@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-party modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 
 # own modules
@@ -48,27 +48,31 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+        try:
+            query = TopicReport.query
+            if user_id is not None:
+                query = query.filter(TopicReport.user_id == user_id)
+            if topic_id is not None:
+                query = query.filter(TopicReport.topic_id == topic_id)
+            if from_date is not None:
+                query = query.filter(TopicReport.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(TopicReport.created_date <= to_date)
+            reports = query.all()
+            return send_result(data=marshal(reports, TopicReportDto.model_response))
             
-        query = TopicReport.query
-        if user_id is not None:
-            query = query.filter(TopicReport.user_id == user_id)
-        if topic_id is not None:
-            query = query.filter(TopicReport.topic_id == topic_id)
-        if from_date is not None:
-            query = query.filter(TopicReport.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(TopicReport.created_date <= to_date)
-        reports = query.all()
-        if reports is not None and len(reports) > 0:
-            return send_result(data=marshal(reports, TopicReportDto.model_response), message='Success')
-        else:
-            return send_result(message='Report not found')
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def create(self, topic_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is wrong format')
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
         
-        current_user, _ = current_app.get_logged_user(request)
+        current_user = g.current_user
+
         data['user_id'] = current_user.id
         data['topic_id'] = topic_id
         try:
@@ -76,38 +80,38 @@ class ReportController(Controller):
             report.created_date = datetime.utcnow()
             db.session.add(report)
             db.session.commit()
-            return send_result(data=marshal(report, TopicReportDto.model_response), message='Success')
+            return send_result()
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to create topic report')
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
-        query = TopicReport.query
-        report = query.filter(TopicReport.id == object_id).first()
-        if report is None:
-            return send_error(message='Report not found')
-        else:
-            return send_result(data=marshal(report, TopicReportDto.model_response), message='Success')
+        try:
+            query = TopicReport.query
+            report = query.filter(TopicReport.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(report, TopicReportDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-    def update(self, object_id, data):
+
+    def update(self):
         pass
 
-    def delete(self, object_id):
+
+    def delete(self):
         pass
+
 
     def _parse_report(self, data, report=None):
-        """ Parse dictionary form data to report.
-        
-        Args:
-            data: A dictionary form data.
-            report: A report as a param.
-
-        Returns: 
-            A report.
-        """
-
         if report is None:
             report = TopicReport()
+
         if 'user_id' in data:
             try:
                 report.user_id = int(data['user_id'])
@@ -125,7 +129,12 @@ class ReportController(Controller):
             except Exception as e:
                 print(e.__str__())
                 pass
+
         if 'description' in data:
-            report.description = data['description']
+            try:
+                report.description = data['description']
+            except Exception as e:
+                print(e.__str__())
+                pass
 
         return report

@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import desc
 
@@ -32,6 +32,7 @@ User = db.get_model('User')
 
 class ShareController(Controller):
     def get(self, answer_id, args):
+
         user_id, from_date, to_date, facebook, twitter, zalo = None, None, None, None, None, None
 
         if 'user_id' in args:
@@ -67,34 +68,37 @@ class ShareController(Controller):
             except Exception as e:
                 pass
 
-        query = AnswerShare.query
-        if user_id is not None:
-            query = query.filter(AnswerShare.user_id == user_id)
-        if answer_id is not None:
-            query = query.filter(AnswerShare.answer_id == answer_id)
-        if from_date is not None:
-            query = query.filter(AnswerShare.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(AnswerShare.created_date <= to_date)
-        if facebook is not None:
-            query = query.filter(AnswerShare.facebook == facebook)
-        if twitter is not None:
-            query = query.filter(AnswerShare.twitter == twitter)
-        if zalo is not None:
-            query = query.filter(AnswerShare.zalo == zalo)
-        shares = query.all()
-        if len(shares) > 0:
-            return send_result(data=marshal(shares, AnswerShareDto.model_response), message='Success')
-        else:
-            return send_result('Answer shares not found.')
+        try:
+            query = AnswerShare.query
+            if user_id is not None:
+                query = query.filter(AnswerShare.user_id == user_id)
+            if answer_id is not None:
+                query = query.filter(AnswerShare.answer_id == answer_id)
+            if from_date is not None:
+                query = query.filter(AnswerShare.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(AnswerShare.created_date <= to_date)
+            if facebook is not None:
+                query = query.filter(AnswerShare.facebook == facebook)
+            if twitter is not None:
+                query = query.filter(AnswerShare.twitter == twitter)
+            if zalo is not None:
+                query = query.filter(AnswerShare.zalo == zalo)
+            shares = query.all()
+            return send_result(data=marshal(shares, AnswerShareDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
 
     def create(self, answer_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is not in the correct format')
-        current_user, _ = current_app.get_logged_user(request)
-        # Check is admin or has permission
-        if not (UserRole.is_admin(current_user.admin)
-                or has_permission(current_user.id, PermissionType.ANSWER_SHARE)):
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
+
+        if not (UserRole.is_admin(current_user.admin) or has_permission(current_user.id, PermissionType.ANSWER_SHARE)):
             return send_error(code=401, message=messages.ERR_NOT_AUTHORIZED)
 
         data['user_id'] = current_user.id
@@ -119,23 +123,30 @@ class ShareController(Controller):
                 db.session.commit()
             except Exception as e:
                 pass
-            return send_result(data=marshal(share, AnswerShareDto.model_response))
+            return send_result()
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to create answer share.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
-        query = AnswerShare.query
-        report = query.filter(AnswerShare.id == object_id).first()
-        if report is None:
-            return send_error(message='Answer share not found.')
-        else:
-            return send_result(data=marshal(report, AnswerShareDto.model_response), message='Success')
+        try:
+            query = AnswerShare.query
+            report = query.filter(AnswerShare.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(report, AnswerShareDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-    def update(self, object_id, data):
+
+    def update(self):
         pass
 
-    def delete(self, object_id):
+    def delete(self):
         pass
 
     def _parse_share(self, data):

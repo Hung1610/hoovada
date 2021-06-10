@@ -15,37 +15,24 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 api = QuestionShareDto.api
-share_request = QuestionShareDto.model_request
-share_response = QuestionShareDto.model_response
-
-
-parser = reqparse.RequestParser()
-parser.add_argument('user_id', type=str, required=False, help='Search shares by user_id')
-parser.add_argument('from_date', type=str, required=False, help='Search all shares by start date.')
-parser.add_argument('to_date', type=str, required=False, help='Search all shares by finish date.')
-parser.add_argument('facebook', type=str, required=False, help='Search all shares to Facebook.')
-parser.add_argument('twitter', type=str, required=False, help='Search all shares to Twitter.')
-parser.add_argument('zalo', type=str, required=False, help='Search all shares to Zalo.')
-
+SHARE_REQUEST = QuestionShareDto.model_request
+SHARE_RESPONSE = QuestionShareDto.model_response
+PARSER = QuestionShareDto.parser
 
 @api.route('/<int:question_id>/share')
 class ShareList(Resource):
-    @api.expect(parser)
+    @api.expect(PARSER)
+    @api.response(code=200, model=SHARE_RESPONSE, description='The model for share response.')
     def get(self, question_id):
-        """
-        Search all shares that satisfy conditions.
-        """
+        """Search all shares that satisfy conditions"""
 
-        args = parser.parse_args()
+        args = PARSER.parse_args()
         controller = ShareController()
         return controller.get(args=args, question_id=question_id)
         
-    @api.expect(share_request)
-    @api.response(code=200, model=share_response, description='The model for share response.')
+    @api.expect(SHARE_REQUEST)
     def post(self, question_id):
-        """
-        Create new share.
-        """
+        """Create new share using question_id"""
 
         data = api.payload
         controller = ShareController()
@@ -54,32 +41,9 @@ class ShareList(Resource):
 
 @api.route('/all/share/<int:id>')
 class Share(Resource):
-    @api.response(code=200, model=share_response, description='The model for share response.')
+    @api.response(code=200, model=SHARE_RESPONSE, description='The model for share response.')
     def get(self, id):
-        """
-        Get share by its ID.
-        """
+        """Get share by its ID"""
 
         controller = ShareController()
         return controller.get_by_id(object_id=id)
-
-    @token_required
-    @api.expect(share_request)
-    @api.response(code=200, model=share_response, description='The model for share response.')
-    def patch(self, id):
-        """
-        Update existing share by its ID.
-        """
-
-        data = api.payload
-        controller = ShareController()
-        return controller.update(object_id=id, data=data)
-
-    @token_required
-    def delete(self, id):
-        """
-        Delete share by its ID.
-        """
-        
-        controller = ShareController()
-        return controller.delete(object_id=id)

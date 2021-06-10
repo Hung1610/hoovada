@@ -30,21 +30,17 @@ parser.add_argument('zalo', type=str, required=False, help='Search all shares to
 @api.route('/<int:topic_id>/share')
 class ShareList(Resource):
     @api.expect(parser)
+    @api.response(code=200, model=share_response, description='The model for share response.')
     def get(self, topic_id):
-        """
-        Search all shares that satisfy conditions.
-        """
+        """Search all shares that satisfy conditions"""
 
         args = parser.parse_args()
         controller = ShareController()
         return controller.get(args=args, topic_id=topic_id)
         
     @api.expect(share_request)
-    @api.response(code=200, model=share_response, description='The model for share response.')
     def post(self, topic_id):
-        """
-        Create new share.
-        """
+        """Create new share"""
 
         data = api.payload
         controller = ShareController()
@@ -55,30 +51,7 @@ class ShareList(Resource):
 class Share(Resource):
     @api.response(code=200, model=share_response, description='The model for share response.')
     def get(self, id):
-        """
-        Get share by its ID.
-        """
+        """Get share by its ID"""
 
         controller = ShareController()
         return controller.get_by_id(object_id=id)
-
-    @token_required
-    @api.expect(share_request)
-    @api.response(code=200, model=share_response, description='The model for share response.')
-    def patch(self, id):
-        """
-        Update existing share by its ID.
-        """
-
-        data = api.payload
-        controller = ShareController()
-        return controller.update(object_id=id, data=data)
-
-    @token_required
-    def delete(self, id):
-        """
-        Delete share by its ID.
-        """
-        
-        controller = ShareController()
-        return controller.delete(object_id=id)

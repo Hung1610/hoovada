@@ -6,7 +6,7 @@ from datetime import datetime
 
 # third-part modules
 import dateutil.parser
-from flask import current_app, request
+from flask import g
 from flask_restx import marshal
 from sqlalchemy import desc
 
@@ -60,32 +60,35 @@ class ShareController(Controller):
                 zalo = bool(args['zalo'])
             except Exception as e:
                 pass
+        try:
+            query = QuestionShare.query
+            if user_id is not None:
+                query = query.filter(QuestionShare.user_id == user_id)
+            if question_id is not None:
+                query = query.filter(QuestionShare.question_id == question_id)
+            if from_date is not None:
+                query = query.filter(QuestionShare.created_date >= from_date)
+            if to_date is not None:
+                query = query.filter(QuestionShare.created_date <= to_date)
+            if facebook is not None:
+                query = query.filter(QuestionShare.facebook == facebook)
+            if twitter is not None:
+                query = query.filter(QuestionShare.twitter == twitter)
+            if zalo is not None:
+                query = query.filter(QuestionShare.zalo == zalo)
+            shares = query.all()
+            return send_result(data=marshal(shares, QuestionShareDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
 
-        query = QuestionShare.query
-        if user_id is not None:
-            query = query.filter(QuestionShare.user_id == user_id)
-        if question_id is not None:
-            query = query.filter(QuestionShare.question_id == question_id)
-        if from_date is not None:
-            query = query.filter(QuestionShare.created_date >= from_date)
-        if to_date is not None:
-            query = query.filter(QuestionShare.created_date <= to_date)
-        if facebook is not None:
-            query = query.filter(QuestionShare.facebook == facebook)
-        if twitter is not None:
-            query = query.filter(QuestionShare.twitter == twitter)
-        if zalo is not None:
-            query = query.filter(QuestionShare.zalo == zalo)
-        shares = query.all()
-        if len(shares) > 0:
-            return send_result(data=marshal(shares, QuestionShareDto.model_response), message='Success')
-        else:
-            return send_result('Question shares not found.')
 
     def create(self, question_id, data):
         if not isinstance(data, dict):
-            return send_error(message='Data is not in the correct format')
-        current_user, _ = current_app.get_logged_user(request)
+            return send_error(message=messages.ERR_WRONG_DATA_FORMAT)
+
+        current_user = g.current_user
 
         data['user_id'] = current_user.id
         data['question_id'] = question_id
@@ -96,38 +99,46 @@ class ShareController(Controller):
             db.session.commit()
             cache.clear_cache(Question.__class__.__name__)
             # update other values
-            try:
-                question = Question.query.filter_by(id=share.question_id).first()
-                if not question:
-                    return send_error(message='Question not found.')
-                user_voted = User.query.filter_by(id=question.user_id).first()
-                if not user_voted:
-                    return send_error(message='User not found.')
-                user_voted.question_shared_count += 1
-                if current_user:
-                    share.user_id = current_user.id
-                    current_user.question_share_count += 1
-                db.session.commit()
-            except Exception as e:
-                pass
-            return send_result(data=marshal(share, QuestionShareDto.model_response))
+
+            question = Question.query.filter_by(id=share.question_id).first()
+            if not question:
+                return send_error(message='Question not found.')
+            user_voted = User.query.filter_by(id=question.user_id).first()
+            if not user_voted:
+                return send_error(message='User not found.')
+            user_voted.question_shared_count += 1
+            if current_user:
+                share.user_id = current_user.id
+                current_user.question_share_count += 1
+            db.session.commit()
+
+            return send_result()
         except Exception as e:
             print(e.__str__())
-            return send_error(message='Failed to create question share.')
+            return send_error(message=messages.ERR_CREATE_FAILED.format(e))
+
 
     def get_by_id(self, object_id):
-        query = QuestionShare.query
-        report = query.filter(QuestionShare.id == object_id).first()
-        if report is None:
-            return send_error(message='Question share not found.')
-        else:
-            return send_result(data=marshal(report, QuestionShareDto.model_response), message='Success')
 
-    def update(self, object_id, data):
+        try:
+            query = QuestionShare.query
+            report = query.filter(QuestionShare.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            return send_result(data=marshal(report, QuestionShareDto.model_response))
+        except Exception as e:
+            db.session.rollback()
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))
+
+
+    def update(self):
         pass
 
-    def delete(self, object_id):
+
+    def delete(self):
         pass
+
 
     def _parse_share(self, data):
         share = QuestionShare()

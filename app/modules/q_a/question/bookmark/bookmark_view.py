@@ -16,43 +16,44 @@ __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
 api = QuestionBookmarkDto.api
-_bookmark_request = QuestionBookmarkDto.model_request
-_bookmark_response = QuestionBookmarkDto.model_response
-_bookmark_get_params = QuestionBookmarkDto.model_get_parser
+MODEL_RESPONSE = QuestionBookmarkDto.model_response
+MODEL_GET_PARSER = QuestionBookmarkDto.model_get_parser
 
 
 @api.route('/all/bookmark')
 class BookmarkQuestionAll(Resource):
-    @api.expect(_bookmark_get_params)
+    @api.expect(MODEL_GET_PARSER)
+    @api.response(code=200, model=MODEL_RESPONSE, description='The model for bookmark.')
     def get(self):
         """Get all bookmark that satisfy conditions"""
-        args = _bookmark_get_params.parse_args()
+
+        args = MODEL_GET_PARSER.parse_args()
         controller = QuestionBookmarkController()
         return controller.get(args=args)
 
 
 @api.route('/<int:question_id>/bookmark')
 class BookmarkQuestion(Resource):
-    @api.expect(_bookmark_get_params)
+    @api.expect(MODEL_GET_PARSER)
+    @api.response(code=200, model=MODEL_RESPONSE, description='The model for bookmark.')
     def get(self, question_id):
         """Get all bookmark of a particular question"""
 
-        args = _bookmark_get_params.parse_args()
+        args = MODEL_GET_PARSER .parse_args()
         args['question_id'] = question_id
         controller = QuestionBookmarkController()
         return controller.get(args=args)
 
     @token_required
-    @api.response(code=200, model=_bookmark_response, description='The model for bookmark.')
     def post(self, question_id):
-        """Create a bookmark on current user"""
+        """Create a bookmark on current user using quesion_id"""
 
         controller = QuestionBookmarkController()
         return controller.create(object_id=question_id)
 
     @token_required
     def delete(self, question_id):
-        """Delete bookmark on current user"""
+        """Delete bookmark on current user using quesion_id"""
         
         controller = QuestionBookmarkController()
         return controller.delete(object_id=question_id)

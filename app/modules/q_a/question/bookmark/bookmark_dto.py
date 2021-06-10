@@ -28,9 +28,6 @@ class QuestionBookmarkDto(Dto):
         'topics': fields.List(fields.Nested(model_topic_question_bookmark), description='The list of topics')
     })
 
-    model_request = api.model('bookmark_question_request', {
-    })
-
     model_response = api.model('bookmark_question_response', {
         'id': fields.Integer(required=False, readonly=True, description='The ID of the record'),
         'user_id': fields.Integer(required=True, description='The user ID who bookmarked'),
