@@ -412,7 +412,6 @@ class QuestionController(Controller):
                 question = Question.query.filter_by(id=object_id).first()
             else:
                 question = Question.query.filter_by(slug=object_id).first()
-            
             if question is None or question.is_deleted is True:
                 return send_error(message=messages.ERR_NOT_FOUND)
 
@@ -421,7 +420,6 @@ class QuestionController(Controller):
                                                                 .filter(QuestionProposal.is_approved==0).first()
             if question_deletion_proposal is not None:
                 return send_error(message="Question deletion proposal ID {} has been sent and is pending!".format(object_id))
-
             proposal_data = question._asdict()
             proposal_data['is_parma_delete'] = True
             proposal_data['question_id'] = question.id
@@ -673,7 +671,7 @@ class QuestionController(Controller):
         if proposal is None:
             proposal = QuestionProposal()
 
-        if 'question_id ' in data:
+        if 'question_id' in data:
             try:
                 proposal.question_id = data['question_id']
             except Exception as e:

@@ -40,6 +40,7 @@ class ReputationDto(Dto):
         'middle_name': fields.String(required=False),
         'last_name': fields.String(required=False),
         'reputation': fields.Nested(model_response, description='The reputation information'),
+        'answered_question_count': fields.Integer(required=True, description='Answered question count')
     })
 
     model_user_reputation_request_parser = reqparse.RequestParser()
