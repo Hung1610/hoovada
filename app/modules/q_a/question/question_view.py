@@ -126,7 +126,7 @@ class QuestionDeclineInvite(Resource):
         controller = QuestionController()
         return controller.decline_invited_question(object_id=id_or_slug)
 
-
+@api.deprecated
 @api.route('/<string:id_or_slug>/friend-invite')
 class QuestionFriendInvite(Resource):
     @token_required
