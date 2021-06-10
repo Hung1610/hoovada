@@ -89,7 +89,7 @@ class TopicBookmarkController(Controller):
 
     def create_multiple_topics_bookmarks(self, args):
         
-        if topic_ids in args:
+        if "topic_ids" in args:
             for topic_id in args['topic_ids']:
                 try:
                     self.create(topic_id)
