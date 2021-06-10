@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.q_a.question.comment.comment_controller import CommentController
@@ -19,9 +19,7 @@ __email__ = "admin@hoovada.com"
 __copyright__ = "Copyright (c) 2020 - 2020 hoovada.com . All Rights Reserved."
 
 
-parser = reqparse.RequestParser()
-parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
-
+parser = CommentDto.parser
 
 @api.route('/<int:question_id>/comment')
 class CommentList(Resource):
@@ -35,7 +33,6 @@ class CommentList(Resource):
 
     @token_required
     @api.expect(comment_request)
-    @api.response(code=200, model=comment_response, description='Model for comment response.')
     def post(self, question_id):
         """Create new comment"""
         data = api.payload
@@ -45,7 +42,6 @@ class CommentList(Resource):
 
 @api.route('/all/comment/<int:id>')
 class Comment(Resource):
-    # @api.marshal_with(comment)
     @api.response(code=200, model=comment_response, description='Model for comment response.')
     def get(self, id):
         """Get comment by its comment ID."""
@@ -55,8 +51,6 @@ class Comment(Resource):
 
     @token_required
     @api.expect(comment_request)
-    # @api.marshal_with(comment)
-    @api.response(code=200, model=comment_response, description='Model for comment response.')
     def patch(self, id):
         """Update existing comment by its ID."""
 

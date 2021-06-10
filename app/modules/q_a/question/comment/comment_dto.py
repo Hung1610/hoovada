@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, fields, reqparse
 
 # own modules
 from common.dto import Dto
@@ -39,3 +39,7 @@ class CommentDto(Dto):
         'updated_date': fields.DateTime(description='The date comment was updated'),
         'created_date': fields.DateTime(required=True, description='The date comment was created')
     })
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('question_id', type=str, required=False, help='Search all comments by question_id.')
+

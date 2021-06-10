@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # third-party modules
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 
 # own modules
 from app.modules.q_a.question.bookmark.bookmark_controller import QuestionBookmarkController

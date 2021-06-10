@@ -109,7 +109,7 @@ class CommentController(BaseCommentController):
 
             result = comment._asdict()
             result['user'] = comment.user
-            return send_result( data=marshal(result, CommentDto.model_response))
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -162,8 +162,7 @@ class CommentController(BaseCommentController):
             result = comment._asdict()
             result['user'] = comment.user
             
-            return send_result(data=marshal(result, CommentDto.model_response))
-        
+            return send_result()
         except Exception as e:
             db.session.rollback()
             print(e.__str__())
