@@ -61,7 +61,7 @@ class ShareController(Controller):
             except Exception as e:
                 pass
 
-            return send_result(data=marshal(share, ShareDto.model_response))
+            return send_result()
             
         except Exception as e:
             db.session.rollback()
@@ -126,10 +126,8 @@ class ShareController(Controller):
             if zalo is not None:
                 query = query.filter(ArticleShare.zalo == zalo)
             shares = query.all()
-            if len(shares) > 0:
-                return send_result(data=marshal(shares, ShareDto.model_response))
-            else:
-                return send_result(messages.ERR_NOT_FOUND)
+            return send_result(data=marshal(shares, ShareDto.model_response))
+
         except Exception as e:
             print(e.__str__())
             return send_error(message=messages.ERR_GET_FAILED.format(e))       
@@ -138,20 +136,25 @@ class ShareController(Controller):
     def get_by_id(self, object_id):
         if object_id is None:
             return send_error(message=messages.ERR_PLEASE_PROVIDE.format('id'))
+        try:
+            query = ArticleShare.query
+            report = query.filter(ArticleShare.id == object_id).first()
+            if report is None:
+                return send_error(message=messages.ERR_NOT_FOUND)
+            else:
+                return send_result(data=marshal(report, ShareDto.model_response))
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))   
 
-        query = ArticleShare.query
-        report = query.filter(ArticleShare.id == object_id).first()
-        if report is None:
-            return send_error(message=messages.ERR_NOT_FOUND)
-        else:
-            return send_result(data=marshal(report, ShareDto.model_response))
 
-
-    def update(self, object_id, data):
+    def update(self):
         pass
 
-    def delete(self, object_id):
+
+    def delete(self):
         pass
+
 
     def _parse_share(self, data):
         share = ArticleShare()
@@ -227,24 +230,24 @@ class ShareController(Controller):
 
     def get_share_by_user_id(self,args):
 
+        try:
+            query = ArticleShare.query
+            if not isinstance(args, dict):
+                return send_error(message='Could not parse the params.')
 
-        query = ArticleShare.query
-        if not isinstance(args, dict):
-            return send_error(message='Could not parse the params.')
-        user_id = None 
-        if 'user_id' in args:
-            try:
-                user_id = int(args['user_id'])
-            except Exception as e:
-                print(e.__str__())
-                pass
-        if user_id is None :
-            return send_error(message='Provide params to search.')
+            user_id = None 
+            if 'user_id' in args:
+                try:
+                    user_id = int(args['user_id'])
+                except Exception as e:
+                    print(e.__str__())
+                    pass
+            if user_id is None :
+                return send_error(message='Provide params to search.')
 
-        query = query.filter(ArticleShare.user_id == user_id)
+            query = query.filter(ArticleShare.user_id == user_id)
 
-        shares = query.order_by(desc(ArticleShare.created_date)).all()
-        if shares is not None and len(shares) > 0:
+            shares = query.order_by(desc(ArticleShare.created_date)).all()
             results = list()
             for share in shares:
                 result = ArticleShare._asdict()
@@ -255,5 +258,7 @@ class ShareController(Controller):
 
                 results.append(result)
             return send_result(data=marshal(results, ShareDto.model_response))
-        else:
-            return send_result(message=messages.ERR_NOT_FOUND)
+
+        except Exception as e:
+            print(e.__str__())
+            return send_error(message=messages.ERR_GET_FAILED.format(e))

@@ -64,7 +64,7 @@ class ShareController(Controller):
                 pass
 
             db.session.commit() 
-            return send_result(data=marshal(share, ShareDto.model_response))
+            return send_result()
 
         except Exception as e:
             db.session.rollback()
@@ -153,6 +153,7 @@ class ShareController(Controller):
 
     def update(self):
         pass
+
 
     def delete(self):
         pass
